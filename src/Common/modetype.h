@@ -1,0 +1,9 @@
+#ifndef DOLORI_COMMON_MODETYPE_H_
+#define DOLORI_COMMON_MODETYPE_H_
+
+typedef enum MODETYPE {
+	MT_LOGIN = 0x0,
+	MT_GAME = 0x1,
+} MODETYPE;
+
+#endif // DOLORI_COMMON_MODETYPE_H_
