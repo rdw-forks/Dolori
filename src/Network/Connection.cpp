@@ -2,6 +2,8 @@
 #ifdef WIN32
 #include <WinSock2.h>
 #else
+#include <sys/socket.h>  // For socket(), connect(), send(), and recv()
+#include <unistd.h>      // For close()
 #endif
 #include "../Common/GetTick.h"
 
@@ -81,7 +83,11 @@ bool CConnection::Connect(const ServerAddress *sa) {
 
 void CConnection::Disconnect() {
   if (m_socket != -1) {
+#ifdef WIN32
     closesocket(m_socket);
+#else
+    close(m_socket);
+#endif
     m_socket = -1;
     m_sendQueue.Init(40960);
     m_blockQueue.Init(40960);
@@ -107,8 +113,11 @@ bool CConnection::OnSend() {
         sent_bytes =
             send(m_socket, m_sendQueue.GetDataPtr(), m_sendQueue.GetSize(), 0);
         if (sent_bytes == -1) {
+#ifdef WIN32
           err = WSAGetLastError();
           if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
+#else
+#endif
             if (m_socket != INVALID_SOCKET) {
               closesocket(m_socket);
               m_socket = INVALID_SOCKET;
@@ -149,8 +158,11 @@ bool CConnection::OnRecv() {
     }
     goto LABEL_6;
   }
+#ifdef WIN32
   err = WSAGetLastError();
   if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) return true;
+#else
+#endif
 LABEL_6:
   if (m_socket != INVALID_SOCKET) {
     closesocket(m_socket);

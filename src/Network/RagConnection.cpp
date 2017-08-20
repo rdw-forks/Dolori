@@ -12,7 +12,7 @@ CRagConnection::~CRagConnection() {}
 
 bool CRagConnection::SendPacket(int len, char *lpPacket) {
   if (!m_bDrop) {
-    //*(WORD *)lpPacket ^= (WORD)PacketCipher->ChangeState(CPacketCipher::CLOCK);
+    //*(unsigned short *)lpPacket ^= (unsigned short)PacketCipher->ChangeState(CPacketCipher::CLOCK);
     if (m_socket != SOCKET_ERROR) {
       if (m_bBlock) {
         m_blockQueue.InsertData(len, lpPacket);
@@ -28,8 +28,8 @@ bool CRagConnection::SendPacket(int len, char *lpPacket) {
 
 bool CRagConnection::RecvPacket(char *lpBuffer, int *len) {
   int nbOfReadBytes;
-  DWORD headerWithSize;
-  WORD header;
+  unsigned int headerWithSize;
+  unsigned short header;
 
   if (!m_recvQueue.PeekData(sizeof(header), (char *)&header))
     return false;

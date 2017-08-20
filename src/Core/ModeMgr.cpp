@@ -23,11 +23,12 @@ void CModeMgr::Run(int mode_type, const char* world_name) {
     else if (m_curModeType == MT_GAME)
       m_curMode = new CGameMode();
 
+    m_curMode->OnInit(m_curModeName);
+    m_curMode->OnRun();
+    m_curMode->OnExit();
     if (m_curMode) {
-      m_curMode->OnInit(m_curModeName);
-      m_curMode->OnRun();
-      m_curMode->OnExit();
       delete m_curMode;
+      m_curMode = NULL;
     }
   }
 }

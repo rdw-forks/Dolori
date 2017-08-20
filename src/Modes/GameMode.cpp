@@ -1,7 +1,7 @@
 #include "GameMode.h"
+#include "../Common/GetTick.h"
 #include "../Common/Globals.h"
 #include "../Common/talktype.h"
-#include "../Common/GetTick.h"
 
 CGameMode::CGameMode() {}
 
@@ -24,11 +24,11 @@ void CGameMode::Intialize() {
   m_waitingUseItemAck = 0;
   m_waitingItemThrowAck = 0;
   m_waitingReqStatusAck = 0;
-  //m_dragInfo.m_dragType = 0;
-  //m_dragInfo.m_dragItemIndex = 0;
-  //m_dragInfo.m_numDragItem = 0;
-  //m_dragInfo.m_slotNum = -1;
-  //m_dragInfo.m_isIdentified = 0;
+  // m_dragInfo.m_dragType = 0;
+  // m_dragInfo.m_dragItemIndex = 0;
+  // m_dragInfo.m_numDragItem = 0;
+  // m_dragInfo.m_slotNum = -1;
+  // m_dragInfo.m_isIdentified = 0;
   m_lastNaid = 0;
   m_menuTargetAID = 0;
   m_lastPcGid = 0;
@@ -47,12 +47,17 @@ void CGameMode::Intialize() {
   m_numNotifyTime = 0;
 }
 
-void CGameMode::OnInit(const char *) {
+void CGameMode::OnInit(const char *mode_name) {
   m_posOfBossMon.x = -1;
   m_posOfBossMon.y = -1;
   m_isBossAlarm = 0;
   m_onCopyName = 0;
-
+  strncpy(m_rswName, mode_name, sizeof(m_rswName));
+  g_Renderer->Clear(true);
+  g_WindowMgr->SetWallpaper(NULL);
+  g_WindowMgr->RenderWallPaper();
+  if (g_Renderer->DrawScene()) g_Renderer->Flip();
+  m_isCheckGndAlpha = 0;
   Intialize();
   auto name_list = g_Session->GetNumExNameList();
   if (!name_list.empty()) {
@@ -79,7 +84,7 @@ int CGameMode::OnRun() {
         m_subMode = m_nextSubMode;
         m_subModeCnt = 0;
         m_nextSubMode = -1;
-        OnChangeState(m_nextSubMode);
+        OnChangeState(m_subMode);
       }
     }
     OnUpdate();
@@ -93,6 +98,9 @@ void CGameMode::OnExit() {}
 void CGameMode::OnUpdate() {
   // m_scheduler->OnRun()
   // ProcessDamageSituation()
+
+  g_Renderer->ClearBackground();
+  if (g_Renderer->DrawScene()) g_Renderer->Flip();
 }
 
 void CGameMode::OnChangeState(int state) {}

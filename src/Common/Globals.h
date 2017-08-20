@@ -3,18 +3,30 @@
 
 #include <vector>
 #include "../Common/character_info.h"
+#include "../Core/FileMgr.h"
 #include "../Core/ModeMgr.h"
 #include "../Core/Session.h"
 #include "../Network/RagConnection.h"
+#include "../Render/3dDevice.h"
+#include "../Render/Renderer.h"
+#include "../Render/TexMgr.h"
+#include "../UI/UIWindowMgr.h"
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;
 extern CRagConnection* g_RagConnection;
+extern C3dDevice* g_3dDevice;
+extern CRenderer* g_Renderer;
+extern CFileMgr* g_FileMgr;
+extern CTexMgr* g_TexMgr;
+extern CUIWindowMgr* g_WindowMgr;
 
+extern char* TITLE_FILE;
 extern unsigned short g_serviceType;
 extern unsigned int g_version;
 extern char g_clientType;
 extern bool g_passwordEncrypt;
+extern bool g_readFolderFirst;
 extern bool g_isGravityID;
 extern unsigned short g_loginStartMode;
 extern char* g_accountAddr;

@@ -3,7 +3,11 @@
 
 #include "PacketQueue.h"
 
+#ifdef WIN32
 #include <WinSock2.h>
+#else
+#include <netinet/in.h> 
+#endif
 
 struct ServerAddress {
   char ip[0x10];
@@ -11,7 +15,7 @@ struct ServerAddress {
 };
 
 class CConnection {
-public:
+ public:
   CConnection();
   virtual ~CConnection();
 
@@ -23,11 +27,11 @@ public:
   int Recv(char *, int, char);
   void SetBlock(bool bBlock);
 
-protected:
+ protected:
   bool OnSend();
   bool OnRecv();
 
-protected:
+ protected:
   SOCKET m_socket;
   struct sockaddr_in m_addr;
   bool m_bBlock;
@@ -80,4 +84,4 @@ protected:
 //		public void * __vecDelDtor(unsigned int)
 //}
 
-#endif // DOLORI_NETWORK_CONNECTION_H_
+#endif  // DOLORI_NETWORK_CONNECTION_H_

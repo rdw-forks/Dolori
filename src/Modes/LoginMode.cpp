@@ -13,7 +13,8 @@ void CLoginMode::OnInit(const char *mode_name) {
   m_charParam[6] = 0;
   m_charParam[7] = 1;
   m_makingCharName[0] = 0;
-  m_emaiAddress[0] = 0;
+  m_emailAddress[0] = 0;
+  m_wallPaperBmpName = TITLE_FILE;
   m_loopCond = true;
   m_nextSubMode = -1;
   // InitNPKCryptFuncTbl();
@@ -21,6 +22,7 @@ void CLoginMode::OnInit(const char *mode_name) {
   m_subModeCnt = 0;
   OnChangeState(g_loginStartMode);
   g_loginStartMode = 3;
+  // g_isStopByLogin = 1;
   // g_Session->InitWithClear();
   // g_guildInfo->Init();
   // g_Session->PreLoadAlwaysNeededRes();
@@ -65,15 +67,28 @@ void CLoginMode::OnUpdate() {
     packet_size = g_RagConnection->GetPacketSize(HEADER_PING);
     g_RagConnection->SendPacket(packet_size, (char *)&packet);
   }
+  g_Renderer->Clear(true);
+  g_WindowMgr->RenderWallPaper();
+  // g_Renderer->DrawBoxScreen(100, 100, 300, 300, 0xFFFF0000);
+  if (g_Renderer->DrawScene()) g_Renderer->Flip();
 }
 
 void CLoginMode::OnChangeState(int state) {
-  m_subModeStartTime = 0;
+  m_subModeStartTime = GetTick();
   m_isConnected = 1;
 
   switch (state) {
-    case 0:
-      break;
+    case 0: {
+      m_wallPaperBmpName =
+          "texture\\유저인터페이스\\login_interface\\warning.bmp";
+      // v6 = UIBmp(v5); -> Skin related stuff, can ignore for now
+      // bitmap = (CBitmapRes *)g_ResMgr->::Get(m_wallPaperBmpName.c_str(), 0);
+      CBitmapRes *bitmap = new CBitmapRes();
+      bitmap->Load(m_wallPaperBmpName.c_str());
+      g_WindowMgr->SetWallpaper(bitmap);
+      // wnd = g_windowMgr->MakeWindow(WID_NOTICECONFIRMWND);
+      // wnd->SendMsg(0, 80, 10018, 0, 0, 0);
+    } break;
     case 1:
       break;
     case 2:

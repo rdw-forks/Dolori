@@ -11,9 +11,9 @@ class CMode {
   bool GetLoopCond();
   void SetLoopCond(bool);
 
-  void OnInit(const char *);
-  int OnRun();
-  void OnExit();
+  virtual void OnInit(const char *);
+  virtual int OnRun();
+  virtual void OnExit();
 
  protected:
   int m_subMode;

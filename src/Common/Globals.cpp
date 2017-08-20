@@ -1,15 +1,21 @@
 #include "Globals.h"
 #include "service_type.h"
 
-CModeMgr* g_ModeMgr;
-CSession* g_Session;
-CRagConnection* g_RagConnection;
+CRagConnection* g_RagConnection = new CRagConnection();
+CUIWindowMgr* g_WindowMgr = new CUIWindowMgr();
+C3dDevice* g_3dDevice = new C3dDevice();
+CModeMgr* g_ModeMgr = new CModeMgr();
+CSession* g_Session = new CSession();
+CFileMgr* g_FileMgr = new CFileMgr();
+CTexMgr* g_TexMgr = new CTexMgr();
+CRenderer* g_Renderer;
 
-unsigned short g_serviceType = ServiceKorea;
+char* TITLE_FILE;
+unsigned short g_serviceType = ServiceAmerica;
 unsigned int g_version = 3;
 char g_clientType = 22;
-
 bool g_passwordEncrypt;
+bool g_readFolderFirst = true;
 bool g_isGravityID;
 unsigned short g_loginStartMode;
 char* g_accountAddr;
