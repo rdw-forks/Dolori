@@ -35,7 +35,7 @@ class CMemMapFile : public CMemFile {
   unsigned long m_dwOpenSize;
   unsigned long m_dwFileMappingSize;
   unsigned long m_dwAllocationGranuarity;
-  const unsigned char *m_pFile;
+  unsigned char *m_pFile;
   std::vector<unsigned char> m_pFileBuf;
 };
 

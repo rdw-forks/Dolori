@@ -10,7 +10,7 @@ CFileMgr* g_FileMgr = new CFileMgr();
 CTexMgr* g_TexMgr = new CTexMgr();
 CRenderer* g_Renderer;
 
-char* TITLE_FILE;
+char TITLE_FILE[256];
 unsigned short g_serviceType = ServiceAmerica;
 unsigned int g_version = 3;
 char g_clientType = 22;

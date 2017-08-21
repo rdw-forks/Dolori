@@ -4,6 +4,10 @@
 #include "../Common/service_type.h"
 #include "../Network/Packets.h"
 
+#ifndef WIN32
+#include <arpa/inet.h>
+#endif
+
 CLoginMode::CLoginMode() {}
 
 CLoginMode::~CLoginMode() {}
@@ -80,7 +84,7 @@ void CLoginMode::OnChangeState(int state) {
   switch (state) {
     case 0: {
       m_wallPaperBmpName =
-          "texture\\À¯ÀúÀÎÅÍÆäÀÌ½º\\login_interface\\warning.bmp";
+          "texture\\ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½\\login_interface\\warning.bmp";
       // v6 = UIBmp(v5); -> Skin related stuff, can ignore for now
       // bitmap = (CBitmapRes *)g_ResMgr->::Get(m_wallPaperBmpName.c_str(), 0);
       CBitmapRes *bitmap = new CBitmapRes();
@@ -100,7 +104,7 @@ void CLoginMode::OnChangeState(int state) {
       // Connection to account server
       ServerAddress server_addr;
 
-      strncpy_s(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
+      strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
       server_addr.port = atoi(g_accountPort);
       m_isConnected = g_RagConnection->Connect(&server_addr);
       if (!m_isConnected) {
@@ -136,8 +140,8 @@ void CLoginMode::OnChangeState(int state) {
 
         packet.header = HEADER_CA_LOGIN;
         packet.version = g_version;
-        strncpy_s(packet.username, m_userId, sizeof(packet.username));
-        strncpy_s(packet.password, m_userPassword, sizeof(packet.password));
+        strncpy(packet.username, m_userId, sizeof(packet.username));
+        strncpy(packet.password, m_userPassword, sizeof(packet.password));
         packet.client_type = g_clientType;  // GetAccountType();
         packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN);
         g_RagConnection->SendPacket(packet_size, (char *)&packet);
@@ -150,8 +154,8 @@ void CLoginMode::OnChangeState(int state) {
 
         packet.header = HEADER_CA_LOGIN_CHANNEL;
         packet.version = g_version;
-        strncpy_s(packet.username, m_userId, sizeof(packet.username));
-        strncpy_s(packet.password, m_userPassword, sizeof(packet.password));
+        strncpy(packet.username, m_userId, sizeof(packet.username));
+        strncpy(packet.password, m_userPassword, sizeof(packet.password));
         strcpy(packet.ip_address, "111.111.111.111");
         memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
         packet.clienttype = g_clientType;
@@ -498,9 +502,9 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
       (struct PACKET_HC_NOTIFY_ZONESVR *)buffer;
   struct in_addr ip_addr;
 
-  strncpy_s(g_currentMap, (char *)packet->map_name, sizeof(g_currentMap));
+  strncpy(g_currentMap, (char *)packet->map_name, sizeof(g_currentMap));
   ip_addr.s_addr = packet->addr.ip;
-  strncpy_s(g_zoneServerAddr.ip, inet_ntoa(ip_addr),
+  strncpy(g_zoneServerAddr.ip, inet_ntoa(ip_addr),
             sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
 }

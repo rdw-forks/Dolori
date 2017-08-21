@@ -3,6 +3,10 @@
 #include <iostream>
 #include "../Files/File.h"
 
+#ifndef WIN32
+#define _strcmpi strcasecmp
+#endif
+
 CBitmapRes::CBitmapRes() {
   m_isAlpha = 0;
   m_data = NULL;

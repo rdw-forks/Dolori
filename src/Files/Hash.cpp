@@ -1,5 +1,6 @@
 #include "Hash.h"
 
+#include <ctype.h>
 #include <string.h>
 
 CHash::CHash() {}
@@ -10,7 +11,9 @@ void CHash::SetString(const char* str) {
   size_t str_len;
 
   strcpy(m_String, str);
-  strlwr(m_String);
+  //strlwr(m_String);
+  for (char* p = m_String; *p != '\0'; p++)
+    *p = tolower(*p);
   str_len = strlen(m_String);
   if (str_len == 0) {
     m_HashCode = 5381;

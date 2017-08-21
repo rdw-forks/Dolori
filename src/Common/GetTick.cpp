@@ -1,8 +1,8 @@
-#include "Time.h"
 #ifdef WIN32
 #include <Windows.h> // GetTickCount()
 #else
-#include <time.h>
+#include <sys/time.h>
+#include <stdlib.h>
 #endif
 
 // platform-abstracted tick retrieval
@@ -12,9 +12,7 @@ unsigned int GetTick(void)
 #if defined(WIN32)
 	return GetTickCount();
 #elif defined(ENABLE_RDTSC)
-	//
 	return (unsigned int)((_rdtsc() - RDTSC_BEGINTICK) / RDTSC_CLOCK);
-	//
 #elif defined(HAVE_MONOTONIC_CLOCK)
 	struct timespec tval;
 	clock_gettime(CLOCK_MONOTONIC, &tval);

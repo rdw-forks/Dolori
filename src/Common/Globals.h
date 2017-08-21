@@ -21,7 +21,7 @@ extern CFileMgr* g_FileMgr;
 extern CTexMgr* g_TexMgr;
 extern CUIWindowMgr* g_WindowMgr;
 
-extern char* TITLE_FILE;
+extern char TITLE_FILE[256];
 extern unsigned short g_serviceType;
 extern unsigned int g_version;
 extern char g_clientType;

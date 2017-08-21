@@ -1,5 +1,7 @@
 #include "PacketQueue.h"
 
+#include <string.h>
+
 CPacketQueue::CPacketQueue() {}
 
 CPacketQueue::~CPacketQueue() {}
@@ -12,7 +14,7 @@ void CPacketQueue::Init(int size) {
   if (m_buffer.empty())
     m_buf = NULL;
   else
-    m_buf = m_buffer.begin()._Ptr;
+    m_buf = m_buffer.data();
 }
 
 int CPacketQueue::GetSize() { return m_rearPos - m_frontPos; }
@@ -28,7 +30,7 @@ void CPacketQueue::InsertData(int size, const char *lpBuffer) {
       if (m_buffer.empty())
         m_buf = NULL;
       else
-        m_buf = m_buffer.begin()._Ptr;
+        m_buf = m_buffer.data();
     }
 
     memmove(m_buf, &m_buf[m_frontPos], GetSize());

@@ -24,7 +24,7 @@ void CSession::SetTextType(bool isShorten, bool isBold) {
 }
 
 void CSession::SetCharName(const char *char_name) {
-  strncpy_s(m_cName, char_name, sizeof(m_cName));
+  strncpy(m_cName, char_name, sizeof(m_cName));
 }
 
 void CSession::SetServerTime(unsigned int startTime) {

@@ -3,6 +3,7 @@
 #ifdef WIN32
 #define ZLIB_WINAPI
 #endif
+#include <string.h>
 #include <zlib.h>
 
 CGPak::CGPak() {}

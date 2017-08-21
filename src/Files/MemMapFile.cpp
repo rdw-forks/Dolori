@@ -21,7 +21,7 @@ bool CMemMapFile::open(const char *name) {
     return false;
   }
 #else
-  m_fd = open(path, O_RDONLY);
+  m_fd = ::open(name, O_RDONLY);
   if (m_fd == -1) {
     return false;
   }
@@ -60,7 +60,7 @@ void CMemMapFile::close() {
   }
 
   if (m_fd != -1) {
-    close(m_fd);
+    ::close(m_fd);
     m_fd = -1;
   }
 #endif
@@ -71,7 +71,7 @@ unsigned long CMemMapFile::size() { return m_dwFileSize; }
 const unsigned char *CMemMapFile::read(unsigned long offset,
                                        unsigned long size) {
   unsigned int bufferSize;
-  DWORD dwRead;
+  unsigned int dwRead;
 
   if (m_dwFileMappingSize) {
     if (offset >= m_dwOpenOffset &&
@@ -93,21 +93,21 @@ const unsigned char *CMemMapFile::read(unsigned long offset,
         m_dwOpenOffset = offset & m_dwAllocationGranuarity;
         if (m_dwOpenOffset + m_dwFileMappingSize <= m_dwFileSize) {
 #ifdef WIN32
-          m_pFile = (const unsigned char *)MapViewOfFile(
+          m_pFile = (unsigned char *)MapViewOfFile(
               m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset,
               m_dwFileMappingSize);
 #else
           m_pFile =
-              (const unsigned char *)mmap(NULL, m_dwFileMappingSize, PROT_READ,
+              (unsigned char *)mmap(NULL, m_dwFileMappingSize, PROT_READ,
                                           MAP_PRIVATE, m_fd, m_dwOpenOffset);
 #endif
         } else {
 #ifdef WIN32
-          m_pFile = (const unsigned char *)MapViewOfFile(
+          m_pFile = (unsigned char *)MapViewOfFile(
               m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset, 0);
 #else
           m_pFile =
-              (const unsigned char *)mmap(NULL, m_dwFileMappingSize, PROT_READ,
+              (unsigned char *)mmap(NULL, m_dwFileMappingSize, PROT_READ,
                                           MAP_PRIVATE, m_fd, m_dwOpenOffset);
 #endif
           m_dwOpenSize = m_dwFileSize - m_dwOpenOffset;
@@ -129,7 +129,7 @@ const unsigned char *CMemMapFile::read(unsigned long offset,
 
   if (m_dwOpenSize < size) {
     m_dwOpenSize = size;
-    if (m_pFileBuf.begin()._Ptr)
+    if (m_pFileBuf.data())
       bufferSize = m_pFileBuf.size();
     else
       bufferSize = 0;
@@ -148,14 +148,14 @@ const unsigned char *CMemMapFile::read(unsigned long offset,
     if (bufferSize < size) {
       m_pFileBuf.insert(m_pFileBuf.end(), size - bufferSize, 0);
     }
-    m_pFile = m_pFileBuf.begin()._Ptr;
+    m_pFile = m_pFileBuf.data();
   }
 #ifdef WIN32
   SetFilePointer(m_hFile, offset, 0, 0);
-  ReadFile(m_hFile, m_pFileBuf.begin()._Ptr, size, &dwRead, NULL);
+  ReadFile(m_hFile, m_pFileBuf.data(), size, &dwRead, NULL);
 #else
   lseek(m_fd, offset, SEEK_SET);
-  dwRead = read(m_fd, m_pFileBuf.begin()._Ptr, size);
+  dwRead = ::read(m_fd, m_pFileBuf.data(), size);
 #endif
 
   return m_pFile;

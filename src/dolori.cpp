@@ -6,7 +6,7 @@
 #include "Core/ModeMgr.h"
 #include "Core/Session.h"
 #include "Render/3dDevice.h"
-#include "Files\File.h"
+#include "Files/File.h"
 
 void InitClientInfo(const char* filename) {
 	CFile* fp = new CFile();
@@ -17,7 +17,7 @@ void InitClientInfo(const char* filename) {
 		fp->Close();
 	}
 	if (g_serviceType != ServiceKorea) {
-		TITLE_FILE = "+»+·+++-¦S+¦+¦\bgi_temp.bmp";
+		strncpy(TITLE_FILE, "+ï¿½+ï¿½+++-ï¿½S+ï¿½+ï¿½\bgi_temp.bmp", sizeof(TITLE_FILE));
 	}
 }
 

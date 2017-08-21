@@ -1,8 +1,11 @@
 #include "RagConnection.h"
+#include <map>
 //#include "PacketCipher.h"
 #include "Packets.h"
 
-#include <map>
+#ifndef WIN32
+#define SOCKET_ERROR (-1)
+#endif
 
 std::map<int, int> g_packetLenMap;
 
@@ -35,7 +38,7 @@ bool CRagConnection::RecvPacket(char *lpBuffer, int *len) {
     return false;
 
   if (g_packetLenMap[header] != -1) {
-    nbOfReadBytes = LOWORD(CRagConnection::GetPacketSize(header));
+    nbOfReadBytes = GetPacketSize(header);
   } else {
     if (!m_recvQueue.PeekData(sizeof(headerWithSize), (char *)&headerWithSize))
       return false;

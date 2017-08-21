@@ -2,8 +2,15 @@
 #ifdef WIN32
 #include <WinSock2.h>
 #else
+#include <arpa/inet.h>   // For inet_addr
+#include <errno.h>
+#include <netinet/tcp.h> // For TCP_NODELAY
+#include <string.h>      // For memset()
 #include <sys/socket.h>  // For socket(), connect(), send(), and recv()
 #include <unistd.h>      // For close()
+#define closesocket close
+#define SOCKET_ERROR (-1)
+#define INVALID_SOCKET (-1)
 #endif
 #include "../Common/GetTick.h"
 
@@ -12,9 +19,9 @@ CConnection::CConnection() {}
 CConnection::~CConnection() {}
 
 bool CConnection::Startup() {
+  bool result;
 #ifdef WIN32
   WSADATA data;
-  bool result;
 
   if (WSAStartup(0x101u, &data)) {
     // ErrorMsg(aFailedToLoadWi);
@@ -59,9 +66,11 @@ bool CConnection::Connect(const ServerAddress *sa) {
                  sizeof(int)) == SOCKET_ERROR) {
     return false;
   }
+#ifdef WIN32
   if (ioctlsocket(m_socket, FIONBIO, &argp) == SOCKET_ERROR) {
     return false;
   }
+#endif
 
   memset(&m_addr, 0, sizeof(m_addr));
 
@@ -70,11 +79,14 @@ bool CConnection::Connect(const ServerAddress *sa) {
   m_addr.sin_port = htons(sa->port);
 
   if (connect(m_socket, (sockaddr *)&m_addr, 0x10) != SOCKET_ERROR ||
+#ifdef WIN32
       WSAGetLastError() == WSAEWOULDBLOCK) {
+#else
+      errno == EWOULDBLOCK) {
+#endif
     m_dwTime = 0;
     result = true;
   } else {
-    WSAGetLastError();
     result = false;
   }
 
@@ -82,13 +94,9 @@ bool CConnection::Connect(const ServerAddress *sa) {
 }
 
 void CConnection::Disconnect() {
-  if (m_socket != -1) {
-#ifdef WIN32
+  if (m_socket != INVALID_SOCKET) {
     closesocket(m_socket);
-#else
-    close(m_socket);
-#endif
-    m_socket = -1;
+    m_socket = INVALID_SOCKET;
     m_sendQueue.Init(40960);
     m_blockQueue.Init(40960);
   }
@@ -105,8 +113,13 @@ bool CConnection::OnSend() {
     while (m_sendQueue.GetSize()) {
       timeout.tv_sec = 0;
       timeout.tv_usec = 0;
+#ifdef WIN32
       writefds.fd_array[0] = m_socket;
       writefds.fd_count = 1;
+#else
+      FD_ZERO(&writefds);
+      FD_SET(m_socket, &writefds);
+#endif
       nb_sockets = select(0, 0, &writefds, 0, &timeout);
       if (nb_sockets != -1) {
         if (nb_sockets <= 0) return true;
@@ -117,6 +130,7 @@ bool CConnection::OnSend() {
           err = WSAGetLastError();
           if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
 #else
+          if (errno != EWOULDBLOCK && errno != ENOTCONN) {
 #endif
             if (m_socket != INVALID_SOCKET) {
               closesocket(m_socket);
@@ -146,8 +160,13 @@ bool CConnection::OnRecv() {
 
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
+#ifdef WIN32
   readfds.fd_array[0] = m_socket;
   readfds.fd_count = 1;
+#else
+  FD_ZERO(&readfds);
+  FD_SET(m_socket, &readfds);
+#endif
   nb_sockets = select(0, &readfds, 0, 0, &timeout);
   if (nb_sockets == -1 || nb_sockets <= 0) return true;
   received_bytes = recv(m_socket, lpBuffer, 2048, 0);
@@ -162,6 +181,7 @@ bool CConnection::OnRecv() {
   err = WSAGetLastError();
   if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) return true;
 #else
+  if (errno != EWOULDBLOCK && errno != ENOTCONN) return true;
 #endif
 LABEL_6:
   if (m_socket != INVALID_SOCKET) {

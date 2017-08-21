@@ -1,7 +1,7 @@
 #include "3dDevice.h"
 #include <GL/glew.h>
 #include <SDL_opengl.h>
-#include <gl/glu.h>
+#include <GL/glu.h>
 #include <il.h>
 #include "../Common/Globals.h"
 #include "../Render/SurfaceWallpaper.h"

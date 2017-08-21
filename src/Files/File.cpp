@@ -11,7 +11,7 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
 
   if (nOpenFlags) {
     if (nOpenFlags & 1) {
-      strncpy_s(m_fileName, lpFileName, sizeof(m_fileName));
+      strncpy(m_fileName, lpFileName, sizeof(m_fileName));
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
         // ErrorMsg(m_fileName);
@@ -102,7 +102,19 @@ bool CFile::Read(void* lpBuf, unsigned long nCount) {
 
 bool CFile::Seek(long lOff, unsigned long nFrom) {
   if (m_fileStream.is_open()) {
-    m_fileStream.seekg(lOff, nFrom);
+    switch (nFrom) {
+      case SEEK_SET:
+        m_fileStream.seekg(lOff, std::ios::beg);
+        break;
+      case SEEK_CUR:
+        m_fileStream.seekg(lOff, std::ios::cur);
+        break;
+      case SEEK_END:
+        m_fileStream.seekg(lOff, std::ios::end);
+        break;
+      default:
+        return false;
+    };
     return true;
   }
   if (m_buf) {

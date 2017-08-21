@@ -32,7 +32,11 @@ class CConnection {
   bool OnRecv();
 
  protected:
+#ifdef WIN32
   SOCKET m_socket;
+#else
+  int m_socket;
+#endif
   struct sockaddr_in m_addr;
   bool m_bBlock;
   unsigned long m_dwTime;
