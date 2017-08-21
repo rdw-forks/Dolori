@@ -10,7 +10,7 @@
 #include "../Render/3dDevice.h"
 #include "../Render/Renderer.h"
 #include "../Render/TexMgr.h"
-#include "../UI/UIWindowMgr.h"
+#include "../Core/UIWindowMgr.h"
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;

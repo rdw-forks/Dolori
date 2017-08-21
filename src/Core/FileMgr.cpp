@@ -12,11 +12,13 @@ bool CFileMgr::AddPak(char const* name) {
 
   std::cout << "Opening " << name << std::endl;
   gpak = new CGPak();
-  if (gpak) gpak->Init();
+  if (!gpak) return false;
+  gpak->Init();
 
   memfile = new CMemMapFile();
   if (!memfile) return false;
   memfile->Init();
+  
   if (!memfile->Open(name)) return false;
   m_pakList.push_front(std::pair<CMemMapFile*, CGPak*>(memfile, gpak));
 

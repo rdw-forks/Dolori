@@ -2,7 +2,7 @@
 #define DOLORI_RENDER_TEXTURE_H_
 
 #include "Surface.h"
-#include "../Common/pixel_format.h"
+#include "pixel_format.h"
 
 class CTexture :
 	public CSurface {

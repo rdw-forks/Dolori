@@ -1,5 +1,5 @@
-#ifndef DOLORI_UI_UIWINDOWMGR_H_
-#define DOLORI_UI_UIWINDOWMGR_H_
+#ifndef DOLORI_CORE_UIWINDOWMGR_H_
+#define DOLORI_CORE_UIWINDOWMGR_H_
 
 #include <string>
 #include "../Render/BitmapRes.h"
@@ -52,4 +52,4 @@ class CUIWindowMgr {
   char T_CLICK;
 };
 
-#endif  // DOLORI_UI_UIWINDOWMGR_H_
+#endif  // DOLORI_CORE_UIWINDOWMGR_H_

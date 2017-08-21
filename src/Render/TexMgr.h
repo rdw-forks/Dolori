@@ -2,7 +2,7 @@
 #define DOLORI_RENDER_TEXMGR_H_
 
 #include <map>
-#include "../Common/pixel_format.h"
+#include "pixel_format.h"
 #include "Texture.h"
 
 typedef std::binary_function<char const *, char const *, bool> CharPrtLess;

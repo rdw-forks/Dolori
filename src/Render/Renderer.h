@@ -4,10 +4,10 @@
 #include <list>
 #include <vector>
 #include "../Common/Vector3d.h"
-#include "../Common/pixel_format.h"
 #include "../Render/RPFace.h"
 #include "../Render/RPQuadFace.h"
 #include "../Render/RPTriFace.h"
+#include "pixel_format.h"
 
 class CRenderer {
  public:
