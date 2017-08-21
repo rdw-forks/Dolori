@@ -7,8 +7,8 @@ public:
 	CMemFile();
 	virtual ~CMemFile();
 
-	virtual unsigned long size();
-	virtual const unsigned char * read(unsigned long, unsigned long);
+	virtual unsigned long GetSize();
+	virtual const unsigned char * Read(unsigned long, unsigned long);
 	//public unsigned long size();
 	//public const unsigned char * read(unsigned long, unsigned long);
 	//public void CMemFile(const class CMemFile &);

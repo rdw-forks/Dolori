@@ -17,11 +17,11 @@ class CMemMapFile : public CMemFile {
   CMemMapFile();
   virtual ~CMemMapFile();
 
-  bool open(const char *);
-  void close();
-  unsigned long size();
-  const unsigned char *read(unsigned long, unsigned long);
-  void init();
+  bool Open(const char *);
+  void Close();
+  unsigned long GetSize();
+  const unsigned char *Read(unsigned long, unsigned long);
+  void Init();
 
  private:
 #ifdef WIN32

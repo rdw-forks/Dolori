@@ -11,13 +11,13 @@ CMemFile::~CMemFile()
 }
 
 unsigned long
-CMemFile::size()
+CMemFile::GetSize()
 {
 	return 0;
 }
 
 const unsigned char *
-CMemFile::read(unsigned long offset, unsigned long size)
+CMemFile::Read(unsigned long offset, unsigned long size)
 {
 	return NULL;
 }

@@ -6,7 +6,9 @@
 #include <string.h>
 #include <zlib.h>
 
-CGPak::CGPak() {}
+CGPak::CGPak() {
+  Init();
+}
 
 CGPak::~CGPak() {}
 
@@ -16,7 +18,7 @@ bool CGPak::Open(CMemFile *memFile) {
   if (!memFile) return false;
 
   m_memFile = memFile;
-  header = (struct GRF_HEADER *)memFile->read(0, sizeof(GRF_HEADER));
+  header = (struct GRF_HEADER *)m_memFile->Read(0, sizeof(GRF_HEADER));
   if (memcmp(header->Magic, GRF_MAGIC_VALUE, sizeof(header->Magic)))
     return false;
 
@@ -54,9 +56,9 @@ bool CGPak::OpenPak02() {
   uint8_t *buffer = NULL;
   uint32_t cursor = 0;
 
-  z_table_size = *(uint32_t *)m_memFile->read(m_PakInfoOffset, 4);
-  table_size = *(uint32_t *)m_memFile->read(m_PakInfoOffset + 4, 4);
-  z_buffer = m_memFile->read(m_PakInfoOffset + 8, z_table_size);
+  z_table_size = *(uint32_t *)m_memFile->Read(m_PakInfoOffset, 4);
+  table_size = *(uint32_t *)m_memFile->Read(m_PakInfoOffset + 4, 4);
+  z_buffer = m_memFile->Read(m_PakInfoOffset + 8, z_table_size);
 
   buffer = new uint8_t[table_size];
   if (uncompress(buffer, (uLongf *)&table_size, z_buffer, z_table_size) !=

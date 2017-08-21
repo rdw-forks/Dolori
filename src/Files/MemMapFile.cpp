@@ -2,9 +2,9 @@
 
 CMemMapFile::CMemMapFile() {}
 
-CMemMapFile::~CMemMapFile() { close(); }
+CMemMapFile::~CMemMapFile() { Close(); }
 
-bool CMemMapFile::open(const char *name) {
+bool CMemMapFile::Open(const char *name) {
 #ifdef WIN32
   m_hFile = CreateFileA(name, GENERIC_READ, FILE_SHARE_READ, NULL,
                         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -21,7 +21,7 @@ bool CMemMapFile::open(const char *name) {
     return false;
   }
 #else
-  m_fd = ::open(name, O_RDONLY);
+  m_fd = open(name, O_RDONLY);
   if (m_fd == -1) {
     return false;
   }
@@ -39,7 +39,7 @@ bool CMemMapFile::open(const char *name) {
   return true;
 }
 
-void CMemMapFile::close() {
+void CMemMapFile::Close() {
 #ifdef WIN32
   if (m_dwFileMappingSize && m_pFile) {
     UnmapViewOfFile(m_pFile);
@@ -60,15 +60,15 @@ void CMemMapFile::close() {
   }
 
   if (m_fd != -1) {
-    ::close(m_fd);
+    close(m_fd);
     m_fd = -1;
   }
 #endif
 }
 
-unsigned long CMemMapFile::size() { return m_dwFileSize; }
+unsigned long CMemMapFile::GetSize() { return m_dwFileSize; }
 
-const unsigned char *CMemMapFile::read(unsigned long offset,
+const unsigned char *CMemMapFile::Read(unsigned long offset,
                                        unsigned long size) {
   unsigned int bufferSize;
   unsigned int dwRead;
@@ -155,13 +155,13 @@ const unsigned char *CMemMapFile::read(unsigned long offset,
   ReadFile(m_hFile, m_pFileBuf.data(), size, &dwRead, NULL);
 #else
   lseek(m_fd, offset, SEEK_SET);
-  dwRead = ::read(m_fd, m_pFileBuf.data(), size);
+  dwRead = read(m_fd, m_pFileBuf.data(), size);
 #endif
 
   return m_pFile;
 }
 
-void CMemMapFile::init() {
+void CMemMapFile::Init() {
 #ifdef WIN32
   _SYSTEM_INFO systemInfo;
   GetSystemInfo(&systemInfo);

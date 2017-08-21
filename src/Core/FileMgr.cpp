@@ -15,10 +15,9 @@ bool CFileMgr::AddPak(char const* name) {
   if (gpak) gpak->Init();
 
   memfile = new CMemMapFile();
-  if (memfile) {
-    memfile->init();
-    memfile->open(name);
-  }
+  if (!memfile) return false;
+  memfile->Init();
+  if (!memfile->Open(name)) return false;
   m_pakList.push_front(std::pair<CMemMapFile*, CGPak*>(memfile, gpak));
 
   return gpak->Open(memfile);
