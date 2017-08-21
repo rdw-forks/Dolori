@@ -63,6 +63,8 @@ long C3dDevice::Init(uint32_t dwFlags) {
   // Initialize DevIL
   ilInit();
   ilClearColour(255, 255, 255, 0);
+  ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+  ilEnable(IL_ORIGIN_SET);
 
   // Check for error
   ILenum ilError = ilGetError();

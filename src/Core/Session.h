@@ -1,6 +1,7 @@
 #ifndef DOLORI_CORE_SESSION_H_
 #define DOLORI_CORE_SESSION_H_
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <list>
 #include <string>
 

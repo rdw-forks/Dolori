@@ -1,6 +1,7 @@
 #ifndef DOLORI_MODES_GAMEMODE_H_
 #define DOLORI_MODES_GAMEMODE_H_
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include "../Common/cell_pos.h"
 #include "Mode.h"

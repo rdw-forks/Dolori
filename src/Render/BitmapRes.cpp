@@ -58,7 +58,7 @@ bool CBitmapRes::Load(const char* fName) {
 }
 
 bool CBitmapRes::LoadFromBuffer(const char* fName, const uint8_t* buffer,
-                                int size) {
+                                size_t size) {
   const char* str_extension;
 
   str_extension = strrchr(fName, '.');
@@ -72,14 +72,26 @@ bool CBitmapRes::LoadFromBuffer(const char* fName, const uint8_t* buffer,
   return false;
 }
 
-bool CBitmapRes::LoadBMPData(const uint8_t* bitmap, int size) {
+bool CBitmapRes::LoadBMPData(const uint8_t* image, size_t size) {
+  return LoadImageData(image, size, IL_BMP);
+}
+
+bool CBitmapRes::LoadTGAData(const uint8_t* image, size_t size) {
+  return LoadImageData(image, size, IL_TGA);
+}
+
+bool CBitmapRes::LoadJPGData(const uint8_t* image, size_t size) {
+  return LoadImageData(image, size, IL_JPG);
+}
+
+bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
   ILuint imgID = 0;
 
   Reset();
   ilGenImages(1, &imgID);
   ilBindImage(imgID);
 
-  ILboolean success = ilLoadL(IL_BMP, bitmap, size);
+  ILboolean success = ilLoadL(type, image, size);
   if (success != IL_TRUE) return false;
 
   success = ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
@@ -97,7 +109,3 @@ bool CBitmapRes::LoadBMPData(const uint8_t* bitmap, int size) {
 
   return true;
 }
-
-bool CBitmapRes::LoadTGAData(const uint8_t* bitmap, int size) { return false; }
-
-bool CBitmapRes::LoadJPGData(const uint8_t* bitmap, int size) { return false; }

@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include "Common/modetype.h"
@@ -45,7 +46,7 @@ void SetLoginStartMode() {
 int GameMain() {
   if (g_serviceType != ServiceKorea) g_FileMgr->AddPak("data.grf");
 
-  InitClientInfo("sclientinfo.xml");
+  InitClientInfo("clientinfo.xml");
 
   g_Session->Init();
   g_Session->Create();

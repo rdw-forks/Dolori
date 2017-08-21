@@ -1,6 +1,8 @@
 #ifndef DOLORI_FILES_FILE_H_
 #define DOLORI_FILES_FILE_H_
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <fstream>
 #include <iostream>
 
@@ -15,17 +17,18 @@ class CFile {
   bool Write(const void*, unsigned long);
   void Close();
   char* GetFileName();
-  unsigned long GetLength();
+  size_t GetLength();
   const unsigned char* GetBuf();
 
  protected:
   static void MakeFileName(char *, const char *, unsigned long);
+  static char* NormalizeFileName(char*, const char*);
 
  private:
   std::fstream m_fileStream;
   unsigned char *m_buf;
-  unsigned long m_size;
-  unsigned long m_cursor;
+  size_t m_size;
+  size_t m_cursor;
   char m_fileName[0x80];
 };
 

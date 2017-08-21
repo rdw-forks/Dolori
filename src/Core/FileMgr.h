@@ -11,10 +11,9 @@ class CFileMgr {
   ~CFileMgr();
 
   bool AddPak(char const *);
-  bool AddCipheredPak(char const *name, uint8_t *);
-  void *GetData(const char *, unsigned long *, bool);
-  void *GetPak(char const *, unsigned long *);
-  void *GetFile(const char *name, unsigned long *lpSize);
+  //void *GetData(const char *, unsigned long *, bool);
+  void *GetPak(char const *, size_t *);
+  //void *GetFile(const char *name, unsigned long *lpSize);
 
  private:
   std::list<std::pair<CMemFile *, CGPak *>> m_pakList;

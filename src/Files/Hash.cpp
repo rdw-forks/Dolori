@@ -11,9 +11,7 @@ void CHash::SetString(const char* str) {
   size_t str_len;
 
   strcpy(m_String, str);
-  //strlwr(m_String);
-  for (char* p = m_String; *p != '\0'; p++)
-    *p = tolower(*p);
+  for (char* p = m_String; *p != '\0'; p++) *p = tolower(*p);
   str_len = strlen(m_String);
   if (str_len == 0) {
     m_HashCode = 5381;
@@ -26,3 +24,5 @@ void CHash::SetString(const char* str) {
     m_HashCode = hash;
   }
 }
+
+const char* CHash::GetString() { return m_String; }

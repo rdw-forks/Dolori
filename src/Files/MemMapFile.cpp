@@ -70,8 +70,8 @@ unsigned long CMemMapFile::GetSize() { return m_dwFileSize; }
 
 const unsigned char *CMemMapFile::Read(unsigned long offset,
                                        unsigned long size) {
-  unsigned int bufferSize;
-  unsigned int dwRead;
+  size_t bufferSize;
+  unsigned long dwRead;
 
   if (m_dwFileMappingSize) {
     if (offset >= m_dwOpenOffset &&

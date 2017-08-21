@@ -2,7 +2,10 @@
 #include <string.h>
 #include "../Common/Globals.h"
 
-CFile::CFile() { m_buf = NULL; }
+CFile::CFile() {
+  m_fileStream.clear();
+  m_buf = NULL;
+}
 
 CFile::~CFile() { Close(); }
 
@@ -47,18 +50,15 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
           m_buf = (unsigned char*)malloc(m_size);
           if (m_buf) {
             m_fileStream.read((char*)m_buf, m_size);
-            std::cout << m_fileName
-                      << " - size read : " << m_fileStream.gcount()
-                      << std::endl;
             m_fileStream.close();
             return true;
           }
         }
         m_fileStream.close();
       }
-      // m_buf = g_fileMgr->GetPak(m_fileName, m_size);
+      m_buf = (unsigned char*)g_FileMgr->GetPak(m_fileName, &m_size);
     } else {
-      // m_buf = g_fileMgr->GetPak(m_fileName, m_size);
+      m_buf = (unsigned char*)g_FileMgr->GetPak(m_fileName, &m_size);
       if (!m_buf) {
         m_fileStream.open(m_fileName, std::ios::in | std::ios::binary);
         if (m_fileStream.is_open()) {
@@ -158,7 +158,7 @@ void CFile::Close() {
 
 char* CFile::GetFileName() { return m_fileName; }
 
-unsigned long CFile::GetLength() { return m_size; }
+size_t CFile::GetLength() { return m_size; }
 
 const unsigned char* CFile::GetBuf() { return m_buf; }
 
@@ -166,11 +166,13 @@ void CFile::MakeFileName(char* output, const char* input,
                          unsigned long output_size) {
   char* delim_pos;
   unsigned long sep_pos;
-  char temp[1024];
+  // char temp[1024];
 
-  strncpy(output, "data//", output_size);
+  strncpy(output, "data/", output_size);
   strncat(output, input, output_size);
-  delim_pos = strstr(output, ":");
+  NormalizeFileName(output, output);
+  // TODO: Rewrite this method
+  /*delim_pos = strstr(output, ":");
   if (delim_pos) {
     memcpy(temp, delim_pos - 1, output + strlen(output) + 2 - delim_pos);
     strncpy(output, temp, output_size);
@@ -180,5 +182,14 @@ void CFile::MakeFileName(char* output, const char* input,
     memcpy(temp, output, sep_pos);
     strncpy(&temp[sep_pos], &output[sep_pos + 1], sizeof(temp) - sep_pos);
     strncpy(output, temp, output_size);
-  }
+  }*/
+}
+
+char* CFile::NormalizeFileName(char* output, const char* input) {
+  char* orig = output;
+
+  for (; *input != '\0'; output++, input++)
+    *output = (*input == '\\') ? '/' : *input;
+
+  return orig;
 }

@@ -5,11 +5,31 @@ class CHash {
  public:
   CHash();
   ~CHash();
-  void SetString(const char *);
+  void SetString(const char*);
+  const char* GetString();
+
+  friend bool operator==(const CHash& lhs, const CHash& rhs) {
+    return lhs.m_HashCode == rhs.m_HashCode;
+  };
+  friend bool operator!=(const CHash& lhs, const CHash& rhs) {
+    return !operator==(lhs, rhs);
+  };
+  friend bool operator<(const CHash& lhs, const CHash& rhs) {
+    return lhs.m_HashCode < rhs.m_HashCode;
+  };
+  friend bool operator>(const CHash& lhs, const CHash& rhs) {
+    return operator<(rhs, lhs);
+  };
+  friend bool operator<=(const CHash& lhs, const CHash& rhs) {
+    return !operator>(lhs, rhs);
+  };
+  friend bool operator>=(const CHash& lhs, const CHash& rhs) {
+    return !operator<(lhs, rhs);
+  };
 
  private:
   unsigned long m_HashCode;
-  char m_String[0xfc];
+  char m_String[0x100];
 };
 
 // class CHash {

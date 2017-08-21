@@ -1,12 +1,11 @@
-#include "LoginMode.h"
+﻿#include "LoginMode.h"
+#ifndef WIN32
+#include <arpa/inet.h>
+#endif
 #include "../Common/GetTick.h"
 #include "../Common/Globals.h"
 #include "../Common/service_type.h"
 #include "../Network/Packets.h"
-
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
 
 CLoginMode::CLoginMode() {}
 
@@ -84,7 +83,7 @@ void CLoginMode::OnChangeState(int state) {
   switch (state) {
     case 0: {
       m_wallPaperBmpName =
-          "texture\\�����������̽�\\login_interface\\warning.bmp";
+          "texture/À¯ÀúÀÎÅÍÆäÀÌ½º/login_interface/warning.bmp";
       // v6 = UIBmp(v5); -> Skin related stuff, can ignore for now
       // bitmap = (CBitmapRes *)g_ResMgr->::Get(m_wallPaperBmpName.c_str(), 0);
       CBitmapRes *bitmap = new CBitmapRes();

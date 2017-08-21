@@ -13,10 +13,14 @@ class CGPak {
 
   bool Open(CMemFile *);
   void Init();
+  bool GetInfo(CHash *, PAK_PACK *);
+  bool GetData(PAK_PACK *pakPack, void *buffer);
 
  protected:
   bool OpenPak01();
   bool OpenPak02();
+  char * NormalizeFileName(char *, const char *);
+
 
  private:
   unsigned long m_FileVer;

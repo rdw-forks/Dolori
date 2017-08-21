@@ -1,6 +1,7 @@
 #ifndef DOLORI_MODES_LOGINMODE_H_
 #define DOLORI_MODES_LOGINMODE_H_
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <vector>
 #include "../Common/AccountInfo.h"

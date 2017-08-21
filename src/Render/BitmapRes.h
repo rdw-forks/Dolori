@@ -16,10 +16,13 @@ class CBitmapRes : public CRes {
   void Reset();
   unsigned int GetColor(int x, int y);
   bool Load(const char *);
-  bool LoadFromBuffer(const char *, const uint8_t *, int);
-  bool LoadBMPData(const uint8_t *, int);
-  bool LoadTGAData(const uint8_t *, int);
-  bool LoadJPGData(const uint8_t *, int);
+  bool LoadFromBuffer(const char *, const uint8_t *, size_t);
+  bool LoadBMPData(const uint8_t *, size_t);
+  bool LoadTGAData(const uint8_t *, size_t);
+  bool LoadJPGData(const uint8_t *, size_t);
+
+private:
+  bool LoadImageData(const uint8_t *, size_t, ILenum);
 
  private:
   int m_isAlpha;

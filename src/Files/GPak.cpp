@@ -5,10 +5,10 @@
 #endif
 #include <string.h>
 #include <zlib.h>
+#include <iostream>
+#include "grflib/grfcrypt.h"
 
-CGPak::CGPak() {
-  Init();
-}
+CGPak::CGPak() { Init(); }
 
 CGPak::~CGPak() {}
 
@@ -50,6 +50,7 @@ void CGPak::Init() {
 bool CGPak::OpenPak01() { return false; }
 
 bool CGPak::OpenPak02() {
+  char filename[0x100];
   const uint8_t *z_buffer = NULL;
   uint32_t z_table_size = 0;
   uint32_t table_size = 0;
@@ -76,18 +77,74 @@ bool CGPak::OpenPak02() {
       delete[] buffer;
       return 0;
     }
-
+    NormalizeFileName(filename, (const char *)buffer + cursor);
+    pak.m_fName.SetString(filename);
     cursor += filename_size + 1;
     pak.m_compressSize = *(uint32_t *)(buffer + cursor);
     pak.m_dataSize = *(uint32_t *)(buffer + cursor + 0x4);
     pak.m_size = *(uint32_t *)(buffer + cursor + 0x8);
     pak.m_type = *(uint8_t *)(buffer + cursor + 0xC);
     pak.m_Offset = *(uint32_t *)(buffer + cursor + 0xD);
-    pak.m_fName.SetString((const char *)buffer + cursor);
     m_PakPack.push_back(pak);
     cursor += 0x11;
   }
   delete[] buffer;
 
   return true;
+}
+
+bool CGPak::GetInfo(CHash *fName, PAK_PACK *pakPack) {
+  if (m_PakPack.empty()) return false;
+
+  for (auto it = m_PakPack.begin(); it != m_PakPack.end(); ++it) {
+    if (it->m_fName == *fName) {
+      if (!strncmp(fName->GetString(), it->m_fName.GetString(), 0x100)) {
+        memcpy(pakPack, &(*it), sizeof(PAK_PACK));
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool CGPak::GetData(PAK_PACK *pakPack, void *buffer) {
+  char keyschedule[0x80], key[8];
+
+  if (!pakPack || !buffer) return false;
+
+  if (!pakPack->m_dataSize) return false;
+
+  const char *data = (char *)m_memFile->Read(
+      pakPack->m_Offset + sizeof(GRF_HEADER), pakPack->m_compressSize);
+
+  char *z_data = (char *)malloc(pakPack->m_compressSize);
+  if (!z_data) return false;
+
+  /* Create a key and use it to generate the key schedule */
+  DES_CreateKeySchedule(keyschedule, key);
+
+  /* Decrypt the data (if its encrypted) */
+  GRF_Process(z_data, data, pakPack->m_compressSize, pakPack->m_type,
+              pakPack->m_compressSize, keyschedule, GRFCRYPT_DECRYPT);
+
+  uint32_t size = pakPack->m_size;
+  if (uncompress((Bytef *)buffer, (uLongf *)&size, (const Bytef *)z_data,
+                 pakPack->m_compressSize) != Z_OK) {
+    free(z_data);
+    return false;
+  }
+
+  free(z_data);
+  return true;
+}
+
+char *CGPak::NormalizeFileName(char *output, const char *input) {
+  char *orig = output;
+
+  for (; *input != '\0'; output++, input++)
+    *output = (*input == '\\') ? '/' : *input;
+  *output = '\0';
+
+  return orig;
 }

@@ -1,6 +1,7 @@
 #ifndef DOLORI_CORE_MODEMGR_H_
 #define DOLORI_CORE_MODEMGR_H_
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "../Modes/GameMode.h"
 #include "../Modes/LoginMode.h"
 #include "../Modes/Mode.h"
