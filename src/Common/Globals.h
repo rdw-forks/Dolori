@@ -5,12 +5,13 @@
 #include "../Common/character_info.h"
 #include "../Core/FileMgr.h"
 #include "../Core/ModeMgr.h"
+#include "../Core/ResMgr.h"
 #include "../Core/Session.h"
+#include "../Core/UIWindowMgr.h"
 #include "../Network/RagConnection.h"
 #include "../Render/3dDevice.h"
 #include "../Render/Renderer.h"
 #include "../Render/TexMgr.h"
-#include "../Core/UIWindowMgr.h"
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;
@@ -20,6 +21,7 @@ extern CRenderer* g_Renderer;
 extern CFileMgr* g_FileMgr;
 extern CTexMgr* g_TexMgr;
 extern CUIWindowMgr* g_WindowMgr;
+extern CResMgr* g_ResMgr;
 
 extern char TITLE_FILE[256];
 extern unsigned short g_serviceType;

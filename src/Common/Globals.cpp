@@ -8,6 +8,7 @@ CModeMgr* g_ModeMgr = new CModeMgr();
 CSession* g_Session = new CSession();
 CFileMgr* g_FileMgr = new CFileMgr();
 CTexMgr* g_TexMgr = new CTexMgr();
+CResMgr* g_ResMgr = new CResMgr();
 CRenderer* g_Renderer;
 
 char TITLE_FILE[256];

@@ -1,25 +1,27 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include "Common/modetype.h"
 #include "Common/Globals.h"
+#include "Common/modetype.h"
 #include "Common/service_type.h"
 #include "Core/ModeMgr.h"
 #include "Core/Session.h"
-#include "Render/3dDevice.h"
 #include "Files/File.h"
+#include "Files/tinyxml2/tinyxml2.h"
+#include "Render/3dDevice.h"
 
 void InitClientInfo(const char* filename) {
-	CFile* fp = new CFile();
+  CFile* fp = new CFile();
 
-	if (fp->Open(filename, 0))
-	{
-		//XMLDocument::ReadDocument(&document, fp.m_buf, &fp.m_buf[fp.m_size]);
-		fp->Close();
-	}
-	if (g_serviceType != ServiceKorea) {
-		strncpy(TITLE_FILE, "+�+�+++-�S+�+�\bgi_temp.bmp", sizeof(TITLE_FILE));
-	}
+  if (fp->Open(filename, 0)) {
+    tinyxml2::XMLDocument client_info;
+
+    client_info.Parse((char*)fp->GetBuf(), fp->GetLength());
+    fp->Close();
+  }
+  if (g_serviceType != ServiceKorea) {
+    strncpy(TITLE_FILE, "+�+�+++-�S+�+�\bgi_temp.bmp", sizeof(TITLE_FILE));
+  }
 }
 
 void SetLoginStartMode() {
@@ -50,7 +52,7 @@ int GameMain() {
 
   g_Session->Init();
   g_Session->Create();
-
+  g_ResMgr->ReadResNameTable("resNameTable.txt");
   if (g_3dDevice->Init(0) < 0) {
     return EXIT_FAILURE;
   }

@@ -89,14 +89,17 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
 }
 
 bool CFile::Read(void* lpBuf, unsigned long nCount) {
-  if (m_fileStream.is_open()) m_fileStream.read((char*)lpBuf, nCount);
-  return (m_fileStream.gcount() == nCount);
+  if (m_fileStream.is_open()) {
+    m_fileStream.read((char*)lpBuf, nCount);
+    return (m_fileStream.gcount() == nCount);
+  }
 
   if (m_buf && m_cursor + nCount <= m_size) {
     memcpy(lpBuf, &m_buf[m_cursor], nCount);
     m_cursor += nCount;
     return true;
   }
+
   return false;
 }
 
