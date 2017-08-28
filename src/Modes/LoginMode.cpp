@@ -6,6 +6,8 @@
 #include "../Common/Globals.h"
 #include "../Common/service_type.h"
 #include "../Network/Packets.h"
+#include "../UI/UIBmp.h"
+#include "../UI/UINoticeConfirmWnd.h"
 
 CLoginMode::CLoginMode() {}
 
@@ -72,7 +74,8 @@ void CLoginMode::OnUpdate() {
   }
   g_Renderer->Clear(true);
   g_WindowMgr->RenderWallPaper();
-  // g_Renderer->DrawBoxScreen(100, 100, 300, 300, 0xFFFF0000);
+  g_WindowMgr->Render(this);
+  //g_Renderer->DrawBoxScreen(100, 100, 300, 300, 0xFFFF0000);
   if (g_Renderer->DrawScene()) g_Renderer->Flip();
 }
 
@@ -82,15 +85,17 @@ void CLoginMode::OnChangeState(int state) {
 
   switch (state) {
     case 0: {
+      CBitmapRes *bitmap;
+      CUINoticeConfirmWnd *wnd;
+
       m_wallPaperBmpName =
-          "texture/À¯ÀúÀÎÅÍÆäÀÌ½º/login_interface/warning.bmp";
-      // v6 = UIBmp(v5); -> Skin related stuff, can ignore for now
-      // bitmap = (CBitmapRes *)g_ResMgr->::Get(m_wallPaperBmpName.c_str(), 0);
-      CBitmapRes *bitmap = new CBitmapRes();
-      bitmap->Load(m_wallPaperBmpName.c_str());
+          UIBmp("texture/À¯ÀúÀÎÅÍÆäÀÌ½º/login_interface/warning.bmp");
+      bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(bitmap);
-      // wnd = g_windowMgr->MakeWindow(WID_NOTICECONFIRMWND);
-      // wnd->SendMsg(0, 80, 10018, 0, 0, 0);
+
+      wnd =
+          (CUINoticeConfirmWnd *)g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND);
+      if (wnd) wnd->SendMsg(0, 80, 10018, 0, 0, 0);
     } break;
     case 1:
       break;
@@ -503,7 +508,6 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
 
   strncpy(g_currentMap, (char *)packet->map_name, sizeof(g_currentMap));
   ip_addr.s_addr = packet->addr.ip;
-  strncpy(g_zoneServerAddr.ip, inet_ntoa(ip_addr),
-            sizeof(g_zoneServerAddr.ip));
+  strncpy(g_zoneServerAddr.ip, inet_ntoa(ip_addr), sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
 }

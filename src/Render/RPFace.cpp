@@ -40,6 +40,7 @@ void CRPFace::DrawPri() {
     } else {
       unsigned long current_color = 0;
 
+      glLoadIdentity();
       glBegin(m_primType);
       for (int i = 0; i < m_numVerts; i++) {
         tlvertex3d v = m_verts[i];

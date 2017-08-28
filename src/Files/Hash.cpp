@@ -1,9 +1,10 @@
 #include "Hash.h"
-
 #include <ctype.h>
 #include <string.h>
 
 CHash::CHash() {}
+
+CHash::CHash(const char* str) { SetString(str); }
 
 CHash::~CHash() {}
 

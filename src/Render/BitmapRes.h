@@ -13,6 +13,7 @@ class CBitmapRes : public CRes {
   uint32_t GetWidth();
   uint32_t GetHeight();
   const ILubyte *GetData();
+  CRes *Clone();
   void Reset();
   unsigned int GetColor(int x, int y);
   bool Load(const char *);
@@ -21,7 +22,7 @@ class CBitmapRes : public CRes {
   bool LoadTGAData(const uint8_t *, size_t);
   bool LoadJPGData(const uint8_t *, size_t);
 
-private:
+ private:
   bool LoadImageData(const uint8_t *, size_t, ILenum);
 
  private:

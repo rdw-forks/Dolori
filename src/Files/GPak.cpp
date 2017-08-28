@@ -116,21 +116,21 @@ bool CGPak::GetData(PAK_PACK *pakPack, void *buffer) {
   if (!pakPack->m_dataSize) return false;
 
   const char *data = (char *)m_memFile->Read(
-      pakPack->m_Offset + sizeof(GRF_HEADER), pakPack->m_compressSize);
+      pakPack->m_Offset + sizeof(GRF_HEADER), pakPack->m_dataSize);
 
-  char *z_data = (char *)malloc(pakPack->m_compressSize);
+  char *z_data = (char *)malloc(pakPack->m_dataSize);
   if (!z_data) return false;
 
   /* Create a key and use it to generate the key schedule */
   DES_CreateKeySchedule(keyschedule, key);
 
   /* Decrypt the data (if its encrypted) */
-  GRF_Process(z_data, data, pakPack->m_compressSize, pakPack->m_type,
+  GRF_Process(z_data, data, pakPack->m_dataSize, pakPack->m_type,
               pakPack->m_compressSize, keyschedule, GRFCRYPT_DECRYPT);
 
   uint32_t size = pakPack->m_size;
   if (uncompress((Bytef *)buffer, (uLongf *)&size, (const Bytef *)z_data,
-                 pakPack->m_compressSize) != Z_OK) {
+                 pakPack->m_dataSize) != Z_OK) {
     free(z_data);
     return false;
   }

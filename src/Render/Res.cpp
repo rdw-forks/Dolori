@@ -1,5 +1,25 @@
 #include "Res.h"
+#include <stdio.h>
+#include "../Common/ErrorMsg.h"
+#include "../Common/GetTick.h"
 
-CRes::CRes() {}
+CRes::CRes() { m_extIndex = 0; }
 
 CRes::~CRes() {}
+
+CHash *const CRes::GetHash() { return &m_fName; }
+
+void CRes::UpdateInfo(const char *fName, int extIndex) {
+  m_fName.SetString(fName);
+  m_extIndex = extIndex;
+  UpdateTimeStamp();
+}
+
+void CRes::UpdateTimeStamp() { m_timeStamp = GetTick(); }
+
+void CRes::OnLoadError(const char *fName) {
+  char msg[255];
+
+  sprintf(msg, "ResourceError : Can't find file %s", fName);
+  ErrorMsg(msg);
+}

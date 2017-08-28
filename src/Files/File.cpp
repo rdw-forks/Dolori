@@ -1,5 +1,6 @@
 #include "File.h"
 #include <string.h>
+#include "../Common/ErrorMsg.h"
 #include "../Common/Globals.h"
 
 CFile::CFile() {
@@ -17,7 +18,7 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
       strncpy(m_fileName, lpFileName, sizeof(m_fileName));
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
-        // ErrorMsg(m_fileName);
+        ErrorMsg(m_fileName);
         result = false;
       } else {
         std::streampos file_size = 0;
@@ -36,56 +37,42 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
     m_cursor = 0;
     MakeFileName(m_fileName, lpFileName, sizeof(m_fileName));
     if (g_readFolderFirst) {
-      m_fileStream.open(m_fileName, std::ios::in | std::ios::binary);
-      if (m_fileStream.is_open()) {
-        std::streampos file_size = 0;
-
-        file_size = m_fileStream.tellg();
-        m_fileStream.seekg(0, std::ios::end);
-        file_size = m_fileStream.tellg() - file_size;
-        m_size = file_size;
-        m_fileStream.seekg(0, std::ios::beg);
-
-        if (m_size) {
-          m_buf = (unsigned char*)malloc(m_size);
-          if (m_buf) {
-            m_fileStream.read((char*)m_buf, m_size);
-            m_fileStream.close();
-            return true;
-          }
-        }
-        m_fileStream.close();
-      }
+      if (OpenFromFolder(m_fileName)) return true;
       m_buf = (unsigned char*)g_FileMgr->GetPak(m_fileName, &m_size);
     } else {
       m_buf = (unsigned char*)g_FileMgr->GetPak(m_fileName, &m_size);
       if (!m_buf) {
-        m_fileStream.open(m_fileName, std::ios::in | std::ios::binary);
-        if (m_fileStream.is_open()) {
-          std::streampos file_size = 0;
-
-          file_size = m_fileStream.tellg();
-          m_fileStream.seekg(0, std::ios::end);
-          file_size = m_fileStream.tellg() - file_size;
-          m_size = file_size;
-          m_fileStream.seekg(0, std::ios::beg);
-
-          if (m_size) {
-            m_buf = (unsigned char*)malloc(m_size);
-            if (m_buf) {
-              m_fileStream.read((char*)m_buf, m_size);
-              m_fileStream.close();
-              return true;
-            }
-          }
-          m_fileStream.close();
-        }
+        if (OpenFromFolder(m_fileName)) return true;
       }
     }
     result = (m_buf != NULL);
   }
 
   return result;
+}
+
+bool CFile::OpenFromFolder(const char* filename) {
+  m_fileStream.open(m_fileName, std::ios::in | std::ios::binary);
+  if (m_fileStream.is_open()) {
+    std::streampos file_size = 0;
+
+    file_size = m_fileStream.tellg();
+    m_fileStream.seekg(0, std::ios::end);
+    file_size = m_fileStream.tellg() - file_size;
+    m_size = file_size;
+    m_fileStream.seekg(0, std::ios::beg);
+
+    if (m_size) {
+      m_buf = (unsigned char*)malloc(m_size);
+      if (m_buf) {
+        m_fileStream.read((char*)m_buf, m_size);
+        m_fileStream.close();
+        return true;
+      }
+    }
+    m_fileStream.close();
+  }
+  return false;
 }
 
 bool CFile::Read(void* lpBuf, unsigned long nCount) {

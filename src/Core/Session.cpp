@@ -63,3 +63,15 @@ bool CSession::IsGravityAid(int aid) {
   }
   return it != s_dwAdminAID.end();
 }
+
+void CSession::InvalidateBasicWnd()
+{
+  if (g_ModeMgr->GetGameMode())
+  {
+    /*if (dword_7687EC)
+    {
+      UIWindow::InvalidateChildren(dword_7687EC);
+    }
+    g_ModeMgr->GetGameMode()->InvalidatePlayerGage();*/
+  }
+}

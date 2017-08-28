@@ -12,11 +12,16 @@ CResMgr* g_ResMgr = new CResMgr();
 CRenderer* g_Renderer;
 
 char TITLE_FILE[256];
-unsigned short g_serviceType = ServiceAmerica;
+unsigned short g_serviceType;
+unsigned short g_serverType;
 unsigned int g_version = 3;
 char g_clientType = 22;
+bool g_hideAccountList;
 bool g_passwordEncrypt;
-bool g_readFolderFirst = true;
+bool g_passwordEncrypt2;
+bool g_readFolderFirst = false;
+bool g_extendedSlot;
+std::vector<std::string> s_loadingScreenList;
 bool g_isGravityID;
 unsigned short g_loginStartMode;
 char* g_accountAddr;

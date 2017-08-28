@@ -5,8 +5,6 @@
 #include "pixel_format.h"
 #include "Texture.h"
 
-typedef std::binary_function<char const *, char const *, bool> CharPrtLess;
-
 class CTexMgr {
  public:
   CTexMgr();
@@ -15,7 +13,7 @@ class CTexMgr {
   CTexture *CreateTexture(unsigned long, unsigned long, PIXEL_FORMAT);
 
  private:
-  std::map<char const *, CTexture *, CharPrtLess> m_texTable;
+  //std::map<char const *, CTexture *, CharPrtLess> m_texTable;
 };
 
 // class CTexMgr {

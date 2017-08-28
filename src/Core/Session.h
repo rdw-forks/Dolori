@@ -20,6 +20,7 @@ class CSession {
   void SetPlayerPosDir(int x, int y, int dir);
   std::list<std::string> GetNumExNameList();
   bool IsGravityAid(int);
+  void InvalidateBasicWnd();
   bool IsMasterAid(int);
 
  private:

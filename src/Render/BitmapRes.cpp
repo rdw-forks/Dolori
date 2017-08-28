@@ -1,6 +1,7 @@
 #include "BitmapRes.h"
 #include <string.h>
 #include <iostream>
+#include "../Common/ErrorMsg.h"
 #include "../Files/File.h"
 
 #ifndef WIN32
@@ -23,6 +24,15 @@ uint32_t CBitmapRes::GetWidth() { return m_width; }
 uint32_t CBitmapRes::GetHeight() { return m_height; }
 
 const ILubyte* CBitmapRes::GetData() { return m_data; }
+
+CRes* CBitmapRes::Clone() {
+  CRes* res;
+
+  res = new CBitmapRes();
+  if (res) return res;
+
+  return NULL;
+}
 
 void CBitmapRes::Reset() {
   if (m_data) free(m_data);
@@ -66,7 +76,7 @@ bool CBitmapRes::LoadFromBuffer(const char* fName, const uint8_t* buffer,
     if (!_strcmpi(str_extension, ".bmp")) return LoadBMPData(buffer, size);
     if (!_strcmpi(str_extension, ".tga")) return LoadTGAData(buffer, size);
     if (!_strcmpi(str_extension, ".jpg")) return LoadJPGData(buffer, size);
-    // ErrorMsg(aUnsupportFilef);
+    ErrorMsg("Unsupported file format");
   }
 
   return false;

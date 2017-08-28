@@ -2,24 +2,41 @@
 #define DOLORI_CORE_RESMGR_H_
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 #include "../Render/Res.h"
+
+struct CharPrtLess {
+  bool operator()(const char *a, const char *b) const {
+    return std::strcmp(a, b) < 0;
+  }
+};
+
+struct ResPtrLess {
+  bool operator()(CHash *a, CHash *b) const { return *a < *b; }
+};
 
 class CResMgr {
  public:
   CResMgr();
   ~CResMgr();
 
-  void ReadResNameTable(const char * resNameTable);
-  CRes * Get(const char *fNameInput, bool bRefresh);
+  void ReadResNameTable(const char *);
+  void RegisterType(const char *, const char *, CRes *);
+  char *GetRealResName(const char *);
+  CRes *Get(const char *, bool);
 
  private:
-  std::map<char const *, int> m_resExt;
-  std::vector<char const *> m_typeDir;
+  char *ToLower(char *);
+  const char *StrChrBackward(const char *, char);
+
+ private:
+  std::map<const char *, int, CharPrtLess> m_resExt;
+  std::vector<const char *> m_typeDir;
   std::vector<CRes *> m_objTypes;
-  std::vector<std::map<CHash *, CRes *>> m_fileList;
-  //struct _RTL_CRITICAL_SECTION m_GetResSection;
+  std::vector<std::map<CHash *const, CRes *, ResPtrLess>> m_fileList;
+  std::recursive_mutex m_getResSection;
   std::map<std::string, std::string> m_realResName;
   unsigned long m_usedForSprTexture;
   unsigned long m_usedForModelTexture;

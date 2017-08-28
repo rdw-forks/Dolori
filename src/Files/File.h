@@ -14,15 +14,16 @@ class CFile {
   bool Open(const char *, int);
   bool Read(void *lpBuf, unsigned long nCount);
   bool Seek(long lOff, unsigned long nFrom);
-  bool Write(const void*, unsigned long);
+  bool Write(const void *, unsigned long);
   void Close();
-  char* GetFileName();
+  char *GetFileName();
   size_t GetLength();
-  const unsigned char* GetBuf();
+  const unsigned char *GetBuf();
 
  protected:
+  bool OpenFromFolder(const char *);
   static void MakeFileName(char *, const char *, unsigned long);
-  static char* NormalizeFileName(char*, const char*);
+  static char *NormalizeFileName(char *, const char *);
 
  private:
   std::fstream m_fileStream;

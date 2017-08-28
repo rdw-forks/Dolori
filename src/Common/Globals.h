@@ -25,10 +25,15 @@ extern CResMgr* g_ResMgr;
 
 extern char TITLE_FILE[256];
 extern unsigned short g_serviceType;
+extern unsigned short g_serverType;
 extern unsigned int g_version;
 extern char g_clientType;
+extern bool g_hideAccountList;
 extern bool g_passwordEncrypt;
+extern bool g_passwordEncrypt2;
 extern bool g_readFolderFirst;
+extern bool g_extendedSlot;
+extern std::vector<std::string> s_loadingScreenList;
 extern bool g_isGravityID;
 extern unsigned short g_loginStartMode;
 extern char* g_accountAddr;

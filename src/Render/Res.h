@@ -8,6 +8,13 @@ class CRes {
   CRes();
   virtual ~CRes();
 
+  CHash* const GetHash();
+  void UpdateInfo(const char*, int);
+  void UpdateTimeStamp();
+  void OnLoadError(const char*);
+  virtual bool Load(const char*) { return false; };
+  virtual CRes* Clone() { return nullptr; };
+
  private:
   int m_lockCnt;
   unsigned long m_timeStamp;

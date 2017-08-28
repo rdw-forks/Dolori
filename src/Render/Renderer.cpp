@@ -58,10 +58,6 @@ void CRenderer::Clear(bool clearScreen) {
 void CRenderer::ClearBackground() { g_3dDevice->Clear(m_nClearColor); }
 
 bool CRenderer::DrawScene() {
-  /* Set the background black */
-  //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  /* Clear The Screen And The Depth Buffer */
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   /* Flush what needs to be drawn */
   FlushRenderList();
   /* Clear render list */

@@ -15,10 +15,9 @@ class CSurface {
   virtual ~CSurface();
 
   bool Create(unsigned long, unsigned long);
-  virtual void Update(int, int, const ILubyte*);
-  virtual void ClearSurface(TAG_RECT* rect, unsigned long color){};
-  virtual void DrawSurface(int x, int y, int width, int height,
-                           unsigned long color){};
+  virtual void Update(int, int, int, int, const ILubyte*, int);
+  virtual void ClearSurface(TAG_RECT*, unsigned long){};
+  virtual void DrawSurface(int, int, int, int, unsigned int);
   virtual void DrawSurfaceStretch(int, int, int, int);
 
  protected:
