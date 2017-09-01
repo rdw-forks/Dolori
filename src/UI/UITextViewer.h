@@ -8,10 +8,15 @@ class CUITextViewer : public CUIListBox {
   CUITextViewer();
   ~CUITextViewer();
 
+  void OnCreate(int cx, int cy);
+  void Create2(int x, int y, int cx, int cy, bool trans);
+  void OnDraw();
+
  private:
   int m_bgR;
   int m_bgG;
   int m_bgB;
+  bool m_isTransParent;
 };
 
 //class UITextViewer {

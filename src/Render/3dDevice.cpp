@@ -1,7 +1,8 @@
 #include "3dDevice.h"
 #include <GL/glew.h>
-#include <SDL_opengl.h>
 #include <GL/glu.h>
+#include <SDL_opengl.h>
+#include <SDL_ttf.h>
 #include <il.h>
 #include "../Common/Globals.h"
 #include "../Render/SurfaceWallpaper.h"
@@ -18,19 +19,20 @@ long C3dDevice::Init(uint32_t dwFlags) {
 
   // SDL_SetMainReady();
   if (SDL_Init(SDL_INIT_VIDEO) < 0) return -1;
+  if (TTF_Init() < 0) return -1;
 
   // Pixel format
   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-  //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, bpp);
+  // SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, bpp);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
   flags = SDL_WINDOW_OPENGL;
-  if (m_bIsFullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+  if (m_bIsFullscreen) flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
   m_sdlWnd = SDL_CreateWindow("Dolori", SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
                               SCREEN_HEIGHT, flags);
@@ -48,7 +50,7 @@ long C3dDevice::Init(uint32_t dwFlags) {
   // Initialize Projection Matrix
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 1.0, -1.0);
+  glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 0.0, 1.0);
 
   // Initialize Modelview Matrix
   glMatrixMode(GL_MODELVIEW);
@@ -63,7 +65,7 @@ long C3dDevice::Init(uint32_t dwFlags) {
   // Initialize DevIL
   ilInit();
   ilClearColour(255, 255, 255, 0);
-  ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+  ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
   ilEnable(IL_ORIGIN_SET);
 
   // Check for error
@@ -78,6 +80,7 @@ long C3dDevice::Init(uint32_t dwFlags) {
 
 long C3dDevice::DestroyObjects() {
   if (m_sdlWnd) SDL_DestroyWindow(m_sdlWnd);
+  TTF_Quit();
   SDL_Quit();
 
   return 0;

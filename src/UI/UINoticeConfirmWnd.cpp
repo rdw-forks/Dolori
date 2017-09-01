@@ -42,6 +42,11 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
     btn->SetId(ids[i]);
     AddChild(btn);
   }
+
+  CUITextViewer *text_viewer = new CUITextViewer();
+  text_viewer->Create2(10, 22, cx - 20, cy - 55, false);
+  AddChild(text_viewer);
+  text_viewer->AddItem("Thank you for using Dolori !");
 }
 
 void CUINoticeConfirmWnd::OnDraw() {
@@ -71,8 +76,7 @@ int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, int val1,
     result = 0;
     m_target = val1;
   } else {
-    CUIFrameWnd *frame_wnd = this;
-    // result = frame_wnd->SendMsg(sender, message, val1, val2, val3, val4);
+    // result = CUIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);
   }
   return result;
 }

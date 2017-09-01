@@ -1,6 +1,5 @@
 #include "BitmapRes.h"
 #include <string.h>
-#include <iostream>
 #include "../Common/ErrorMsg.h"
 #include "../Files/File.h"
 
@@ -112,10 +111,16 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
   ILint Bpp = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL);
   m_data = (ILubyte*)malloc(Bpp * m_width * m_height);
   memcpy(m_data, ilGetData(), Bpp * m_width * m_height);
-  std::cout << "Width : " << m_width << std::endl;
-  std::cout << "height : " << m_height << std::endl;
-  std::cout << "Bytes per pixel : " << Bpp << std::endl;
   ilDeleteImages(1, &imgID);
+
+  // If the image was a BMP, replace purple pixels with transparent ones
+  if (type == IL_BMP && Bpp == 4) {
+    size_t data_size = m_width * m_height * 4;
+    for (int i = 0; i < data_size - 3; i += 4) {
+      if (m_data[i] == 0xFF && m_data[i + 1] == 0x00 && m_data[i + 2] == 0xFF)
+        m_data[i + 3] = 0x00;
+    }
+  }
 
   return true;
 }

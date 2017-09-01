@@ -49,8 +49,10 @@ void CUIWindowMgr::RenderWallPaper() {
 void CUIWindowMgr::Render(CMode *mode) {
   for (auto it = m_children.begin(); it != m_children.end(); ++it) {
     CUIWindow *wnd = (CUIWindow *)*it;
+
     if (wnd->IsShow()) {
-      wnd->DoDraw();
+      wnd->DoDraw(false);
+      wnd->DrawSurface();
     }
   }
 }

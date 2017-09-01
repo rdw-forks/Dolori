@@ -1,6 +1,7 @@
 #ifndef DOLORI_UI_UIWINDOW_H_
 #define DOLORI_UI_UIWINDOW_H_
 
+#include <stdint.h>
 #include <list>
 #include "../Render/BitmapRes.h"
 #include "../Render/Surface.h"
@@ -12,19 +13,28 @@ class CUIWindow {
 
   void Create(int, int);
   void Move(int, int);
+  void Resize(int, int);
+  int GetX();
+  int GetY();
+  int GetHeight();
+  int GetWidth();
+  virtual void DoDraw(bool);
   virtual void OnDraw();
   virtual void OnCreate(int, int);
-  virtual void OnSize(int, int);
   virtual bool IsUpdateNeeded();
+  void OnSize(int, int);
   bool IsShow();
   void SetShow(bool);
   void AddChild(CUIWindow *);
-  void DoDraw();
   void DrawBitmap(int, int, CBitmapRes *, int);
   void DrawSurface();
   void InvalidateChildren();
+  void TextOutA(int, int, const char *, int, int, int, unsigned int);
+  void TextOutWithOutline(int, int, const char *, int, uint32_t, uint32_t, int,
+                          int, bool);
   void SetId(int);
   int GetId();
+  CUIWindow *GetParent();
 
  protected:
   CUIWindow *m_parent;

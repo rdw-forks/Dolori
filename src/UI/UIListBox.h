@@ -11,10 +11,13 @@ class CUIListBox : public CUIWindow {
   CUIListBox();
   ~CUIListBox();
 
+  void OnCreate(int, int);
+  void AddItem(const char*);
+
  protected:
   // int HitTest(int, int);
 
- private:
+ protected:
   int m_bR;
   int m_bG;
   int m_bB;
