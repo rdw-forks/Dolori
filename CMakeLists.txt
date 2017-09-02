@@ -24,7 +24,6 @@ if(WIN32)
 	"${PROJECT_SOURCE_DIR}/3rdparty/glew-2.1.0"
 	"${PROJECT_SOURCE_DIR}/3rdparty/DevIL-1.8.0"
 	"${PROJECT_SOURCE_DIR}/3rdparty/zlib-1.2.3"
-	"${PROJECT_SOURCE_DIR}/3rdparty/freetype-2.7.1"
 	"${PROJECT_SOURCE_DIR}/3rdparty/SDL2_ttf-2.0.14"
   )
 endif(WIN32)
