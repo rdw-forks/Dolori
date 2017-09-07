@@ -11,9 +11,10 @@ class CFileMgr {
   ~CFileMgr();
 
   bool AddPak(char const *);
-  //void *GetData(const char *, unsigned long *, bool);
+  // void *GetData(const char *, unsigned long *, bool);
   void *GetPak(char const *, size_t *);
-  //void *GetFile(const char *name, unsigned long *lpSize);
+  bool IsDataExist(const char *);
+  // void *GetFile(const char *name, unsigned long *lpSize);
 
  private:
   std::list<std::pair<CMemFile *, CGPak *>> m_pakList;

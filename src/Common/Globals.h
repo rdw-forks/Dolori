@@ -8,6 +8,7 @@
 #include "../Core/ResMgr.h"
 #include "../Core/Session.h"
 #include "../Core/UIWindowMgr.h"
+#include "../Input/Mouse.h"
 #include "../Network/RagConnection.h"
 #include "../Render/3dDevice.h"
 #include "../Render/Renderer.h"
@@ -22,6 +23,7 @@ extern CFileMgr* g_FileMgr;
 extern CTexMgr* g_TexMgr;
 extern CUIWindowMgr* g_WindowMgr;
 extern CResMgr* g_ResMgr;
+extern CMouse* g_Mouse;
 
 extern char TITLE_FILE[256];
 extern unsigned short g_serviceType;

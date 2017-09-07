@@ -11,8 +11,12 @@ class CUIListBox : public CUIWindow {
   CUIListBox();
   ~CUIListBox();
 
+  void Resize(int cx, int cy);
+  void RecalcScrbarPos();
   void OnCreate(int, int);
   void AddItem(const char*);
+  int SendMsg(CUIWindow* sender, int message, int val1, int val2, int val3,
+              int val4);
 
  protected:
   // int HitTest(int, int);

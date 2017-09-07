@@ -10,6 +10,13 @@ CFile::CFile() {
 
 CFile::~CFile() { Close(); }
 
+bool CFile::IsFileExist(const char *fName) {
+  char full_name[256];
+
+  MakeFileName(full_name, fName, sizeof(full_name));
+  return g_FileMgr->IsDataExist(full_name);
+}
+
 bool CFile::Open(const char* lpFileName, int nOpenFlags) {
   bool result;
 

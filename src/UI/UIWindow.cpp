@@ -19,14 +19,13 @@ CUIWindow::CUIWindow() {
   m_transTime = GetTick();
 }
 
-CUIWindow::~CUIWindow() {}
+CUIWindow::~CUIWindow() {
+  if (m_surface) delete m_surface;
+}
 
 void CUIWindow::Create(int cx, int cy) {
-  if (m_surface) delete m_surface;
-  m_surface = new CSurface();
-  m_w = cx;
-  m_h = cy;
   OnCreate(cx, cy);
+  Resize(cx, cy);
   OnSize(cx, cy);
 }
 
@@ -38,6 +37,9 @@ void CUIWindow::Move(int x, int y) {
 void CUIWindow::Resize(int cx, int cy) {
   m_w = cx;
   m_h = cy;
+  if (m_surface) delete m_surface;
+  m_surface = new CSurface(m_w, m_h);
+  Invalidate();
 }
 
 int CUIWindow::GetX() { return m_x; }
@@ -71,6 +73,78 @@ void CUIWindow::AddChild(CUIWindow* wnd) {
   m_children.push_back(wnd);
 }
 
+bool CUIWindow::IsChildOf(CUIWindow* wnd) {
+  CUIWindow* parent;
+  bool result;
+
+  if (m_parent) {
+    parent = m_parent;
+    while (parent != wnd) {
+      parent = parent->GetParent();
+      if (!parent) return false;
+    }
+    result = true;
+  } else
+    result = false;
+
+  return result;
+}
+
+CUIWindow* CUIWindow::HitTest(int x, int y) {
+  CUIWindow* result;
+
+  if (ShouldDoHitTest() && m_show && x >= m_x && x < m_x + m_w && y >= m_y &&
+      y < m_y + m_h) {
+    if (m_children.empty()) {
+      return this;
+    } else {
+      for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
+        result = (*it)->HitTest(x - m_x, y - m_y);
+        if (result) return result;
+      }
+      result = this;
+    }
+  } else
+    result = NULL;
+
+  return result;
+}
+
+bool CUIWindow::ShouldDoHitTest() { return true; }
+
+void CUIWindow::GetGlobalCoor(int* x, int* y) {
+  *x = m_x;
+  *y = m_y;
+  for (CUIWindow* wnd = m_parent; wnd != NULL; wnd = wnd->m_parent) {
+    *x += wnd->m_x;
+    *y += wnd->m_y;
+  }
+}
+
+void CUIWindow::OnLBtnDown(int x, int y) {}
+
+void CUIWindow::OnLBtnDblClk(int x, int y) {}
+
+void CUIWindow::OnRBtnDown(int x, int y) {}
+
+void CUIWindow::OnRBtnDblClk(int x, int y) {}
+
+void CUIWindow::OnWBtnDown(int x, int y) {}
+
+void CUIWindow::OnLBtnUp(int x, int y) {}
+
+void CUIWindow::OnRBtnUp(int x, int y) {}
+
+void CUIWindow::OnWBtnUp(int x, int y) {}
+
+void CUIWindow::OnMouseShape(int x, int y) {
+  // CMode::SetCursorAction(g_modeMgr.m_curMode, 0);
+}
+
+void CUIWindow::OnMouseHover(int x, int y) {}
+
+void CUIWindow::OnMouseMove(int x, int y) {}
+
 void CUIWindow::DoDraw(bool blit_to_parent) {
   if (m_isDirty) {
     OnDraw();
@@ -82,16 +156,23 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
     (*it)->DoDraw(blit_to_parent);
 
   if (blit_to_parent && m_parent) {
-    m_parent->m_surface->CopyRect(m_x, m_y, m_w, m_h, m_surface);
+    m_parent->m_surface->CopyRect(m_x, m_y, m_w, m_h,
+                                  m_surface->GetSDLSurface());
   }
 }
 
 void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
   if (m_surface && bitmap) {
-    m_surface->Update(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
-                      bitmap->GetData(), drawOnlyNoTrans);
+    /*m_surface->Update(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
+                      bitmap->GetData(), drawOnlyNoTrans);*/
+    m_surface->CopyBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
+                          bitmap->GetData());
   }
+}
+
+void CUIWindow::ClearDC(uint32_t color) {
+  if (m_surface) m_surface->ClearSurface(NULL, color);
 }
 
 void CUIWindow::DrawSurface() {
@@ -101,11 +182,13 @@ void CUIWindow::DrawSurface() {
 }
 
 void CUIWindow::InvalidateChildren() {
-  m_isDirty = true;
+  Invalidate();
   for (auto it = m_children.begin(); it != m_children.end(); ++it) {
     if ((*it)->IsUpdateNeeded()) (*it)->InvalidateChildren();
   }
 }
+
+void CUIWindow::Invalidate() { m_isDirty = true; }
 
 void CUIWindow::TextOutA(int x, int y, const char* text, int textLen,
                          int fontType, int fontHeight, unsigned int colorText) {
@@ -113,12 +196,10 @@ void CUIWindow::TextOutA(int x, int y, const char* text, int textLen,
   SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
                      colorText & 0xFF};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
-  if (m_surface) {
-    CSurface text_surface(sdl_surface);
-    m_surface->CopyRect(x, y, 40, 20, &text_surface);
-  } else {
+  if (m_surface)
+    m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+  else
     m_surface = new CSurface(sdl_surface);
-  }
 
   TTF_CloseFont(font);
 }
@@ -133,8 +214,7 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text, int textLen,
   TTF_Font* font = TTF_OpenFont("arial.ttf", fontHeight);
 
   TTF_SetFontOutline(font, 1);
-  SDL_Surface* bg_surface =
-      TTF_RenderText_Blended(font, text, color_outline);
+  SDL_Surface* bg_surface = TTF_RenderText_Blended(font, text, color_outline);
   TTF_SetFontOutline(font, 0);
   SDL_Surface* fg_surface = TTF_RenderText_Blended(font, text, color);
   SDL_Rect rect = {1, 1, fg_surface->w, fg_surface->h};
@@ -144,12 +224,57 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text, int textLen,
   SDL_BlitSurface(fg_surface, NULL, bg_surface, &rect);
   SDL_FreeSurface(fg_surface);
 
-  if (m_surface) {
-    CSurface text_surface(bg_surface);
-    m_surface->CopyRect(x, y, 40, 20, &text_surface);
-  } else {
+  if (m_surface)
+    m_surface->CopyRect(x, y, 40, 20, bg_surface);
+  else
     m_surface = new CSurface(bg_surface);
-  }
 
   TTF_CloseFont(font);
+}
+
+void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,
+                                      int textLen, unsigned int* colorRef,
+                                      int fontType, int fontHeight) {
+  TextOutA(x, y, text, textLen, fontType, fontHeight, *colorRef);
+}
+
+const char* CUIWindow::InterpretColor(const char* color_text,
+                                      unsigned int* colorRef) {
+  const char* result;   // eax@1
+  unsigned __int16 v3;  // cx@3
+
+  result = color_text;
+  if (color_text) {
+    if (*color_text == '^') {
+      // HIBYTE(v3) = LOBYTE((&hex_table)[color_text[6]]) +
+      //             16 * LOBYTE((&hex_table)[color_text[5]]);
+      // LOBYTE(v3) = LOBYTE((&hex_table)[color_text[4]]) +
+      //             16 * LOBYTE((&hex_table)[color_text[3]]);
+      // result = color_text + 7;
+      //*colorRef = (unsigned __int8)(LOBYTE((&hex_table)[color_text[2]]) +
+      //                              16 * LOBYTE((&hex_table)[color_text[1]]))
+      //                              |
+      //            (v3 << 8);
+    }
+  }
+  return result;
+}
+
+void CUIWindow::OnBeginEdit() {}
+
+void CUIWindow::OnFinishEdit() {}
+
+int CUIWindow::SendMsg(CUIWindow* sender, int message, int val1, int val2,
+                       int val3, int val4) {
+  if (message) {
+    if (message == 1) {
+      if (m_parent) {
+        m_parent->SendMsg(this, 1, 0, 0, 0, 0);
+        return 0;
+      }
+    }
+  } else {
+    if (m_parent) m_parent->SendMsg(this, 0, 0, 0, 0, 0);
+  }
+  return 0;
 }

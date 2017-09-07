@@ -2,13 +2,17 @@
 #include "../Common/Globals.h"
 #include "../UI/UINoticeConfirmWnd.h"
 
+// Helper functions
 int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }
-
 int UICY(int y) { return y * g_Renderer->GetHeight() / 480; }
 
 CUIWindowMgr::CUIWindowMgr() {
   m_wallpaperSurface = NULL;
   m_children.clear();
+  m_captureWindow = NULL;
+  m_editWindow = NULL;
+  m_modalWindow = NULL;
+  m_lastHitWindow = NULL;
 }
 
 CUIWindowMgr::~CUIWindowMgr() {}
@@ -59,17 +63,30 @@ void CUIWindowMgr::Render(CMode *mode) {
 
 CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
   switch (windowId) {
-    case WID_NOTICECONFIRMWND:
+    case WID_NOTICECONFIRMWND: {
       CUINoticeConfirmWnd *wnd = new CUINoticeConfirmWnd();
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300));
       AddWindow(wnd);
-      break;
+    } break;
+    case WID_LOGINWND: {
+      CUILoginWnd *wnd = new CUILoginWnd();
+      m_loginWnd = wnd;
+      wnd->Create(280, 120);
+      wnd->Move(UIX(185), UICY(300));
+      AddWindow(wnd);
+    } break;
   };
   return NULL;
 }
 
-void CUIWindowMgr::AddWindow(CUIWindow *wnd) { m_children.push_back(wnd); }
+void CUIWindowMgr::AddWindow(CUIWindow *window) {
+  m_children.push_back(window);
+}
+
+void CUIWindowMgr::RemoveWindow(CUIWindow *window) {
+  m_children.remove(window);
+}
 
 void CUIWindowMgr::InvalidateUpdateNeededUI() {
   if (!m_isInvalidatedByForce) {
@@ -78,4 +95,137 @@ void CUIWindowMgr::InvalidateUpdateNeededUI() {
       if ((*it)->IsUpdateNeeded()) (*it)->InvalidateChildren();
     }
   }
+}
+
+CUIWindow *CUIWindowMgr::GetCapture() { return m_captureWindow; }
+
+void CUIWindowMgr::SetCapture(CUIWindow *window) { m_captureWindow = window; }
+
+void CUIWindowMgr::ReleaseCapture() { m_captureWindow = NULL; }
+
+void CUIWindowMgr::SetFocusEdit(CUIWindow *window) {
+  if (m_editWindow) m_editWindow->OnFinishEdit();
+  //if (window != m_chatWnd->m_commonChat) {
+  //  m_editWindow = window;
+  //  if (window) window->OnBeginEdit();
+  //}
+}
+
+int CUIWindowMgr::ProcessInput() {
+  int x = g_Mouse->GetXPos();
+  int y = g_Mouse->GetYPos();
+
+  if (!m_modalWindow) {
+    for (auto it = m_quitWindow.begin(); it != m_quitWindow.end(); ++it) {
+      if (m_captureWindow &&
+          (m_captureWindow == *it || m_captureWindow->IsChildOf(*it))) {
+        m_captureWindow = NULL;
+      }
+      if (m_editWindow &&
+          (m_editWindow == *it || m_editWindow->IsChildOf(*it))) {
+        m_editWindow = NULL;
+      }
+      if (m_modalWindow &&
+          (m_modalWindow == *it || m_modalWindow->IsChildOf(*it))) {
+        m_modalWindow = NULL;
+      }
+      if (m_lastHitWindow &&
+          (m_lastHitWindow == *it || m_lastHitWindow->IsChildOf(*it))) {
+        m_lastHitWindow = NULL;
+      }
+      RemoveWindow(*it);
+    }
+    m_quitWindow.clear();
+  }
+
+  if (!m_captureWindow) {
+    CUIWindow *hit_window;
+
+    if (m_children.empty())
+      hit_window = NULL;
+    else {
+      for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
+        hit_window = (*it)->HitTest(x, y);
+        if (hit_window && hit_window->IsShow()) break;
+      }
+    }
+
+    if (m_modalWindow) {
+      if (!hit_window) {
+      }
+    }
+
+    if (hit_window) {
+      int x_global, y_global;
+      int x_local, y_local;
+
+      hit_window->GetGlobalCoor(&x_global, &y_global);
+      x_local = x - x_global;
+      y_local = y - y_global;
+
+      if (g_Mouse->GetLBtn() == BTN_DOWN)
+        hit_window->OnLBtnDown(x_local, y_local);
+      else if (g_Mouse->GetLBtn() == BTN_DBLCLK)
+        hit_window->OnLBtnDblClk(x - x_global, y - y_global);
+      if (g_Mouse->GetRBtn() == BTN_DOWN)
+        hit_window->OnRBtnDown(x_local, y_local);
+      else if (g_Mouse->GetRBtn() == BTN_DBLCLK)
+        hit_window->OnRBtnDblClk(x - x_global, y - y_global);
+      if (g_Mouse->GetWBtn() == BTN_DOWN)
+        hit_window->OnWBtnDown(x_local, y_local);
+
+      hit_window->OnMouseShape(x_local, y_local);
+      if (m_lastMouseX != x || m_lastMouseY != y)
+        hit_window->OnMouseMove(x_local, y_local);
+      else
+        hit_window->OnMouseHover(x_local, y_local);
+
+      if (g_Mouse->GetWBtn() == BTN_UP) hit_window->OnWBtnUp(x_local, y_local);
+      if (g_Mouse->GetRBtn() == BTN_UP) hit_window->OnRBtnUp(x_local, y_local);
+      if (g_Mouse->GetLBtn() == BTN_UP) hit_window->OnLBtnUp(x_local, y_local);
+
+      if (m_lastHitWindow && hit_window != m_lastHitWindow) {
+        m_lastHitWindow->GetGlobalCoor(&x_global, &y_global);
+        x_local = x - x_global;
+        y_local = y - y_global;
+        m_lastHitWindow->OnMouseMove(x_local, y_local);
+        m_lastHitWindow->OnMouseShape(x_local, y_local);
+      }
+      m_lastHitWindow = hit_window;
+    }
+  } else {
+    int x_global, y_global;
+    int x_local, y_local;
+
+    m_captureWindow->GetGlobalCoor(&x_global, &y_global);
+    x_local = x - x_global;
+    y_local = y - y_global;
+
+    if (g_Mouse->GetLBtn() == BTN_DOWN) {
+    } else if (g_Mouse->GetLBtn() == BTN_DBLCLK) {
+      m_captureWindow->OnLBtnDown(x_local, y_local);
+      m_captureWindow->OnLBtnDblClk(x_local, y_local);
+    }
+
+    m_captureWindow->OnMouseShape(x_local, y_local);
+    if (m_lastMouseX != x || m_lastMouseY != y)
+      m_captureWindow->OnMouseMove(x_local, y_local);
+    else
+      m_captureWindow->OnMouseHover(x_local, y_local);
+    // if (g_Mouse.m_wheel)
+    //  m_captureWindow->OnWheel(g_mouse.m_wheel);
+    if (g_Mouse->GetLBtn() == BTN_UP)
+      m_captureWindow->OnLBtnUp(x_local, y_local);
+  }
+
+  if (m_editWindow) m_editWindow->Invalidate();
+  // g_mouseMoved = false;
+  // if (x != m_lastMouseX || y != m_lastMouseY)
+  //  g_mouseMoved = true;
+  m_lastMouseX = x;
+  m_lastMouseY = y;
+  // if (!m_modalWindow)
+  //  return rValue;
+
+  return 1;
 }

@@ -2,7 +2,6 @@
 #include "../Common/Globals.h"
 #include "../Common/service_type.h"
 #include "UIBmp.h"
-#include <iostream>
 
 CUIBitmapButton::CUIBitmapButton() {
   m_state = 0;
@@ -26,13 +25,13 @@ void CUIBitmapButton::SetBitmapName(const char* bitmapName, int buttonState) {
       m_bitmapHeight = resource->GetHeight();
 
     switch (buttonState) {
-      case BTN_NONE:
+      case 0:
         m_normalBitmapName = bitmapName;
         break;
-      case BTN_DOWN:
+      case 1:
         m_mouseonBitmapName = bitmapName;
         break;
-      case BTN_PRESSED:
+      case 2:
         m_pressedBitmapName = bitmapName;
         break;
     };
@@ -44,10 +43,16 @@ int CUIBitmapButton::GetBitmapWidth() { return m_bitmapWidth; }
 int CUIBitmapButton::GetBitmapHeight() { return m_bitmapHeight; }
 
 void CUIBitmapButton::OnDraw() {
-  if (m_state == BTN_NONE) {
-    const char* bitmap_name = UIBmp(m_normalBitmapName.c_str());
-    CBitmapRes* bitmap = (CBitmapRes*)g_ResMgr->Get(bitmap_name, false);
-    DrawBitmap(0, 0, bitmap, 0);
-    return;
-  }
+  const char* bitmap_name;
+  CBitmapRes* bitmap;
+
+  if (m_state == 0)
+    bitmap_name = UIBmp(m_normalBitmapName.c_str());
+  else if (m_state == 1)
+    bitmap_name = UIBmp(m_mouseonBitmapName.c_str());
+  else if (m_state == 2)
+    bitmap_name = UIBmp(m_pressedBitmapName.c_str());
+
+  bitmap = (CBitmapRes*)g_ResMgr->Get(bitmap_name, false);
+  DrawBitmap(0, 0, bitmap, 0);
 }

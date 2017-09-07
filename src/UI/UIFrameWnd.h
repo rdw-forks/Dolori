@@ -8,6 +8,10 @@ class CUIFrameWnd : public CUIWindow {
   CUIFrameWnd();
   ~CUIFrameWnd();
 
+  void OnLBtnDown(int, int);
+
+  int SendMsg(CUIWindow*, int, int, int, int, int);
+
  protected:
   int m_startGlobalX;
   int m_startGlobalY;

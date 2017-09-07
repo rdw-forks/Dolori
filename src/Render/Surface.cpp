@@ -2,18 +2,21 @@
 #include "../Common/Globals.h"
 
 CSurface::CSurface() {
+  Create(0, 0);
   m_sdlSurface = NULL;
   glGenTextures(1, &m_textureId);
 }
 
 CSurface::CSurface(unsigned long w, unsigned long h) {
-  m_w = w;
-  m_h = h;
+  Create(w, h);
+  m_sdlSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_w, m_h, 32, 0xff, 0xff00,
+                                      0xff0000, 0xff000000);
+  glGenTextures(1, &m_textureId);
 }
 
 CSurface::CSurface(SDL_Surface *surface) {
+  Create(surface->w, surface->h);
   m_sdlSurface = surface;
-  Create(m_sdlSurface->w, m_sdlSurface->h);
   UpdateGlTexture();
 }
 
@@ -28,11 +31,9 @@ unsigned long CSurface::GetHeight() { return m_h; }
 
 SDL_Surface *CSurface::GetSDLSurface() { return m_sdlSurface; }
 
-bool CSurface::Create(unsigned long w, unsigned long h) {
+void CSurface::Create(unsigned long w, unsigned long h) {
   m_w = w;
   m_h = h;
-
-  return true;
 }
 
 void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
@@ -56,16 +57,41 @@ void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
   UpdateGlTexture();
 }
 
-void CSurface::CopyRect(int x, int y, int w, int h, CSurface *src) {
+void CSurface::CopyRect(int x, int y, int w, int h, SDL_Surface *src) {
   if (!src) return;
 
-  SDL_Rect dst_rect;
-  dst_rect.x = x;
-  dst_rect.y = y;
-  dst_rect.w = w;
-  dst_rect.h = h;
-  SDL_BlitSurface(src->GetSDLSurface(), NULL, m_sdlSurface, &dst_rect);
-  UpdateGlTexture();
+  if (m_sdlSurface) {
+    SDL_Rect dst_rect;
+    dst_rect.x = x;
+    dst_rect.y = y;
+    dst_rect.w = w;
+    dst_rect.h = h;
+    SDL_BlitSurface(src, NULL, m_sdlSurface, &dst_rect);
+    UpdateGlTexture();
+  }
+}
+
+void CSurface::CopyBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
+  if (!bitmap) return;
+
+  if (m_sdlSurface) {
+    SDL_Surface *surface;
+    SDL_Rect dst_rect;
+
+    surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff, 0xff00,
+                                   0xff0000, 0xff000000);
+    SDL_LockSurface(surface);
+    memcpy(surface->pixels, bitmap, surface->w * surface->h * 4);
+    SDL_UnlockSurface(surface);
+    CopyRect(x, y, w, h, surface);
+    SDL_FreeSurface(surface);
+  }
+}
+
+void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color)
+{
+  if (m_sdlSurface)
+    SDL_FillRect(m_sdlSurface, rect, color);
 }
 
 void CSurface::DrawSurface(int x, int y, int width, int height,

@@ -19,10 +19,11 @@ class CSurface {
   unsigned long GetWidth();
   unsigned long GetHeight();
   SDL_Surface* GetSDLSurface();
-  bool Create(unsigned long, unsigned long);
+  void Create(unsigned long, unsigned long);
   virtual void Update(int, int, int, int, const ILubyte*, int);
-  void CopyRect(int, int, int, int, CSurface*);
-  virtual void ClearSurface(TAG_RECT*, unsigned long){};
+  void CopyRect(int, int, int, int, SDL_Surface*);
+  void CopyBitmap(int x, int y, int w, int h, const ILubyte* bitmap);
+  virtual void ClearSurface(SDL_Rect* rect, uint32_t color);
   virtual void DrawSurface(int, int, int, int, unsigned int);
   virtual void DrawSurfaceStretch(int, int, int, int);
 

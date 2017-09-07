@@ -4,14 +4,6 @@
 #include <string>
 #include "UIButton.h"
 
-typedef enum BTN_STATE {
-  BTN_NONE = 0x0,
-  BTN_DOWN = 0x1,
-  BTN_PRESSED = 0x2,
-  BTN_UP = 0x3,
-  BTN_DBLCLK = 0x4
-} BTN_STATE;
-
 class CUIBitmapButton : public CUIButton {
  public:
   CUIBitmapButton();

@@ -9,6 +9,11 @@ class CUIButton : public CUIWindow {
   CUIButton();
   ~CUIButton();
 
+  void OnLBtnDown(int, int);
+  void OnLBtnUp(int, int);
+  void OnMouseMove(int, int);
+  void OnMouseHover(int, int);
+
  protected:
   std::string m_text;
   std::string m_toolTip;
@@ -41,4 +46,4 @@ class CUIButton : public CUIWindow {
 //    public void * __vecDelDtor(unsigned int)
 //}
 
-#endif // DOLORI_UI_UIBUTTON_H_
+#endif  // DOLORI_UI_UIBUTTON_H_

@@ -12,12 +12,13 @@ class CUIWindow {
   ~CUIWindow();
 
   void Create(int, int);
-  void Move(int, int);
-  void Resize(int, int);
+
   int GetX();
   int GetY();
   int GetHeight();
   int GetWidth();
+  virtual void Move(int, int);
+  virtual void Resize(int, int);
   virtual void DoDraw(bool);
   virtual void OnDraw();
   virtual void OnCreate(int, int);
@@ -26,15 +27,42 @@ class CUIWindow {
   bool IsShow();
   void SetShow(bool);
   void AddChild(CUIWindow *);
+  bool IsChildOf(CUIWindow *);
   void DrawBitmap(int, int, CBitmapRes *, int);
+  void ClearDC(uint32_t color);
   void DrawSurface();
   void InvalidateChildren();
+  void Invalidate();
   void TextOutA(int, int, const char *, int, int, int, unsigned int);
   void TextOutWithOutline(int, int, const char *, int, uint32_t, uint32_t, int,
                           int, bool);
+  void TextOutWithDecoration(int x, int y, const char *text, int textLen,
+                             unsigned int *colorRef, int fontType,
+                             int fontHeight);
+  static const char *InterpretColor(const char *color_text,
+                                    unsigned int *colorRef);
+  virtual void OnBeginEdit();
+  virtual void OnFinishEdit();
+  virtual int SendMsg(CUIWindow *, int, int, int, int, int);
   void SetId(int);
   int GetId();
   CUIWindow *GetParent();
+  CUIWindow *HitTest(int, int);
+  void GetGlobalCoor(int *, int *);
+  virtual void OnLBtnDown(int, int);
+  virtual void OnLBtnDblClk(int, int);
+  virtual void OnRBtnDown(int, int);
+  virtual void OnRBtnDblClk(int, int);
+  virtual void OnWBtnDown(int, int);
+  virtual void OnLBtnUp(int, int);
+  virtual void OnRBtnUp(int, int);
+  virtual void OnWBtnUp(int, int);
+  virtual void OnMouseShape(int, int);
+  virtual void OnMouseHover(int, int);
+  virtual void OnMouseMove(int, int);
+
+ protected:
+  virtual bool ShouldDoHitTest();
 
  protected:
   CUIWindow *m_parent;

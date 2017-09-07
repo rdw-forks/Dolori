@@ -41,8 +41,6 @@ void CModeMgr::Switch(int modeType, const char* modeName) {
 
 void CModeMgr::Quit() {
   m_curMode->SetLoopCond(false);
-  /*if (g_serviceType == 11)
-          ShellExecuteA(g_hMainWnd, Operation, aHttpWww_ragnar, 0, 0, 1);*/
   m_loopCond = false;
 }
 

@@ -5,7 +5,7 @@
 #include "UIBitmapButton.h"
 #include "UIBmp.h"
 
-CUINoticeConfirmWnd::CUINoticeConfirmWnd() {}
+CUINoticeConfirmWnd::CUINoticeConfirmWnd() { m_target = 30; }
 
 CUINoticeConfirmWnd::~CUINoticeConfirmWnd() {}
 
@@ -30,12 +30,9 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
 
   for (int i = 0; i < 2; i++) {
     CUIBitmapButton *btn = new CUIBitmapButton();
-    btn->SetBitmapName((path_name + button_name[i][0] + ".bmp").c_str(),
-                       BTN_NONE);
-    btn->SetBitmapName((path_name + button_name[i][1] + ".bmp").c_str(),
-                       BTN_DOWN);
-    btn->SetBitmapName((path_name + button_name[i][2] + ".bmp").c_str(),
-                       BTN_PRESSED);
+    btn->SetBitmapName((path_name + button_name[i][0] + ".bmp").c_str(), 0);
+    btn->SetBitmapName((path_name + button_name[i][1] + ".bmp").c_str(), 1);
+    btn->SetBitmapName((path_name + button_name[i][2] + ".bmp").c_str(), 2);
 
     btn->Create(btn->GetBitmapWidth(), btn->GetBitmapHeight());
     btn->Move(pos[i][0], pos[i][1]);
@@ -46,7 +43,7 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   CUITextViewer *text_viewer = new CUITextViewer();
   text_viewer->Create2(10, 22, cx - 20, cy - 55, false);
   AddChild(text_viewer);
-  text_viewer->AddItem("Thank you for using Dolori !");
+  text_viewer->AddItem("Do you agree ?");
 }
 
 void CUINoticeConfirmWnd::OnDraw() {
@@ -62,21 +59,24 @@ int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, int val1,
                                  int val2, int val3, int val4) {
   int result;
 
-  if (message == 6) {
-    if (val1 == 118) {
-      // g_ModeMgr->GetCurMode()->SendMsg(g_ModeMgr->GetCurMode(), m_target, 0,
-      // 0,
-      //                                 0);
-    } else if (val1 == 119) {
-      // g_ModeMgr->GetCurMode()->SendMsg(2, 0, 0, 0);
-      return 0;
-    }
-    result = 0;
-  } else if (message == 80) {
-    result = 0;
-    m_target = val1;
-  } else {
-    // result = CUIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);
-  }
+  switch (message) {
+    case 6:
+      // Ok button has been pressed
+      if (val1 == 118)
+        result = g_ModeMgr->GetCurMode()->SendMsg(m_target, 0, 0, 0);
+      // Cancel button has been pressed so we quit the current mode
+      else if (val1 == 119) {
+        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
+        result = 0;
+      }
+      break;
+    case 80:
+      result = 0;
+      m_target = val1;
+      break;
+    default:
+      result = CUIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);
+  };
+
   return result;
 }

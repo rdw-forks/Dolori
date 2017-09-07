@@ -9,6 +9,7 @@ CSession* g_Session = new CSession();
 CFileMgr* g_FileMgr = new CFileMgr();
 CTexMgr* g_TexMgr = new CTexMgr();
 CResMgr* g_ResMgr = new CResMgr();
+CMouse* g_Mouse = new CMouse();
 CRenderer* g_Renderer;
 
 char TITLE_FILE[256];

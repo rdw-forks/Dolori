@@ -153,14 +153,15 @@ int main(int argc, char* argv[]) {
     return EXIT_FAILURE;
   }
   g_Renderer = g_3dDevice->CreateRenderer(0);
-
   if (!CConnection::Startup()) return EXIT_FAILURE;
+
+  g_Mouse->Init();
   g_WindowMgr->SetSize(g_Renderer->GetWidth(), g_Renderer->GetHeight());
   g_Session->SetCharName("noname");
   g_WindowMgr->InvalidateUpdateNeededUI();
   g_Session->InvalidateBasicWnd();
+  // Let's go
   g_ModeMgr->Run(MT_LOGIN, "login.rsw");
-
   g_RagConnection->Disconnect();
   CConnection::Cleanup();
   // g_ResMgr->Reset();

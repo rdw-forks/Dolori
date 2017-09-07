@@ -1,4 +1,5 @@
 #include "Mode.h"
+#include "../Common/Globals.h"
 
 CMode::CMode() {}
 
@@ -13,3 +14,12 @@ void CMode::OnInit(const char *) {}
 int CMode::OnRun() { return 0; }
 
 void CMode::OnExit() {}
+
+int CMode::SendMsg(int messageId, int val1, int val2, int val3) {
+  if (messageId == 2) {
+    g_ModeMgr->Quit();
+  } else if (messageId == 75) {
+    m_screenShotNow = true;
+  }
+  return 0;
+}

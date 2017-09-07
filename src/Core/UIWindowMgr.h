@@ -7,6 +7,7 @@
 #include "../Render/BitmapRes.h"
 #include "../Render/Surface.h"
 #include "../UI/UIFrameWnd.h"
+#include "../UI/UILoginWnd.h"
 #include "../UI/UIWindow.h"
 
 typedef enum WINDOWID {
@@ -175,7 +176,13 @@ class CUIWindowMgr {
   void Render(CMode *);
   CUIFrameWnd *MakeWindow(WINDOWID windowId);
   void AddWindow(CUIWindow *);
+  void RemoveWindow(CUIWindow *);
   void InvalidateUpdateNeededUI();
+  CUIWindow *GetCapture();
+  void SetCapture(CUIWindow *);
+  void ReleaseCapture();
+  void SetFocusEdit(CUIWindow *window);
+  int ProcessInput();
 
  private:
   int m_chatWndX;
@@ -194,6 +201,15 @@ class CUIWindowMgr {
   std::list<CUIWindow *> m_quitWindow;
   std::list<CUIWindow *> m_nameWaitingList;
   // std::map<CUIWindow *, CSnapInfo, std::less<CUIWindow *>> m_snapInfo;
+  CUIWindow *m_captureWindow;
+  CUIWindow *m_editWindow;
+  CUIWindow *m_modalWindow;
+  CUIWindow *m_lastHitWindow;
+  class CUILoadingWnd *m_loadingWnd;
+  class CUIMinimapZoomWnd *m_minimapZoomWnd;
+  class CUIStatusWnd *m_statusWnd;
+  class CUINewChatWnd *m_chatWnd;
+  CUILoginWnd *m_loginWnd;
   bool m_isInvalidatedByForce;
   unsigned char m_chatWndStickOn;
   unsigned char m_onStSubChat;

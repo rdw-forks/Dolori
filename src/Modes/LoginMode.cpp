@@ -5,6 +5,7 @@
 #include "../Common/GetTick.h"
 #include "../Common/Globals.h"
 #include "../Common/service_type.h"
+#include "../Input/SDLEvents.h"
 #include "../Network/Packets.h"
 #include "../UI/UIBmp.h"
 #include "../UI/UINoticeConfirmWnd.h"
@@ -57,6 +58,19 @@ int CLoginMode::OnRun() {
 
 void CLoginMode::OnExit() {}
 
+int CLoginMode::SendMsg(int messageId, int val1, int val2, int val3) {
+  switch (messageId) {
+    case 30:
+      g_mustPumpOutReceiveQueue = false;
+      m_nextSubMode = 3;
+      return 0;
+    default:
+      return CMode::SendMsg(messageId, val1, val2, val3);
+  };
+
+  return 0;
+}
+
 void CLoginMode::OnUpdate() {
   PollNetworkStatus();
 
@@ -72,10 +86,13 @@ void CLoginMode::OnUpdate() {
     packet_size = g_RagConnection->GetPacketSize(HEADER_PING);
     g_RagConnection->SendPacket(packet_size, (char *)&packet);
   }
+  ProcessSDLEvents();
+  g_Mouse->ReadState();
+  g_WindowMgr->ProcessInput();
+
   g_Renderer->Clear(true);
   g_WindowMgr->RenderWallPaper();
   g_WindowMgr->Render(this);
-  //g_Renderer->DrawBoxScreen(100, 100, 300, 300, 0xFFFF0000);
   if (g_Renderer->DrawScene()) g_Renderer->Flip();
 }
 
@@ -88,8 +105,7 @@ void CLoginMode::OnChangeState(int state) {
       CBitmapRes *bitmap;
       CUINoticeConfirmWnd *wnd;
 
-      m_wallPaperBmpName =
-          UIBmp("texture/À¯ÀúÀÎÅÍÆäÀÌ½º/login_interface/warning.bmp");
+      m_wallPaperBmpName = UIBmp("À¯ÀúÀÎÅÍÆäÀÌ½º/login_interface/warning.bmp");
       bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(bitmap);
 
@@ -102,8 +118,17 @@ void CLoginMode::OnChangeState(int state) {
     case 2:
       // InitAccountInfo()
       break;
-    case 3:
-      break;
+    case 3: {
+      // WinMainNpKeyStartEncryption();
+      m_wallPaperBmpName = TITLE_FILE;
+      const char *res_name = UIBmp(m_wallPaperBmpName.c_str());
+      CBitmapRes *res = (CBitmapRes *)g_ResMgr->Get(res_name, false);
+      g_WindowMgr->SetWallpaper(res);
+      CUIFrameWnd *login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
+      if (!g_hideAccountList && login_wnd)
+        login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
+      return;
+    }
     case 4: {
       // Connection to account server
       ServerAddress server_addr;

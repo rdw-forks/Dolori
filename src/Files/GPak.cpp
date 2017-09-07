@@ -99,7 +99,7 @@ bool CGPak::GetInfo(CHash *fName, PAK_PACK *pakPack) {
   for (auto it = m_PakPack.begin(); it != m_PakPack.end(); ++it) {
     if (it->m_fName == *fName) {
       if (!strncmp(fName->GetString(), it->m_fName.GetString(), 0x100)) {
-        memcpy(pakPack, &(*it), sizeof(PAK_PACK));
+        if (pakPack) memcpy(pakPack, &(*it), sizeof(PAK_PACK));
         return true;
       }
     }
