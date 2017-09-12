@@ -291,7 +291,7 @@ class CMode {
   virtual int OnRun();
   virtual void OnExit();
 
-  virtual int SendMsg(int, int, int, int);
+  virtual int SendMsg(int, void *, void *, void *);
 
  protected:
   int m_subMode;

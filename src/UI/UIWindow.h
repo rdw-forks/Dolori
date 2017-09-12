@@ -23,17 +23,23 @@ class CUIWindow {
   virtual void OnDraw();
   virtual void OnCreate(int, int);
   virtual bool IsUpdateNeeded();
+  virtual void OnBeginEdit();
+  virtual void OnFinishEdit();
+  virtual int SendMsg(CUIWindow *, int, void *, void *, void *, void *);
   void OnSize(int, int);
   bool IsShow();
   void SetShow(bool);
   void AddChild(CUIWindow *);
   bool IsChildOf(CUIWindow *);
   void DrawBitmap(int, int, CBitmapRes *, int);
+  void DrawBox(int x, int y, int cx, int cy, uint32_t color);
   void ClearDC(uint32_t color);
   void DrawSurface();
   void InvalidateChildren();
   void Invalidate();
   void TextOutA(int, int, const char *, int, int, int, unsigned int);
+  void TextOutUTF8(int x, int y, const char *text, int textLen, int fontType,
+                   int fontHeight, unsigned int colorText);
   void TextOutWithOutline(int, int, const char *, int, uint32_t, uint32_t, int,
                           int, bool);
   void TextOutWithDecoration(int x, int y, const char *text, int textLen,
@@ -41,9 +47,6 @@ class CUIWindow {
                              int fontHeight);
   static const char *InterpretColor(const char *color_text,
                                     unsigned int *colorRef);
-  virtual void OnBeginEdit();
-  virtual void OnFinishEdit();
-  virtual int SendMsg(CUIWindow *, int, int, int, int, int);
   void SetId(int);
   int GetId();
   CUIWindow *GetParent();

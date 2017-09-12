@@ -1,8 +1,32 @@
 #include "UIListBox.h"
 
-CUIListBox::CUIListBox() {}
+CUIListBox::CUIListBox() {
+  m_curItem = 0;
+  m_vertViewOffset = 0;
+  m_horzViewOffset = 0;
+  m_maxTextWidth = 0;
+  m_vertScrollBar = 0;
+  m_horzScrollBar = 0;
+  m_vertScrEnabled = 0;
+  m_horzScrEnabled = 0;
+  m_isTransParent = false;
+  SetColor(255, 255, 255);
+  m_itemSpacing = 16;
+}
 
 CUIListBox::~CUIListBox() {}
+
+void CUIListBox::Create2(int x, int y, int cx, int cy, bool trans) {
+  m_isTransParent = trans;
+  Create(cx, cy);
+  Move(x, y);
+}
+
+void CUIListBox::SetColor(int r, int g, int b) {
+  m_bR = r;
+  m_bG = g;
+  m_bB = b;
+}
 
 void CUIListBox::Resize(int cx, int cy) {
   CUIWindow::Resize(cx, cy);
@@ -34,6 +58,8 @@ void CUIListBox::RecalcScrbarPos() {
   }
 }
 
+int CUIListBox::GetSelected() { return m_curItem; }
+
 void CUIListBox::OnCreate(int cx, int cy) {
   int fixed_length;
 
@@ -59,6 +85,52 @@ void CUIListBox::OnCreate(int cx, int cy) {
 void CUIListBox::AddItem(const char *txt) {
   m_items.push_back(txt);
   RecalcScrbarPos();
+}
+
+void CUIListBox::OnDraw() {
+  int spacing = m_itemSpacing - m_horzScrEnabled;
+  size_t nb_of_items = m_items.size();
+  size_t nb_of_items_shown;
+  uint32_t color = 0;
+  int div = 1;
+
+  if (m_isTransParent) {
+    ClearDC(0);
+    if (m_parent) m_parent->Invalidate();
+  } else {
+    ClearDC((m_bR << 16) | (m_bG << 8) | m_bB);
+  }
+
+  if (spacing) div = spacing;
+  if (m_vertViewOffset + m_h / div >= nb_of_items)
+    nb_of_items_shown = nb_of_items;
+  else
+    nb_of_items_shown = m_vertViewOffset + m_h / div;
+
+  const char *str;
+  size_t str_length;
+  for (int i = 0; i < nb_of_items_shown; i++) {
+    if (m_vertViewOffset + i >= nb_of_items) break;
+    if (m_vertViewOffset + i == m_curItem)
+      DrawBox(0, m_itemSpacing * i, m_w, m_itemSpacing - 1, 0xFFFBDFCA);
+
+    str = m_items[m_vertViewOffset + i].c_str();
+    str_length = m_items[m_vertViewOffset + i].length();
+    TextOutWithDecoration(3 - m_horzViewOffset, m_itemSpacing * i, str,
+                          str_length, &color, 0, 12);
+  }
+}
+
+void CUIListBox::OnLBtnDown(int x, int y) {
+  int target_id = m_vertViewOffset + y / m_itemSpacing;
+
+  if (x < 0 || y < 0 || x >= m_w || y >= m_h || target_id < 0 ||
+      target_id >= m_items.size())
+    m_curItem = -1;
+  else
+    m_curItem = target_id;
+
+  Invalidate();
 }
 
 int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
@@ -93,4 +165,17 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
 
       return m_vertViewOffset - prev_view_offset;
   };
+}
+
+int CUIListBox::HitTest(int x, int y) {
+  int target_id = m_vertViewOffset + y / m_itemSpacing;
+  int result;
+
+  if (x < 0 || y < 0 || x >= m_w || y >= m_h || target_id < 0 ||
+      target_id >= m_items.size())
+    result = -1;
+  else
+    result = target_id;
+
+  return result;
 }

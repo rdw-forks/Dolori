@@ -1,7 +1,11 @@
 ﻿#include "LoginMode.h"
-#ifndef WIN32
+#ifdef WIN32
+#include <Ws2tcpip.h>
+#define inet_ntop InetNtop
+#else
 #include <arpa/inet.h>
 #endif
+#include <string.h>
 #include "../Common/GetTick.h"
 #include "../Common/Globals.h"
 #include "../Common/service_type.h"
@@ -9,6 +13,7 @@
 #include "../Network/Packets.h"
 #include "../UI/UIBmp.h"
 #include "../UI/UINoticeConfirmWnd.h"
+#include "../UI/UISelectServerWnd.h"
 
 CLoginMode::CLoginMode() {}
 
@@ -58,12 +63,38 @@ int CLoginMode::OnRun() {
 
 void CLoginMode::OnExit() {}
 
-int CLoginMode::SendMsg(int messageId, int val1, int val2, int val3) {
+int CLoginMode::SendMsg(int messageId, void *val1, void *val2, void *val3) {
   switch (messageId) {
-    case 30:
+    case MM_GOTOIDENTRY:
       g_mustPumpOutReceiveQueue = false;
       m_nextSubMode = 3;
-      return 0;
+      break;
+    case LMM_CONNECT_TO_ACSVR:
+      m_nextSubMode = 4;
+      break;
+    case LMM_PASSWORD:
+      if (val1) strncpy(m_userPassword, (char *)val1, sizeof(m_userPassword));
+      break;
+    case LMM_ID:
+      if (val1) strncpy(m_userId, (char *)val1, sizeof(m_userId));
+      break;
+    case LMM_GOTOSELECTACCOUNT: {
+      int val = (int)val2;
+      if (val == 135)
+        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
+      else
+        m_nextSubMode = 2;
+    } break;
+    case LMM_SELECTSVR: {
+      m_serverSelected = (int)val1;
+      if (m_serverSelected == -1) break;
+
+      struct in_addr ip;
+      ip.S_un.S_addr = m_serverInfo[m_serverSelected].ip;
+      inet_ntop(AF_INET, &ip, g_charServerAddr.ip, sizeof(g_charServerAddr.ip));
+      g_charServerAddr.port = m_serverInfo[m_serverSelected].port;
+      m_nextSubMode = 5;
+    } break;
     default:
       return CMode::SendMsg(messageId, val1, val2, val3);
   };
@@ -102,6 +133,7 @@ void CLoginMode::OnChangeState(int state) {
 
   switch (state) {
     case 0: {
+      // Notice confirm window
       CBitmapRes *bitmap;
       CUINoticeConfirmWnd *wnd;
 
@@ -111,18 +143,23 @@ void CLoginMode::OnChangeState(int state) {
 
       wnd =
           (CUINoticeConfirmWnd *)g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND);
-      if (wnd) wnd->SendMsg(0, 80, 10018, 0, 0, 0);
+      if (wnd) wnd->SendMsg(NULL, 80, (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
     } break;
     case 1:
       break;
     case 2:
-      // InitAccountInfo()
+      // Account server selection window
+      // TODO
+      // if (!InitAccountInfo())
+      // SendMsg(30, 0, 0, 0);
+      m_nextSubMode = 3;
       break;
     case 3: {
+      // Login window
       // WinMainNpKeyStartEncryption();
-      m_wallPaperBmpName = TITLE_FILE;
-      const char *res_name = UIBmp(m_wallPaperBmpName.c_str());
-      CBitmapRes *res = (CBitmapRes *)g_ResMgr->Get(res_name, false);
+      m_wallPaperBmpName = UIBmp("À¯ÀúÀÎÅÍÆäÀÌ½º/bgi_temp.bmp");
+      CBitmapRes *res =
+          (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(res);
       CUIFrameWnd *login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
       if (!g_hideAccountList && login_wnd)
@@ -131,10 +168,12 @@ void CLoginMode::OnChangeState(int state) {
     }
     case 4: {
       // Connection to account server
-      ServerAddress server_addr;
+      SERVER_ADDRESS server_addr;
 
       strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
       server_addr.port = atoi(g_accountPort);
+      printf("Connecting to the account server ...\n");
+      printf("IP: %s\nPort: %d\n", server_addr.ip, server_addr.port);
       m_isConnected = g_RagConnection->Connect(&server_addr);
       if (!m_isConnected) {
         g_RagConnection->Disconnect();
@@ -158,8 +197,8 @@ void CLoginMode::OnChangeState(int state) {
         packet.header = HEADER_CA_REQ_HASH;
         packet_size = g_RagConnection->GetPacketSize(HEADER_CA_REQ_HASH);
         g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        // str = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
-        // m_wndWait->SetMsg(str, 16, 1);
+        // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+        // 16, 1);
         return;
       }
 
@@ -174,9 +213,10 @@ void CLoginMode::OnChangeState(int state) {
         packet.client_type = g_clientType;  // GetAccountType();
         packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN);
         g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr,
-        // WID_WAITWND); v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
-        // UIWaitWnd::SetMsg(v127, v128, 16, 1);
+        // CUIWaitWnd *waitwnd =
+        //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
+        // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+        // 16, 1);
       } else {
         struct PACKET_CA_LOGIN_CHANNEL packet;
         int packet_size;
@@ -191,15 +231,17 @@ void CLoginMode::OnChangeState(int state) {
         packet.channeling_corp = g_isGravityID;
         packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
         g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr,
-        // WID_WAITWND); v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
-        // UIWaitWnd::SetMsg(v127, v128, 16, 1);
+        // CUIWaitWnd *waitwnd =
+        //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
+        // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+        // 16, 1);
       }
-
     } break;
     case 5:
       // Connection to char server
       g_RagConnection->Disconnect();
+      printf("Connecting to the char server ...\n");
+      printf("IP: %s\nPort: %d\n", g_charServerAddr.ip, g_charServerAddr.port);
       m_isConnected = g_RagConnection->Connect(&g_charServerAddr);
       // WinMainNpKeyStopEncryption();
       if (!m_isConnected) {
@@ -225,6 +267,24 @@ void CLoginMode::OnChangeState(int state) {
       packet_size = g_RagConnection->GetPacketSize(HEADER_CH_ENTER);
       g_RagConnection->SendPacket(packet_size, (char *)&packet);
       return;
+    case 6: {
+      // Select char server
+      CUISelectServerWnd *wnd =
+          (CUISelectServerWnd *)g_WindowMgr->MakeWindow(WID_SELECTSERVERWND);
+
+      if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, "NUMSERVER", 0, 0);
+      if (m_numServer < 0) {
+        wnd->SendMsg(0, 40, 0, 0, 0, 0);
+        return;
+      }
+      for (int i = 0; i < m_numServer; i++) {
+        unsigned char *server_name = m_serverInfo[i].name;
+        wnd->AddServer((char *)server_name);
+      }
+    } break;
+    case 7:
+      g_WindowMgr->MakeWindow(WID_SELECTCHARWND);
+      break;
     case 12:
       // Connection to zone server
       m_isConnected = g_RagConnection->Connect(&g_zoneServerAddr);
@@ -265,9 +325,7 @@ void CLoginMode::OnChangeState(int state) {
 void CLoginMode::PollNetworkStatus() {
   char buffer[2048];
 
-  if (!g_RagConnection->Poll()) {
-    // UI stuff
-  }
+  if (!g_RagConnection->Poll()) g_ModeMgr->GetCurMode()->SendMsg(1, 0, 0, 0);
 
   if (g_mustPumpOutReceiveQueue) {
     unsigned int aid;
@@ -314,8 +372,8 @@ void CLoginMode::PollNetworkStatus() {
         Zc_Accept_Enter(buffer);
         break;
       case HEADER_ZC_REFUSE_ENTER:
-        // str = MsgStr(MSI_ACCESS_DENIED);
-        // g_windowMgr->ErrorMsg(str, 0, 1, 0, 0);
+        g_WindowMgr->ErrorMsg(g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED), 0, 1,
+                              0, 0);
         break;
       case HEADER_SC_NOTIFY_BAN:
         // Sc_Notify_Ban(buffer);
@@ -378,7 +436,8 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
   // g_Session->SetTextType(false, false);
   m_numServer = (packet->packet_len - sizeof(PACKET_AC_ACCEPT_LOGIN)) /
                 sizeof(CHAR_SERVER_INFO);
-  memcpy(m_serverInfo, buffer + 0x2F, m_numServer * sizeof(CHAR_SERVER_INFO));
+  memcpy(m_serverInfo, &(packet->server_info),
+         m_numServer * sizeof(CHAR_SERVER_INFO));
   g_RagConnection->Disconnect();
   g_passwordWrong = false;
   m_nextSubMode = 6;
@@ -389,15 +448,29 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
       (struct PACKET_AC_REFUSE_LOGIN *)buffer;
 
   if (packet->error_code != 18) g_RagConnection->Disconnect();
-
   switch (packet->error_code) {
+    const char *msg;
     case 0:
-      // str = MsgStr(MSI_INCORRECT_USERID);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_INCORRECT_USERID);
+      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
       break;
     case 1:
-      // str = MsgStr(MSI_INCORRECT_LOGIN_PASSWORD);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_INCORRECT_LOGIN_PASSWORD);
+      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
       break;
       // TODO ...
+    case 3:
+      msg = g_MsgStrMgr->GetMsgStr(MSI_BAN_PC_IP_LIMIT_ACCESS);
+      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+      break;
+    case 5:
+      msg = g_MsgStrMgr->GetMsgStr(MSI_INVALID_VERSION);
+      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+      // v2->vfptr->SendMsg((CMode *)v2, 2, 0, 0, 0);
+      break;
+    default:
+      msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
+      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   };
 }
 
@@ -420,16 +493,18 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
 void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
   struct PACKET_HC_REFUSE_ENTER *packet =
       (struct PACKET_HC_REFUSE_ENTER *)buffer;
+  const char *msg;
+  int change_msg;
 
   g_RagConnection->Disconnect();
   if (packet->error_code == 1) {
-    // v22 = 1;
-    // str = MsgStr(MSI_ID_MISMATCH);
+    change_msg = 1;
+    msg = g_MsgStrMgr->GetMsgStr(MSI_ID_MISMATCH);
   } else {
-    // v22 = 0;
-    // str = MsgStr(MSI_ACCESS_DENIED);
+    change_msg = 0;
+    msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   }
-  // UIWindowMgr::ErrorMsg(&g_windowMgr, str, 0, 1, v22, 0);
+  g_WindowMgr->ErrorMsg(msg, 0, 1, change_msg, 0);
 }
 
 void CLoginMode::Hc_Accept_Makechar(const char *buffer) {

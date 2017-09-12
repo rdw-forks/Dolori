@@ -9,13 +9,13 @@ bool CMode::GetLoopCond() { return m_loopCond; }
 
 void CMode::SetLoopCond(bool loop_cond) { m_loopCond = loop_cond; }
 
-void CMode::OnInit(const char *) {}
+void CMode::OnInit(const char*) {}
 
 int CMode::OnRun() { return 0; }
 
 void CMode::OnExit() {}
 
-int CMode::SendMsg(int messageId, int val1, int val2, int val3) {
+int CMode::SendMsg(int messageId, void* val1, void* val2, void* val3) {
   if (messageId == 2) {
     g_ModeMgr->Quit();
   } else if (messageId == 75) {

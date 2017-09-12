@@ -34,6 +34,9 @@ void ProcessSDLEvents() {
         g_Mouse->SetXPos(ev.motion.x);
         g_Mouse->SetYPos(ev.motion.y);
         break;
+      case SDL_TEXTINPUT:
+        g_Language->AddInput(ev.text.text);
+        break;
     };
   }
 }

@@ -51,14 +51,15 @@ bool CPacketQueue::PeekData(int size, char *lpBuffer) {
 }
 
 bool CPacketQueue::GetData(int size, char *lpBuffer) {
+  bool result = false;
+
   if (GetSize() >= size) {
     memcpy(lpBuffer, m_buf + m_frontPos, size);
     m_frontPos += size;
-
-    return true;
+    result = true;
   }
 
-  return false;
+  return result;
 }
 
 bool CPacketQueue::RemoveData(int size) {

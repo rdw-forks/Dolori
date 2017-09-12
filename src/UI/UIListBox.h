@@ -11,15 +11,20 @@ class CUIListBox : public CUIWindow {
   CUIListBox();
   ~CUIListBox();
 
+  void Create2(int x, int y, int cx, int cy, bool trans);
+  void SetColor(int r, int g, int b);
   void Resize(int cx, int cy);
   void RecalcScrbarPos();
+  int GetSelected();
   void OnCreate(int, int);
   void AddItem(const char*);
+  void OnDraw();
+  void OnLBtnDown(int x, int y);
   int SendMsg(CUIWindow* sender, int message, int val1, int val2, int val3,
               int val4);
 
  protected:
-  // int HitTest(int, int);
+  int HitTest(int x, int y);
 
  protected:
   int m_bR;
@@ -34,7 +39,7 @@ class CUIListBox : public CUIWindow {
   int m_horzScrEnabled;
   CUIScrollBar* m_vertScrollBar;
   CUIScrollBar* m_horzScrollBar;
-  int m_isTransParent;
+  bool m_isTransParent;
   int m_itemSpacing;
   char m_noColor;
 };

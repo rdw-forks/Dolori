@@ -2,17 +2,19 @@
 #ifdef WIN32
 #include <WinSock2.h>
 #else
-#include <arpa/inet.h>   // For inet_addr
+#include <arpa/inet.h>  // For inet_addr
 #include <errno.h>
-#include <netinet/tcp.h> // For TCP_NODELAY
-#include <string.h>      // For memset()
-#include <sys/socket.h>  // For socket(), connect(), send(), and recv()
-#include <unistd.h>      // For close()
+#include <netinet/tcp.h>  // For TCP_NODELAY
+#include <string.h>       // For memset()
+#include <sys/socket.h>   // For socket(), connect(), send(), and recv()
+#include <unistd.h>       // For close()
 #define closesocket close
 #define SOCKET_ERROR (-1)
 #define INVALID_SOCKET (-1)
 #endif
+#include "../Common/ErrorMsg.h"
 #include "../Common/GetTick.h"
+#include "RagConnection.h"
 
 CConnection::CConnection() {}
 
@@ -24,7 +26,7 @@ bool CConnection::Startup() {
   WSADATA data;
 
   if (WSAStartup(0x101u, &data)) {
-    // ErrorMsg(aFailedToLoadWi);
+    ErrorMsg("Failed to load Winsock");
     WSACleanup();
     result = false;
   } else
@@ -51,7 +53,7 @@ bool CConnection::Poll() {
   return result;
 }
 
-bool CConnection::Connect(const ServerAddress *sa) {
+bool CConnection::Connect(const SERVER_ADDRESS *sa) {
   bool result;
 
   m_recvQueue.Init(40960);
@@ -67,7 +69,9 @@ bool CConnection::Connect(const ServerAddress *sa) {
     return false;
   }
 #ifdef WIN32
+  argp = 1;
   if (ioctlsocket(m_socket, FIONBIO, &argp) == SOCKET_ERROR) {
+    ErrorMsg("Failed to setup select mode");
     return false;
   }
 #endif
@@ -170,26 +174,24 @@ bool CConnection::OnRecv() {
   nb_sockets = select(0, &readfds, 0, 0, &timeout);
   if (nb_sockets == -1 || nb_sockets <= 0) return true;
   received_bytes = recv(m_socket, lpBuffer, 2048, 0);
-  if (received_bytes != -1) {
-    if (received_bytes > 0) {
-      m_recvQueue.InsertData(received_bytes, lpBuffer);
-      return true;
-    }
-    goto LABEL_6;
+  if (received_bytes > 0) {
+    m_recvQueue.InsertData(received_bytes, lpBuffer);
+    return true;
   }
-#ifdef WIN32
-  err = WSAGetLastError();
-  if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) return true;
-#else
-  if (errno != EWOULDBLOCK && errno != ENOTCONN) return true;
-#endif
-LABEL_6:
+
   if (m_socket != INVALID_SOCKET) {
     closesocket(m_socket);
     m_socket = INVALID_SOCKET;
     m_sendQueue.Init(40960);
     m_blockQueue.Init(40960);
   }
+
+#ifdef WIN32
+  err = WSAGetLastError();
+  if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) return true;
+#else
+  if (errno != EWOULDBLOCK && errno != ENOTCONN) return true;
+#endif
 
   return false;
 }

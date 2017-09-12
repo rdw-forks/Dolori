@@ -43,7 +43,8 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   CUITextViewer *text_viewer = new CUITextViewer();
   text_viewer->Create2(10, 22, cx - 20, cy - 55, false);
   AddChild(text_viewer);
-  text_viewer->AddItem("Do you agree ?");
+  // TODO: replace with the correct SendMsg call
+  text_viewer->AddItem(g_MsgStrMgr->GetMsgStr(MSI_DO_YOU_AGREE));
 }
 
 void CUINoticeConfirmWnd::OnDraw() {
@@ -55,24 +56,23 @@ void CUINoticeConfirmWnd::OnDraw() {
   DrawBitmap(0, 0, bitmap, 0);
 }
 
-int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, int val1,
-                                 int val2, int val3, int val4) {
-  int result;
+int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
+                                 void *val2, void *val3, void *val4) {
+  int result = 0;
 
   switch (message) {
-    case 6:
+    case 6: {
+      int btn_id = (int)val1;
+
       // Ok button has been pressed
-      if (val1 == 118)
+      if (btn_id == 118)
         result = g_ModeMgr->GetCurMode()->SendMsg(m_target, 0, 0, 0);
       // Cancel button has been pressed so we quit the current mode
-      else if (val1 == 119) {
+      else if (btn_id == 119)
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
-        result = 0;
-      }
-      break;
+    } break;
     case 80:
-      result = 0;
-      m_target = val1;
+      m_target = (int)val1;
       break;
     default:
       result = CUIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);

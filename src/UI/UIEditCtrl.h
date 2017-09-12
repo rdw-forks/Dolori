@@ -12,6 +12,11 @@ class CUIEditCtrl : public CUIWindow {
   void SetFrameColor(int r, int g, int b);
   void OnLBtnDown(int x, int y);
   void OnDraw();
+  void DrawEditText();
+  void OnBeginEdit();
+  void OnFinishEdit();
+  void RefreshText();
+  const char* GetText();
 
  private:
   int m_selectionOrigin;

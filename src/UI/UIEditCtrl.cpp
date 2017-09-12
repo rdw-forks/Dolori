@@ -32,7 +32,7 @@ void CUIEditCtrl::OnLBtnDown(int x, int y) { g_WindowMgr->SetFocusEdit(this); }
 
 void CUIEditCtrl::OnDraw() {
   if (m_isSingColorFrame) {
-    ClearDC((m_r << 16) | (m_g << 8) | m_b);
+    ClearDC((0xFF << 24) | (0xFF << 16) | (m_g << 8) | m_b);
     m_yOffset = 2;
   } else {
     CBitmapRes* bitmap;
@@ -58,4 +58,45 @@ void CUIEditCtrl::OnDraw() {
 
     m_yOffset = 5;
   }
+  DrawEditText();
+}
+
+void CUIEditCtrl::DrawEditText() {
+  uint32_t text_color;
+
+  text_color = (m_textR << 16) | (m_textG << 8) | m_textB;
+  if (g_WindowMgr->GetFocusEdit() == this) {
+    RefreshText();
+    if (m_maskchar) {
+    } else {
+    }
+  }
+  TextOutUTF8(m_xOffset, m_yOffset, m_text.c_str(), 0, 0, 12, text_color);
+}
+
+void CUIEditCtrl::OnBeginEdit() {
+  g_Language->ResetInput();
+  g_Language->AddInput(m_text.c_str());
+  // g_Language->HideText(m_maskchar != 0);
+  if (g_WindowMgr->GetFocusEdit() == this) {
+    // g_Language->SetSelection(0, g_Language->m_input._Len);
+  } else {
+    m_selectionOrigin = 0;
+    m_selectionCursor = m_text.length();
+  }
+  SDL_StartTextInput();
+}
+
+void CUIEditCtrl::OnFinishEdit() {
+  SDL_StopTextInput();
+  RefreshText();
+  Invalidate();
+}
+
+void CUIEditCtrl::RefreshText() { m_text = g_Language->GetLanguageText(); }
+
+const char* CUIEditCtrl::GetText() {
+  if (g_WindowMgr->GetFocusEdit() == this) RefreshText();
+
+  return m_text.c_str();
 }

@@ -122,6 +122,18 @@ void SetOption(tinyxml2::XMLDocument* document) {
         s_loadingScreenList.push_back(name);
       }
     }
+
+    // TODO: Iterate through connections
+    XMLElement* connection = clientinfo->FirstChildElement("connection");
+    if (connection) {
+      XMLElement* address = connection->FirstChildElement("address");
+      if (address)
+        strncpy(g_accountAddr, address->GetText(), sizeof(g_accountAddr));
+
+      XMLElement* port = connection->FirstChildElement("port");
+      if (port)
+        strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
+    }
   }
 }
 
@@ -135,10 +147,6 @@ void InitClientInfo(const char* filename) {
       SetOption(&document);
     }
     fp.Close();
-  }
-
-  if (g_serviceType != ServiceKorea) {
-    strncpy(TITLE_FILE, "À¯ÀúÀÎÅÍÆäÀÌ½º/bgi_temp.bmp", sizeof(TITLE_FILE));
   }
 }
 

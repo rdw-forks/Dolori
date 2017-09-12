@@ -175,6 +175,7 @@ class CUIWindowMgr {
   void RenderWallPaper();
   void Render(CMode *);
   CUIFrameWnd *MakeWindow(WINDOWID windowId);
+  void PostQuit(CUIWindow *wnd);
   void AddWindow(CUIWindow *);
   void RemoveWindow(CUIWindow *);
   void InvalidateUpdateNeededUI();
@@ -182,7 +183,10 @@ class CUIWindowMgr {
   void SetCapture(CUIWindow *);
   void ReleaseCapture();
   void SetFocusEdit(CUIWindow *window);
+  CUIWindow *GetFocusEdit();
   int ProcessInput();
+  int ErrorMsg(const char *msg, int type, int isDefYes, int changeMsg,
+               unsigned int autoReturnTime);
 
  private:
   int m_chatWndX;

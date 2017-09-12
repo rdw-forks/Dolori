@@ -45,7 +45,7 @@ class CLoginMode : public CMode {
   void OnInit(const char *);
   int OnRun();
   void OnExit();
-  int SendMsg(int, int, int, int);
+  int SendMsg(int, void *, void *, void *);
   void OnUpdate();
   void OnChangeState(int);
   void PollNetworkStatus();

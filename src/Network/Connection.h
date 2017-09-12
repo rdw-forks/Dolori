@@ -9,23 +9,23 @@
 #include <netinet/in.h> 
 #endif
 
-struct ServerAddress {
+typedef struct SERVER_ADDRESS {
   char ip[0x10];
   int port;
-};
+} SERVER_ADDRESS;
 
 class CConnection {
  public:
   CConnection();
   virtual ~CConnection();
 
-  static bool Startup();
-  static void Cleanup();
   bool Poll();
-  bool Connect(const struct ServerAddress *);
+  bool Connect(const SERVER_ADDRESS *sa);
   void Disconnect();
   int Recv(char *, int, char);
   void SetBlock(bool bBlock);
+  static bool Startup();
+  static void Cleanup();
 
  protected:
   bool OnSend();

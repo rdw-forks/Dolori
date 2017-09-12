@@ -1,6 +1,7 @@
 #ifndef DOLORI_NETWORK_RAGCONNECTION_H_
 #define DOLORI_NETWORK_RAGCONNECTION_H_
 
+#include <map>
 #include "Connection.h"
 
 class CRagConnection : public CConnection {
@@ -13,8 +14,12 @@ class CRagConnection : public CConnection {
   int GetPacketSize(int);
   short GetPacketType(const char *);
 
+ protected:
+  void InitPacketMap();
+
  private:
   bool m_bDrop;
+  std::map<int, int> m_packetLenMap;
 };
 
 // class CRagConnection {

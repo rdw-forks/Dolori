@@ -164,11 +164,26 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
 void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
   if (m_surface && bitmap) {
-    /*m_surface->Update(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
-                      bitmap->GetData(), drawOnlyNoTrans);*/
     m_surface->CopyBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
                           bitmap->GetData());
   }
+}
+
+void CUIWindow::DrawBox(int x, int y, int cx, int cy, uint32_t color) {
+  SDL_Rect r;
+
+  r.x = x <= 0 ? 0 : x;
+  r.y = y <= 0 ? 0 : y;
+  if (cx + x >= m_w)
+    r.w = m_w - x;
+  else
+    r.w = cx;
+  if (y + cy >= m_h)
+    r.h = m_h - y;
+  else
+    r.h = cy;
+
+  m_surface->ClearSurface(&r, color);
 }
 
 void CUIWindow::ClearDC(uint32_t color) {
@@ -192,14 +207,37 @@ void CUIWindow::Invalidate() { m_isDirty = true; }
 
 void CUIWindow::TextOutA(int x, int y, const char* text, int textLen,
                          int fontType, int fontHeight, unsigned int colorText) {
+  if (!text) return;
+
   TTF_Font* font = TTF_OpenFont("arial.ttf", fontHeight);
   SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
                      colorText & 0xFF};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
-  if (m_surface)
-    m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
-  else
-    m_surface = new CSurface(sdl_surface);
+  if (sdl_surface) {
+    if (m_surface)
+      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+    else
+      m_surface = new CSurface(sdl_surface);
+  }
+
+  TTF_CloseFont(font);
+}
+
+void CUIWindow::TextOutUTF8(int x, int y, const char* text, int textLen,
+                            int fontType, int fontHeight,
+                            unsigned int colorText) {
+  if (!text) return;
+
+  TTF_Font* font = TTF_OpenFont("arial.ttf", fontHeight);
+  SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
+                     colorText & 0xFF};
+  SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
+  if (sdl_surface) {
+    if (m_surface)
+      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+    else
+      m_surface = new CSurface(sdl_surface);
+  }
 
   TTF_CloseFont(font);
 }
@@ -264,8 +302,8 @@ void CUIWindow::OnBeginEdit() {}
 
 void CUIWindow::OnFinishEdit() {}
 
-int CUIWindow::SendMsg(CUIWindow* sender, int message, int val1, int val2,
-                       int val3, int val4) {
+int CUIWindow::SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
+                       void* val3, void* val4) {
   if (message) {
     if (message == 1) {
       if (m_parent) {

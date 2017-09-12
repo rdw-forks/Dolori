@@ -14,6 +14,7 @@ class CSession {
 
   void SetSex(int);
   int GetSex();
+  void InitTable();
   void SetTextType(bool, bool);
   void SetCharName(const char *);
   void SetServerTime(unsigned int);

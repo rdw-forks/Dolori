@@ -86,15 +86,15 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
 
   CUIEditCtrl *login = new CUIEditCtrl();
   m_login = login;
-  login->Create(100, 16);
-  // login->Move?(92, 62);
+  login->Create(125, 16);
+  login->Move(92, 30);
   login->SetFrameColor(242, 242, 242);
   AddChild(login);
 
   CUIEditCtrl *password = new CUIEditCtrl();
   m_password = password;
-  password->Create(100, 16);
-  // password->Move?(92, 62);
+  password->Create(125, 16);
+  password->Move(92, 62);
   password->SetFrameColor(242, 242, 242);
   AddChild(password);
 }
@@ -114,33 +114,41 @@ void CUILoginWnd::OnDraw() {
   DrawBitmap(0, 0, res, 0);
 }
 
-int CUILoginWnd::SendMsg(CUIWindow *sender, int message, int val1, int val2,
-                         int val3, int val4) {
+int CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1, void *val2,
+                         void *val3, void *val4) {
   int result = 0;
 
   switch (message) {
-    case 6:
-      if (val1 == 201) {
+    case 6: {
+      int btn_id = (int)val1;
+
+      if (btn_id == 201) {
         if (g_isGravityID || g_serviceType != ServiceKorea) {
           g_ModeMgr->Quit();
-          result = 0;
         } else {
           // v12 = MsgStr(MSI_3DAY_FREE);
           // if (UIWindowMgr::ErrorMsg(&g_windowMgr, v12, 2, 1, 0, 0) != 121)
           //  return 0;
           g_ModeMgr->Quit();
-          result = 0;
         }
-      } else if (val1 == 155) {
+      } else if (btn_id == 155) {
         // UILoginWnd::WriteToReg(this);
         // v19 = MsgStr(MSI_DO_YOU_REALLY_WANT_TO_QUIT);
         // if (UIWindowMgr::ErrorMsg(&g_windowMgr, v19, 2, 1, 0, 0) != 121)
         //  return 0;
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
-        // g_WindowMgr->PostQuit(this);
-        return 0;
+        g_WindowMgr->PostQuit(this);
+      } else if (btn_id == 120) {
+        // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_PASSWORD,
+                                         (void *)m_password->GetText(), 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_ID, (void *)m_login->GetText(), 0,
+                                         0);
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_CONNECT_TO_ACSVR, 0, 0, 0);
+        g_WindowMgr->PostQuit(this);
       }
-      break;
-  }
+    } break;
+  };
+
   return result;
 }

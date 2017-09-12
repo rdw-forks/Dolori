@@ -1,6 +1,7 @@
 #include "UIWindowMgr.h"
 #include "../Common/Globals.h"
 #include "../UI/UINoticeConfirmWnd.h"
+#include "../UI/UISelectServerWnd.h"
 
 // Helper functions
 int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }
@@ -62,12 +63,15 @@ void CUIWindowMgr::Render(CMode *mode) {
 }
 
 CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
+  CUIFrameWnd *result = NULL;
+
   switch (windowId) {
     case WID_NOTICECONFIRMWND: {
       CUINoticeConfirmWnd *wnd = new CUINoticeConfirmWnd();
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300));
       AddWindow(wnd);
+      result = wnd;
     } break;
     case WID_LOGINWND: {
       CUILoginWnd *wnd = new CUILoginWnd();
@@ -75,9 +79,31 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300));
       AddWindow(wnd);
+      result = wnd;
+    } break;
+    case WID_SELECTSERVERWND: {
+      CUISelectServerWnd *wnd = new CUISelectServerWnd();
+      // wnd->Create(280, 200);
+      wnd->Create(280, 120);
+      wnd->Move(UIX(185), UICY(300));
+      AddWindow(wnd);
+      result = wnd;
+    } break;
+    case WID_SELECTCHARWND: {
     } break;
   };
-  return NULL;
+
+  return result;
+}
+
+void CUIWindowMgr::PostQuit(CUIWindow *wnd) {
+  // if (wnd == m_selectCharWnd)
+  //  m_selectCharWnd = NULL;
+  // if (wnd == m_selCharForUServerWnd)
+  //  m_selCharForUServerWnd = NULL;
+  // if (wnd == m_changeNameWnd)
+  //  m_changeNameWnd = NULL;
+  m_quitWindow.push_back(wnd);
 }
 
 void CUIWindowMgr::AddWindow(CUIWindow *window) {
@@ -105,11 +131,13 @@ void CUIWindowMgr::ReleaseCapture() { m_captureWindow = NULL; }
 
 void CUIWindowMgr::SetFocusEdit(CUIWindow *window) {
   if (m_editWindow) m_editWindow->OnFinishEdit();
-  //if (window != m_chatWnd->m_commonChat) {
-  //  m_editWindow = window;
-  //  if (window) window->OnBeginEdit();
-  //}
+  if (true /*window != m_chatWnd->m_commonChat*/) {
+    m_editWindow = window;
+    if (window) window->OnBeginEdit();
+  }
 }
+
+CUIWindow *CUIWindowMgr::GetFocusEdit() { return m_editWindow; }
 
 int CUIWindowMgr::ProcessInput() {
   int x = g_Mouse->GetXPos();
@@ -228,4 +256,11 @@ int CUIWindowMgr::ProcessInput() {
   //  return rValue;
 
   return 1;
+}
+
+int CUIWindowMgr::ErrorMsg(const char *msg, int type, int isDefYes,
+                           int changeMsg, unsigned int autoReturnTime) {
+  printf("%s\n", msg);
+
+  return 0;
 }

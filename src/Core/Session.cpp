@@ -9,11 +9,15 @@ CSession::~CSession() {}
 
 void CSession::Init() {}
 
-void CSession::Create() {}
+void CSession::Create() { InitTable(); }
 
 void CSession::SetSex(int sex) { m_sex = sex; }
 
 int CSession::GetSex() { return m_sex; }
+
+void CSession::InitTable() {
+  g_MsgStrMgr->InitMsgStrings("msgStringTable.txt");
+}
 
 void CSession::SetTextType(bool isShorten, bool isBold) {
   if (g_serviceType == ServiceKorea || g_serviceType == ServiceIndonesia ||
@@ -64,10 +68,8 @@ bool CSession::IsGravityAid(int aid) {
   return it != s_dwAdminAID.end();
 }
 
-void CSession::InvalidateBasicWnd()
-{
-  if (g_ModeMgr->GetGameMode())
-  {
+void CSession::InvalidateBasicWnd() {
+  if (g_ModeMgr->GetGameMode()) {
     /*if (dword_7687EC)
     {
       UIWindow::InvalidateChildren(dword_7687EC);

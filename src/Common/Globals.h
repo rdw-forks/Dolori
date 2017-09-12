@@ -8,11 +8,13 @@
 #include "../Core/ResMgr.h"
 #include "../Core/Session.h"
 #include "../Core/UIWindowMgr.h"
+#include "../Input/Language.h"
 #include "../Input/Mouse.h"
 #include "../Network/RagConnection.h"
 #include "../Render/3dDevice.h"
 #include "../Render/Renderer.h"
 #include "../Render/TexMgr.h"
+#include "MsgStrMgr.h"
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;
@@ -24,7 +26,8 @@ extern CTexMgr* g_TexMgr;
 extern CUIWindowMgr* g_WindowMgr;
 extern CResMgr* g_ResMgr;
 extern CMouse* g_Mouse;
-
+extern CMsgStrMgr* g_MsgStrMgr;
+extern CLanguage* g_Language;
 extern char TITLE_FILE[256];
 extern unsigned short g_serviceType;
 extern unsigned short g_serverType;
@@ -38,10 +41,10 @@ extern bool g_extendedSlot;
 extern std::vector<std::string> s_loadingScreenList;
 extern bool g_isGravityID;
 extern unsigned short g_loginStartMode;
-extern char* g_accountAddr;
-extern char* g_accountPort;
-extern ServerAddress g_charServerAddr;
-extern ServerAddress g_zoneServerAddr;
+extern char g_accountAddr[64];
+extern char g_accountPort[64];
+extern SERVER_ADDRESS g_charServerAddr;
+extern SERVER_ADDRESS g_zoneServerAddr;
 extern bool g_sysQuit;
 extern char g_currentMap[16];
 extern bool g_bUseCommand;

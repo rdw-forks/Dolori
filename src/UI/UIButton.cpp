@@ -21,9 +21,9 @@ void CUIButton::OnLBtnUp(int x, int y) {
       m_state = 1;
 
       if (m_parent)
-        m_parent->SendMsg(this, 6, m_id, 0, 0, 0);
+        m_parent->SendMsg(this, 6, (void*)m_id, 0, 0, 0);
       else
-        g_ModeMgr->GetCurMode()->SendMsg(0, m_id, 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(0, (void*)m_id, 0, 0);
     }
     Invalidate();
     g_WindowMgr->ReleaseCapture();
