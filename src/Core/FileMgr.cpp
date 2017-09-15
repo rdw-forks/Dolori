@@ -41,9 +41,10 @@ void *CFileMgr::GetPak(const char *filename, size_t *size) {
       if (!it->second->GetData(&pakPack, result)) {
         free(result);
         result = NULL;
+      } else {
+        *size = pakPack.m_size;
+        std::cout << "Fetched " << filename << " from Pak" << std::endl;
       }
-      *size = pakPack.m_size;
-      std::cout << "Fetched " << filename << " from Pak" << std::endl;
       break;
     }
   }

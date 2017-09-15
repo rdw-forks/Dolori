@@ -25,6 +25,7 @@ bool CGPak::Open(CMemFile *memFile) {
   m_FileVer = header->Version;
   m_FileCount = header->FilesCount - header->Seed - 7;
   m_PakInfoOffset = header->FileTableOffset + sizeof(GRF_HEADER);
+
   switch (m_FileVer & 0xFF00) {
     case 0x100:
       if (OpenPak01()) return true;
@@ -52,8 +53,8 @@ bool CGPak::OpenPak01() { return false; }
 bool CGPak::OpenPak02() {
   char filename[0x100];
   const uint8_t *z_buffer = NULL;
-  uint32_t z_table_size = 0;
-  uint32_t table_size = 0;
+  size_t z_table_size = 0;
+  size_t table_size = 0;
   uint8_t *buffer = NULL;
   uint32_t cursor = 0;
 
@@ -128,7 +129,7 @@ bool CGPak::GetData(PAK_PACK *pakPack, void *buffer) {
   GRF_Process(z_data, data, pakPack->m_dataSize, pakPack->m_type,
               pakPack->m_compressSize, keyschedule, GRFCRYPT_DECRYPT);
 
-  uint32_t size = pakPack->m_size;
+  size_t size = pakPack->m_size;
   if (uncompress((Bytef *)buffer, (uLongf *)&size, (const Bytef *)z_data,
                  pakPack->m_dataSize) != Z_OK) {
     free(z_data);

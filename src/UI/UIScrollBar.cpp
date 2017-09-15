@@ -169,7 +169,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
   int previous_draw_mode;
   int pos_scroll_end;
   int scrollbar_length;
-  int button_drag;
+  size_t button_drag;
 
   if (!m_maxPos) {
     m_parent->OnMouseMove(x + m_x, y + m_y);

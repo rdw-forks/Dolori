@@ -1,4 +1,5 @@
 #include "RPFace.h"
+#include <string.h>
 #include <iostream>
 
 CRPFace::CRPFace() {}
@@ -29,7 +30,9 @@ struct tlvertex3d CRPFace::GetVertex(int index) {
 		return m_verts[index];
 	}
 	else {
-		struct tlvertex3d empty;
+    struct tlvertex3d empty;
+
+    memset(&empty, 0, sizeof(empty));
 		return empty;
 	}
 }

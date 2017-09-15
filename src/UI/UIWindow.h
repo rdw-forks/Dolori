@@ -37,12 +37,12 @@ class CUIWindow {
   void DrawSurface();
   void InvalidateChildren();
   void Invalidate();
-  void TextOutA(int, int, const char *, int, int, int, unsigned int);
-  void TextOutUTF8(int x, int y, const char *text, int textLen, int fontType,
+  void TextOutA(int, int, const char *, size_t, int, int, unsigned int);
+  void TextOutUTF8(int x, int y, const char *text, size_t textLen, int fontType,
                    int fontHeight, unsigned int colorText);
-  void TextOutWithOutline(int, int, const char *, int, uint32_t, uint32_t, int,
-                          int, bool);
-  void TextOutWithDecoration(int x, int y, const char *text, int textLen,
+  void TextOutWithOutline(int, int, const char *, size_t, uint32_t, uint32_t,
+                          int, int, bool);
+  void TextOutWithDecoration(int x, int y, const char *text, size_t textLen,
                              unsigned int *colorRef, int fontType,
                              int fontHeight);
   static const char *InterpretColor(const char *color_text,
@@ -76,7 +76,7 @@ class CUIWindow {
   int m_h;
   bool m_isDirty;
   CSurface *m_surface;
-  int m_id;
+  size_t m_id;
   int m_state;
   int m_stateCnt;
   bool m_show;

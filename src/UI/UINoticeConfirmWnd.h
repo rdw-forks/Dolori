@@ -15,7 +15,7 @@ class CUINoticeConfirmWnd : public CUIFrameWnd {
 
  private:
   CUITextViewer* m_textViewer;
-  int m_target;
+  size_t m_target;
 };
 
 // class UINoticeConfirmWnd {

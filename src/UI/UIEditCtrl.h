@@ -19,8 +19,8 @@ class CUIEditCtrl : public CUIWindow {
   const char* GetText();
 
  private:
-  int m_selectionOrigin;
-  int m_selectionCursor;
+  size_t m_selectionOrigin;
+  size_t m_selectionCursor;
   int m_maskchar;
   int m_maxchar;
   int m_isSingColorFrame;

@@ -165,6 +165,8 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
 
       return m_vertViewOffset - prev_view_offset;
   };
+
+  return 0;
 }
 
 int CUIListBox::HitTest(int x, int y) {

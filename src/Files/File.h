@@ -13,9 +13,9 @@ class CFile {
 
   static bool IsFileExist(const char * fName);
   bool Open(const char *, int);
-  bool Read(void *lpBuf, unsigned long nCount);
-  bool Seek(long lOff, unsigned long nFrom);
-  bool Write(const void *, unsigned long);
+  bool Read(void *lpBuf, size_t nCount);
+  bool Seek(long lOff, size_t nFrom);
+  bool Write(const void *, size_t);
   void Close();
   char *GetFileName();
   size_t GetLength();

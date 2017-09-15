@@ -1,4 +1,4 @@
-ï»¿#include "LoginMode.h"
+#include "LoginMode.h"
 #ifdef WIN32
 #include <Ws2tcpip.h>
 #define inet_ntop InetNtop
@@ -63,7 +63,7 @@ int CLoginMode::OnRun() {
 
 void CLoginMode::OnExit() {}
 
-int CLoginMode::SendMsg(int messageId, void *val1, void *val2, void *val3) {
+int CLoginMode::SendMsg(size_t messageId, void *val1, void *val2, void *val3) {
   switch (messageId) {
     case MM_GOTOIDENTRY:
       g_mustPumpOutReceiveQueue = false;
@@ -79,18 +79,18 @@ int CLoginMode::SendMsg(int messageId, void *val1, void *val2, void *val3) {
       if (val1) strncpy(m_userId, (char *)val1, sizeof(m_userId));
       break;
     case LMM_GOTOSELECTACCOUNT: {
-      int val = (int)val2;
+      size_t val = (size_t)val2;
       if (val == 135)
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
       else
         m_nextSubMode = 2;
     } break;
     case LMM_SELECTSVR: {
-      m_serverSelected = (int)val1;
+      m_serverSelected = (size_t)val1;
       if (m_serverSelected == -1) break;
 
       struct in_addr ip;
-      ip.S_un.S_addr = m_serverInfo[m_serverSelected].ip;
+      ip.s_addr = m_serverInfo[m_serverSelected].ip;
       inet_ntop(AF_INET, &ip, g_charServerAddr.ip, sizeof(g_charServerAddr.ip));
       g_charServerAddr.port = m_serverInfo[m_serverSelected].port;
       m_nextSubMode = 5;
@@ -137,7 +137,7 @@ void CLoginMode::OnChangeState(int state) {
       CBitmapRes *bitmap;
       CUINoticeConfirmWnd *wnd;
 
-      m_wallPaperBmpName = UIBmp("Ã€Â¯Ã€ÃºÃ€ÃŽÃ…ÃÃ†Ã¤Ã€ÃŒÂ½Âº/login_interface/warning.bmp");
+      m_wallPaperBmpName = UIBmp("À¯ÀúÀÎÅÍÆäÀÌ½º/login_interface/warning.bmp");
       bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(bitmap);
 
@@ -157,7 +157,7 @@ void CLoginMode::OnChangeState(int state) {
     case 3: {
       // Login window
       // WinMainNpKeyStartEncryption();
-      m_wallPaperBmpName = UIBmp("Ã€Â¯Ã€ÃºÃ€ÃŽÃ…ÃÃ†Ã¤Ã€ÃŒÂ½Âº/bgi_temp.bmp");
+      m_wallPaperBmpName = UIBmp("À¯ÀúÀÎÅÍÆäÀÌ½º/bgi_temp.bmp");
       CBitmapRes *res =
           (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(res);
@@ -272,7 +272,7 @@ void CLoginMode::OnChangeState(int state) {
       CUISelectServerWnd *wnd =
           (CUISelectServerWnd *)g_WindowMgr->MakeWindow(WID_SELECTSERVERWND);
 
-      if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, "NUMSERVER", 0, 0);
+      if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, NULL, 0, 0);
       if (m_numServer < 0) {
         wnd->SendMsg(0, 40, 0, 0, 0, 0);
         return;
@@ -604,10 +604,10 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
 void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
   struct PACKET_HC_NOTIFY_ZONESVR *packet =
       (struct PACKET_HC_NOTIFY_ZONESVR *)buffer;
-  struct in_addr ip_addr;
+  struct in_addr ip;
 
   strncpy(g_currentMap, (char *)packet->map_name, sizeof(g_currentMap));
-  ip_addr.s_addr = packet->addr.ip;
-  strncpy(g_zoneServerAddr.ip, inet_ntoa(ip_addr), sizeof(g_zoneServerAddr.ip));
+  ip.s_addr = packet->addr.ip;
+  inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
 }

@@ -82,7 +82,7 @@ bool CFile::OpenFromFolder(const char* filename) {
   return false;
 }
 
-bool CFile::Read(void* lpBuf, unsigned long nCount) {
+bool CFile::Read(void* lpBuf, size_t nCount) {
   if (m_fileStream.is_open()) {
     m_fileStream.read((char*)lpBuf, nCount);
     return (m_fileStream.gcount() == nCount);
@@ -97,7 +97,7 @@ bool CFile::Read(void* lpBuf, unsigned long nCount) {
   return false;
 }
 
-bool CFile::Seek(long lOff, unsigned long nFrom) {
+bool CFile::Seek(long lOff, size_t nFrom) {
   if (m_fileStream.is_open()) {
     switch (nFrom) {
       case SEEK_SET:
@@ -133,7 +133,7 @@ bool CFile::Seek(long lOff, unsigned long nFrom) {
   return false;
 }
 
-bool CFile::Write(const void* lpBuf, unsigned long nCount) {
+bool CFile::Write(const void* lpBuf, size_t nCount) {
   bool result;
 
   if (m_fileStream.is_open())

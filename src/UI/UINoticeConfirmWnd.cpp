@@ -11,7 +11,7 @@ CUINoticeConfirmWnd::~CUINoticeConfirmWnd() {}
 
 void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   std::string path_name = "유저인터페이스/";
-  char *button_name[2][3];
+  const char *button_name[2][3];
   int ids[2];
   int pos[2][2];
 
@@ -62,7 +62,7 @@ int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
   switch (message) {
     case 6: {
-      int btn_id = (int)val1;
+      size_t btn_id = (size_t)val1;
 
       // Ok button has been pressed
       if (btn_id == 118)
@@ -72,7 +72,7 @@ int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
     } break;
     case 80:
-      m_target = (int)val1;
+      m_target = (size_t)val1;
       break;
     default:
       result = CUIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);

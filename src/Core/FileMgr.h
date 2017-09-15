@@ -1,6 +1,7 @@
 #ifndef DOLORI_CORE_FILEMGR_H_
 #define DOLORI_CORE_FILEMGR_H_
 
+#include <stdio.h>
 #include <list>
 #include "../Files/GPak.h"
 #include "../Files/MemFile.h"

@@ -205,7 +205,7 @@ void CUIWindow::InvalidateChildren() {
 
 void CUIWindow::Invalidate() { m_isDirty = true; }
 
-void CUIWindow::TextOutA(int x, int y, const char* text, int textLen,
+void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
                          int fontType, int fontHeight, unsigned int colorText) {
   if (!text) return;
 
@@ -223,7 +223,7 @@ void CUIWindow::TextOutA(int x, int y, const char* text, int textLen,
   TTF_CloseFont(font);
 }
 
-void CUIWindow::TextOutUTF8(int x, int y, const char* text, int textLen,
+void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
                             int fontType, int fontHeight,
                             unsigned int colorText) {
   if (!text) return;
@@ -242,9 +242,10 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, int textLen,
   TTF_CloseFont(font);
 }
 
-void CUIWindow::TextOutWithOutline(int x, int y, const char* text, int textLen,
-                                   uint32_t colorText, uint32_t colorOutline,
-                                   int fontType, int fontHeight, bool bold) {
+void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
+                                   size_t textLen, uint32_t colorText,
+                                   uint32_t colorOutline, int fontType,
+                                   int fontHeight, bool bold) {
   SDL_Color color_outline = {(colorOutline >> 16) & 0xFF,
                              (colorOutline >> 8) & 0xFF, colorOutline & 0xFF};
   SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
@@ -271,15 +272,15 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text, int textLen,
 }
 
 void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,
-                                      int textLen, unsigned int* colorRef,
+                                      size_t textLen, unsigned int* colorRef,
                                       int fontType, int fontHeight) {
   TextOutA(x, y, text, textLen, fontType, fontHeight, *colorRef);
 }
 
 const char* CUIWindow::InterpretColor(const char* color_text,
                                       unsigned int* colorRef) {
-  const char* result;   // eax@1
-  unsigned __int16 v3;  // cx@3
+  const char* result;
+  unsigned short v3;
 
   result = color_text;
   if (color_text) {

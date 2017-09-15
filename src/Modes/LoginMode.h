@@ -45,7 +45,7 @@ class CLoginMode : public CMode {
   void OnInit(const char *);
   int OnRun();
   void OnExit();
-  int SendMsg(int, void *, void *, void *);
+  int SendMsg(size_t, void *, void *, void *);
   void OnUpdate();
   void OnChangeState(int);
   void PollNetworkStatus();
@@ -72,7 +72,7 @@ class CLoginMode : public CMode {
   char m_userPassword[0x40];
   char m_userId[0x40];
   int m_numServer;
-  int m_serverSelected;
+  size_t m_serverSelected;
   int m_numChar;
   unsigned int m_subModeStartTime;
   struct SERVER_ADDR m_serverInfo[0x64];

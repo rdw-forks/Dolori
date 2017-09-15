@@ -1,6 +1,7 @@
 #ifndef DOLORI_MODES_MODE_H_
 #define DOLORI_MODES_MODE_H_
 
+#include <stdlib.h>
 #include "../Common/Vector2d.h"
 
 typedef enum MODE_MSG {
@@ -291,7 +292,7 @@ class CMode {
   virtual int OnRun();
   virtual void OnExit();
 
-  virtual int SendMsg(int, void *, void *, void *);
+  virtual int SendMsg(size_t, void *, void *, void *);
 
  protected:
   int m_subMode;

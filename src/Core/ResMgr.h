@@ -1,6 +1,7 @@
 #ifndef DOLORI_CORE_RESMGR_H_
 #define DOLORI_CORE_RESMGR_H_
 
+#include <string.h>
 #include <map>
 #include <mutex>
 #include <string>
@@ -9,7 +10,7 @@
 
 struct CharPrtLess {
   bool operator()(const char *a, const char *b) const {
-    return std::strcmp(a, b) < 0;
+    return strcmp(a, b) < 0;
   }
 };
 
@@ -32,7 +33,7 @@ class CResMgr {
   const char *StrChrBackward(const char *, char);
 
  private:
-  std::map<const char *, int, CharPrtLess> m_resExt;
+  std::map<const char *, size_t, CharPrtLess> m_resExt;
   std::vector<const char *> m_typeDir;
   std::vector<CRes *> m_objTypes;
   std::vector<std::map<CHash *const, CRes *, ResPtrLess>> m_fileList;

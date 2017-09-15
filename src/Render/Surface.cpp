@@ -76,7 +76,6 @@ void CSurface::CopyBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
 
   if (m_sdlSurface) {
     SDL_Surface *surface;
-    SDL_Rect dst_rect;
 
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff, 0xff00,
                                    0xff0000, 0xff000000);
@@ -96,29 +95,29 @@ void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color)
 
 void CSurface::DrawSurface(int x, int y, int width, int height,
                            unsigned int color) {
-  tagRECT r;
+  int right, left, top, bottom;
   int s_x;
   int s_y;
 
   s_x = x;
-  r.right = width;
-  r.left = 0;
-  r.top = 0;
-  r.bottom = height;
-  if (x + width > g_3dDevice->GetWidth()) r.right = g_3dDevice->GetWidth() - x;
+  right = width;
+  left = 0;
+  top = 0;
+  bottom = height;
+  if (x + width > g_3dDevice->GetWidth()) right = g_3dDevice->GetWidth() - x;
   s_y = y;
   if (y + height > g_3dDevice->GetHeight())
-    r.bottom = g_3dDevice->GetHeight() - y;
+    bottom = g_3dDevice->GetHeight() - y;
   if (x < 0) {
-    r.left = -x;
+    left = -x;
     s_x = 0;
   }
   if (y < 0) {
-    r.top = -y;
+    top = -y;
     s_y = 0;
   }
-  if (r.right > r.left && r.bottom > r.top)
-    DrawSurfaceStretch(s_x, s_y, r.right, r.bottom);
+  if (right > left && bottom > top)
+    DrawSurfaceStretch(s_x, s_y, right, bottom);
 }
 
 void CSurface::DrawSurfaceStretch(int x, int y, int width, int height) {

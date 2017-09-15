@@ -15,7 +15,7 @@ int CMode::OnRun() { return 0; }
 
 void CMode::OnExit() {}
 
-int CMode::SendMsg(int messageId, void* val1, void* val2, void* val3) {
+int CMode::SendMsg(size_t messageId, void* val1, void* val2, void* val3) {
   if (messageId == 2) {
     g_ModeMgr->Quit();
   } else if (messageId == 75) {

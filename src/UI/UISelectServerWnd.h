@@ -21,7 +21,7 @@ class CUISelectServerWnd : public CUIFrameWnd {
   CUIBitmapButton* m_exitButton;
   std::string m_regKey;
   int m_defaultCurItem;
-  int m_target;
+  size_t m_target;
 };
 
 // class UISelectServerWnd {

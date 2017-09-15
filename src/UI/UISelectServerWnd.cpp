@@ -9,7 +9,7 @@ CUISelectServerWnd::~CUISelectServerWnd() {}
 
 void CUISelectServerWnd::OnCreate(int cx, int cy) {
   std::string path_name = "유저인터페이스/";
-  char *button_name[3][3];
+  const char *button_name[3][3];
   int pos[3][2];
   int ids[3];
 
@@ -92,11 +92,11 @@ int CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
   switch (message) {
     case 80:
-      m_target = (int)val1;
+      m_target = (size_t)val1;
       // TODO: Save selected item num
       break;
     case 6: {
-      int btn_id = (int)val1;
+      size_t btn_id = (size_t)val1;
 
       if (btn_id == 118) {
         if (m_serverList->GetSelected() == -1) break;

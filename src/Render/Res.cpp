@@ -9,7 +9,7 @@ CRes::~CRes() {}
 
 CHash *const CRes::GetHash() { return &m_fName; }
 
-void CRes::UpdateInfo(const char *fName, int extIndex) {
+void CRes::UpdateInfo(const char *fName, size_t extIndex) {
   m_fName.SetString(fName);
   m_extIndex = extIndex;
   UpdateTimeStamp();

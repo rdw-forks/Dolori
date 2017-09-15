@@ -1,6 +1,12 @@
 #include "MemMapFile.h"
 
-CMemMapFile::CMemMapFile() {}
+CMemMapFile::CMemMapFile() {
+  m_dwFileMappingSize = 0;
+  m_dwFileSize = 0;
+  m_dwOpenOffset = 0;
+  m_dwOpenSize = 0;
+  m_pFile = NULL;
+}
 
 CMemMapFile::~CMemMapFile() { Close(); }
 
@@ -35,6 +41,7 @@ bool CMemMapFile::Open(const char *name) {
   m_dwOpenOffset = 0;
   m_dwOpenSize = 0;
 #endif
+  m_dwFileMappingSize = m_dwFileSize;
 
   return true;
 }
@@ -107,8 +114,9 @@ const unsigned char *CMemMapFile::Read(unsigned long offset,
               m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset, 0);
 #else
           m_pFile =
-              (unsigned char *)mmap(NULL, m_dwFileMappingSize, PROT_READ,
-                                          MAP_PRIVATE, m_fd, m_dwOpenOffset);
+              (unsigned char *)mmap(NULL, m_dwFileMappingSize - m_dwOpenOffset,
+                                          PROT_READ, MAP_PRIVATE, m_fd,
+                                          m_dwOpenOffset);
 #endif
           m_dwOpenSize = m_dwFileSize - m_dwOpenOffset;
         }

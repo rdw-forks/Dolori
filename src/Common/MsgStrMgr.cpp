@@ -35,4 +35,6 @@ void CMsgStrMgr::InitMsgStrings(const char* file_name) {
 
 const char* CMsgStrMgr::GetMsgStr(MSGSTRINGID id) {
   if (m_msgStrings.size() > id) return m_msgStrings[id].c_str();
+
+  return NULL;
 }

@@ -1,6 +1,7 @@
 #ifndef DOLORI_RENDER_RES_H_
 #define DOLORI_RENDER_RES_H_
 
+#include <stdlib.h>
 #include "../Files/Hash.h"
 
 class CRes {
@@ -9,7 +10,7 @@ class CRes {
   virtual ~CRes();
 
   CHash* const GetHash();
-  void UpdateInfo(const char*, int);
+  void UpdateInfo(const char*, size_t);
   void UpdateTimeStamp();
   void OnLoadError(const char*);
   virtual bool Load(const char*) { return false; };
@@ -18,7 +19,7 @@ class CRes {
  private:
   int m_lockCnt;
   unsigned long m_timeStamp;
-  int m_extIndex;
+  size_t m_extIndex;
   CHash m_fName;
 };
 

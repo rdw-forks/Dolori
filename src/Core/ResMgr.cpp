@@ -112,7 +112,7 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
     return NULL;
   }
 
-  int extIndex = resext_node->second;
+  size_t extIndex = resext_node->second;
   if (extIndex < 0) {
     m_getResSection.unlock();
     return NULL;

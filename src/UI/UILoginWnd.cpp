@@ -22,7 +22,7 @@ CUILoginWnd::~CUILoginWnd() {}
 
 void CUILoginWnd::OnCreate(int cx, int cy) {
   std::string path_name = "유저인터페이스/";
-  char *button_name[5][3];
+  const char *button_name[5][3];
   int button_count;
   int pos[5][2];
   int ids[5];
@@ -120,7 +120,7 @@ int CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1, void *val2,
 
   switch (message) {
     case 6: {
-      int btn_id = (int)val1;
+      size_t btn_id = (size_t)val1;
 
       if (btn_id == 201) {
         if (g_isGravityID || g_serviceType != ServiceKorea) {

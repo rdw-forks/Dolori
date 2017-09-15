@@ -151,7 +151,10 @@ void InitClientInfo(const char* filename) {
 }
 
 int main(int argc, char* argv[]) {
-  g_FileMgr->AddPak("data.grf");
+  if(!g_FileMgr->AddPak("data.grf")) {
+    ErrorMsg("Cannot open data.grf.");
+    return EXIT_FAILURE;
+  }
   InitClientInfo("clientinfo.xml");
   g_Session->Init();
   g_Session->Create();
