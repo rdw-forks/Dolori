@@ -15,7 +15,7 @@ class CUIListBox : public CUIWindow {
   void SetColor(int r, int g, int b);
   void Resize(int cx, int cy);
   void RecalcScrbarPos();
-  int GetSelected();
+  size_t GetSelected();
   void OnCreate(int, int);
   void AddItem(const char*);
   void OnDraw();
@@ -31,7 +31,7 @@ class CUIListBox : public CUIWindow {
   int m_bG;
   int m_bB;
   std::vector<std::string> m_items;
-  int m_curItem;
+  size_t m_curItem;
   int m_vertViewOffset;
   int m_horzViewOffset;
   int m_maxTextWidth;

@@ -86,9 +86,9 @@ void CUISelectServerWnd::AddServer(const char *server) {
   m_serverList->AddItem(server);
 }
 
-int CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
-                                void *val2, void *val3, void *val4) {
-  int result = 0;
+void *CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
+                                  void *val2, void *val3, void *val4) {
+  void *result = NULL;
 
   switch (message) {
     case 80:

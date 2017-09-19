@@ -11,7 +11,7 @@ class CUINoticeConfirmWnd : public CUIFrameWnd {
 
   void OnCreate(int cx, int cy);
   void OnDraw();
-  int SendMsg(CUIWindow*, int, void*, void*, void*, void*);
+  void* SendMsg(CUIWindow*, int, void*, void*, void*, void*);
 
  private:
   CUITextViewer* m_textViewer;

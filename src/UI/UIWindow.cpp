@@ -9,7 +9,7 @@ CUIWindow::CUIWindow() {
   m_h = 0;
   m_parent = NULL;
   m_state = 0;
-  m_stateCnt = 0;
+  m_state_cnt = 0;
   m_surface = NULL;
   m_isDirty = true;
   m_id = 117;
@@ -50,9 +50,9 @@ int CUIWindow::GetHeight() { return m_h; }
 
 int CUIWindow::GetWidth() { return m_w; }
 
-void CUIWindow::SetId(int id) { m_id = id; }
+void CUIWindow::SetId(size_t id) { m_id = id; }
 
-int CUIWindow::GetId() { return m_id; }
+size_t CUIWindow::GetId() { return m_id; }
 
 CUIWindow* CUIWindow::GetParent() { return m_parent; }
 
@@ -164,7 +164,7 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
 void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
   if (m_surface && bitmap) {
-    m_surface->CopyBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
+    m_surface->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
                           bitmap->GetData());
   }
 }
@@ -280,7 +280,7 @@ void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,
 const char* CUIWindow::InterpretColor(const char* color_text,
                                       unsigned int* colorRef) {
   const char* result;
-  unsigned short v3;
+  //unsigned short v3;
 
   result = color_text;
   if (color_text) {
@@ -303,17 +303,19 @@ void CUIWindow::OnBeginEdit() {}
 
 void CUIWindow::OnFinishEdit() {}
 
-int CUIWindow::SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-                       void* val3, void* val4) {
+void* CUIWindow::SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
+                         void* val3, void* val4) {
+  void* result = NULL;
+
   if (message) {
     if (message == 1) {
       if (m_parent) {
         m_parent->SendMsg(this, 1, 0, 0, 0, 0);
-        return 0;
       }
     }
   } else {
     if (m_parent) m_parent->SendMsg(this, 0, 0, 0, 0, 0);
   }
-  return 0;
+
+  return result;
 }

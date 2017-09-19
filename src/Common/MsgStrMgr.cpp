@@ -5,12 +5,12 @@ CMsgStrMgr::CMsgStrMgr() {}
 
 CMsgStrMgr::~CMsgStrMgr() {}
 
-void CMsgStrMgr::InitMsgStrings(const char* file_name) {
+void CMsgStrMgr::InitMsgStrings(const char* imf_name) {
   size_t file_size;
   CFile file;
   char* buffer;
 
-  if (!file.Open(file_name, 0)) return;
+  if (!file.Open(imf_name, 0)) return;
   file_size = file.GetLength();
   buffer = (char*)malloc(file_size);
   if (buffer) {

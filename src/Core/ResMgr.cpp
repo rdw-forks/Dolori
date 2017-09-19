@@ -1,7 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "ResMgr.h"
 #include "../Files/File.h"
+#include "../Render/ActRes.h"
 #include "../Render/BitmapRes.h"
+#include "../Render/SprRes.h"
 
 CResMgr::CResMgr() {
   m_usedForSprTexture = 0;
@@ -22,6 +24,8 @@ CResMgr::CResMgr() {
   m_ResModAmount = 0;
   m_ResWavAmount = 0;
   RegisterType("bmp", "texture/", new CBitmapRes());
+  RegisterType("spr", "sprite/", new CSprRes());
+  RegisterType("act", "sprite/", new CActRes());
 }
 
 CResMgr::~CResMgr() {}

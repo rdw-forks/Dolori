@@ -25,7 +25,7 @@ class CUIWindow {
   virtual bool IsUpdateNeeded();
   virtual void OnBeginEdit();
   virtual void OnFinishEdit();
-  virtual int SendMsg(CUIWindow *, int, void *, void *, void *, void *);
+  virtual void *SendMsg(CUIWindow *, int, void *, void *, void *, void *);
   void OnSize(int, int);
   bool IsShow();
   void SetShow(bool);
@@ -47,8 +47,8 @@ class CUIWindow {
                              int fontHeight);
   static const char *InterpretColor(const char *color_text,
                                     unsigned int *colorRef);
-  void SetId(int);
-  int GetId();
+  void SetId(size_t);
+  size_t GetId();
   CUIWindow *GetParent();
   CUIWindow *HitTest(int, int);
   void GetGlobalCoor(int *, int *);
@@ -77,8 +77,8 @@ class CUIWindow {
   bool m_isDirty;
   CSurface *m_surface;
   size_t m_id;
-  int m_state;
-  int m_stateCnt;
+  size_t m_state;
+  int m_state_cnt;
   bool m_show;
   unsigned long m_trans;
   unsigned long m_transTarget;

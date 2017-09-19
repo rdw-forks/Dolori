@@ -3,25 +3,25 @@
 
 CSurface::CSurface() {
   Create(0, 0);
-  m_sdlSurface = NULL;
+  m_sdl_surface = NULL;
   glGenTextures(1, &m_textureId);
 }
 
 CSurface::CSurface(unsigned long w, unsigned long h) {
   Create(w, h);
-  m_sdlSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_w, m_h, 32, 0xff, 0xff00,
-                                      0xff0000, 0xff000000);
+  m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_w, m_h, 32, 0xff,
+                                       0xff00, 0xff0000, 0xff000000);
   glGenTextures(1, &m_textureId);
 }
 
 CSurface::CSurface(SDL_Surface *surface) {
   Create(surface->w, surface->h);
-  m_sdlSurface = surface;
+  m_sdl_surface = surface;
   UpdateGlTexture();
 }
 
 CSurface::~CSurface() {
-  if (m_sdlSurface) SDL_FreeSurface(m_sdlSurface);
+  if (m_sdl_surface) SDL_FreeSurface(m_sdl_surface);
   if (m_textureId) glDeleteTextures(1, &m_textureId);
 }
 
@@ -29,7 +29,7 @@ unsigned long CSurface::GetWidth() { return m_w; }
 
 unsigned long CSurface::GetHeight() { return m_h; }
 
-SDL_Surface *CSurface::GetSDLSurface() { return m_sdlSurface; }
+SDL_Surface *CSurface::GetSDLSurface() { return m_sdl_surface; }
 
 void CSurface::Create(unsigned long w, unsigned long h) {
   m_w = w;
@@ -38,43 +38,66 @@ void CSurface::Create(unsigned long w, unsigned long h) {
 
 void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
                       int drawOnlyNoTrans) {
-  Create(width, height);
-  // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-  //             GL_UNSIGNED_BYTE, image);
-  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  if (m_sdlSurface && (m_sdlSurface->w != width || m_sdlSurface->h != height)) {
-    SDL_FreeSurface(m_sdlSurface);
-    m_sdlSurface = NULL;
+  if (m_sdl_surface &&
+      (m_sdl_surface->w != width || m_sdl_surface->h != height)) {
+    SDL_FreeSurface(m_sdl_surface);
+    m_sdl_surface = NULL;
   }
-  if (!m_sdlSurface)
-    m_sdlSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
-                                        0xff00, 0xff0000, 0xff000000);
-  SDL_LockSurface(m_sdlSurface);
-  memcpy(m_sdlSurface->pixels, image, m_sdlSurface->w * m_sdlSurface->h * 4);
-  SDL_UnlockSurface(m_sdlSurface);
+  if (!m_sdl_surface) {
+    Create(width, height);
+    m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
+                                         0xff00, 0xff0000, 0xff000000);
+  }
+  SDL_LockSurface(m_sdl_surface);
+  memcpy(m_sdl_surface->pixels, image, m_sdl_surface->w * m_sdl_surface->h * 4);
+  SDL_UnlockSurface(m_sdl_surface);
+  UpdateGlTexture();
+}
+
+void CSurface::UpdateSprite(int x, int y, int width, int height, SPR_IMG *img,
+                            const uint32_t *pal) {
+  if (m_sdl_surface &&
+      (m_sdl_surface->w != width || m_sdl_surface->h != height)) {
+    SDL_FreeSurface(m_sdl_surface);
+    m_sdl_surface = NULL;
+  }
+  if (!m_sdl_surface) {
+    Create(width, height);
+    m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
+                                         0xff00, 0xff0000, 0xff000000);
+  }
+  int surface_size = m_sdl_surface->w * m_sdl_surface->h;
+  uint32_t *surface_data = (uint32_t *)m_sdl_surface->pixels;
+
+  SDL_LockSurface(m_sdl_surface);
+  for (int i = 0; i < surface_size; i++) {
+    if (img->image_8bit[i])
+      surface_data[i] = pal[img->image_8bit[i]];
+    else
+      surface_data[i] = 0;
+  }
+  SDL_UnlockSurface(m_sdl_surface);
   UpdateGlTexture();
 }
 
 void CSurface::CopyRect(int x, int y, int w, int h, SDL_Surface *src) {
   if (!src) return;
 
-  if (m_sdlSurface) {
+  if (m_sdl_surface) {
     SDL_Rect dst_rect;
     dst_rect.x = x;
     dst_rect.y = y;
     dst_rect.w = w;
     dst_rect.h = h;
-    SDL_BlitSurface(src, NULL, m_sdlSurface, &dst_rect);
+    SDL_BlitSurface(src, NULL, m_sdl_surface, &dst_rect);
     UpdateGlTexture();
   }
 }
 
-void CSurface::CopyBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
+void CSurface::BlitBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
   if (!bitmap) return;
 
-  if (m_sdlSurface) {
+  if (m_sdl_surface) {
     SDL_Surface *surface;
 
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff, 0xff00,
@@ -87,10 +110,55 @@ void CSurface::CopyBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
   }
 }
 
-void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color)
-{
-  if (m_sdlSurface)
-    SDL_FillRect(m_sdlSurface, rect, color);
+void CSurface::BlitSurface(int x, int y, CSurface *src, int srcx, int srcy,
+                           int width, int height, int xflip, int zoomx,
+                           int zoomy) {
+  if (!src) return;
+
+  if (m_sdl_surface) {
+    SDL_Rect src_rect, dst_rect;
+    src_rect.x = srcx;
+    src_rect.y = srcy;
+    src_rect.w = width;
+    src_rect.h = height;
+
+    dst_rect.x = x;
+    dst_rect.y = y;
+    dst_rect.w = width * zoomx;
+    dst_rect.h = height * zoomy;
+
+    SDL_BlitScaled(src->m_sdl_surface, &src_rect, m_sdl_surface, &dst_rect);
+    UpdateGlTexture();
+  }
+}
+
+void CSurface::BlitSprite(int x, int y, CSprRes *spr_res, CMotion *cur_motion,
+                          unsigned int *palette) {
+  int nb_of_clips = cur_motion->NumberOfClips();
+
+  for (int clip_id = 0; clip_id < nb_of_clips; clip_id++) {
+    SPR_CLIP *clip;
+    SPR_IMG *spr_img;
+
+    clip = cur_motion->GetClip(clip_id);
+    spr_img = spr_res->GetSprImg(clip->clip_type, clip->spr_index);
+    // if (clip_id)
+    //{
+    //  v9 = clip->x + x - ox;
+    //  v11 = y + clip->y - oy;
+    //}
+    // else
+    //{
+    //  v9 = x - spr_img->width / 2;
+    //  ox = clip->x + spr_img->width / 2;
+    //  v11 = y - spr_img->height / 2;
+    //  oy = spr_img->height / 2 + clip->y;
+    //}
+  }
+}
+
+void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color) {
+  if (m_sdl_surface) SDL_FillRect(m_sdl_surface, rect, color);
 }
 
 void CSurface::DrawSurface(int x, int y, int width, int height,
@@ -116,8 +184,7 @@ void CSurface::DrawSurface(int x, int y, int width, int height,
     top = -y;
     s_y = 0;
   }
-  if (right > left && bottom > top)
-    DrawSurfaceStretch(s_x, s_y, right, bottom);
+  if (right > left && bottom > top) DrawSurfaceStretch(s_x, s_y, right, bottom);
 }
 
 void CSurface::DrawSurfaceStretch(int x, int y, int width, int height) {
@@ -152,8 +219,8 @@ void CSurface::DrawSurfaceStretch(int x, int y, int width, int height) {
 
 void CSurface::UpdateGlTexture() {
   glBindTexture(GL_TEXTURE_2D, m_textureId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_sdlSurface->w, m_sdlSurface->h, 0,
-               GL_RGBA, GL_UNSIGNED_BYTE, m_sdlSurface->pixels);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_sdl_surface->w, m_sdl_surface->h, 0,
+               GL_RGBA, GL_UNSIGNED_BYTE, m_sdl_surface->pixels);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

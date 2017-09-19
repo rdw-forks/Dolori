@@ -59,14 +59,10 @@ bool CRagConnection::RecvPacket(char *lpBuffer, int *len) {
 }
 
 int CRagConnection::GetPacketSize(int packetType) {
-  if (packetType == HEADER_ZC_SRPACKETR2_INIT)
-    return 12;
-  else if (packetType == HEADER_CZ_SRPACKETR2_START)
-    return 4;
-  else if (m_packetLenMap[packetType] <= 2)
-    return 2;
-  else
-    return m_packetLenMap[packetType];
+  if (packetType == HEADER_ZC_SRPACKETR2_INIT) return 12;
+  if (packetType == HEADER_CZ_SRPACKETR2_START) return 4;
+  if (m_packetLenMap[packetType] <= 2) return 2;
+  return m_packetLenMap[packetType];
 }
 
 short CRagConnection::GetPacketType(const char *buffer) {
@@ -80,5 +76,4 @@ void CRagConnection::InitPacketMap() {
   m_packetLenMap[HEADER_CH_ENTER] = sizeof(PACKET_CH_ENTER);
   m_packetLenMap[HEADER_HC_ACCEPT_ENTER] = -1;
   m_packetLenMap[HEADER_HC_REFUSE_ENTER] = sizeof(PACKET_HC_REFUSE_ENTER);
-  
 }

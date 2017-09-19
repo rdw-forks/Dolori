@@ -114,9 +114,9 @@ void CUILoginWnd::OnDraw() {
   DrawBitmap(0, 0, res, 0);
 }
 
-int CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1, void *val2,
-                         void *val3, void *val4) {
-  int result = 0;
+void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
+                           void *val2, void *val3, void *val4) {
+  void *result = NULL;
 
   switch (message) {
     case 6: {

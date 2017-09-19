@@ -15,8 +15,8 @@ class CUILoginWnd : public CUIFrameWnd {
 
   void OnCreate(int x, int y);
   void OnDraw();
-  int SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-              void* val3, void* val4);
+  void* SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
+                void* val3, void* val4);
 
  private:
   CUIEditCtrl* m_login;

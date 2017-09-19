@@ -24,9 +24,9 @@ void CUIFrameWnd::OnLBtnDown(int x, int y) {
   }
 }
 
-int CUIFrameWnd::SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-                         void* val3, void* val4) {
-  int result;
+void* CUIFrameWnd::SendMsg(CUIWindow* sender, int message, void* val1,
+                           void* val2, void* val3, void* val4) {
+  void* result;
 
   switch (message) {
     default:

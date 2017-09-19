@@ -12,7 +12,8 @@ class CUIScrollBar : public CUIWindow {
   int GetPos();
   void SetVert(bool is_vertical);
   void SetType(int type);
-  void SetRange(int range, int parentnumCanDisplayItem, int parentNumItem);
+  void SetRange(int range, size_t parentnumCanDisplayItem,
+                size_t parentNumItem);
   int GetFixedLength();
   void Resize(int cx, int cy);
   void OnDraw();
@@ -31,8 +32,8 @@ class CUIScrollBar : public CUIWindow {
   int m_startDragX;
   int m_startDragY;
   int m_deltaDrag;
-  int m_parentNumItem;
-  int m_parentnumCanDisplayItem;
+  size_t m_parentNumItem;
+  size_t m_parentnumCanDisplayItem;
   int m_scrollBtnSize;
   int m_fixedLength;
   int m_type;

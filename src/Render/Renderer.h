@@ -7,7 +7,9 @@
 #include "../Render/RPFace.h"
 #include "../Render/RPQuadFace.h"
 #include "../Render/RPTriFace.h"
+#include "cache_surface.h"
 #include "pixel_format.h"
+#include "spr_img.h"
 
 class CRenderer {
  public:
@@ -25,11 +27,14 @@ class CRenderer {
   void FlushRenderList();
   void AddRP(CRPFace *, int);
   void DrawBoxScreen(int, int, int, int, unsigned int);
+  CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
+  CSurface *GetSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
 
  private:
   void FlushAlphaNoDepthList();
   void FlushEmissiveNoDepthList();
   void FlushFaceList();
+
   //		private void CRenderer::FlushFaceList()
   //		private void CRenderer::FlushLMGroundList()
   //		private void CRenderer::FlushLMLightList()
@@ -67,8 +72,8 @@ class CRenderer {
   int m_isFoggy;
   int m_fogChanged;
   int m_isVertexFog;
-  class CTexture *m_oldTexture;
-  class CTexture *m_oldLmapTexture;
+  CTexture *m_oldTexture;
+  CTexture *m_oldLmapTexture;
   float m_guardBandLeft;
   float m_guardBandRight;
   float m_guardBandTop;
@@ -108,10 +113,8 @@ class CRenderer {
   //		 class std::vector<RPLmFace *, std::allocator<RPLmFace *> >
   // m_rpBumpFaceList
   //
-  //		 class std::list<CacheSurface, std::allocator<CacheSurface>
-  //>[0x10] m_cacheSurfaces 		 class std::list<CTexture *,
-  // std::allocator<CTexture *> > m_unusedCacheSurfaces
-  //
+  std::list<CACHE_SURFACE> m_cache_surfaces[0x10];
+  std::list<CTexture *> m_unused_cache_surfaces;
   std::list<CRPFace> m_rpNullFaceList;
   std::list<CRPFace>::iterator m_rpNullFaceListIter;
   std::list<CRPQuadFace> m_rpQuadFaceList;

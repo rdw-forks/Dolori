@@ -27,8 +27,8 @@ void CUIScrollBar::SetVert(bool is_vertical) { m_isVert = is_vertical; }
 
 void CUIScrollBar::SetType(int type) { m_type = type; }
 
-void CUIScrollBar::SetRange(int range, int parentnumCanDisplayItem,
-                            int parentNumItem) {
+void CUIScrollBar::SetRange(int range, size_t parentnumCanDisplayItem,
+                            size_t parentNumItem) {
   m_maxPos = range;
   m_parentnumCanDisplayItem = parentnumCanDisplayItem;
   m_parentNumItem = parentNumItem;
@@ -116,7 +116,7 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
     if (m_isVert) {
       switch (hit) {
         case 0:
-          m_parent->SendMsg(this, 7, (void*)-1, 0, 0, 0);
+          m_parent->SendMsg(this, 7, (void *)-1, 0, 0, 0);
           break;
         case 1:
           m_parent->SendMsg(this, 9, 0, 0, 0, 0);
@@ -128,7 +128,7 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
           m_parent->SendMsg(this, 10, 0, 0, 0, 0);
           break;
         case 4:
-          m_parent->SendMsg(this, 7, (void*)1, 0, 0, 0);
+          m_parent->SendMsg(this, 7, (void *)1, 0, 0, 0);
           break;
         default:
           return;
@@ -139,7 +139,7 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
           g_WindowMgr->SetCapture(this);
           break;
         case 0:
-          m_parent->SendMsg(this, 8, (void*)-1, 0, 0, 0);
+          m_parent->SendMsg(this, 8, (void *)-1, 0, 0, 0);
           break;
         case 1:
           m_parent->SendMsg(this, 11, 0, 0, 0, 0);
@@ -148,7 +148,7 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
           m_parent->SendMsg(this, 12, 0, 0, 0, 0);
           break;
         case 4:
-          m_parent->SendMsg(this, 8, (void*)1, 0, 0, 0);
+          m_parent->SendMsg(this, 8, (void *)1, 0, 0, 0);
           break;
         default:
           return;
@@ -207,7 +207,8 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
           return;
         button_drag =
             (m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end - m_deltaDrag;
-        m_deltaDrag += m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0);
+        m_deltaDrag +=
+            (size_t)m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0);
         return;
       } else {
         pos_scroll_end = m_h - 3 * m_scrollBtnSize;
@@ -216,7 +217,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
           button_drag = (m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end -
                         m_deltaDrag;
           m_deltaDrag +=
-              m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0);
+              (size_t)m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0);
           return;
         }
       }

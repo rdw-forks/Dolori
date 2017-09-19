@@ -154,8 +154,26 @@ CSurface* C3dDevice::CreateWallPaper(unsigned int w, unsigned int h) {
   if (w > m_dwMaxTextureWidth || h > m_dwMaxTextureHeight) {
     result = new CSurfaceWallpaper(m_dwRenderWidth, m_dwRenderHeight);
   } else {
-    result = g_TexMgr->CreateTexture(w, h, PF_A1R5G5B5);
+    result = g_TexMgr->CreateTexture(w, h, PF_A8R8G8B8);
   }
 
   return result;
+}
+
+void C3dDevice::ConvertPalette(uint32_t* dest, PALETTE_ENTRY* palette,
+                               int pal_count) {
+  PALETTE_ENTRY* current_entry;
+
+  for (int i = 0; i < pal_count; i++) {
+    current_entry = &palette[i];
+    if (current_entry->peRed == 0xFF && current_entry->peBlue == 0xFF) {
+      dest[i] = 0x0;
+    } else {
+      dest[i] = (0xFF << 24) | (current_entry->peRed) |
+                (current_entry->peGreen << 8) | (current_entry->peBlue << 16);
+      // dest[i] = (current_entry->peBlue >> 3) +
+      //          4 * ((current_entry->peGreen & 0xF8) +
+      //               32 * ((current_entry->peRed & 0xF8) + 256));
+    }
+  }
 }

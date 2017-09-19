@@ -3,7 +3,9 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <list>
+#include <map>
 #include <string>
+#include <vector>
 
 class CSession {
  public:
@@ -22,6 +24,14 @@ class CSession {
   std::list<std::string> GetNumExNameList();
   bool IsGravityAid(int);
   void InvalidateBasicWnd();
+  void InitPcNameTable();
+  void InitJobNameTable();
+  const char *GetJobName(int job);
+  char *GetJobActName(int job, int sex, char *buf);
+  char *GetJobSprName(int job, int sex, char *buf);
+  char *GetHeadActName(int job, unsigned short * head, int sex, char *buf);
+  char *GetHeadSprName(int job, unsigned short * head, int sex, char *buf);
+  char *GetImfName(int job, int head, int sex, char *buf);
   bool IsMasterAid(int);
 
  private:
@@ -36,7 +46,7 @@ class CSession {
   int m_isNeverDie;
   char m_cName[0x40];
   char m_aName[0x40];
-  //struct TAG_CHARACTER_BLOCK_INFO m_charBlockInfo2[0x9];
+  // struct TAG_CHARACTER_BLOCK_INFO m_charBlockInfo2[0x9];
   int m_sex;
   int m_charNum;
   int m_authCode;
@@ -85,6 +95,22 @@ class CSession {
   unsigned long m_aid;
   unsigned long m_gid;
   std::list<std::string> m_exNameList;
+  std::map<unsigned int, char const *> m_newPcJobNameTable;
+  std::map<unsigned int, char const *> m_newPcSexNameTable;
+  std::map<unsigned int, char const *> m_newPcHeadNameTable_M;
+  std::map<unsigned int, char const *> m_newPcHeadNameTable_F;
+  std::map<unsigned int, char const *> m_newPcJobImfNameTable;
+  std::map<unsigned int, char const *> m_newAccessoryNameTable;
+  std::map<unsigned int, char const *> m_pcWeaponNameTable;
+  std::map<unsigned int, char const *> m_pcSexImfNameTable;
+  std::map<unsigned int, char const *> m_pcJobNameTable;
+  std::map<unsigned int, char const *> m_pcSexNameTable;
+  std::map<unsigned int, char const *> m_jobNameTable;
+  std::map<unsigned int, char const *> m_sexNameTable;
+  std::map<unsigned int, char const *> m_shieldNameTable;
+  std::list<unsigned long> m_pingTimeList;
+  std::map<unsigned int, char const *> m_palJobNameTable;
+  std::vector<std::string> m_shortcutText;
 };
 
 // class CSession {

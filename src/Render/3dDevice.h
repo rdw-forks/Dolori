@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "../Render/Surface.h"
 #include "Renderer.h"
+#include "palette_entry.h"
 
 class C3dDevice {
  public:
@@ -18,6 +19,7 @@ class C3dDevice {
   int GetWidth();
   int GetHeight();
   CSurface* CreateWallPaper(unsigned int, unsigned int);
+  void ConvertPalette(uint32_t* dest, PALETTE_ENTRY* srcPal, int palCnt);
 
  private:
   SDL_Window* m_sdlWnd;

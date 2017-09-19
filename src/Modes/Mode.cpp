@@ -15,11 +15,17 @@ int CMode::OnRun() { return 0; }
 
 void CMode::OnExit() {}
 
-int CMode::SendMsg(size_t messageId, void* val1, void* val2, void* val3) {
-  if (messageId == 2) {
-    g_ModeMgr->Quit();
-  } else if (messageId == 75) {
-    m_screenShotNow = true;
-  }
-  return 0;
+void* CMode::SendMsg(size_t msg, void* val1, void* val2, void* val3) {
+  void* result = NULL;
+
+  switch (msg) {
+    case MM_QUIT:
+      g_ModeMgr->Quit();
+      break;
+    case MM_SCREENSHOT:
+      m_screenShotNow = true;
+      break;
+  };
+
+  return result;
 }

@@ -58,7 +58,7 @@ void CUIListBox::RecalcScrbarPos() {
   }
 }
 
-int CUIListBox::GetSelected() { return m_curItem; }
+size_t CUIListBox::GetSelected() { return m_curItem; }
 
 void CUIListBox::OnCreate(int cx, int cy) {
   int fixed_length;

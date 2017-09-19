@@ -25,8 +25,10 @@ CTexture::~CTexture() {}
 //  m_vOffset = v;
 //}
 
-bool CTexture::Create(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
-  return false;
+void CTexture::Create(unsigned long width, unsigned long height,
+                      PIXEL_FORMAT pf) {
+  CSurface::Create(width, height);
+  m_pf = pf;
 }
 
 bool CTexture::CreateBump(unsigned long w, unsigned long h) { return false; }

@@ -56,9 +56,9 @@ void CUINoticeConfirmWnd::OnDraw() {
   DrawBitmap(0, 0, bitmap, 0);
 }
 
-int CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
+void* CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
                                  void *val2, void *val3, void *val4) {
-  int result = 0;
+  void* result = 0;
 
   switch (message) {
     case 6: {

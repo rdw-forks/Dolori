@@ -14,7 +14,8 @@ class CUISelectServerWnd : public CUIFrameWnd {
   void OnCreate(int cx, int cy);
   void OnDraw();
   void AddServer(const char* server);
-  int SendMsg(CUIWindow * sender, int message, void * val1, void * val2, void * val3, void * val4);
+  void* SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
+                void* val3, void* val4);
 
  private:
   CUIServerListBox* m_serverList;

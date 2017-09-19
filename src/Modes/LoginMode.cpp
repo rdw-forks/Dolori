@@ -63,13 +63,15 @@ int CLoginMode::OnRun() {
 
 void CLoginMode::OnExit() {}
 
-int CLoginMode::SendMsg(size_t messageId, void *val1, void *val2, void *val3) {
+void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
+                          void *val3) {
   switch (messageId) {
     case MM_GOTOIDENTRY:
       g_mustPumpOutReceiveQueue = false;
       m_nextSubMode = 3;
       break;
     case LMM_CONNECT_TO_ACSVR:
+      // TODO: Multiple acc servers
       m_nextSubMode = 4;
       break;
     case LMM_PASSWORD:
@@ -95,11 +97,19 @@ int CLoginMode::SendMsg(size_t messageId, void *val1, void *val2, void *val3) {
       g_charServerAddr.port = m_serverInfo[m_serverSelected].port;
       m_nextSubMode = 5;
     } break;
+    case MM_QUERYCHARICTORINFO: {
+      size_t char_num = (size_t)val1;
+      if (m_numChar <= 0 || char_num >= m_numChar) return NULL;
+
+      for (int i = 0; i < m_numChar; i++) {
+        if (m_charInfo[i].char_slot == char_num) return &m_charInfo[i];
+      }
+    } break;
     default:
       return CMode::SendMsg(messageId, val1, val2, val3);
   };
 
-  return 0;
+  return NULL;
 }
 
 void CLoginMode::OnUpdate() {
@@ -134,13 +144,12 @@ void CLoginMode::OnChangeState(int state) {
   switch (state) {
     case 0: {
       // Notice confirm window
-      CBitmapRes *bitmap;
       CUINoticeConfirmWnd *wnd;
+      CBitmapRes *bitmap;
 
       m_wallPaperBmpName = UIBmp("유저인터페이스/login_interface/warning.bmp");
       bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(bitmap);
-
       wnd =
           (CUINoticeConfirmWnd *)g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND);
       if (wnd) wnd->SendMsg(NULL, 80, (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
@@ -156,12 +165,14 @@ void CLoginMode::OnChangeState(int state) {
       break;
     case 3: {
       // Login window
+      CUIFrameWnd *login_wnd;
+      CBitmapRes *res;
+
       // WinMainNpKeyStartEncryption();
       m_wallPaperBmpName = UIBmp("유저인터페이스/bgi_temp.bmp");
-      CBitmapRes *res =
-          (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
+      res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(res);
-      CUIFrameWnd *login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
+      login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
       if (!g_hideAccountList && login_wnd)
         login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
       return;
@@ -239,6 +250,9 @@ void CLoginMode::OnChangeState(int state) {
     } break;
     case 5:
       // Connection to char server
+      struct PACKET_CH_ENTER packet;
+      int packet_size;
+
       g_RagConnection->Disconnect();
       printf("Connecting to the char server ...\n");
       printf("IP: %s\nPort: %d\n", g_charServerAddr.ip, g_charServerAddr.port);
@@ -254,8 +268,6 @@ void CLoginMode::OnChangeState(int state) {
         }*/
         return;
       }
-      struct PACKET_CH_ENTER packet;
-      int packet_size;
 
       packet.header = HEADER_CH_ENTER;
       packet.client_type = g_clientType;
@@ -269,17 +281,22 @@ void CLoginMode::OnChangeState(int state) {
       return;
     case 6: {
       // Select char server
-      CUISelectServerWnd *wnd =
-          (CUISelectServerWnd *)g_WindowMgr->MakeWindow(WID_SELECTSERVERWND);
+      CUISelectServerWnd *wnd;
+      char buffer[256];
 
+      wnd = (CUISelectServerWnd *)g_WindowMgr->MakeWindow(WID_SELECTSERVERWND);
       if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, NULL, 0, 0);
       if (m_numServer < 0) {
         wnd->SendMsg(0, 40, 0, 0, 0, 0);
         return;
       }
+
       for (int i = 0; i < m_numServer; i++) {
         unsigned char *server_name = m_serverInfo[i].name;
-        wnd->AddServer((char *)server_name);
+        uint16_t nb_of_players = m_serverInfo[i].usercount;
+
+        snprintf(buffer, sizeof(buffer), "%s (%d)", server_name, nb_of_players);
+        wnd->AddServer(buffer);
       }
     } break;
     case 7:
@@ -446,32 +463,28 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
 void CLoginMode::Ac_Refuse_Login(const char *buffer) {
   struct PACKET_AC_REFUSE_LOGIN *packet =
       (struct PACKET_AC_REFUSE_LOGIN *)buffer;
+  const char *msg;
 
   if (packet->error_code != 18) g_RagConnection->Disconnect();
   switch (packet->error_code) {
-    const char *msg;
     case 0:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INCORRECT_USERID);
-      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
       break;
     case 1:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INCORRECT_LOGIN_PASSWORD);
-      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
       break;
       // TODO ...
     case 3:
       msg = g_MsgStrMgr->GetMsgStr(MSI_BAN_PC_IP_LIMIT_ACCESS);
-      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
       break;
     case 5:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INVALID_VERSION);
-      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
-      // v2->vfptr->SendMsg((CMode *)v2, 2, 0, 0, 0);
+      SendMsg(MM_QUIT, 0, 0, 0);
       break;
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
-      g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   };
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
 }
 
 void CLoginMode::CheckExeHashFromAccServer() {}
@@ -480,10 +493,10 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
   struct PACKET_HC_ACCEPT_ENTER *packet =
       (struct PACKET_HC_ACCEPT_ENTER *)buffer;
 
-  memcpy(&m_billingInfo, &packet->packet_len, sizeof(this->m_billingInfo));
+  /*memcpy(&m_billingInfo, 0, sizeof(m_billingInfo));
   m_billingInfo.code = ntohl(m_billingInfo.code);
   m_billingInfo.time1 = ntohl(m_billingInfo.time1);
-  m_billingInfo.time2 = ntohl(m_billingInfo.time2);
+  m_billingInfo.time2 = ntohl(m_billingInfo.time2);*/
   m_numChar = (packet->packet_len - sizeof(PACKET_HC_ACCEPT_ENTER)) /
               sizeof(CHARACTER_INFO);
   memcpy(m_charInfo, packet->charinfo, m_numChar * sizeof(CHARACTER_INFO));
@@ -521,28 +534,28 @@ void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
 void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
   struct PACKET_HC_REFUSE_MAKECHAR *packet =
       (struct PACKET_HC_REFUSE_MAKECHAR *)buffer;
+  const char *msg;
 
   switch (packet->error_code) {
     case 0x0:
-      // v3 = MsgStr(MSI_CHARACTER_NAME_ALREADY_EXISTS);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_NAME_ALREADY_EXISTS);
       break;
     case 0x1:
-      // v3 = MsgStr(MSI_LIMIT_AGE);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_LIMIT_AGE);
       break;
     case 0x2:
-      // v3 = MsgStr(MSI_LIMIT_CHAR_DELETE);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_LIMIT_CHAR_DELETE);
       break;
     case 0x3:
-      // v3 = MsgStr(MSI_FR_ERR_MKCHAR_INVALID_SLOT);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_FR_ERR_MKCHAR_INVALID_SLOT);
       break;
     case 0xB:
-      // v3 = MsgStr(MSI_NEED_PREMIUM_SERVICE);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_NEED_PREMIUM_SERVICE);
       break;
     default:
-      // v3 = MsgStr(MSI_CHARACTER_CREATION_DENIED);
-      break;
-  }
-  // g_windowMgr->ErrorMsg(v3, 0, 1, 0, 0);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
+  };
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   m_nextSubMode = 7;
 }
 
@@ -554,7 +567,7 @@ void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
 
   // Remove deleted char's info from m_charInfo
   while (char_index) {
-    if (m_charInfo->CharNum != g_selectedCharNum)
+    if (m_charInfo->char_slot != g_selectedCharNum)
       memcpy(&tmp_char_infos[i++], &m_charInfo[j], sizeof(CHARACTER_INFO));
 
     j++;

@@ -10,6 +10,7 @@ class CUIStaticText : public CUIWindow {
   ~CUIStaticText();
 
   void OnDraw();
+  void SetText(const char * txt, int drawBold);
 
  private:
   int m_drawBackGround;
