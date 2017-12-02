@@ -7,7 +7,7 @@
 #include "UISlotBitmap.h"
 #include "UIStaticText.h"
 
-#define NB_OF_SLOTS 0xC
+#define NB_OF_SLOTS 12
 #define SLOTS_PER_PAGE 3
 
 class CUISelectCharWnd : public CUIFrameWnd {
@@ -21,6 +21,7 @@ class CUISelectCharWnd : public CUIFrameWnd {
   void InitTextControls();
   void* SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
                 void* val3, void* val4);
+  void MakeButton(int id);
 
  private:
   struct VIEW_SPRITE m_viewChar[NB_OF_SLOTS];
@@ -29,18 +30,18 @@ class CUISelectCharWnd : public CUIFrameWnd {
   short m_accessory_top[NB_OF_SLOTS];
   unsigned long m_stateStartTick;
   bool m_dontmove;
-  int m_curPage;
+  int m_cur_page;
   int m_cur_slot;
   int m_pageCount;
-  CUIBitmapButton* m_okButton;
-  CUIBitmapButton* m_makeButton;
-  CUIBitmapButton* m_cancelButton;
-  CUIBitmapButton* m_deleteButton;
-  CUIBitmapButton* m_noticeButton;
-  CUIBitmapButton* m_chargeButton;
+  CUIBitmapButton* m_ok_button;
+  CUIBitmapButton* m_make_button;
+  CUIBitmapButton* m_cancel_button;
+  CUIBitmapButton* m_delete_button;
+  CUIBitmapButton* m_notice_button;
+  CUIBitmapButton* m_charge_button;
   CUIStaticText* m_text[NB_OF_SLOTS];
   CUISlotBitmap* m_slots[NB_OF_SLOTS + 1];
-  CUIBitmapButton* m_changeNameBtn;
+  CUIBitmapButton* m_change_name_btn;
 };
 
 // class UISelectCharWnd {

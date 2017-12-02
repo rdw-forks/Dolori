@@ -8,7 +8,7 @@ void ProcessSDLEvents() {
   while (SDL_PollEvent(&ev)) {
     switch (ev.type) {
       case SDL_QUIT:
-        g_sysQuit = true;
+        g_sys_quit = true;
         return;
       case SDL_MOUSEBUTTONDOWN:
         g_Mouse->SetXPos(ev.button.x);

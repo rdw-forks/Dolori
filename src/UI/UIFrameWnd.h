@@ -9,7 +9,7 @@ class CUIFrameWnd : public CUIWindow {
   ~CUIFrameWnd();
 
   void OnLBtnDown(int, int);
-
+  void OnLBtnUp(int x, int y);
   void* SendMsg(CUIWindow*, int, void*, void*, void*, void*);
 
  protected:

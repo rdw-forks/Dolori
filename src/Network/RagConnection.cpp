@@ -76,4 +76,16 @@ void CRagConnection::InitPacketMap() {
   m_packetLenMap[HEADER_CH_ENTER] = sizeof(PACKET_CH_ENTER);
   m_packetLenMap[HEADER_HC_ACCEPT_ENTER] = -1;
   m_packetLenMap[HEADER_HC_REFUSE_ENTER] = sizeof(PACKET_HC_REFUSE_ENTER);
+  m_packetLenMap[HEADER_CH_SELECT_CHAR] = sizeof(PACKET_CH_SELECT_CHAR);
+  m_packetLenMap[HEADER_HC_NOTIFY_ZONESVR] = sizeof(PACKET_HC_NOTIFY_ZONESVR);
+  m_packetLenMap[HEADER_ZC_AID] = sizeof(PACKET_ZC_AID);
+  m_packetLenMap[HEADER_CZ_ENTER] = sizeof(PACKET_CZ_ENTER);
+  m_packetLenMap[HEADER_ZC_ACCEPT_ENTER] = sizeof(PACKET_ZC_ACCEPT_ENTER);
+  m_packetLenMap[HEADER_ZC_ACCEPT_ENTER2] = sizeof(PACKET_ZC_ACCEPT_ENTER2);
+  m_packetLenMap[HEADER_ZC_REFUSE_ENTER] = sizeof(PACKET_ZC_REFUSE_ENTER);
+  m_packetLenMap[HEADER_ZC_NOTIFY_PLAYERCHAT] = -1;
+  m_packetLenMap[HEADER_ZC_NPCACK_MAPMOVE] = sizeof(PACKET_ZC_NPCACK_MAPMOVE);
+  m_packetLenMap[HEADER_ZC_COUPLESTATUS] = sizeof(PACKET_ZC_COUPLESTATUS);
+  m_packetLenMap[HEADER_ZC_PAR_CHANGE] = sizeof(PACKET_ZC_PAR_CHANGE);
+  m_packetLenMap[HEADER_ZC_ATTACK_RANGE] = sizeof(PACKET_ZC_ATTACK_RANGE);
 }

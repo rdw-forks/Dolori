@@ -18,8 +18,8 @@ void CRes::UpdateInfo(const char *fName, size_t extIndex) {
 void CRes::UpdateTimeStamp() { m_timeStamp = GetTick(); }
 
 void CRes::OnLoadError(const char *fName) {
-  char msg[255];
+  char msg[256];
 
-  sprintf(msg, "ResourceError : Can't find file %s", fName);
+  snprintf(msg, sizeof(msg), "ResourceError : Can't find file %s", fName);
   ErrorMsg(msg);
 }

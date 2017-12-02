@@ -152,6 +152,7 @@ void CSession::InitJobNameTable() {
   m_jobNameTable[4021] = "Gypsy";
   m_jobNameTable[4022] = "Paladin";
   // TODO: Babies
+  m_jobNameTable[4218] = "Summoner";
 }
 
 const char *CSession::GetJobName(int job) { return m_jobNameTable[job]; }

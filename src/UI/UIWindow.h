@@ -30,6 +30,7 @@ class CUIWindow {
   bool IsShow();
   void SetShow(bool);
   void AddChild(CUIWindow *);
+  void RemoveChild(CUIWindow *window);
   bool IsChildOf(CUIWindow *);
   void DrawBitmap(int, int, CBitmapRes *, int);
   void DrawBox(int x, int y, int cx, int cy, uint32_t color);
@@ -75,7 +76,7 @@ class CUIWindow {
   int m_w;
   int m_h;
   bool m_isDirty;
-  CSurface *m_surface;
+  CSurface *m_surfaces;
   size_t m_id;
   size_t m_state;
   int m_state_cnt;

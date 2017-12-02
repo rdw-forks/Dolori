@@ -18,12 +18,12 @@ class CModeMgr {
   CLoginMode* GetLoginMode();
 
  private:
-  int m_loopCond;
-  CMode* m_curMode;
-  char m_curModeName[0x28];
-  char m_nextModeName[0x28];
-  int m_curModeType;
-  int m_nextModeType;
+  int m_loop_cond;
+  CMode* m_cur_mode;
+  char m_cur_mode_name[0x28];
+  char m_next_mode_name[0x28];
+  int m_cur_mode_type;
+  int m_next_mode_type;
 };
 
 #endif  // DOLORI_CORE_MODEMGR_H_

@@ -11,7 +11,7 @@ CUILoginWnd::CUILoginWnd() {
   m_startGlobalY = 0;
   m_login = NULL;
   m_password = NULL;
-  m_cancelButton = NULL;
+  m_cancel_button = NULL;
   m_isCheckOn = 0;
   m_isHangame = 0;
   m_classText = NULL;
@@ -81,7 +81,7 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
     button->SetId(ids[i]);
     AddChild(button);
 
-    if (ids[i] == 119) m_cancelButton = button;
+    if (ids[i] == 119) m_cancel_button = button;
   }
 
   CUIEditCtrl *login = new CUIEditCtrl();

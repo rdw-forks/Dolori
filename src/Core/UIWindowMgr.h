@@ -179,6 +179,7 @@ class CUIWindowMgr {
   void PostQuit(CUIWindow *wnd);
   void AddWindow(CUIWindow *);
   void RemoveWindow(CUIWindow *);
+  void RemoveAllWindows();
   void InvalidateUpdateNeededUI();
   CUIWindow *GetCapture();
   void SetCapture(CUIWindow *);
@@ -203,13 +204,13 @@ class CUIWindowMgr {
   int m_isDragAll;
   int m_conversionMode;
   std::list<CUIWindow *> m_children;
-  std::list<CUIWindow *> m_quitWindow;
+  std::list<CUIWindow *> m_quit_window;
   std::list<CUIWindow *> m_nameWaitingList;
   // std::map<CUIWindow *, CSnapInfo, std::less<CUIWindow *>> m_snapInfo;
   CUIWindow *m_captureWindow;
   CUIWindow *m_editWindow;
   CUIWindow *m_modalWindow;
-  CUIWindow *m_lastHitWindow;
+  CUIWindow *m_last_hit_window;
   bool m_isInvalidatedByForce;
   class UILoadingWnd *m_loadingWnd;
   class UIMinimapZoomWnd *m_minimapZoomWnd;
@@ -330,8 +331,8 @@ class CUIWindowMgr {
   class UIMemorialDunWnd *m_memorialDunWnd;
   class UIEquipWnd *m_otherUserEquipWnd;
   class UIRoMapWnd *m_roMapWnd;
-  int m_lastMouseX;
-  int m_lastMouseY;
+  int m_last_mouse_x;
+  int m_last_mouse_y;
   int m_modalResult;
   CSurface *m_wallpaperSurface;
   int m_w;

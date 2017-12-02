@@ -16,7 +16,12 @@ void* CUISlotBitmap::SendMsg(CUIWindow* sender, int message, void* val1,
   void* result = NULL;
 
   if (message == 13) {
-    m_state = (size_t)val1;
+    size_t new_state = (size_t)val1;
+
+    if (m_state != new_state) {
+      m_state = (size_t)val1;
+      Invalidate();
+    }
   } else {
     result = CUIWindow::SendMsg(sender, message, val1, val2, val3, val4);
   }

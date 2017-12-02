@@ -99,7 +99,6 @@ void CSurface::BlitBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
 
   if (m_sdl_surface) {
     SDL_Surface *surface;
-
     surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff, 0xff00,
                                    0xff0000, 0xff000000);
     SDL_LockSurface(surface);

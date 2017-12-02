@@ -2,8 +2,9 @@
 #define DOLORI_RENDER_TEXMGR_H_
 
 #include <map>
-#include "pixel_format.h"
+#include "../Core/ResMgr.h"
 #include "Texture.h"
+#include "pixel_format.h"
 
 class CTexMgr {
  public:
@@ -11,9 +12,13 @@ class CTexMgr {
   ~CTexMgr();
 
   CTexture *CreateTexture(unsigned long, unsigned long, PIXEL_FORMAT);
+  CTexture *CreateTexture(unsigned long, unsigned long, PIXEL_FORMAT,
+                          SDL_Surface *);
+  CTexture *GetTexture(const char *, bool);
 
  private:
-  //std::map<char const *, CTexture *, CharPrtLess> m_texTable;
+  std::map<char const *, CTexture *, CharPrtLess> m_tex_table;
+  static CTexture s_dummy_texture;
 };
 
 // class CTexMgr {

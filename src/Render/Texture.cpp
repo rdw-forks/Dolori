@@ -3,9 +3,9 @@
 CTexture::CTexture() {}
 
 CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
-  m_lockCnt = 0;
-  m_timeStamp = 0;
-  m_texName[0] = 0;
+  m_lock_count = 0;
+  m_time_stamp = 0;
+  m_tex_name[0] = 0;
   if (pf == PF_BUMP) {
     CreateBump(w, h);
   } else {
@@ -13,8 +13,23 @@ CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
     while (w > m_w) w >>= 1;
     while (h > m_h) h >>= 1;
 
-    m_updateHeight = h;
-    m_updateWidth = w;
+    m_update_height = h;
+    m_update_width = w;
+  }
+}
+
+CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf,
+                   SDL_Surface *surface) {
+  m_sdl_surface = NULL;
+  m_lock_count = 0;
+  m_time_stamp = 0;
+  m_pf = pf;
+  m_w = w;
+  m_h = h;
+  if (pf == PF_BUMP) {
+    CreateBump(w, h);
+  } else {
+    m_sdl_surface = surface;
   }
 }
 
@@ -32,3 +47,7 @@ void CTexture::Create(unsigned long width, unsigned long height,
 }
 
 bool CTexture::CreateBump(unsigned long w, unsigned long h) { return false; }
+
+unsigned long CTexture::GetUpdateWidth() { return m_update_width; }
+
+unsigned long CTexture::GetUpdateHeight() { return m_update_height; }

@@ -5,9 +5,9 @@ CMode::CMode() {}
 
 CMode::~CMode() {}
 
-bool CMode::GetLoopCond() { return m_loopCond; }
+bool CMode::GetLoopCond() { return m_loop_cond; }
 
-void CMode::SetLoopCond(bool loop_cond) { m_loopCond = loop_cond; }
+void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }
 
 void CMode::OnInit(const char*) {}
 

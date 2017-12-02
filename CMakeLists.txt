@@ -20,11 +20,11 @@ set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
 if(WIN32)
   # Tell CMake where to search for includes and libs on Windows
   set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-    "${PROJECT_SOURCE_DIR}/3rdparty/SDL2"
-	"${PROJECT_SOURCE_DIR}/3rdparty/glew-2.1.0"
-	"${PROJECT_SOURCE_DIR}/3rdparty/DevIL-1.8.0"
-	"${PROJECT_SOURCE_DIR}/3rdparty/zlib-1.2.3"
-	"${PROJECT_SOURCE_DIR}/3rdparty/SDL2_ttf-2.0.14"
+  "${PROJECT_SOURCE_DIR}/3rdparty/SDL2"
+  "${PROJECT_SOURCE_DIR}/3rdparty/glew-2.1.0"
+  "${PROJECT_SOURCE_DIR}/3rdparty/DevIL-1.8.0"
+  "${PROJECT_SOURCE_DIR}/3rdparty/zlib-1.2.3"
+  "${PROJECT_SOURCE_DIR}/3rdparty/SDL2_ttf-2.0.14"
   )
 endif(WIN32)
 
@@ -56,3 +56,6 @@ target_link_libraries(${PROJECT_NAME} ${SDL2_TTF_LIBRARIES})
 if(WIN32)
   target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)
 endif(WIN32)
+
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/3rdparty/utf8cpp/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/3rdparty/glm/include")

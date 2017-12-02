@@ -25,11 +25,16 @@ void CRenderer::SetSize(int cx, int cy) {
   // g_avgPixelRatio = cy * 0.0017447917;
   // g_slope = g_gradient / m_screenYFactor;
   // g_shadowSlope = g_gradient / m_screenYFactor;
+  m_nClearColor = 0xFF000000;
 }
 
 int CRenderer::GetWidth() { return m_width; }
 
 int CRenderer::GetHeight() { return m_height; }
+
+float CRenderer::GetHorizontalRatio() { return m_hratio; }
+
+float CRenderer::GetVerticalRatio() { return m_vratio; }
 
 void CRenderer::SetPixelFormat(PIXEL_FORMAT pf) { m_pf = pf; }
 

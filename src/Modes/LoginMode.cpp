@@ -8,6 +8,7 @@
 #include <string.h>
 #include "../Common/GetTick.h"
 #include "../Common/Globals.h"
+#include "../Common/modetype.h"
 #include "../Common/service_type.h"
 #include "../Input/SDLEvents.h"
 #include "../Network/Packets.h"
@@ -26,11 +27,11 @@ void CLoginMode::OnInit(const char *mode_name) {
   m_makingCharName[0] = 0;
   m_emailAddress[0] = 0;
   m_wallPaperBmpName = TITLE_FILE;
-  m_loopCond = true;
-  m_nextSubMode = -1;
+  m_loop_cond = true;
+  m_next_sub_mode = -1;
   // InitNPKCryptFuncTbl();
-  m_subMode = g_loginStartMode;
-  m_subModeCnt = 0;
+  m_sub_mode = g_loginStartMode;
+  m_sub_mode_cnt = 0;
   OnChangeState(g_loginStartMode);
   g_loginStartMode = 3;
   // g_isStopByLogin = 1;
@@ -44,18 +45,18 @@ void CLoginMode::OnInit(const char *mode_name) {
 }
 
 int CLoginMode::OnRun() {
-  while (m_loopCond) {
-    if (g_sysQuit) break;
+  while (m_loop_cond) {
+    if (g_sys_quit) break;
     if (true /*!dword_7687C8*/) {
-      if (m_nextSubMode != -1) {
-        m_subMode = m_nextSubMode;
-        m_subModeCnt = 0;
-        m_nextSubMode = -1;
-        OnChangeState(m_subMode);
+      if (m_next_sub_mode != -1) {
+        m_sub_mode = m_next_sub_mode;
+        m_sub_mode_cnt = 0;
+        m_next_sub_mode = -1;
+        OnChangeState(m_sub_mode);
       }
     }
     OnUpdate();
-    ++m_subModeCnt;
+    ++m_sub_mode_cnt;
   }
   // RunFadeOut(0);
   return 1;
@@ -65,14 +66,39 @@ void CLoginMode::OnExit() {}
 
 void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
                           void *val3) {
+  void *result = NULL;
   switch (messageId) {
+    case MM_COMMAND: {
+      size_t command_id = (size_t)val1;
+
+      switch (command_id) {
+        case 10004:
+          m_next_sub_mode = 7;
+          break;
+        case 10010:
+          m_next_sub_mode = 11;
+          break;
+        case 10001:
+          m_next_sub_mode = 8;
+          break;
+        case 10002:
+          m_next_sub_mode = 9;
+          break;
+        case 10006:
+          if (m_sub_mode != 7) break;
+          // g_WindowMgr->RemoveAllWindows();
+          g_RagConnection->Disconnect();
+          m_next_sub_mode = 6;
+          break;
+      };
+    } break;
     case MM_GOTOIDENTRY:
       g_mustPumpOutReceiveQueue = false;
-      m_nextSubMode = 3;
+      m_next_sub_mode = 3;
       break;
     case LMM_CONNECT_TO_ACSVR:
       // TODO: Multiple acc servers
-      m_nextSubMode = 4;
+      m_next_sub_mode = 4;
       break;
     case LMM_PASSWORD:
       if (val1) strncpy(m_userPassword, (char *)val1, sizeof(m_userPassword));
@@ -85,7 +111,7 @@ void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
       if (val == 135)
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
       else
-        m_nextSubMode = 2;
+        m_next_sub_mode = 2;
     } break;
     case LMM_SELECTSVR: {
       m_serverSelected = (size_t)val1;
@@ -95,13 +121,13 @@ void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
       ip.s_addr = m_serverInfo[m_serverSelected].ip;
       inet_ntop(AF_INET, &ip, g_charServerAddr.ip, sizeof(g_charServerAddr.ip));
       g_charServerAddr.port = m_serverInfo[m_serverSelected].port;
-      m_nextSubMode = 5;
+      m_next_sub_mode = 5;
     } break;
     case MM_QUERYCHARICTORINFO: {
       size_t char_num = (size_t)val1;
-      if (m_numChar <= 0 || char_num >= m_numChar) return NULL;
+      if (m_num_char <= 0 || char_num >= m_num_char) return NULL;
 
-      for (int i = 0; i < m_numChar; i++) {
+      for (int i = 0; i < m_num_char; i++) {
         if (m_charInfo[i].char_slot == char_num) return &m_charInfo[i];
       }
     } break;
@@ -109,15 +135,15 @@ void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
       return CMode::SendMsg(messageId, val1, val2, val3);
   };
 
-  return NULL;
+  return result;
 }
 
 void CLoginMode::OnUpdate() {
   PollNetworkStatus();
 
   // Ping the server if necessary
-  if ((m_subMode == 7 || m_subMode == 8 || m_subMode == 11 ||
-       m_subMode == 19) &&
+  if ((m_sub_mode == 7 || m_sub_mode == 8 || m_sub_mode == 11 ||
+       m_sub_mode == 19) &&
       GetTick() > m_syncRequestTime) {
     struct PACKET_PING packet;
     int packet_size;
@@ -138,6 +164,7 @@ void CLoginMode::OnUpdate() {
 }
 
 void CLoginMode::OnChangeState(int state) {
+  g_WindowMgr->RemoveAllWindows();
   m_subModeStartTime = GetTick();
   m_isConnected = 1;
 
@@ -161,7 +188,7 @@ void CLoginMode::OnChangeState(int state) {
       // TODO
       // if (!InitAccountInfo())
       // SendMsg(30, 0, 0, 0);
-      m_nextSubMode = 3;
+      m_next_sub_mode = 3;
       break;
     case 3: {
       // Login window
@@ -272,7 +299,7 @@ void CLoginMode::OnChangeState(int state) {
       packet.header = HEADER_CH_ENTER;
       packet.client_type = g_clientType;
       packet.auth_code = m_authCode;
-      packet.account_id = m_accountId;
+      packet.account_id = m_account_id;
       packet.user_level = m_userLevel;
       packet.Sex = g_Session->GetSex();
       g_mustPumpOutReceiveQueue = 1;
@@ -302,8 +329,22 @@ void CLoginMode::OnChangeState(int state) {
     case 7:
       g_WindowMgr->MakeWindow(WID_SELECTCHARWND);
       break;
+    case 9: {
+      PACKET_CH_SELECT_CHAR packet;
+      int packet_size;
+
+      packet.header = HEADER_CH_SELECT_CHAR;
+      packet.char_num = g_selected_char_num;
+      packet_size = g_RagConnection->GetPacketSize(HEADER_CH_SELECT_CHAR);
+      g_RagConnection->SendPacket(packet_size, (char *)&packet);
+      // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
+      // v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
+      // UIWaitWnd::SetMsg(v127, v128, 16, 1);
+    } break;
     case 12:
       // Connection to zone server
+      printf("Connecting to the zone server ...\n");
+      printf("IP: %s\nPort: %d\n", g_zoneServerAddr.ip, g_zoneServerAddr.port);
       m_isConnected = g_RagConnection->Connect(&g_zoneServerAddr);
       if (m_isConnected) {
         struct PACKET_CZ_ENTER packet;
@@ -314,8 +355,8 @@ void CLoginMode::OnChangeState(int state) {
         // CLoginMode::SetPaddingValue(v2, (char *)&packet.AuthCode + 3, 4);
         packet.clientTime = GetTick();
         packet.AuthCode = m_authCode;
-        packet.GID = 0;
-        packet.AID = 0;
+        packet.GID = m_char_id;
+        packet.AID = m_account_id;
         packet.Sex = g_Session->GetSex();
         packet_size = g_RagConnection->GetPacketSize(HEADER_CZ_ENTER);
         g_RagConnection->SendPacket(packet_size, (char *)&packet);
@@ -352,11 +393,8 @@ void CLoginMode::PollNetworkStatus() {
   }
 
   int size_of_buffer;
-  if (!g_RagConnection->RecvPacket(buffer, &size_of_buffer)) return;
-
-  short packet_type = g_RagConnection->GetPacketType(buffer);
-  for (;;) {
-    if (packet_type > HEADER_SC_NOTIFY_BAN) break;
+  while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
+    short packet_type = g_RagConnection->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_AC_ACCEPT_LOGIN:
         Ac_Accept_Login(buffer);
@@ -388,51 +426,46 @@ void CLoginMode::PollNetworkStatus() {
       case HEADER_ZC_ACCEPT_ENTER:
         Zc_Accept_Enter(buffer);
         break;
+      case HEADER_ZC_ACCEPT_ENTER2:
+        Zc_Accept_Enter2(buffer);
+        break;
       case HEADER_ZC_REFUSE_ENTER:
-        g_WindowMgr->ErrorMsg(g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED), 0, 1,
-                              0, 0);
+        Zc_Refuse_Enter(buffer);
         break;
       case HEADER_SC_NOTIFY_BAN:
         // Sc_Notify_Ban(buffer);
         return;
+      case HEADER_AC_EVENT_RESULT:
+        break;
+      case HEADER_HC_BLOCK_CHARACTER:
+        break;
+      case HEADER_SC_BILLING_INFO:
+        break;
+      case HEADER_AC_ASK_PNGAMEROOM:
+        break;
+      case HEADER_SC_ACK_ENCRYPTION:
+        break;
+      case HEADER_AC_ACK_HASH:
+        break;
+      case HEADER_AC_NOTIFY_ERROR:
+        break;
+      case HEADER_PING:
+        // Do nothing
+        break;
+      case HEADER_HC_CHARNOTBEENSELECTED:
+        break;
+      case HEADER_HC_ACK_IS_VALID_CHARNAME:
+        break;
+      case HEADER_HC_ACK_CHANGE_CHARNAME:
+        break;
+      case HEADER_HC_REFUSE_SELECTCHAR:
+        break;
+      case HEADER_ZC_AID:
+        break;
       default:
         return;
     };
-    if (!g_RagConnection->RecvPacket(buffer, &size_of_buffer)) return;
   }
-  switch (packet_type) {
-    case HEADER_AC_EVENT_RESULT:
-      break;
-    case HEADER_HC_BLOCK_CHARACTER:
-      break;
-    case HEADER_SC_BILLING_INFO:
-      break;
-    case HEADER_AC_ASK_PNGAMEROOM:
-      break;
-    case HEADER_SC_ACK_ENCRYPTION:
-      break;
-    case HEADER_AC_ACK_HASH:
-      break;
-    case HEADER_AC_NOTIFY_ERROR:
-      break;
-    case HEADER_PING:
-      // Do nothing
-      break;
-    case HEADER_HC_CHARNOTBEENSELECTED:
-      break;
-    case HEADER_HC_ACK_IS_VALID_CHARNAME:
-      break;
-    case HEADER_HC_ACK_CHANGE_CHARNAME:
-      break;
-    case HEADER_HC_REFUSE_SELECTCHAR:
-      break;
-    case HEADER_ZC_AID:
-      break;
-    case HEADER_ZC_ACCEPT_ENTER2:
-      break;
-    default:
-      break;
-  };
   // ResetQueue
 }
 
@@ -442,7 +475,7 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
   char sex;
 
   m_authCode = packet->auth_code;
-  m_accountId = packet->account_id;
+  m_account_id = packet->account_id;
   m_userLevel = packet->user_level;
 
   if (packet->sex < 0xA)
@@ -457,7 +490,7 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
          m_numServer * sizeof(CHAR_SERVER_INFO));
   g_RagConnection->Disconnect();
   g_passwordWrong = false;
-  m_nextSubMode = 6;
+  m_next_sub_mode = 6;
 }
 
 void CLoginMode::Ac_Refuse_Login(const char *buffer) {
@@ -473,9 +506,8 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
     case 1:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INCORRECT_LOGIN_PASSWORD);
       break;
-      // TODO ...
     case 3:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_BAN_PC_IP_LIMIT_ACCESS);
+      msg = g_MsgStrMgr->GetMsgStr(MSI_INVALID_VERSION);
       break;
     case 5:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INVALID_VERSION);
@@ -497,10 +529,10 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
   m_billingInfo.code = ntohl(m_billingInfo.code);
   m_billingInfo.time1 = ntohl(m_billingInfo.time1);
   m_billingInfo.time2 = ntohl(m_billingInfo.time2);*/
-  m_numChar = (packet->packet_len - sizeof(PACKET_HC_ACCEPT_ENTER)) /
-              sizeof(CHARACTER_INFO);
-  memcpy(m_charInfo, packet->charinfo, m_numChar * sizeof(CHARACTER_INFO));
-  m_nextSubMode = 7;
+  m_num_char = (packet->packet_len - sizeof(PACKET_HC_ACCEPT_ENTER)) /
+               sizeof(CHARACTER_INFO);
+  memcpy(m_charInfo, packet->charinfo, m_num_char * sizeof(CHARACTER_INFO));
+  m_next_sub_mode = 7;
 }
 
 void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
@@ -525,10 +557,10 @@ void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
       (struct PACKET_HC_ACCEPT_MAKECHAR *)buffer;
 
   memcpy(&g_charInfo, &packet->charinfo, sizeof(CHARACTER_INFO));
-  memcpy(&m_charInfo[m_numChar], &packet->charinfo,
-         sizeof(m_charInfo[m_numChar]));
-  m_nextSubMode = 7;
-  m_numChar++;
+  memcpy(&m_charInfo[m_num_char], &packet->charinfo,
+         sizeof(m_charInfo[m_num_char]));
+  m_next_sub_mode = 7;
+  m_num_char++;
 }
 
 void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
@@ -556,26 +588,26 @@ void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
       msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
   };
   g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
-  m_nextSubMode = 7;
+  m_next_sub_mode = 7;
 }
 
 void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
   struct CHARACTER_INFO tmp_char_infos[0xC];
-  unsigned int char_index = m_numChar;
+  unsigned int char_index = m_num_char;
   unsigned int i = 0;
   unsigned int j = 0;
 
   // Remove deleted char's info from m_charInfo
   while (char_index) {
-    if (m_charInfo->char_slot != g_selectedCharNum)
+    if (m_charInfo->char_slot != g_selected_char_num)
       memcpy(&tmp_char_infos[i++], &m_charInfo[j], sizeof(CHARACTER_INFO));
 
     j++;
     char_index--;
   }
-  m_numChar--;
-  memcpy(m_charInfo, tmp_char_infos, m_numChar * sizeof(CHARACTER_INFO));
-  m_nextSubMode = 7;
+  m_num_char--;
+  memcpy(m_charInfo, tmp_char_infos, m_num_char * sizeof(CHARACTER_INFO));
+  m_next_sub_mode = 7;
 }
 
 void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
@@ -593,7 +625,7 @@ void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
     // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
   }
   // g_windowMgr->ErrorMsg(v3, 0, 1, 0, 0);
-  m_nextSubMode = 7;
+  m_next_sub_mode = 7;
 }
 
 void CLoginMode::Zc_Accept_Enter(const char *buffer) {
@@ -606,21 +638,54 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
       (packet->PosDir[1] >> 6) | 4 * packet->PosDir[0],
       (packet->PosDir[2] >> 4) | 16 * (packet->PosDir[1] & 0x3F),
       packet->PosDir[2] & 0xF);
-  snprintf(current_map, sizeof(current_map), "%s.rsw", g_currentMap);
-  g_ModeMgr->Switch(1, current_map);
+  printf("Entered zone server, the current map is %s\n", g_current_map);
+  snprintf(current_map, sizeof(current_map), "%s.rsw", g_current_map);
+  g_ModeMgr->Switch(MT_GAME, current_map);
   // wnd = (UIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
   // str = MsgStr(MSI_PLEASE_BE_PATIENT);
   // wnd->SetMsg(str, 17, 1);
   g_RagConnection->SetBlock(false);
 }
 
+void CLoginMode::Zc_Accept_Enter2(const char *buffer) {
+  struct PACKET_ZC_ACCEPT_ENTER2 *packet =
+      (struct PACKET_ZC_ACCEPT_ENTER2 *)buffer;
+  Zc_Accept_Enter(buffer);
+}
+
 void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
   struct PACKET_HC_NOTIFY_ZONESVR *packet =
       (struct PACKET_HC_NOTIFY_ZONESVR *)buffer;
+  size_t map_name_length;
   struct in_addr ip;
 
-  strncpy(g_currentMap, (char *)packet->map_name, sizeof(g_currentMap));
+  m_char_id = packet->char_id;
+  map_name_length = strlen((char *)packet->map_name) - 4;
+  if (map_name_length > sizeof(g_current_map))
+    map_name_length = sizeof(g_current_map);
+  strncpy(g_current_map, (char *)packet->map_name, map_name_length);
   ip.s_addr = packet->addr.ip;
   inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
+  g_RagConnection->Disconnect();
+  m_next_sub_mode = 12;
+}
+
+void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
+  PACKET_ZC_REFUSE_ENTER *packet = (PACKET_ZC_REFUSE_ENTER *)buffer;
+  const char *msg;
+
+  switch (packet->error) {
+    case 0:
+      msg = g_MsgStrMgr->GetMsgStr(MSI_CLIENTTYPEMISMATCH);
+      break;
+    case 1:
+      msg = g_MsgStrMgr->GetMsgStr(MSI_ID_MISMATCH);
+      break;
+    default:
+      msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
+  };
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  g_RagConnection->Disconnect();
+  m_next_sub_mode = 3;
 }

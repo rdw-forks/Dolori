@@ -31,8 +31,8 @@ char g_accountAddr[64];
 char g_accountPort[64];
 SERVER_ADDRESS g_charServerAddr;
 SERVER_ADDRESS g_zoneServerAddr;
-bool g_sysQuit = false;
-char g_currentMap[16];
+bool g_sys_quit = false;
+char g_current_map[16];
 bool g_bUseCommand;
 bool g_mustPumpOutReceiveQueue;
 bool g_NameBalloonShorten;
@@ -41,4 +41,4 @@ bool g_passwordWrong;
 std::vector<unsigned long> s_dwAdminAID;
 
 CHARACTER_INFO g_charInfo;
-unsigned char g_selectedCharNum;
+uint8_t g_selected_char_num;

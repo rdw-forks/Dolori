@@ -13,7 +13,7 @@ CUIWindowMgr::CUIWindowMgr() {
   m_captureWindow = NULL;
   m_editWindow = NULL;
   m_modalWindow = NULL;
-  m_lastHitWindow = NULL;
+  m_last_hit_window = NULL;
 }
 
 CUIWindowMgr::~CUIWindowMgr() {}
@@ -79,7 +79,7 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
       m_loginWnd->Move(UIX(185), UICY(300));
       AddWindow(m_loginWnd);
       result = m_loginWnd;
-    break;
+      break;
     case WID_SELECTSERVERWND: {
       CUISelectServerWnd *wnd = new CUISelectServerWnd();
       // wnd->Create(280, 200);
@@ -107,7 +107,7 @@ void CUIWindowMgr::PostQuit(CUIWindow *wnd) {
   //  m_selCharForUServerWnd = NULL;
   // if (wnd == m_changeNameWnd)
   //  m_changeNameWnd = NULL;
-  m_quitWindow.push_back(wnd);
+  m_quit_window.push_back(wnd);
 }
 
 void CUIWindowMgr::AddWindow(CUIWindow *window) {
@@ -117,6 +117,8 @@ void CUIWindowMgr::AddWindow(CUIWindow *window) {
 void CUIWindowMgr::RemoveWindow(CUIWindow *window) {
   m_children.remove(window);
 }
+
+void CUIWindowMgr::RemoveAllWindows() { m_children.clear(); }
 
 void CUIWindowMgr::InvalidateUpdateNeededUI() {
   if (!m_isInvalidatedByForce) {
@@ -148,7 +150,7 @@ int CUIWindowMgr::ProcessInput() {
   int y = g_Mouse->GetYPos();
 
   if (!m_modalWindow) {
-    for (auto it = m_quitWindow.begin(); it != m_quitWindow.end(); ++it) {
+    for (auto it = m_quit_window.begin(); it != m_quit_window.end(); ++it) {
       if (m_captureWindow &&
           (m_captureWindow == *it || m_captureWindow->IsChildOf(*it))) {
         m_captureWindow = NULL;
@@ -161,17 +163,17 @@ int CUIWindowMgr::ProcessInput() {
           (m_modalWindow == *it || m_modalWindow->IsChildOf(*it))) {
         m_modalWindow = NULL;
       }
-      if (m_lastHitWindow &&
-          (m_lastHitWindow == *it || m_lastHitWindow->IsChildOf(*it))) {
-        m_lastHitWindow = NULL;
+      if (m_last_hit_window &&
+          (m_last_hit_window == *it || m_last_hit_window->IsChildOf(*it))) {
+        m_last_hit_window = NULL;
       }
       RemoveWindow(*it);
     }
-    m_quitWindow.clear();
+    m_quit_window.clear();
   }
 
   if (!m_captureWindow) {
-    CUIWindow *hit_window;
+    CUIWindow *hit_window = NULL;
 
     if (m_children.empty())
       hit_window = NULL;
@@ -207,7 +209,7 @@ int CUIWindowMgr::ProcessInput() {
         hit_window->OnWBtnDown(x_local, y_local);
 
       hit_window->OnMouseShape(x_local, y_local);
-      if (m_lastMouseX != x || m_lastMouseY != y)
+      if (m_last_mouse_x != x || m_last_mouse_y != y)
         hit_window->OnMouseMove(x_local, y_local);
       else
         hit_window->OnMouseHover(x_local, y_local);
@@ -216,14 +218,14 @@ int CUIWindowMgr::ProcessInput() {
       if (g_Mouse->GetRBtn() == BTN_UP) hit_window->OnRBtnUp(x_local, y_local);
       if (g_Mouse->GetLBtn() == BTN_UP) hit_window->OnLBtnUp(x_local, y_local);
 
-      if (m_lastHitWindow && hit_window != m_lastHitWindow) {
-        m_lastHitWindow->GetGlobalCoor(&x_global, &y_global);
+      if (m_last_hit_window && hit_window != m_last_hit_window) {
+        m_last_hit_window->GetGlobalCoor(&x_global, &y_global);
         x_local = x - x_global;
         y_local = y - y_global;
-        m_lastHitWindow->OnMouseMove(x_local, y_local);
-        m_lastHitWindow->OnMouseShape(x_local, y_local);
+        m_last_hit_window->OnMouseMove(x_local, y_local);
+        m_last_hit_window->OnMouseShape(x_local, y_local);
       }
-      m_lastHitWindow = hit_window;
+      m_last_hit_window = hit_window;
     }
   } else {
     int x_global, y_global;
@@ -240,7 +242,7 @@ int CUIWindowMgr::ProcessInput() {
     }
 
     m_captureWindow->OnMouseShape(x_local, y_local);
-    if (m_lastMouseX != x || m_lastMouseY != y)
+    if (m_last_mouse_x != x || m_last_mouse_y != y)
       m_captureWindow->OnMouseMove(x_local, y_local);
     else
       m_captureWindow->OnMouseHover(x_local, y_local);
@@ -254,8 +256,8 @@ int CUIWindowMgr::ProcessInput() {
   // g_mouseMoved = false;
   // if (x != m_lastMouseX || y != m_lastMouseY)
   //  g_mouseMoved = true;
-  m_lastMouseX = x;
-  m_lastMouseY = y;
+  m_last_mouse_x = x;
+  m_last_mouse_y = y;
   // if (!m_modalWindow)
   //  return rValue;
 

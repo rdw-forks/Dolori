@@ -60,11 +60,13 @@ class CLoginMode : public CMode {
   void Hc_Accept_Deletechar(const char *);
   void Hc_Refuse_Deletechar(const char *);
   void Zc_Accept_Enter(const char *);
+  void Zc_Accept_Enter2(const char * buffer);
   void Hc_Notify_Zonesvr(const char *);
+  void Zc_Refuse_Enter(const char * buf);
 
  private:
   int m_authCode;
-  unsigned int m_accountId;
+  unsigned int m_account_id;
   unsigned int m_userLevel;
   int m_charParam[0x8];
   char m_makingCharName[0x40];
@@ -73,7 +75,8 @@ class CLoginMode : public CMode {
   char m_userId[0x40];
   int m_numServer;
   size_t m_serverSelected;
-  int m_numChar;
+  int m_num_char;
+  uint32_t m_char_id;
   unsigned int m_subModeStartTime;
   struct SERVER_ADDR m_serverInfo[0x64];
   struct CHARACTER_INFO m_charInfo[0xc];

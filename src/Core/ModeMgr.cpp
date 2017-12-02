@@ -5,52 +5,52 @@
 #include "../Modes/GameMode.h"
 #include "../Modes/LoginMode.h"
 
-CModeMgr::CModeMgr() { m_loopCond = true; }
+CModeMgr::CModeMgr() { m_loop_cond = true; }
 
 void CModeMgr::Run(int mode_type, const char* world_name) {
-  m_curModeType = mode_type;
-  m_nextModeType = mode_type;
-  strncpy(m_curModeName, world_name, sizeof(m_curModeName));
-  strncpy(m_nextModeName, world_name, sizeof(m_nextModeName));
+  m_cur_mode_type = mode_type;
+  m_next_mode_type = mode_type;
+  strncpy(m_cur_mode_name, world_name, sizeof(m_cur_mode_name));
+  strncpy(m_next_mode_name, world_name, sizeof(m_next_mode_name));
 
-  while (m_loopCond) {
-    if (g_sysQuit) return;
-    m_curModeType = m_nextModeType;
-    strncpy(m_curModeName, m_nextModeName, sizeof(m_curModeName));
+  while (m_loop_cond) {
+    if (g_sys_quit) return;
+    m_cur_mode_type = m_next_mode_type;
+    strncpy(m_cur_mode_name, m_next_mode_name, sizeof(m_cur_mode_name));
 
-    if (m_curModeType == MT_LOGIN)
-      m_curMode = new CLoginMode();
-    else if (m_curModeType == MT_GAME)
-      m_curMode = new CGameMode();
+    if (m_cur_mode_type == MT_LOGIN)
+      m_cur_mode = new CLoginMode();
+    else if (m_cur_mode_type == MT_GAME)
+      m_cur_mode = new CGameMode();
 
-    m_curMode->OnInit(m_curModeName);
-    m_curMode->OnRun();
-    m_curMode->OnExit();
-    if (m_curMode) {
-      delete m_curMode;
-      m_curMode = NULL;
+    m_cur_mode->OnInit(m_cur_mode_name);
+    m_cur_mode->OnRun();
+    m_cur_mode->OnExit();
+    if (m_cur_mode) {
+      delete m_cur_mode;
+      m_cur_mode = NULL;
     }
   }
 }
 
-void CModeMgr::Switch(int modeType, const char* modeName) {
-  m_curMode->SetLoopCond(false);
-  strncpy(m_nextModeName, modeName, 40);
-  m_nextModeType = modeType;
+void CModeMgr::Switch(int mode_type, const char* mode_name) {
+  m_cur_mode->SetLoopCond(false);
+  strncpy(m_next_mode_name, mode_name, sizeof(m_next_mode_name));
+  m_next_mode_type = mode_type;
 }
 
 void CModeMgr::Quit() {
-  m_curMode->SetLoopCond(false);
-  m_loopCond = false;
+  m_cur_mode->SetLoopCond(false);
+  m_loop_cond = false;
 }
 
-CMode* CModeMgr::GetCurMode() { return m_curMode; }
+CMode* CModeMgr::GetCurMode() { return m_cur_mode; }
 
 CGameMode* CModeMgr::GetGameMode() {
   CGameMode* result;
 
-  if (m_curModeType == MT_GAME)
-    result = (CGameMode*)m_curMode;
+  if (m_cur_mode_type == MT_GAME)
+    result = (CGameMode*)m_cur_mode;
   else
     result = NULL;
   return result;
@@ -59,9 +59,9 @@ CGameMode* CModeMgr::GetGameMode() {
 CLoginMode* CModeMgr::GetLoginMode() {
   CLoginMode* result;
 
-  if (m_curModeType == MT_LOGIN)
+  if (m_cur_mode_type == MT_LOGIN)
     result = NULL;
   else
-    result = (CLoginMode*)m_curMode;
+    result = (CLoginMode*)m_cur_mode;
   return result;
 }

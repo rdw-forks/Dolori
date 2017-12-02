@@ -10,7 +10,7 @@ CUIWindow::CUIWindow() {
   m_parent = NULL;
   m_state = 0;
   m_state_cnt = 0;
-  m_surface = NULL;
+  m_surfaces = NULL;
   m_isDirty = true;
   m_id = 117;
   m_show = true;
@@ -20,7 +20,7 @@ CUIWindow::CUIWindow() {
 }
 
 CUIWindow::~CUIWindow() {
-  if (m_surface) delete m_surface;
+  if (m_surfaces) delete m_surfaces;
 }
 
 void CUIWindow::Create(int cx, int cy) {
@@ -37,8 +37,8 @@ void CUIWindow::Move(int x, int y) {
 void CUIWindow::Resize(int cx, int cy) {
   m_w = cx;
   m_h = cy;
-  if (m_surface) delete m_surface;
-  m_surface = new CSurface(m_w, m_h);
+  if (m_surfaces) delete m_surfaces;
+  m_surfaces = new CSurface(m_w, m_h);
   Invalidate();
 }
 
@@ -73,6 +73,17 @@ void CUIWindow::AddChild(CUIWindow* wnd) {
   m_children.push_back(wnd);
 }
 
+void CUIWindow::RemoveChild(CUIWindow *window)
+{
+  for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+    if (*it == window)
+      m_children.erase(it);
+  }
+
+  if (window)
+    delete window;
+}
+
 bool CUIWindow::IsChildOf(CUIWindow* wnd) {
   CUIWindow* parent;
   bool result;
@@ -93,14 +104,13 @@ bool CUIWindow::IsChildOf(CUIWindow* wnd) {
 CUIWindow* CUIWindow::HitTest(int x, int y) {
   CUIWindow* result;
 
-  if (ShouldDoHitTest() && m_show && x >= m_x && x < m_x + m_w && y >= m_y &&
-      y < m_y + m_h) {
+  if (m_show && x >= m_x && x < m_x + m_w && y >= m_y && y < m_y + m_h) {
     if (m_children.empty()) {
       return this;
     } else {
       for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
         result = (*it)->HitTest(x - m_x, y - m_y);
-        if (result) return result;
+        if (result && result->IsShow()) return result;
       }
       result = this;
     }
@@ -156,15 +166,15 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
     (*it)->DoDraw(blit_to_parent);
 
   if (blit_to_parent && m_parent) {
-    m_parent->m_surface->CopyRect(m_x, m_y, m_w, m_h,
-                                  m_surface->GetSDLSurface());
+    m_parent->m_surfaces->CopyRect(m_x, m_y, m_w, m_h,
+                                  m_surfaces->GetSDLSurface());
   }
 }
 
 void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
-  if (m_surface && bitmap) {
-    m_surface->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
+  if (m_surfaces && bitmap) {
+    m_surfaces->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
                           bitmap->GetData());
   }
 }
@@ -183,16 +193,16 @@ void CUIWindow::DrawBox(int x, int y, int cx, int cy, uint32_t color) {
   else
     r.h = cy;
 
-  m_surface->ClearSurface(&r, color);
+  m_surfaces->ClearSurface(&r, color);
 }
 
 void CUIWindow::ClearDC(uint32_t color) {
-  if (m_surface) m_surface->ClearSurface(NULL, color);
+  if (m_surfaces) m_surfaces->ClearSurface(NULL, color);
 }
 
 void CUIWindow::DrawSurface() {
-  if (m_surface) {
-    m_surface->DrawSurface(m_x, m_y, m_w, m_h, 0xFFFFFFFF);
+  if (m_surfaces) {
+    m_surfaces->DrawSurface(m_x, m_y, m_w, m_h, 0xFFFFFFFF);
   }
 }
 
@@ -214,10 +224,10 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
                      colorText & 0xFF};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
   if (sdl_surface) {
-    if (m_surface)
-      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+    if (m_surfaces)
+      m_surfaces->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     else
-      m_surface = new CSurface(sdl_surface);
+      m_surfaces = new CSurface(sdl_surface);
   }
 
   TTF_CloseFont(font);
@@ -233,10 +243,10 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
                      colorText & 0xFF};
   SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
   if (sdl_surface) {
-    if (m_surface)
-      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+    if (m_surfaces)
+      m_surfaces->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     else
-      m_surface = new CSurface(sdl_surface);
+      m_surfaces = new CSurface(sdl_surface);
   }
 
   TTF_CloseFont(font);
@@ -263,10 +273,10 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
   SDL_BlitSurface(fg_surface, NULL, bg_surface, &rect);
   SDL_FreeSurface(fg_surface);
 
-  if (m_surface)
-    m_surface->CopyRect(x, y, 40, 20, bg_surface);
+  if (m_surfaces)
+    m_surfaces->CopyRect(x, y, 40, 20, bg_surface);
   else
-    m_surface = new CSurface(bg_surface);
+    m_surfaces = new CSurface(bg_surface);
 
   TTF_CloseFont(font);
 }
@@ -280,7 +290,7 @@ void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,
 const char* CUIWindow::InterpretColor(const char* color_text,
                                       unsigned int* colorRef) {
   const char* result;
-  //unsigned short v3;
+  // unsigned short v3;
 
   result = color_text;
   if (color_text) {

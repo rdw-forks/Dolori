@@ -21,7 +21,7 @@ class CUILoginWnd : public CUIFrameWnd {
  private:
   CUIEditCtrl* m_login;
   CUIEditCtrl* m_password;
-  CUIBitmapButton* m_cancelButton;
+  CUIBitmapButton* m_cancel_button;
   int m_isCheckOn;
   int m_isGravity;
   int m_isHangame;

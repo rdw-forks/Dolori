@@ -10,12 +10,12 @@ CUISelectCharWnd::CUISelectCharWnd() {
   m_startGlobalX = 0;
   m_startGlobalY = 0;
   m_state_cnt = 0;
-  m_okButton = NULL;
-  m_makeButton = NULL;
-  m_cancelButton = NULL;
-  m_deleteButton = NULL;
-  m_chargeButton = NULL;
-  m_noticeButton = NULL;
+  m_ok_button = NULL;
+  m_make_button = NULL;
+  m_cancel_button = NULL;
+  m_delete_button = NULL;
+  m_charge_button = NULL;
+  m_notice_button = NULL;
   m_dontmove = false;
   memset(m_viewChar, 0, sizeof(m_viewChar));
   if (g_extendedSlot)
@@ -25,9 +25,9 @@ CUISelectCharWnd::CUISelectCharWnd() {
   for (int i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++)
     m_isAvailable[i] = true;
   m_cur_slot = 0;
-  m_curPage = 0;
+  m_cur_page = 0;
   m_stateStartTick = GetTick();
-  m_changeNameBtn = NULL;
+  m_change_name_btn = NULL;
 }
 
 CUISelectCharWnd::~CUISelectCharWnd() {}
@@ -36,29 +36,31 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
   std::string path_name = "유저인터페이스/login_interface/";
   std::string box_select = path_name + "box_select.bmp";
 
+  g_selected_char_num = m_cur_slot + m_cur_page * SLOTS_PER_PAGE;
+
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
     m_slots[i] = new CUISlotBitmap(i);
     m_slots[i]->SetBitmap(box_select.c_str());
     m_slots[i]->Create(m_slots[i]->GetWidth(), m_slots[i]->GetHeight());
-    m_slots[i]->Move((i + 1) * 56, 40);
+    m_slots[i]->Move(56 + i * 163, 40);
     m_slots[i]->SetId(138);
     m_slots[i]->SendMsg(this, 13, (void *)(m_cur_slot != i), 0, 0, 0);
     AddChild(m_slots[i]);
   }
 
-  m_changeNameBtn = new CUIBitmapButton();
-  m_changeNameBtn->SetBitmapName((path_name + "btn_change_name.bmp").c_str(),
-                                 0);
-  m_changeNameBtn->SetBitmapName((path_name + "btn_change_name_a.bmp").c_str(),
-                                 1);
-  m_changeNameBtn->SetBitmapName((path_name + "btn_change_name_b.bmp").c_str(),
-                                 2);
+  m_change_name_btn = new CUIBitmapButton();
+  m_change_name_btn->SetBitmapName((path_name + "btn_change_name.bmp").c_str(),
+                                   0);
+  m_change_name_btn->SetBitmapName(
+      (path_name + "btn_change_name_a.bmp").c_str(), 1);
+  m_change_name_btn->SetBitmapName(
+      (path_name + "btn_change_name_b.bmp").c_str(), 2);
 
-  m_changeNameBtn->Create(m_changeNameBtn->GetBitmapWidth(),
-                          m_changeNameBtn->GetBitmapHeight());
-  m_changeNameBtn->Move(-100, -100);
-  m_changeNameBtn->SetId(285);
-  AddChild(m_changeNameBtn);
+  m_change_name_btn->Create(m_change_name_btn->GetBitmapWidth(),
+                            m_change_name_btn->GetBitmapHeight());
+  m_change_name_btn->Move(-100, -100);
+  m_change_name_btn->SetId(285);
+  AddChild(m_change_name_btn);
 
   for (int i = 0; i < NB_OF_SLOTS; i++) {
     m_text[i] = new CUIStaticText();
@@ -94,14 +96,14 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
         g_Session->GetHeadSprName(job, &char_info->head_style, sex, buffer);
   }
 
-  // MakeButton(119);
+  MakeButton(119);
   if (m_isEmpty[m_cur_slot]) {
-    //  MakeButton(137);
+    MakeButton(137);
   } else {
-    //  MakeButton(118);
-    //  MakeButton(145);
+    MakeButton(118);
+    MakeButton(145);
   }
-  // MakeButton(218);
+  MakeButton(218);
   m_defPushId = 118;
 }
 
@@ -129,7 +131,7 @@ void CUISelectCharWnd::OnDraw() {
   DrawBitmap(0, 0, bitmap, 0);
 
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
-    int char_id = SLOTS_PER_PAGE * m_curPage + i;
+    int char_id = SLOTS_PER_PAGE * m_cur_page + i;
 
     if (!m_isAvailable[char_id]) {
       TextOutA(163 * char_id + 82, 107, "Not available", 0, 1, 18, 0);
@@ -137,7 +139,7 @@ void CUISelectCharWnd::OnDraw() {
     }
     if (!m_isEmpty[char_id]) {
       // TEST CODE ==============
-      for (int j = 0; j < 5; j++) {
+      for (int layer = 0; layer < 5; layer++) {
         VIEW_SPRITE *vs;
         CMotion *motion;
         SPR_CLIP *clip;
@@ -148,13 +150,13 @@ void CUISelectCharWnd::OnDraw() {
         CActRes *act;
 
         vs = &m_viewChar[char_id];
-        spr = (CSprRes *)g_ResMgr->Get(vs->spr_name[j].c_str(), false);
-        act = (CActRes *)g_ResMgr->Get(vs->act_name[j].c_str(), false);
+        spr = (CSprRes *)g_ResMgr->Get(vs->spr_name[layer].c_str(), false);
+        act = (CActRes *)g_ResMgr->Get(vs->act_name[layer].c_str(), false);
         if (!spr || !act) continue;
 
         motion = act->GetMotion(vs->cur_action, vs->cur_motion);
         if (motion) {
-          if (j == 1)  // Head
+          if (layer == 1)  // Head
             clip = motion->GetClip(1);
           else
             clip = motion->GetClip(0);
@@ -172,7 +174,7 @@ void CUISelectCharWnd::OnDraw() {
               g_Renderer->GetSpriteIndex(img, spr->GetPalette());
           if (!surface)
             surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
-          m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
+          m_surfaces->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
                                  img->width, img->height, 0, 1, 1);
         }
       }
@@ -187,13 +189,12 @@ void CUISelectCharWnd::InitTextControls() {
   char buffer[256];
 
   char_info = (CHARACTER_INFO *)g_ModeMgr->GetCurMode()->SendMsg(
-      MM_QUERYCHARICTORINFO, (void *)(m_cur_slot + SLOTS_PER_PAGE * m_curPage),
+      MM_QUERYCHARICTORINFO, (void *)(m_cur_slot + SLOTS_PER_PAGE * m_cur_page),
       0, 0);
-  if (m_changeNameBtn) m_changeNameBtn->Move(-100, -100);
+  if (m_change_name_btn) m_change_name_btn->Move(-100, -100);
   if (char_info) {
-    if (m_changeNameBtn) {
-      if (!char_info->can_rename) m_changeNameBtn->Move(360, 318);
-    }
+    if (m_change_name_btn && !char_info->can_rename)
+      m_change_name_btn->Move(360, 318);
     m_text[0]->SetText(char_info->name, false);
     m_text[1]->SetText(g_Session->GetJobName(char_info->class_), false);
     sprintf(buffer, "%d", char_info->base_level);
@@ -226,10 +227,150 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
   void *result = NULL;
 
   switch (message) {
+    case 6: {
+      size_t btn_id = (size_t)val1;
+      size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
+      CHARACTER_INFO *char_info;
+
+      if (btn_id == 118) {
+        if (!m_ok_button) return result;
+
+        m_dontmove = true;
+        char_info = (CHARACTER_INFO *)g_ModeMgr->GetCurMode()->SendMsg(
+            MM_QUERYCHARICTORINFO, (void *)slot_id, 0, 0);
+        g_Session->SetCharName(char_info->name);
+        // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
+        g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND, (void *)10002, 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_SELECT_CHARACTER, (void *)slot_id,
+                                         0, 0);
+        g_WindowMgr->PostQuit(this);
+      } else if (btn_id == 138) {
+        Invalidate();
+        for (int i = 0; i < SLOTS_PER_PAGE; i++) {
+          size_t index = i + m_cur_page * SLOTS_PER_PAGE;
+
+          if (m_slots[index] == sender) {
+            m_cur_slot = index;
+            m_slots[index]->SendMsg(this, 13, 0, 0, 0, 0);
+          } else
+            m_slots[index]->SendMsg(this, 13, (void *)1, 0, 0, 0);
+        }
+        InitTextControls();
+        g_selected_char_num = (uint8_t)slot_id;
+      }
+    } break;
     case 13:
       m_cur_slot = (size_t)val1;
       break;
   };
 
   return result;
+}
+
+void CUISelectCharWnd::MakeButton(int id) {
+  int index;
+
+  switch (id) {
+    case 118:
+      if (!m_ok_button) {
+        if (m_make_button) m_make_button = NULL;
+        index = 0;
+      } else
+        return;
+      break;
+    case 137:
+      if (!m_make_button) {
+        if (m_ok_button) m_ok_button = NULL;
+        if (m_delete_button) {
+          RemoveChild(m_delete_button);
+          m_delete_button = NULL;
+        }
+        index = 1;
+      } else
+        return;
+      break;
+    case 119:
+      if (!m_cancel_button)
+        index = 2;
+      else
+        return;
+      break;
+    case 145:
+      if (!m_delete_button) {
+        if (m_make_button) {
+          RemoveChild(m_make_button);
+          m_make_button = NULL;
+        }
+        index = 3;
+      } else
+        return;
+      break;
+    case 218:
+      if (!m_charge_button) index = 4;
+      break;
+    case 220:
+      if (m_notice_button) return;
+      index = 5;
+      break;
+    default:
+      return;
+  };
+
+  CUIBitmapButton *new_button = new CUIBitmapButton();
+  std::string path_name = "유저인터페이스/";
+  const char *button_name[6];
+  int x_offset = 0;
+  int ids[6];
+
+  button_name[0] = "btn_ok";
+  button_name[1] = "btn_make";
+  button_name[2] = "btn_cancel";
+  button_name[3] = "btn_del";
+  button_name[4] = "btn_charge";
+  button_name[5] = "btn_charge";
+  ids[0] = 118;
+  ids[1] = 137;
+  ids[2] = 119;
+  ids[3] = 145;
+  ids[4] = 218;
+  ids[5] = 220;
+
+  new_button->SetBitmapName((path_name + button_name[index] + ".bmp").c_str(),
+                            0);
+  new_button->SetBitmapName((path_name + button_name[index] + "_a.bmp").c_str(),
+                            1);
+  new_button->SetBitmapName((path_name + button_name[index] + "_b.bmp").c_str(),
+                            2);
+  new_button->Create(new_button->GetBitmapWidth(),
+                     new_button->GetBitmapWidth());
+
+  switch (id) {
+    case 118:
+      x_offset = 525 - new_button->GetBitmapWidth();
+      m_ok_button = new_button;
+      break;
+    case 137:
+      x_offset = 525 - new_button->GetBitmapWidth();
+      m_make_button = new_button;
+      break;
+    case 119:
+      x_offset = 530;
+      m_cancel_button = new_button;
+      break;
+    case 145:
+      x_offset = 5;
+      m_delete_button = new_button;
+      break;
+    case 218:
+      x_offset = 402;
+      m_charge_button = new_button;
+      break;
+    case 220:
+      x_offset = 402;
+      m_notice_button = new_button;
+      break;
+  };
+  new_button->Move(x_offset, 318);
+  new_button->SetId(ids[index]);
+  AddChild(new_button);
 }

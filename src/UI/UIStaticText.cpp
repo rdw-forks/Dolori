@@ -21,6 +21,9 @@ void CUIStaticText::OnDraw() {
   uint32_t color = (m_textR << 16) | (m_textG << 8) | m_textB;
 
   if (m_drawBackGround) {
+    ClearDC((0xFF << 24) | (m_backR << 16) | (m_backG << 8) | m_backR);
+  } else {
+    ClearDC(0);
   }
 
   if (m_drawTwice) {

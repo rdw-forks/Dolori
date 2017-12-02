@@ -1,7 +1,14 @@
 #include "GameMode.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
 #include "../Common/GetTick.h"
 #include "../Common/Globals.h"
 #include "../Common/talktype.h"
+#include "../Network/Packets.h"
+#include "../Render/View.h"
+#include "../Render/World.h"
 
 CGameMode::CGameMode() {}
 
@@ -52,12 +59,18 @@ void CGameMode::OnInit(const char *mode_name) {
   m_posOfBossMon.y = -1;
   m_isBossAlarm = 0;
   m_onCopyName = 0;
-  strncpy(m_rswName, mode_name, sizeof(m_rswName));
+  m_world = new CWorld();
+  m_view = new CView();
+  strncpy(m_rsw_name, mode_name, sizeof(m_rsw_name));
   g_Renderer->Clear(true);
   g_WindowMgr->SetWallpaper(NULL);
   g_WindowMgr->RenderWallPaper();
   if (g_Renderer->DrawScene()) g_Renderer->Flip();
+  m_view->OnEnterFrame();
+  m_world->OnEnterFrame();
   m_isCheckGndAlpha = 0;
+  // SetCamera();
+  // m_mousePointer = new CMousePointer();
   Intialize();
   auto name_list = g_Session->GetNumExNameList();
   if (!name_list.empty()) {
@@ -65,11 +78,11 @@ void CGameMode::OnInit(const char *mode_name) {
       ProcessTalkType(TT_REQ_WHISPER_PC_EX, *it);
     }
   }
-  m_isCtrlLock = 0;
-  m_showTimeStartTick = 0;
-  m_autoSaveChatCnt = 0;
-  m_recordChatNum = 0;
-  m_strikeNum = 0;
+  m_is_ctrl_lock = 0;
+  m_show_time_start_tick = 0;
+  m_auto_save_chat_cnt = 0;
+  m_record_chat_num = 0;
+  m_strike_num = 0;
 
   if (g_Session->IsMasterAid(7)) {
     // Now Auto chat Save System is ENABLED.
@@ -77,14 +90,14 @@ void CGameMode::OnInit(const char *mode_name) {
 }
 
 int CGameMode::OnRun() {
-  while (m_loopCond) {
-    if (g_sysQuit) break;
+  while (m_loop_cond) {
+    if (g_sys_quit) break;
     if (true /*!dword_7687C8*/) {
-      if (m_nextSubMode != -1) {
-        m_subMode = m_nextSubMode;
-        m_subModeCnt = 0;
-        m_nextSubMode = -1;
-        OnChangeState(m_subMode);
+      if (m_next_sub_mode != -1) {
+        m_sub_mode = m_next_sub_mode;
+        m_sub_mode_cnt = 0;
+        m_next_sub_mode = -1;
+        OnChangeState(m_sub_mode);
       }
     }
     OnUpdate();
@@ -95,11 +108,56 @@ int CGameMode::OnRun() {
 
 void CGameMode::OnExit() {}
 
+void cube(float s = 1.0f) {
+  float vertices[][3] = {{s / 2, s / 2, s / 2},   {s / 2, s / 2, -s / 2},
+                         {s / 2, -s / 2, s / 2},  {s / 2, -s / 2, -s / 2},
+                         {-s / 2, s / 2, s / 2},  {-s / 2, s / 2, -s / 2},
+                         {-s / 2, -s / 2, s / 2}, {-s / 2, -s / 2, -s / 2}};
+
+  short indexes[] = {0, 1, 3, 2, 0, 2, 6, 4, 0, 1, 5, 4,
+                     1, 3, 7, 5, 2, 3, 7, 6, 4, 5, 7, 6};
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+  glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, indexes);
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+}
+
 void CGameMode::OnUpdate() {
+  PollNetworkStatus();
+
   // m_scheduler->OnRun()
   // ProcessDamageSituation()
 
   g_Renderer->ClearBackground();
+  // TEST CODE
+  glm::mat4 projection = glm::perspective(70.0, 640.0 / 480.0, 1.0, 100.0);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glColor3f(1.0, 1.0, 1.0);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadMatrixf(glm::value_ptr(projection));
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glPushMatrix();
+
+  gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  // glScalef(1.0, 1.0, 1.0); /* modeling transformation */
+  cube();
+
+  glPopMatrix();
+  // TEST CODE
+  if (m_loop_cond) {
+    // ProcessInput();
+    // m_world->ProcessActors();
+    m_view->OnCalcViewInfo();
+  }
+  m_view->OnRender();
   if (g_Renderer->DrawScene()) g_Renderer->Flip();
 }
 
@@ -110,4 +168,73 @@ void CGameMode::ProcessTalkType(int talktype, const std::string &string) {
     case TT_REQ_WHISPER_PC_EX:
       break;
   };
+}
+
+void *CGameMode::SendMsg(size_t msg, void *val1, void *val2, void *val3) {
+  switch (msg) {
+    case MM_QUERYRSWNAME:
+      return m_rsw_name;
+      break;
+  };
+}
+
+void CGameMode::PollNetworkStatus() {
+  char buffer[2048];
+
+  if (!g_RagConnection->Poll()) g_ModeMgr->GetCurMode()->SendMsg(1, 0, 0, 0);
+
+  if (g_mustPumpOutReceiveQueue) {
+    unsigned int aid;
+    if (g_RagConnection->Recv((char *)&aid, 4, 1))
+      g_mustPumpOutReceiveQueue = false;
+    return;
+  }
+
+  int size_of_buffer;
+  while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
+    short packet_type = g_RagConnection->GetPacketType(buffer);
+    switch (packet_type) {
+      case HEADER_ZC_NOTIFY_PLAYERCHAT:
+        Zc_Notify_Playerchat(buffer);
+        break;
+      case HEADER_ZC_NPCACK_MAPMOVE:
+        Zc_Npcack_Mapmove(buffer);
+        break;
+      case HEADER_ZC_COUPLESTATUS:
+        break;
+      case HEADER_ZC_PAR_CHANGE:
+        break;
+      case HEADER_ZC_ATTACK_RANGE:
+        break;
+      default:
+        printf("Unknown packet: %X\n", packet_type);
+        return;
+    };
+  }
+}
+
+void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
+  PACKET_ZC_NOTIFY_PLAYERCHAT *packet = (PACKET_ZC_NOTIFY_PLAYERCHAT *)buffer;
+  // CGameMode *v2;      // ebx@1
+  char *chat_msg;
+  size_t msg_size;
+
+  msg_size = packet->PacketLength - sizeof(PACKET_ZC_NOTIFY_PLAYERCHAT);
+  chat_msg = new char[msg_size];
+  memcpy(chat_msg, &packet->msg, msg_size);
+  printf("%s\n", chat_msg);
+  delete chat_msg;
+  // if (dword_768868) {
+  //  g_WindowMgr->SendMsg(5, (int)chat_msg, 30720, 0, 0);
+  //} else {
+  // g_WindowMgr->SendMsg(1, (int)chat_msg, 65280, 1, 0);
+  //  m_world->m_player->SendMsg(
+  //      0, 7, chat_msg, 0, 0);
+  //}
+  // if (dword_7B4480) WriteChat(chat_msg);
+}
+
+void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
+  PACKET_ZC_NPCACK_MAPMOVE *packet = (PACKET_ZC_NPCACK_MAPMOVE *)buffer;
+  printf("Moved to map %s\n", packet->map_name);
 }

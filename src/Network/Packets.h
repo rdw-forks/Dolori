@@ -1356,6 +1356,11 @@ struct PACKET_CH_ENTER {
   unsigned char Sex;
 };
 
+struct PACKET_CH_SELECT_CHAR {
+  short header;
+  unsigned char char_num;
+};
+
 struct PACKET_CH_MAKE_CHAR {
   unsigned short header;
   unsigned char name[24];
@@ -1555,6 +1560,11 @@ struct PACKET_HC_CHECKBOT_RESULT {
   unsigned short header;
   unsigned short packet_len;
   unsigned char result;
+};
+
+struct PACKET_ZC_REFUSE_ENTER {
+  unsigned short header;
+  unsigned char error;
 };
 
 struct PACKET_ZC_MSG_SKILL {
@@ -2046,6 +2056,7 @@ struct PACKET_ZC_NOTIFY_CHAT {
 struct PACKET_ZC_NOTIFY_PLAYERCHAT {
   short header;
   unsigned short PacketLength;
+  char msg[];
 };
 
 struct PACKET_ZC_AID {
@@ -2066,6 +2077,15 @@ struct PACKET_ZC_ACCEPT_ENTER {
   unsigned char ySize;
 };
 
+struct PACKET_ZC_ACCEPT_ENTER2 {
+  short header;
+  unsigned long startTime;
+  unsigned char PosDir[3];
+  unsigned char xSize;
+  unsigned char ySize;
+  unsigned short font;
+};
+
 struct PACKET_ZC_NPC_CHAT {
   short PacketType;
   short PacketLength;
@@ -2081,33 +2101,45 @@ struct PACKET_CA_CONNECT_INFO_CHANGE {
 
 struct PACKET_CZ_ENTER {
   short PacketType;
-  char pad[0x2];
+  // char pad[0x2];
   unsigned long AID;
-  char pad2[0x1];
+  // char pad2[0x1];
   unsigned long GID;
-  char pad3[0x4];
+  // char pad3[0x4];
   unsigned long AuthCode;
   unsigned long clientTime;
   char Sex;
 };
 
-struct PACKET_CZ_USE_ITEM {
-  /* this+0x0 */ short PacketType;
-  /* this+0x2 */ unsigned short index;
-  /* this+0x4 */ unsigned long AID;
+struct PACKET_ZC_NPCACK_MAPMOVE {
+  short packet_type;
+  char map_name[16];
+  short x_pos;
+  short y_pos;
 };
 
-struct PACKET_CUSTOM_CZ_NOTIFY_CLIENTMODIFICATION {
-  /* this+0x0 */ short PacketType;
-  /* this+0x2 */ short ModificationType;
+struct PACKET_ZC_COUPLESTATUS {
+  short packet_type;
+  unsigned long status_type;
+  int default_status;
+  int plus_status;
 };
-struct PACKET_CUSTOM_CA_DOMDLL_HASHCHECK {
-  /* this+0x0 */ short PacketType;
-  /* this+0x2 */ unsigned char HashValue[16];
+
+struct PACKET_ZC_PAR_CHANGE {
+  short Packet_type;
+  unsigned short var_id;
+  int count;
 };
-struct PACKET_CUSTOM_CA_MACCHECK {
-  /* this+0x0 */ short PacketType;
-  /* this+0x2 */ unsigned char macData[8];
+
+struct PACKET_CZ_USE_ITEM {
+  short PacketType;
+  unsigned short index;
+  unsigned long AID;
+};
+
+struct PACKET_ZC_ATTACK_RANGE {
+  short packet_type;
+  short current_att_range;
 };
 
 #pragma pack(pop)

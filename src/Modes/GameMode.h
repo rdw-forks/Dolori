@@ -4,6 +4,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include "../Common/cell_pos.h"
+#include "../Render/View.h"
+#include "../Render/World.h"
 #include "Mode.h"
 
 class CGameMode : public CMode {
@@ -17,16 +19,20 @@ class CGameMode : public CMode {
   void OnExit();
   void OnChangeState(int);
   void ProcessTalkType(int, const std::string &);
+  void *SendMsg(size_t msg, void *val1, void *val2, void *val3);
+  void PollNetworkStatus();
+  void Zc_Notify_Playerchat(const char *buffer);
+  void Zc_Npcack_Mapmove(const char *buffer);
 
  private:
   int m_areaLeft;
   int m_areaRight;
   int m_areaTop;
   int m_areaBottom;
-  char m_rswName[0x28];
+  char m_rsw_name[0x28];
   char m_minimapBmpName[0x3c];
-  class CWorld *m_world;
-  class CView *m_view;
+  CWorld *m_world;
+  CView *m_view;
   class CMousePointer *m_mousePointer;
   unsigned long m_leftBtnClickTick;
   static unsigned long m_lastLockOnPcGid;
@@ -97,17 +103,17 @@ class CGameMode : public CMode {
   int m_lastCardItemIndex;
   int m_SkillBallonSkillId;
   unsigned long m_nameBalloonType;
-  unsigned long m_showTimeStartTick;
-  int m_recordChatNum;
+  unsigned long m_show_time_start_tick;
+  int m_record_chat_num;
   std::string m_recordChat[0xb];
   unsigned long m_recordChatTime[0xb];
-  int m_strikeNum;
+  int m_strike_num;
   unsigned long m_strikeTime[0x3];
   unsigned long m_doritime[0x6];
-  int m_isCtrlLock;
+  int m_is_ctrl_lock;
   int m_isUseYgdrasil;
   int m_isMakeYgdrasil;
-  int m_autoSaveChatCnt;
+  int m_auto_save_chat_cnt;
   struct CELL_POS m_posOfBossMon;
   unsigned char m_isBossAlarm;
   unsigned char m_onCopyName;

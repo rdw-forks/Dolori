@@ -295,11 +295,11 @@ class CMode {
   virtual void *SendMsg(size_t, void *, void *, void *);
 
  protected:
-  int m_subMode;
-  int m_subModeCnt;
-  int m_nextSubMode;
+  int m_sub_mode;
+  int m_sub_mode_cnt;
+  int m_next_sub_mode;
   int m_fadeInCount;
-  bool m_loopCond;
+  bool m_loop_cond;
   int m_isConnected;
   class UITransBalloonText *m_helpBalloon;
   unsigned long m_helpBalloonTick;

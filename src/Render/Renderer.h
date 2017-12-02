@@ -18,6 +18,8 @@ class CRenderer {
   void SetSize(int, int);
   int GetWidth();
   int GetHeight();
+  float GetHorizontalRatio();
+  float GetVerticalRatio();
   void SetPixelFormat(PIXEL_FORMAT);
   void DestroyAllRPList();
   void Clear(bool clearScreen);

@@ -1,8 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "ResMgr.h"
 #include "../Files/File.h"
+#include "../Render/3dWorldRes.h"
 #include "../Render/ActRes.h"
 #include "../Render/BitmapRes.h"
+#include "../Render/GndRes.h"
 #include "../Render/SprRes.h"
 
 CResMgr::CResMgr() {
@@ -26,6 +28,8 @@ CResMgr::CResMgr() {
   RegisterType("bmp", "texture/", new CBitmapRes());
   RegisterType("spr", "sprite/", new CSprRes());
   RegisterType("act", "sprite/", new CActRes());
+  RegisterType("rsw", "", new C3dWorldRes());
+  RegisterType("gnd", "", new CGndRes());
 }
 
 CResMgr::~CResMgr() {}

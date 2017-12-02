@@ -45,8 +45,8 @@ extern char g_accountAddr[64];
 extern char g_accountPort[64];
 extern SERVER_ADDRESS g_charServerAddr;
 extern SERVER_ADDRESS g_zoneServerAddr;
-extern bool g_sysQuit;
-extern char g_currentMap[16];
+extern bool g_sys_quit;
+extern char g_current_map[16];
 extern bool g_bUseCommand;
 extern bool g_mustPumpOutReceiveQueue;
 extern bool g_NameBalloonShorten;
@@ -56,6 +56,6 @@ extern std::vector<unsigned long> s_dwAdminAID;
 
 // Used for communication between objects, not a good design
 extern CHARACTER_INFO g_charInfo;
-extern unsigned char g_selectedCharNum;
+extern uint8_t g_selected_char_num;
 
 #endif  // DOLORI_COMMON_GLOBALS_H_
