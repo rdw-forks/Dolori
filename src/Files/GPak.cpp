@@ -1,8 +1,8 @@
-#include "GPak.h"
-
 #ifdef WIN32
 #define ZLIB_WINAPI
 #endif
+
+#include "GPak.h"
 #include <grfcrypt.h>
 #include <string.h>
 #include <zlib.h>
