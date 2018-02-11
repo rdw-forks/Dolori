@@ -1,9 +1,6 @@
 #ifndef DOLORI_COMMON_MODETYPE_H_
 #define DOLORI_COMMON_MODETYPE_H_
 
-typedef enum MODETYPE {
-	MT_LOGIN = 0x0,
-	MT_GAME = 0x1
-} MODETYPE;
+enum ModeType { kLogin = 0x0, kGame = 0x1 };
 
-#endif // DOLORI_COMMON_MODETYPE_H_
+#endif  // DOLORI_COMMON_MODETYPE_H_

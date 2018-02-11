@@ -18,9 +18,9 @@ void CModeMgr::Run(int mode_type, const char* world_name) {
     m_cur_mode_type = m_next_mode_type;
     strncpy(m_cur_mode_name, m_next_mode_name, sizeof(m_cur_mode_name));
 
-    if (m_cur_mode_type == MT_LOGIN)
+    if (m_cur_mode_type == ModeType::kLogin)
       m_cur_mode = new CLoginMode();
-    else if (m_cur_mode_type == MT_GAME)
+    else if (m_cur_mode_type == ModeType::kGame)
       m_cur_mode = new CGameMode();
 
     m_cur_mode->OnInit(m_cur_mode_name);
@@ -49,7 +49,7 @@ CMode* CModeMgr::GetCurMode() { return m_cur_mode; }
 CGameMode* CModeMgr::GetGameMode() {
   CGameMode* result;
 
-  if (m_cur_mode_type == MT_GAME)
+  if (m_cur_mode_type == ModeType::kGame)
     result = (CGameMode*)m_cur_mode;
   else
     result = NULL;
@@ -59,7 +59,7 @@ CGameMode* CModeMgr::GetGameMode() {
 CLoginMode* CModeMgr::GetLoginMode() {
   CLoginMode* result;
 
-  if (m_cur_mode_type == MT_LOGIN)
+  if (m_cur_mode_type == ModeType::kLogin)
     result = NULL;
   else
     result = (CLoginMode*)m_cur_mode;

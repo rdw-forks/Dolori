@@ -245,7 +245,7 @@ void CLoginMode::OnChangeState(int state) {
         return;
       }
 
-      if (g_serviceType != ServiceType::Korea) {
+      if (g_serviceType != ServiceType::kKorea) {
         struct PACKET_CA_LOGIN packet;
         int packet_size;
 
@@ -624,7 +624,7 @@ void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
     //	v3 = MsgStr(MSI_FR_ERR_DELCHAR_INVALID_SLOT);
     // else
     //	v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER);
-  } else if (g_serviceType != ServiceType::Korea) {
+  } else if (g_serviceType != ServiceType::kKorea) {
     // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_EMAIL);
   } else {
     // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
@@ -645,7 +645,7 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
       packet->PosDir[2] & 0xF);
   printf("Entered zone server, the current map is %s\n", g_current_map);
   snprintf(current_map, sizeof(current_map), "%s.rsw", g_current_map);
-  g_ModeMgr->Switch(MT_GAME, current_map);
+  g_ModeMgr->Switch(ModeType::kGame, current_map);
   // wnd = (UIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
   // str = MsgStr(MSI_PLEASE_BE_PATIENT);
   // wnd->SetMsg(str, 17, 1);
