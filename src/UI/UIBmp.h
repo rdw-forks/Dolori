@@ -1,6 +1,9 @@
 #ifndef DOLORI_UI_UIBMP_H_
 #define DOLORI_UI_UIBMP_H_
 
-const char* UIBmp(const char*);
+#include <string>
 
-#endif // DOLORI_UI_UIBMP_H_
+const char* UIBmp(const char*);
+const char* UIBmp(const std::string& bitmap_name);
+
+#endif  // DOLORI_UI_UIBMP_H_

@@ -1,5 +1,6 @@
 #include "UIScrollBar.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "UIBmp.h"
 
 CUIScrollBar::CUIScrollBar() {
@@ -56,16 +57,18 @@ void CUIScrollBar::OnDraw() {
       CBitmapRes *bitmap;
 
       // Render top part of the scrollbar's background
-      bitmap = (CBitmapRes *)g_ResMgr->Get(
-          UIBmp("유저인터페이스/scroll0up.bmp"), false);
+      const std::string scroll_up =
+          const_strings::kResourceSubfolder + "scroll0up.bmp";
+      bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(scroll_up), false);
       DrawBitmap(0, 1, bitmap, 0);
 
       // Render middle part of the scrollbar's background
       int nb_of_elements = (m_h - m_scrollBtnSize - 14) / 13 +
                            ((m_h - m_scrollBtnSize - 14) % 13 != 0);
       if (nb_of_elements) {
-        bitmap = (CBitmapRes *)g_ResMgr->Get(
-            UIBmp("유저인터페이스/scroll0mid.bmp"), false);
+        const std::string scroll_mid =
+            const_strings::kResourceSubfolder + "scroll0mid.bmp";
+        bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(scroll_mid), false);
 
         int offset_y = 0;
         for (int i = 0; i < nb_of_elements; i++) {
@@ -76,29 +79,33 @@ void CUIScrollBar::OnDraw() {
 
       // DrawBox(0, m_h - m_scrollBtnSize, m_w, 13, 0xFFFF00FF);
       // Render bottom part of the scrollbar's background
-      bitmap = (CBitmapRes *)g_ResMgr->Get(
-          UIBmp("유저인터페이스/scroll0down.bmp"), false);
+      const std::string scroll_down =
+          const_strings::kResourceSubfolder + "scroll0down.bmp";
+      bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(scroll_down), false);
       DrawBitmap(0, m_h - m_scrollBtnSize - 1, bitmap, 1);
 
       int y =
           m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos;
 
       // Render top part of the scrollbar
-      bitmap = (CBitmapRes *)g_ResMgr->Get(
-          UIBmp("유저인터페이스/scroll0bar_up.bmp"), false);
+      const std::string scroll_bar_up =
+          const_strings::kResourceSubfolder + "scroll0bar_up.bmp";
+      bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(scroll_bar_up), false);
       DrawBitmap(0, y, bitmap, 1);
 
       // Render middle part of the scrollbar
-      bitmap = (CBitmapRes *)g_ResMgr->Get(
-          UIBmp("유저인터페이스/scroll0bar_mid.bmp"), false);
+      const std::string scroll_bar_mid =
+          const_strings::kResourceSubfolder + "scroll0bar_mid.bmp";
+      bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(scroll_bar_mid), false);
       int current_y = y + 4;
       for (int current_y = y + 4; current_y < m_scrollBtnSize + y - 4;
            current_y += 4)
         DrawBitmap(0, current_y, bitmap, 1);
 
       // Render bottom part of the bar's scrollbar
-      bitmap = (CBitmapRes *)g_ResMgr->Get(
-          UIBmp("유저인터페이스/scroll0bar_down.bmp"), false);
+      const std::string scroll_bar_down =
+          const_strings::kResourceSubfolder + "scroll0bar_down.bmp";
+      bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(scroll_bar_down), false);
       DrawBitmap(0, m_scrollBtnSize + y - 4, bitmap, 1);
 
     } else {

@@ -1,5 +1,6 @@
 #include "UIEditCtrl.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "UIBmp.h"
 
 CUIEditCtrl::CUIEditCtrl() {
@@ -35,25 +36,28 @@ void CUIEditCtrl::OnDraw() {
     ClearDC((0xFF << 24) | (0xFF << 16) | (m_g << 8) | m_b);
     m_yOffset = 2;
   } else {
+    const std::string dialog_l_name =
+        const_strings::kResourceSubfolder + "type_dialog_l.bmp";
+    const std::string dialog_m_name =
+        const_strings::kResourceSubfolder + "type_dialog_m.bmp";
+    const std::string dialog_r_name =
+        const_strings::kResourceSubfolder + "type_dialog_r.bmp";
     CBitmapRes* bitmap;
 
-    bitmap = (CBitmapRes*)g_ResMgr->Get(
-        UIBmp("유저인터페이스/type_dialog_l.bmp"), false);
+    bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_l_name), false);
     DrawBitmap(0, 0, bitmap, 0);
 
     int nb_of_elements = (m_w - 20) / 24;
     int pos_x = 10;
     if (nb_of_elements > 0) {
-      bitmap = (CBitmapRes*)g_ResMgr->Get(
-          UIBmp("유저인터페이스/type_dialog_m.bmp"), false);
+      bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_m_name), false);
       for (int i = 0; i < nb_of_elements; i++) {
         DrawBitmap(pos_x, 0, bitmap, 0);
         pos_x += 24;
       }
     }
 
-    bitmap = (CBitmapRes*)g_ResMgr->Get(
-        UIBmp("유저인터페이스/type_dialog_r.bmp"), false);
+    bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_r_name), false);
     DrawBitmap(24 * pos_x + 10, 0, bitmap, 0);
 
     m_yOffset = 5;

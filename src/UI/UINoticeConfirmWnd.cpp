@@ -1,6 +1,7 @@
 #include "UINoticeConfirmWnd.h"
 #include <string>
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "Render/BitmapRes.h"
 #include "UIBitmapButton.h"
 #include "UIBmp.h"
@@ -10,7 +11,7 @@ CUINoticeConfirmWnd::CUINoticeConfirmWnd() { m_target = 30; }
 CUINoticeConfirmWnd::~CUINoticeConfirmWnd() {}
 
 void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
-  std::string path_name = "유저인터페이스/";
+  const std::string resource_path = const_strings::kResourceSubfolder;
   const char *button_name[2][3];
   int ids[2];
   int pos[2][2];
@@ -30,9 +31,9 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
 
   for (int i = 0; i < 2; i++) {
     CUIBitmapButton *btn = new CUIBitmapButton();
-    btn->SetBitmapName((path_name + button_name[i][0] + ".bmp").c_str(), 0);
-    btn->SetBitmapName((path_name + button_name[i][1] + ".bmp").c_str(), 1);
-    btn->SetBitmapName((path_name + button_name[i][2] + ".bmp").c_str(), 2);
+    btn->SetBitmapName((resource_path + button_name[i][0] + ".bmp").c_str(), 0);
+    btn->SetBitmapName((resource_path + button_name[i][1] + ".bmp").c_str(), 1);
+    btn->SetBitmapName((resource_path + button_name[i][2] + ".bmp").c_str(), 2);
 
     btn->Create(btn->GetBitmapWidth(), btn->GetBitmapHeight());
     btn->Move(pos[i][0], pos[i][1]);
@@ -48,11 +49,11 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
 }
 
 void CUINoticeConfirmWnd::OnDraw() {
-  const char *filename;
-  CBitmapRes *bitmap;
+  const std::string filename =
+      const_strings::kResourceSubfolder + "win_msgbox.bmp";
+  CBitmapRes *bitmap =
+      reinterpret_cast<CBitmapRes *>(g_ResMgr->Get(filename.c_str(), false));
 
-  filename = UIBmp("유저인터페이스/win_msgbox.bmp");
-  bitmap = (CBitmapRes *)g_ResMgr->Get(filename, false);
   DrawBitmap(0, 0, bitmap, 0);
 }
 

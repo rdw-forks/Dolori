@@ -8,6 +8,7 @@
 #include <string.h>
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "Common/modetype.h"
 #include "Common/service_type.h"
 #include "Input/SDLEvents.h"
@@ -169,12 +170,14 @@ void CLoginMode::OnChangeState(int state) {
   m_isConnected = 1;
 
   switch (state) {
+    // Notice confirm window
     case 0: {
-      // Notice confirm window
+      const std::string wallpaper_name =
+          const_strings::kResourceSubfolder + "login_interface/warning.bmp";
       CUINoticeConfirmWnd *wnd;
       CBitmapRes *bitmap;
 
-      m_wallPaperBmpName = UIBmp("유저인터페이스/login_interface/warning.bmp");
+      m_wallPaperBmpName = UIBmp(wallpaper_name);
       bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(bitmap);
       wnd =
@@ -183,20 +186,22 @@ void CLoginMode::OnChangeState(int state) {
     } break;
     case 1:
       break;
-    case 2:
       // Account server selection window
+    case 2:
       // TODO
       // if (!InitAccountInfo())
       // SendMsg(30, 0, 0, 0);
       m_next_sub_mode = 3;
       break;
-    case 3: {
       // Login window
+    case 3: {
+      const std::string wallpaper_name =
+          const_strings::kResourceSubfolder + "bgi_temp.bmp";
       CUIFrameWnd *login_wnd;
       CBitmapRes *res;
 
       // WinMainNpKeyStartEncryption();
-      m_wallPaperBmpName = UIBmp("유저인터페이스/bgi_temp.bmp");
+      m_wallPaperBmpName = UIBmp(wallpaper_name.c_str());
       res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
       g_WindowMgr->SetWallpaper(res);
       login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);

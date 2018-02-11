@@ -1,6 +1,7 @@
 #include "UISelectCharWnd.h"
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "Render/ActRes.h"
 #include "UIBmp.h"
 
@@ -33,8 +34,9 @@ CUISelectCharWnd::CUISelectCharWnd() {
 CUISelectCharWnd::~CUISelectCharWnd() {}
 
 void CUISelectCharWnd::OnCreate(int cx, int cy) {
-  std::string path_name = "유저인터페이스/login_interface/";
-  std::string box_select = path_name + "box_select.bmp";
+  const std::string path_name =
+      const_strings::kResourceSubfolder + "login_interface/";
+  const std::string box_select = path_name + "box_select.bmp";
 
   g_selected_char_num = m_cur_slot + m_cur_page * SLOTS_PER_PAGE;
 
@@ -123,11 +125,11 @@ void CUISelectCharWnd::OnLBtnDown(int x, int y) {
 }
 
 void CUISelectCharWnd::OnDraw() {
-  const char *filename;
+  const std::string filename =
+      const_strings::kResourceSubfolder + "login_interface/win_select.bmp";
   CBitmapRes *bitmap;
 
-  filename = UIBmp("유저인터페이스/login_interface/win_select.bmp");
-  bitmap = (CBitmapRes *)g_ResMgr->Get(filename, false);
+  bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(filename), false);
   DrawBitmap(0, 0, bitmap, 0);
 
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
@@ -317,7 +319,7 @@ void CUISelectCharWnd::MakeButton(int id) {
   };
 
   CUIBitmapButton *new_button = new CUIBitmapButton();
-  std::string path_name = "유저인터페이스/";
+  const std::string path_name = const_strings::kResourceSubfolder;
   const char *button_name[6];
   int x_offset = 0;
   int ids[6];

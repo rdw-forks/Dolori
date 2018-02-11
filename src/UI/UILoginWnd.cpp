@@ -1,5 +1,6 @@
 #include "UILoginWnd.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "Common/service_type.h"
 #include "Files/File.h"
 #include "UIBmp.h"
@@ -21,7 +22,7 @@ CUILoginWnd::CUILoginWnd() {
 CUILoginWnd::~CUILoginWnd() {}
 
 void CUILoginWnd::OnCreate(int cx, int cy) {
-  std::string path_name = "유저인터페이스/";
+  const std::string path_name = const_strings::kResourceSubfolder;
   const char *button_name[5][3];
   int button_count;
   int pos[5][2];
@@ -100,17 +101,20 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
 }
 
 void CUILoginWnd::OnDraw() {
-  const char *res_name;
+  const std::string res_path = []() {
+    if (g_serviceType != ServiceKorea) {
+      return const_strings::kResourceSubfolder +
+             "login_interface/win_login.bmp";
+    } else if (g_isGravityID) {
+      return const_strings::kResourceSubfolder +
+             "login_interface/win_login_K2.bmp";
+    } else {
+      return const_strings::kResourceSubfolder +
+             "login_interface/win_login_K1.bmp";
+    }
+  }();
 
-  if (g_serviceType != ServiceKorea) {
-    res_name = UIBmp("유저인터페이스/login_interface/win_login.bmp");
-  } else {
-    if (g_isGravityID)
-      res_name = UIBmp("유저인터페이스/login_interface/win_login_K2.bmp");
-    else
-      res_name = UIBmp("유저인터페이스/login_interface/win_login_K1.bmp");
-  }
-  CBitmapRes *res = (CBitmapRes *)g_ResMgr->Get(res_name, false);
+  CBitmapRes *res = (CBitmapRes *)g_ResMgr->Get(UIBmp(res_path), false);
   DrawBitmap(0, 0, res, 0);
 }
 

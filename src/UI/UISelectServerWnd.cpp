@@ -1,5 +1,6 @@
 #include "UISelectServerWnd.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "UIBmp.h"
 #include "UIServerListBox.h"
 
@@ -8,7 +9,7 @@ CUISelectServerWnd::CUISelectServerWnd() {}
 CUISelectServerWnd::~CUISelectServerWnd() {}
 
 void CUISelectServerWnd::OnCreate(int cx, int cy) {
-  std::string path_name = "유저인터페이스/";
+  const std::string path_name = const_strings::kResourceSubfolder;
   const char *button_name[3][3];
   int pos[3][2];
   int ids[3];
@@ -55,11 +56,11 @@ void CUISelectServerWnd::OnCreate(int cx, int cy) {
 }
 
 void CUISelectServerWnd::OnDraw() {
-  const char *filename;
+  const std::string filename =
+      const_strings::kResourceSubfolder + "login_interface/win_service.bmp";
   CBitmapRes *bitmap;
 
-  filename = UIBmp("유저인터페이스/login_interface/win_service.bmp");
-  bitmap = (CBitmapRes *)g_ResMgr->Get(filename, false);
+  bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(filename), false);
   DrawBitmap(0, 0, bitmap, 0);
 
   // Below is the original code used to make the window taller (280x200)
