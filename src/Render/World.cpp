@@ -18,7 +18,7 @@ CWorld::CWorld() {
 CWorld::~CWorld() {}
 
 void CWorld::OnEnterFrame() {
-  vec3 light_dir, diffuse_color, ambient_color;
+  glm::vec3 light_dir, diffuse_color, ambient_color;
   const char* rsw_filename;
   C3dWorldRes* rsw_res;
   CGndRes* gnd_res;

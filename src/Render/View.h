@@ -33,10 +33,10 @@ class CView {
   struct VIEWINFO3D m_dest;
   struct VIEWINFO3D m_backup_cur;
   struct VIEWINFO3D m_backup_dest;
-  vec3 m_from;
-  vec3 m_up;
-  mat4 m_view_matrix;
-  mat4 m_inv_view_matrix;
+  glm::vec3 m_from;
+  glm::vec3 m_up;
+  glm::mat4 m_view_matrix;
+  glm::mat4 m_inv_view_matrix;
   CViewFrustum m_view_frustum;
   CWorld* m_world;
   class CSkyBoxEllipse* m_skybox;

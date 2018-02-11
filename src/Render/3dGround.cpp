@@ -18,8 +18,10 @@ C3dGround::C3dGround() {
 
 C3dGround::~C3dGround() {}
 
-void C3dGround::AssignGnd(CGndRes *gnd, vec3 *light, vec3 *diffuse_col,
-                          vec3 *ambient_col) {
+void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
+                          glm::vec3 *diffuse_col, glm::vec3 *ambient_col) {
+  using namespace glm;
+
   m_width = gnd->GetWidth();
   m_height = gnd->GetHeight();
   m_zoom = gnd->GetZoom();
@@ -87,7 +89,7 @@ void C3dGround::AssignGnd(CGndRes *gnd, vec3 *light, vec3 *diffuse_col,
   }
 }
 
-void C3dGround::Render(mat4 *wtm, RECT_ *area, bool need_clip) {
+void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
   for (uint32_t y = area->bottom; y < area->top; y++) {
     for (uint32_t x = area->left; x < area->right; x++) {
       GND_CELL *cell = &m_cells[x + y * m_width];

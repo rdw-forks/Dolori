@@ -5,21 +5,19 @@
 #include <list>
 #include "SceneGraphNode.h"
 
-using namespace glm;
-
 class CViewFrustum {
  public:
   CViewFrustum();
   ~CViewFrustum();
 
-  void Build(float hratio, float vratio, const mat4& view_matrix,
+  void Build(float hratio, float vratio, const glm::mat4& view_matrix,
              CSceneGraphNode* root_node);
 
  private:
   std::list<CSceneGraphNode*> m_cubelet_list_total;
   std::list<CSceneGraphNode*> m_cubelet_list_partial;
-  vec4 m_planes[0x6];
-  vec3 m_plane_normals[0x6];
+  glm::vec4 m_planes[0x6];
+  glm::vec3 m_plane_normals[0x6];
 };
 
 // class CViewFrustum {

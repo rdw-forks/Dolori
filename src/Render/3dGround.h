@@ -7,13 +7,11 @@
 #include "Texture.h"
 #include "color.h"
 
-using namespace glm;
-
 struct lmvertex3d {
-  vec3 vert;
+  glm::vec3 vert;
   struct COLOR argbs;
-  vec2 uv;
-  vec2 uv2;
+  glm::vec2 uv;
+  glm::vec2 uv2;
 };
 
 struct GND_SURFACE {
@@ -29,7 +27,7 @@ struct GND_SURFACE {
 
 struct GND_CELL {
   float h[0x4];
-  vec3 water_vert[0x4];
+  glm::vec3 water_vert[0x4];
   struct GND_SURFACE* top;
   struct GND_SURFACE* right;
   struct GND_SURFACE* front;
@@ -42,9 +40,9 @@ class C3dGround {
   C3dGround();
   ~C3dGround();
 
-  void AssignGnd(CGndRes* gnd, vec3* light, vec3* diffuse_col,
-                 vec3* ambient_col);
-  void Render(mat4 * wtm, RECT_ * area, bool need_clip);
+  void AssignGnd(CGndRes* gnd, glm::vec3* light, glm::vec3* diffuse_col,
+                 glm::vec3* ambient_col);
+  void Render(glm::mat4* wtm, RECT_* area, bool need_clip);
 
  private:
   C3dAttr* m_attr;

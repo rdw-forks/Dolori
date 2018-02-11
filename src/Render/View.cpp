@@ -18,9 +18,9 @@ void CView::OnEnterFrame() {
   m_dest.longitude = 0.f;
   m_cur.latitude = -45.0f;
   m_dest.latitude = -45.0f;
-  m_cur.at = vec3(0.0f);
-  m_dest.at = vec3(0.0f);
-  m_up = vec3(0.0f);
+  m_cur.at = glm::vec3(0.0f);
+  m_dest.at = glm::vec3(0.0f);
+  m_up = glm::vec3(0.0f);
 }
 
 void CView::OnCalcViewInfo() {

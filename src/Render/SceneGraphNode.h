@@ -6,8 +6,6 @@
 #include "3dAttr.h"
 #include "3dGround.h"
 
-using namespace glm;
-
 class CSceneGraphNode {
  public:
   CSceneGraphNode();
@@ -17,8 +15,8 @@ class CSceneGraphNode {
   CSceneGraphNode *m_parent;
   CSceneGraphNode *m_child[0x4];
   // struct C3dAABB m_aabb;
-  vec3 m_center;
-  vec3 m_halfSize;
+  glm::vec3 m_center;
+  glm::vec3 m_halfSize;
   int m_needUpdate;
   // std::vector<C3dActor *> m_actor_list;
   C3dGround *m_ground;
