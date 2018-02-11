@@ -1,6 +1,6 @@
 #include "UIWindow.h"
 #include <SDL_ttf.h>
-#include "../Common/GetTick.h"
+#include "Common/GetTick.h"
 
 CUIWindow::CUIWindow() {
   m_x = 0;
@@ -73,15 +73,12 @@ void CUIWindow::AddChild(CUIWindow* wnd) {
   m_children.push_back(wnd);
 }
 
-void CUIWindow::RemoveChild(CUIWindow *window)
-{
+void CUIWindow::RemoveChild(CUIWindow* window) {
   for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-    if (*it == window)
-      m_children.erase(it);
+    if (*it == window) m_children.erase(it);
   }
 
-  if (window)
-    delete window;
+  if (window) delete window;
 }
 
 bool CUIWindow::IsChildOf(CUIWindow* wnd) {
@@ -167,7 +164,7 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
 
   if (blit_to_parent && m_parent) {
     m_parent->m_surfaces->CopyRect(m_x, m_y, m_w, m_h,
-                                  m_surfaces->GetSDLSurface());
+                                   m_surfaces->GetSDLSurface());
   }
 }
 
@@ -175,7 +172,7 @@ void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
   if (m_surfaces && bitmap) {
     m_surfaces->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
-                          bitmap->GetData());
+                           bitmap->GetData());
   }
 }
 

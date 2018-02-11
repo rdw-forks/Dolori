@@ -3,13 +3,13 @@
 
 #include <list>
 #include <string>
-#include "../Modes/Mode.h"
-#include "../Render/BitmapRes.h"
-#include "../Render/Surface.h"
-#include "../UI/UIFrameWnd.h"
-#include "../UI/UILoginWnd.h"
-#include "../UI/UISelectCharWnd.h"
-#include "../UI/UIWindow.h"
+#include "Modes/Mode.h"
+#include "Render/BitmapRes.h"
+#include "Render/Surface.h"
+#include "UI/UIFrameWnd.h"
+#include "UI/UILoginWnd.h"
+#include "UI/UISelectCharWnd.h"
+#include "UI/UIWindow.h"
 
 typedef enum WINDOWID {
   WID_BASICINFOWND = 0x0,

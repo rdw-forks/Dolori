@@ -1,5 +1,5 @@
 #include "UISelectServerWnd.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 #include "UIBmp.h"
 #include "UIServerListBox.h"
 

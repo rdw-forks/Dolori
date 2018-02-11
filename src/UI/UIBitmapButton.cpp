@@ -1,6 +1,6 @@
 #include "UIBitmapButton.h"
-#include "../Common/Globals.h"
-#include "../Common/service_type.h"
+#include "Common/Globals.h"
+#include "Common/service_type.h"
 #include "UIBmp.h"
 
 CUIBitmapButton::CUIBitmapButton() {

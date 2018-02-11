@@ -1,11 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "ResMgr.h"
-#include "../Files/File.h"
-#include "../Render/3dWorldRes.h"
-#include "../Render/ActRes.h"
-#include "../Render/BitmapRes.h"
-#include "../Render/GndRes.h"
-#include "../Render/SprRes.h"
+#include "Files/File.h"
+#include "Render/3dWorldRes.h"
+#include "Render/ActRes.h"
+#include "Render/BitmapRes.h"
+#include "Render/GndRes.h"
+#include "Render/SprRes.h"
 
 CResMgr::CResMgr() {
   m_usedForSprTexture = 0;

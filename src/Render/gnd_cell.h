@@ -1,7 +1,7 @@
 #ifndef DOLORI_RENDER_GND_CELL_H_
 #define DOLORI_RENDER_GND_CELL_H_
 
-#include "../Common/Vector3d.h"
+#include "Common/Vector3d.h"
 
 typedef struct GND_CELL {
   float h[0x4];

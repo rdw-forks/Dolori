@@ -1,6 +1,6 @@
 #include "SDLEvents.h"
 #include <SDL.h>
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 
 void ProcessSDLEvents() {
   SDL_Event ev;

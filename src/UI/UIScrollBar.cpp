@@ -1,5 +1,5 @@
 #include "UIScrollBar.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 #include "UIBmp.h"
 
 CUIScrollBar::CUIScrollBar() {

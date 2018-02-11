@@ -1,5 +1,5 @@
 #include "UIButton.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 
 CUIButton::CUIButton() {}
 

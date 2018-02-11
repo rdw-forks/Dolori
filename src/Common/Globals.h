@@ -2,18 +2,18 @@
 #define DOLORI_COMMON_GLOBALS_H_
 
 #include <vector>
-#include "../Common/character_info.h"
-#include "../Core/FileMgr.h"
-#include "../Core/ModeMgr.h"
-#include "../Core/ResMgr.h"
-#include "../Core/Session.h"
-#include "../Core/UIWindowMgr.h"
-#include "../Input/Language.h"
-#include "../Input/Mouse.h"
-#include "../Network/RagConnection.h"
-#include "../Render/3dDevice.h"
-#include "../Render/Renderer.h"
-#include "../Render/TexMgr.h"
+#include "Common/character_info.h"
+#include "Core/FileMgr.h"
+#include "Core/ModeMgr.h"
+#include "Core/ResMgr.h"
+#include "Core/Session.h"
+#include "Core/UIWindowMgr.h"
+#include "Input/Language.h"
+#include "Input/Mouse.h"
+#include "Network/RagConnection.h"
+#include "Render/3dDevice.h"
+#include "Render/Renderer.h"
+#include "Render/TexMgr.h"
 #include "MsgStrMgr.h"
 
 extern CModeMgr* g_ModeMgr;

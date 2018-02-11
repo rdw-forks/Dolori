@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 #include <list>
-#include "../Render/BitmapRes.h"
-#include "../Render/Surface.h"
+#include "Render/BitmapRes.h"
+#include "Render/Surface.h"
 
 class CUIWindow {
  public:

@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <list>
-#include "../Files/GPak.h"
-#include "../Files/MemFile.h"
+#include "Files/GPak.h"
+#include "Files/MemFile.h"
 
 class CFileMgr {
  public:

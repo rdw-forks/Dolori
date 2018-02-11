@@ -1,8 +1,8 @@
 #include "FileMgr.h"
-#include <iostream>
-#include "../Files/MemMapFile.h"
-#include "../Files/pak_pack.h"
 #include <fstream>
+#include <iostream>
+#include "Files/MemMapFile.h"
+#include "Files/pak_pack.h"
 
 CFileMgr::CFileMgr() {}
 
@@ -51,28 +51,20 @@ void *CFileMgr::GetPak(const char *filename, size_t *size) {
   return result;
 }
 
-bool CFileMgr::IsDataExist(const char *name)
-{
-  if (m_pakList.empty())
-  {
+bool CFileMgr::IsDataExist(const char *name) {
+  if (m_pakList.empty()) {
     std::ifstream file_stream;
     file_stream.open(name, std::ios::binary);
-    if (!file_stream.is_open())
-      return false;
+    if (!file_stream.is_open()) return false;
     file_stream.close();
-  }
-  else
-  {
-    for (auto it = m_pakList.begin(); it != m_pakList.end(); ++it)
-    {
+  } else {
+    for (auto it = m_pakList.begin(); it != m_pakList.end(); ++it) {
       CHash hash(name);
-      if (it->second->GetInfo(&hash, NULL))
-        break;
+      if (it->second->GetInfo(&hash, NULL)) break;
     }
     std::ifstream file_stream;
     file_stream.open(name, std::ios::binary);
-    if (!file_stream.is_open())
-      return false;
+    if (!file_stream.is_open()) return false;
     file_stream.close();
   }
 

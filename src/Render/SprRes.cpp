@@ -1,7 +1,7 @@
 #include "SprRes.h"
-#include "../Common/ErrorMsg.h"
-#include "../Common/Globals.h"
-#include "../Files/File.h"
+#include "Common/ErrorMsg.h"
+#include "Common/Globals.h"
+#include "Files/File.h"
 
 CSprRes::CSprRes() { m_count = 0; }
 

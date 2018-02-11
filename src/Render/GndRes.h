@@ -2,7 +2,7 @@
 #define DOLORI_RENDER_GNDRES_H_
 
 #include <vector>
-#include "../Files/File.h"
+#include "Files/File.h"
 #include "Res.h"
 #include "color.h"
 

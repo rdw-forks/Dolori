@@ -1,9 +1,9 @@
 #include "ModeMgr.h"
 #include <string.h>
-#include "../Common/Globals.h"
-#include "../Common/modetype.h"
-#include "../Modes/GameMode.h"
-#include "../Modes/LoginMode.h"
+#include "Common/Globals.h"
+#include "Common/modetype.h"
+#include "Modes/GameMode.h"
+#include "Modes/LoginMode.h"
 
 CModeMgr::CModeMgr() { m_loop_cond = true; }
 

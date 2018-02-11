@@ -1,7 +1,7 @@
 #include "BitmapRes.h"
 #include <string.h>
-#include "../Common/ErrorMsg.h"
-#include "../Files/File.h"
+#include "Common/ErrorMsg.h"
+#include "Files/File.h"
 
 #ifndef WIN32
 #define _strcmpi strcasecmp

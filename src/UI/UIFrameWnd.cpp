@@ -1,6 +1,6 @@
 #include "UIFrameWnd.h"
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
 
 CUIFrameWnd::CUIFrameWnd() {}
 
@@ -24,14 +24,12 @@ void CUIFrameWnd::OnLBtnDown(int x, int y) {
   }
 }
 
-void CUIFrameWnd::OnLBtnUp(int x, int y)
-{
-  if (g_WindowMgr->GetCapture() == this)
-  {
+void CUIFrameWnd::OnLBtnUp(int x, int y) {
+  if (g_WindowMgr->GetCapture() == this) {
     m_transTarget = 255;
     m_transTime = GetTick();
     g_WindowMgr->ReleaseCapture();
-    //CSnapMgr::EndMove(&g_snapMgr, (UIWindow *)&v3->vfptr);
+    // CSnapMgr::EndMove(&g_snapMgr, (UIWindow *)&v3->vfptr);
   }
 }
 

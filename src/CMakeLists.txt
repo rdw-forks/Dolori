@@ -18,6 +18,8 @@ foreach(source IN LISTS DOLORI_FILES)
 	source_group("${source_path_msvc}" FILES "${source}")
 endforeach()
 
+target_include_directories(${PROJECT_NAME} PRIVATE ".")
+
 # Link libraries and add include directories for third parties
 target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})

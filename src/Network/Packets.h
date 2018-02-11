@@ -1,7 +1,7 @@
 #ifndef DOLORI_NETWORK_PACKETS_H_
 #define DOLORI_NETWORK_PACKETS_H_
 
-#include "../Common/character_info.h"
+#include "Common/character_info.h"
 
 #define PACKETVER 20080910
 #define MAP_NAME_LENGTH (11 + 1)

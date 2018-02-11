@@ -5,10 +5,8 @@
 #include "ViewFrustum.h"
 #include "World.h"
 
-using namespace glm;
-
 struct VIEWINFO3D {
-  vec3 at;
+  glm::vec3 at;
   float latitude;
   float longitude;
   float distance;

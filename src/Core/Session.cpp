@@ -1,7 +1,7 @@
 #include "Session.h"
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
-#include "../Common/service_type.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
+#include "Common/service_type.h"
 
 CSession::CSession() {}
 

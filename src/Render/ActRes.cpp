@@ -1,6 +1,6 @@
 #include "ActRes.h"
-#include "../Common/ErrorMsg.h"
-#include "../Files/File.h"
+#include "Common/ErrorMsg.h"
+#include "Files/File.h"
 
 CActRes::CActRes() { m_numMaxClipPerMotion = 0; }
 

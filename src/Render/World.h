@@ -3,9 +3,9 @@
 
 #include <list>
 #include <vector>
-#include "../Modes/Mode.h"
 #include "3dAttr.h"
 #include "3dGround.h"
+#include "Modes/Mode.h"
 #include "SceneGraphNode.h"
 
 class CWorld {

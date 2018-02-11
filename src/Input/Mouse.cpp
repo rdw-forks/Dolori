@@ -1,6 +1,6 @@
 #include "Mouse.h"
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
 
 CMouse::CMouse() {}
 

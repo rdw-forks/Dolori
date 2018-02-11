@@ -12,8 +12,8 @@
 #define SOCKET_ERROR (-1)
 #define INVALID_SOCKET (-1)
 #endif
-#include "../Common/ErrorMsg.h"
-#include "../Common/GetTick.h"
+#include "Common/ErrorMsg.h"
+#include "Common/GetTick.h"
 #include "RagConnection.h"
 
 CConnection::CConnection() {}

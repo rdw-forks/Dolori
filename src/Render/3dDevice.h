@@ -2,7 +2,7 @@
 #define DOLORI_RENDER_3DDEVICE_H_
 
 #include <SDL.h>
-#include "../Render/Surface.h"
+#include "Render/Surface.h"
 #include "Renderer.h"
 #include "palette_entry.h"
 

@@ -4,8 +4,8 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 #include <il.h>
-#include "../Common/Globals.h"
-#include "../Render/SurfaceWallpaper.h"
+#include "Common/Globals.h"
+#include "Render/SurfaceWallpaper.h"
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480

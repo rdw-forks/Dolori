@@ -1,7 +1,7 @@
 #include "World.h"
-#include "../Common/ErrorMsg.h"
-#include "../Common/Globals.h"
 #include "3dWorldRes.h"
+#include "Common/ErrorMsg.h"
+#include "Common/Globals.h"
 #include "GndRes.h"
 
 CWorld::CWorld() {

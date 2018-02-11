@@ -2,7 +2,7 @@
 #define DOLORI_RENDER_TEXMGR_H_
 
 #include <map>
-#include "../Core/ResMgr.h"
+#include "Core/ResMgr.h"
 #include "Texture.h"
 #include "pixel_format.h"
 

@@ -3,10 +3,10 @@
 
 #include <list>
 #include <vector>
-#include "../Common/Vector3d.h"
-#include "../Render/RPFace.h"
-#include "../Render/RPQuadFace.h"
-#include "../Render/RPTriFace.h"
+#include "Common/Vector3d.h"
+#include "Render/RPFace.h"
+#include "Render/RPQuadFace.h"
+#include "Render/RPTriFace.h"
 #include "cache_surface.h"
 #include "pixel_format.h"
 #include "spr_img.h"

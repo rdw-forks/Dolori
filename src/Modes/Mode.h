@@ -2,7 +2,7 @@
 #define DOLORI_MODES_MODE_H_
 
 #include <stdlib.h>
-#include "../Common/Vector2d.h"
+#include "Common/Vector2d.h"
 
 typedef enum MODE_MSG {
   MM_COMMAND = 0x0,

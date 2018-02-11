@@ -3,10 +3,10 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
-#include "../Common/cell_pos.h"
-#include "../Render/View.h"
-#include "../Render/World.h"
+#include "Common/cell_pos.h"
 #include "Mode.h"
+#include "Render/View.h"
+#include "Render/World.h"
 
 class CGameMode : public CMode {
  public:

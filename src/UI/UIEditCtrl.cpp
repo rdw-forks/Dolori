@@ -1,5 +1,5 @@
 #include "UIEditCtrl.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 #include "UIBmp.h"
 
 CUIEditCtrl::CUIEditCtrl() {

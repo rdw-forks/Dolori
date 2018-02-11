@@ -3,12 +3,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
-#include "../Common/talktype.h"
-#include "../Network/Packets.h"
-#include "../Render/View.h"
-#include "../Render/World.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
+#include "Common/talktype.h"
+#include "Network/Packets.h"
+#include "Render/View.h"
+#include "Render/World.h"
 
 CGameMode::CGameMode() {}
 

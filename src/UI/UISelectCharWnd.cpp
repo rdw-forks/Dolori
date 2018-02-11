@@ -1,7 +1,7 @@
 #include "UISelectCharWnd.h"
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
-#include "../Render/ActRes.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
+#include "Render/ActRes.h"
 #include "UIBmp.h"
 
 CUISelectCharWnd::CUISelectCharWnd() {
@@ -175,7 +175,7 @@ void CUISelectCharWnd::OnDraw() {
           if (!surface)
             surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
           m_surfaces->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
-                                 img->width, img->height, 0, 1, 1);
+                                  img->width, img->height, 0, 1, 1);
         }
       }
       // g_ResMgr->Get(m_viewChar[char_id].imf_name.c_str(), false);

@@ -1,6 +1,6 @@
 #include "3dWorldRes.h"
-#include "../Common/ErrorMsg.h"
-#include "../Files/File.h"
+#include "Common/ErrorMsg.h"
+#include "Files/File.h"
 
 C3dWorldRes::C3dWorldRes() { m_calculated_node = NULL; }
 

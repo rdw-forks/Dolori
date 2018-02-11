@@ -1,5 +1,5 @@
 #include "GndRes.h"
-#include "../Common/ErrorMsg.h"
+#include "Common/ErrorMsg.h"
 
 GND_SURFACE_FMT CGndRes::s_empty_surface;
 GND_CELL_FMT CGndRes::s_empty_cell;

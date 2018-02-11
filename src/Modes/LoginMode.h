@@ -4,10 +4,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <vector>
-#include "../Common/AccountInfo.h"
-#include "../Common/billing_info.h"
-#include "../Common/character_info.h"
-#include "../Common/server_addr.h"
+#include "Common/AccountInfo.h"
+#include "Common/billing_info.h"
+#include "Common/character_info.h"
+#include "Common/server_addr.h"
 #include "Mode.h"
 
 typedef enum LOGINMODE_MSG {
@@ -60,9 +60,9 @@ class CLoginMode : public CMode {
   void Hc_Accept_Deletechar(const char *);
   void Hc_Refuse_Deletechar(const char *);
   void Zc_Accept_Enter(const char *);
-  void Zc_Accept_Enter2(const char * buffer);
+  void Zc_Accept_Enter2(const char *buffer);
   void Hc_Notify_Zonesvr(const char *);
-  void Zc_Refuse_Enter(const char * buf);
+  void Zc_Refuse_Enter(const char *buf);
 
  private:
   int m_authCode;

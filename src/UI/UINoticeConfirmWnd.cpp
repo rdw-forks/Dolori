@@ -1,7 +1,7 @@
 #include "UINoticeConfirmWnd.h"
 #include <string>
-#include "../Common/Globals.h"
-#include "../Render/BitmapRes.h"
+#include "Common/Globals.h"
+#include "Render/BitmapRes.h"
 #include "UIBitmapButton.h"
 #include "UIBmp.h"
 
@@ -56,9 +56,9 @@ void CUINoticeConfirmWnd::OnDraw() {
   DrawBitmap(0, 0, bitmap, 0);
 }
 
-void* CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
-                                 void *val2, void *val3, void *val4) {
-  void* result = 0;
+void *CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
+                                   void *val2, void *val3, void *val4) {
+  void *result = 0;
 
   switch (message) {
     case 6: {

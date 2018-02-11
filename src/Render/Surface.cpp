@@ -1,5 +1,5 @@
 #include "Surface.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 
 CSurface::CSurface() {
   Create(0, 0);

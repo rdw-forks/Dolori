@@ -1,7 +1,7 @@
 #include "UIWindowMgr.h"
-#include "../Common/Globals.h"
-#include "../UI/UINoticeConfirmWnd.h"
-#include "../UI/UISelectServerWnd.h"
+#include "Common/Globals.h"
+#include "UI/UINoticeConfirmWnd.h"
+#include "UI/UISelectServerWnd.h"
 
 // Helper functions
 int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }

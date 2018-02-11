@@ -1,5 +1,5 @@
 #include "3dGround.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 #include "rect.h"
 
 C3dGround::C3dGround() {

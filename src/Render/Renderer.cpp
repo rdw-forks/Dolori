@@ -1,8 +1,8 @@
 #include "Renderer.h"
 #include <math.h>
 #include <iostream>
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
 
 CRenderer::CRenderer() {}
 

@@ -6,15 +6,15 @@
 #include <arpa/inet.h>
 #endif
 #include <string.h>
-#include "../Common/GetTick.h"
-#include "../Common/Globals.h"
-#include "../Common/modetype.h"
-#include "../Common/service_type.h"
-#include "../Input/SDLEvents.h"
-#include "../Network/Packets.h"
-#include "../UI/UIBmp.h"
-#include "../UI/UINoticeConfirmWnd.h"
-#include "../UI/UISelectServerWnd.h"
+#include "Common/GetTick.h"
+#include "Common/Globals.h"
+#include "Common/modetype.h"
+#include "Common/service_type.h"
+#include "Input/SDLEvents.h"
+#include "Network/Packets.h"
+#include "UI/UIBmp.h"
+#include "UI/UINoticeConfirmWnd.h"
+#include "UI/UISelectServerWnd.h"
 
 CLoginMode::CLoginMode() {}
 

@@ -1,7 +1,7 @@
 #include "UILoginWnd.h"
-#include "../Common/Globals.h"
-#include "../Common/service_type.h"
-#include "../Files/File.h"
+#include "Common/Globals.h"
+#include "Common/service_type.h"
+#include "Files/File.h"
 #include "UIBmp.h"
 
 CUILoginWnd::CUILoginWnd() {

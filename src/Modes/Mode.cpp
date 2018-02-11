@@ -1,5 +1,5 @@
 #include "Mode.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 
 CMode::CMode() {}
 

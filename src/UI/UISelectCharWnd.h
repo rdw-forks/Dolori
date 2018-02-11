@@ -1,7 +1,7 @@
 #ifndef DOLORI_UI_UISELECTCHARWND_H_
 #define DOLORI_UI_UISELECTCHARWND_H_
 
-#include "../Render/view_sprite.h"
+#include "Render/view_sprite.h"
 #include "UIBitmapButton.h"
 #include "UIFrameWnd.h"
 #include "UISlotBitmap.h"

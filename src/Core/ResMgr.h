@@ -6,7 +6,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include "../Render/Res.h"
+#include "Render/Res.h"
 
 struct CharPrtLess {
   bool operator()(const char *a, const char *b) const {

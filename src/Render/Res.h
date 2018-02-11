@@ -2,7 +2,7 @@
 #define DOLORI_RENDER_RES_H_
 
 #include <stdlib.h>
-#include "../Files/Hash.h"
+#include "Files/Hash.h"
 
 class CRes {
  public:

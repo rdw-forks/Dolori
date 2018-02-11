@@ -1,5 +1,5 @@
 #include "MsgStrMgr.h"
-#include "../Files/File.h"
+#include "Files/File.h"
 
 CMsgStrMgr::CMsgStrMgr() {}
 

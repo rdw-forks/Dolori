@@ -1,5 +1,5 @@
 #include "View.h"
-#include "../Common/Globals.h"
+#include "Common/Globals.h"
 
 CView::CView() {
   m_cur.longitude = 0.0f;

@@ -1,7 +1,7 @@
 #include "File.h"
 #include <string.h>
-#include "../Common/ErrorMsg.h"
-#include "../Common/Globals.h"
+#include "Common/ErrorMsg.h"
+#include "Common/Globals.h"
 
 CFile::CFile() {
   m_fileStream.clear();
@@ -10,7 +10,7 @@ CFile::CFile() {
 
 CFile::~CFile() { Close(); }
 
-bool CFile::IsFileExist(const char *fName) {
+bool CFile::IsFileExist(const char* fName) {
   char full_name[256];
 
   MakeFileName(full_name, fName, sizeof(full_name));
