@@ -282,17 +282,15 @@ typedef enum MODE_MSG {
 
 class CMode {
  public:
-  CMode();
-  ~CMode();
+  virtual ~CMode() = default;
 
   bool GetLoopCond();
   void SetLoopCond(bool);
 
-  virtual void OnInit(const char *);
-  virtual int OnRun();
-  virtual void OnExit();
-
   virtual void *SendMsg(size_t, void *, void *, void *);
+  virtual void OnInit(const char *) = 0;
+  virtual int OnRun() = 0;
+  virtual void OnExit() = 0;
 
  protected:
   int m_sub_mode;

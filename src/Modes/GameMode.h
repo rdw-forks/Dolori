@@ -10,13 +10,12 @@
 
 class CGameMode : public CMode {
  public:
-  CGameMode();
+  void OnInit(const char *) override;
+  int OnRun() override;
+  void OnUpdate();
+  void OnExit() override;
 
   void Intialize();
-  void OnInit(const char *);
-  int OnRun();
-  void OnUpdate();
-  void OnExit();
   void OnChangeState(int);
   void ProcessTalkType(int, const std::string &);
   void *SendMsg(size_t msg, void *val1, void *val2, void *val3);

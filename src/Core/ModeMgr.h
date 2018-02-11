@@ -2,6 +2,7 @@
 #define DOLORI_CORE_MODEMGR_H_
 
 #define _CRT_SECURE_NO_WARNINGS
+#include <string>
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 #include "Modes/Mode.h"
@@ -20,8 +21,8 @@ class CModeMgr {
  private:
   int m_loop_cond;
   CMode* m_cur_mode;
-  char m_cur_mode_name[0x28];
-  char m_next_mode_name[0x28];
+  std::string m_cur_mode_name;
+  std::string m_next_mode_name;
   int m_cur_mode_type;
   int m_next_mode_type;
 };

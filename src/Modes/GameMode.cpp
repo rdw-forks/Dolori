@@ -10,8 +10,6 @@
 #include "Render/View.h"
 #include "Render/World.h"
 
-CGameMode::CGameMode() {}
-
 void CGameMode::Intialize() {
   m_noMove = 0;
   m_isOnQuest = 0;

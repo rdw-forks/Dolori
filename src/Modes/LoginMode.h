@@ -42,10 +42,11 @@ class CLoginMode : public CMode {
   CLoginMode();
   ~CLoginMode();
 
-  void OnInit(const char *);
-  int OnRun();
-  void OnExit();
-  void *SendMsg(size_t, void *, void *, void *);
+  void OnInit(const char *) override;
+  int OnRun() override;
+  void OnExit() override;
+  void *SendMsg(size_t, void *, void *, void *) override;
+
   void OnUpdate();
   void OnChangeState(int);
   void PollNetworkStatus();
