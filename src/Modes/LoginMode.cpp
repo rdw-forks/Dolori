@@ -46,8 +46,7 @@ void CLoginMode::OnInit(const char *mode_name) {
 }
 
 int CLoginMode::OnRun() {
-  while (m_loop_cond) {
-    if (g_sys_quit) break;
+  while (m_loop_cond && !g_sys_quit) {
     if (true /*!dword_7687C8*/) {
       if (m_next_sub_mode != -1) {
         m_sub_mode = m_next_sub_mode;
@@ -67,7 +66,8 @@ void CLoginMode::OnExit() {}
 
 void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
                           void *val3) {
-  void *result = NULL;
+  void *result = nullptr;
+
   switch (messageId) {
     case MM_COMMAND: {
       size_t command_id = (size_t)val1;
@@ -126,10 +126,14 @@ void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
     } break;
     case MM_QUERYCHARICTORINFO: {
       size_t char_num = (size_t)val1;
-      if (m_num_char <= 0 || char_num >= m_num_char) return NULL;
+      if (m_num_char <= 0 || char_num >= m_num_char) {
+        return nullptr;
+      }
 
       for (int i = 0; i < m_num_char; i++) {
-        if (m_charInfo[i].char_slot == char_num) return &m_charInfo[i];
+        if (m_charInfo[i].char_slot == char_num) {
+          return &m_charInfo[i];
+        }
       }
     } break;
     default:
@@ -182,7 +186,8 @@ void CLoginMode::OnChangeState(int state) {
       g_WindowMgr->SetWallpaper(bitmap);
       wnd =
           (CUINoticeConfirmWnd *)g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND);
-      if (wnd) wnd->SendMsg(NULL, 80, (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
+      if (wnd)
+        wnd->SendMsg(nullptr, 80, (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
     } break;
     case 1:
       break;
@@ -193,131 +198,19 @@ void CLoginMode::OnChangeState(int state) {
       // SendMsg(30, 0, 0, 0);
       m_next_sub_mode = 3;
       break;
-      // Login window
-    case 3: {
-      const std::string wallpaper_name =
-          const_strings::kResourceSubfolder + "bgi_temp.bmp";
-      CUIFrameWnd *login_wnd;
-      CBitmapRes *res;
-
-      // WinMainNpKeyStartEncryption();
-      m_wallPaperBmpName = UIBmp(wallpaper_name.c_str());
-      res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
-      g_WindowMgr->SetWallpaper(res);
-      login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
-      if (!g_hideAccountList && login_wnd)
-        login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
-      return;
-    }
-    case 4: {
-      // Connection to account server
-      SERVER_ADDRESS server_addr;
-
-      strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
-      server_addr.port = atoi(g_accountPort);
-      printf("Connecting to the account server ...\n");
-      printf("IP: %s\nPort: %d\n", server_addr.ip, server_addr.port);
-      m_isConnected = g_RagConnection->Connect(&server_addr);
-      if (!m_isConnected) {
-        g_RagConnection->Disconnect();
-        return;
-      }
-      if (g_bUseCommand) {
-        struct PACKET_CA_CONNECT_INFO_CHANGE packet;
-        int packet_size;
-
-        packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
-        memcpy(packet.ID, m_userId, sizeof(packet.ID));
-        packet_size =
-            g_RagConnection->GetPacketSize(HEADER_CA_CONNECT_INFO_CHANGED);
-        g_RagConnection->SendPacket(packet_size, (char *)&packet);
-      }
-      CheckExeHashFromAccServer();
-      if (g_passwordEncrypt) {
-        struct PACKET_CA_REQ_HASH packet;
-        int packet_size;
-
-        packet.header = HEADER_CA_REQ_HASH;
-        packet_size = g_RagConnection->GetPacketSize(HEADER_CA_REQ_HASH);
-        g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
-        // 16, 1);
-        return;
-      }
-
-      if (g_serviceType != ServiceType::kKorea) {
-        struct PACKET_CA_LOGIN packet;
-        int packet_size;
-
-        packet.header = HEADER_CA_LOGIN;
-        packet.version = g_version;
-        strncpy(packet.username, m_userId, sizeof(packet.username));
-        strncpy(packet.password, m_userPassword, sizeof(packet.password));
-        packet.client_type = g_clientType;  // GetAccountType();
-        packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN);
-        g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        // CUIWaitWnd *waitwnd =
-        //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
-        // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
-        // 16, 1);
-      } else {
-        struct PACKET_CA_LOGIN_CHANNEL packet;
-        int packet_size;
-
-        packet.header = HEADER_CA_LOGIN_CHANNEL;
-        packet.version = g_version;
-        strncpy(packet.username, m_userId, sizeof(packet.username));
-        strncpy(packet.password, m_userPassword, sizeof(packet.password));
-        strcpy(packet.ip_address, "111.111.111.111");
-        memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
-        packet.clienttype = g_clientType;
-        packet.channeling_corp = g_isGravityID;
-        packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
-        g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        // CUIWaitWnd *waitwnd =
-        //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
-        // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
-        // 16, 1);
-      }
-    } break;
+    case 3:
+      return MakeLoginWindow();
+    case 4:
+      return ConnectToAccountServer();
     case 5:
-      // Connection to char server
-      struct PACKET_CH_ENTER packet;
-      int packet_size;
-
-      g_RagConnection->Disconnect();
-      printf("Connecting to the char server ...\n");
-      printf("IP: %s\nPort: %d\n", g_charServerAddr.ip, g_charServerAddr.port);
-      m_isConnected = g_RagConnection->Connect(&g_charServerAddr);
-      // WinMainNpKeyStopEncryption();
-      if (!m_isConnected) {
-        g_RagConnection->Disconnect();
-        /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
-        if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
-        {
-                g_mustPumpOutReceiveQueue = 0;
-                m_nextSubMode = 3;
-        }*/
-        return;
-      }
-
-      packet.header = HEADER_CH_ENTER;
-      packet.client_type = g_clientType;
-      packet.auth_code = m_authCode;
-      packet.account_id = m_account_id;
-      packet.user_level = m_userLevel;
-      packet.Sex = g_Session->GetSex();
-      g_mustPumpOutReceiveQueue = 1;
-      packet_size = g_RagConnection->GetPacketSize(HEADER_CH_ENTER);
-      g_RagConnection->SendPacket(packet_size, (char *)&packet);
-      return;
+      return ConnectToCharServer();
     case 6: {
       // Select char server
       CUISelectServerWnd *wnd;
       char buffer[256];
 
       wnd = (CUISelectServerWnd *)g_WindowMgr->MakeWindow(WID_SELECTSERVERWND);
-      if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, NULL, 0, 0);
+      if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, nullptr, 0, 0);
       if (m_numServer < 0) {
         wnd->SendMsg(0, 40, 0, 0, 0, 0);
         return;
@@ -347,42 +240,164 @@ void CLoginMode::OnChangeState(int state) {
       // UIWaitWnd::SetMsg(v127, v128, 16, 1);
     } break;
     case 12:
-      // Connection to zone server
-      printf("Connecting to the zone server ...\n");
-      printf("IP: %s\nPort: %d\n", g_zoneServerAddr.ip, g_zoneServerAddr.port);
-      m_isConnected = g_RagConnection->Connect(&g_zoneServerAddr);
-      if (m_isConnected) {
-        struct PACKET_CZ_ENTER packet;
-
-        packet.PacketType = HEADER_CZ_ENTER;
-        // CLoginMode::SetPaddingValue(v2, &pad, 2);
-        // CLoginMode::SetPaddingValue(v2, (char *)&packet.AID + 2, 1);
-        // CLoginMode::SetPaddingValue(v2, (char *)&packet.AuthCode + 3, 4);
-        packet.clientTime = GetTick();
-        packet.AuthCode = m_authCode;
-        packet.GID = m_char_id;
-        packet.AID = m_account_id;
-        packet.Sex = g_Session->GetSex();
-        packet_size = g_RagConnection->GetPacketSize(HEADER_CZ_ENTER);
-        g_RagConnection->SendPacket(packet_size, (char *)&packet);
-        g_RagConnection->SetBlock(true);
-        // wnd = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr,
-        // WID_WAITWND);  str = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
-        // wnd->SetMsg(str, 16, 1);
-      } else {
-        g_RagConnection->Disconnect();
-        /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
-        if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
-        {
-                g_mustPumpOutReceiveQueue = 0;
-                m_nextSubMode = 3;
-        }*/
-      }
-      return;
+      return ConnectToZoneServer();
     case 13:
       // InitAccountInfo2()
       break;
   };
+}
+
+void CLoginMode::MakeLoginWindow() {
+  const std::string wallpaper_name =
+      const_strings::kResourceSubfolder + "bgi_temp.bmp";
+  CUIFrameWnd *login_wnd;
+  CBitmapRes *res;
+
+  // WinMainNpKeyStartEncryption();
+  m_wallPaperBmpName = UIBmp(wallpaper_name.c_str());
+  res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
+  g_WindowMgr->SetWallpaper(res);
+  login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
+  if (!g_hideAccountList && login_wnd) login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
+}
+
+void CLoginMode::ConnectToAccountServer() {
+  SERVER_ADDRESS server_addr;
+
+  strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
+  server_addr.port = atoi(g_accountPort);
+  printf("Connecting to the account server ...\n");
+  printf("IP: %s\nPort: %d\n", server_addr.ip, server_addr.port);
+  m_isConnected = g_RagConnection->Connect(&server_addr);
+  if (!m_isConnected) {
+    g_RagConnection->Disconnect();
+    return;
+  }
+
+  if (g_bUseCommand) {
+    struct PACKET_CA_CONNECT_INFO_CHANGE packet;
+    int packet_size;
+
+    packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
+    memcpy(packet.ID, m_userId, sizeof(packet.ID));
+    packet_size =
+        g_RagConnection->GetPacketSize(HEADER_CA_CONNECT_INFO_CHANGED);
+    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+  }
+  CheckExeHashFromAccServer();
+  if (g_passwordEncrypt) {
+    struct PACKET_CA_REQ_HASH packet;
+    int packet_size;
+
+    packet.header = HEADER_CA_REQ_HASH;
+    packet_size = g_RagConnection->GetPacketSize(HEADER_CA_REQ_HASH);
+    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+    // 16, 1);
+    return;
+  }
+
+  if (g_serviceType != ServiceType::kKorea) {
+    struct PACKET_CA_LOGIN packet;
+    int packet_size;
+
+    packet.header = HEADER_CA_LOGIN;
+    packet.version = g_version;
+    strncpy(packet.username, m_userId, sizeof(packet.username));
+    strncpy(packet.password, m_userPassword, sizeof(packet.password));
+    packet.client_type = g_clientType;  // GetAccountType();
+    packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN);
+    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    // CUIWaitWnd *waitwnd =
+    //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
+    // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+    // 16, 1);
+  } else {
+    struct PACKET_CA_LOGIN_CHANNEL packet;
+    int packet_size;
+
+    packet.header = HEADER_CA_LOGIN_CHANNEL;
+    packet.version = g_version;
+    strncpy(packet.username, m_userId, sizeof(packet.username));
+    strncpy(packet.password, m_userPassword, sizeof(packet.password));
+    strcpy(packet.ip_address, "111.111.111.111");
+    memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
+    packet.clienttype = g_clientType;
+    packet.channeling_corp = g_isGravityID;
+    packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
+    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    // CUIWaitWnd *waitwnd =
+    //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
+    // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+    // 16, 1);
+  }
+}
+
+void CLoginMode::ConnectToCharServer() {
+  // Connection to char server
+  struct PACKET_CH_ENTER packet;
+  int packet_size;
+
+  g_RagConnection->Disconnect();
+  printf("Connecting to the char server ...\n");
+  printf("IP: %s\nPort: %d\n", g_charServerAddr.ip, g_charServerAddr.port);
+  m_isConnected = g_RagConnection->Connect(&g_charServerAddr);
+  // WinMainNpKeyStopEncryption();
+  if (!m_isConnected) {
+    g_RagConnection->Disconnect();
+    /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
+    if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
+    {
+    g_mustPumpOutReceiveQueue = 0;
+    }*/
+    m_next_sub_mode = 3;
+    return;
+  }
+
+  packet.header = HEADER_CH_ENTER;
+  packet.client_type = g_clientType;
+  packet.auth_code = m_authCode;
+  packet.account_id = m_account_id;
+  packet.user_level = m_userLevel;
+  packet.Sex = g_Session->GetSex();
+  g_mustPumpOutReceiveQueue = 1;
+  packet_size = g_RagConnection->GetPacketSize(HEADER_CH_ENTER);
+  g_RagConnection->SendPacket(packet_size, (char *)&packet);
+}
+
+void CLoginMode::ConnectToZoneServer() {
+  // Connection to zone server
+  printf("Connecting to the zone server ...\n");
+  printf("IP: %s\nPort: %d\n", g_zoneServerAddr.ip, g_zoneServerAddr.port);
+  m_isConnected = g_RagConnection->Connect(&g_zoneServerAddr);
+  if (!m_isConnected) {
+    g_RagConnection->Disconnect();
+    /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
+    if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
+    {
+    g_mustPumpOutReceiveQueue = 0;
+    }*/
+    m_next_sub_mode = 3;
+    return;
+  }
+
+  struct PACKET_CZ_ENTER packet;
+
+  packet.PacketType = HEADER_CZ_ENTER;
+  // CLoginMode::SetPaddingValue(v2, &pad, 2);
+  // CLoginMode::SetPaddingValue(v2, (char *)&packet.AID + 2, 1);
+  // CLoginMode::SetPaddingValue(v2, (char *)&packet.AuthCode + 3, 4);
+  packet.clientTime = GetTick();
+  packet.AuthCode = m_authCode;
+  packet.GID = m_char_id;
+  packet.AID = m_account_id;
+  packet.Sex = g_Session->GetSex();
+  int packet_size = g_RagConnection->GetPacketSize(HEADER_CZ_ENTER);
+  g_RagConnection->SendPacket(packet_size, (char *)&packet);
+  g_RagConnection->SetBlock(true);
+  // wnd = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr,
+  // WID_WAITWND);  str = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
+  // wnd->SetMsg(str, 16, 1);
 }
 
 void CLoginMode::PollNetworkStatus() {

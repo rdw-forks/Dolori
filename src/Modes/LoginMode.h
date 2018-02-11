@@ -65,6 +65,12 @@ class CLoginMode : public CMode {
   void Zc_Refuse_Enter(const char *buf);
 
  private:
+  void MakeLoginWindow();
+  void ConnectToAccountServer();
+  void ConnectToCharServer();
+  void ConnectToZoneServer();
+
+ private:
   int m_authCode;
   unsigned int m_account_id;
   unsigned int m_userLevel;
