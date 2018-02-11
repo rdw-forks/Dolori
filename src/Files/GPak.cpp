@@ -3,10 +3,10 @@
 #ifdef WIN32
 #define ZLIB_WINAPI
 #endif
+#include <grfcrypt.h>
 #include <string.h>
 #include <zlib.h>
 #include <iostream>
-#include "grflib/grfcrypt.h"
 
 CGPak::CGPak() { Init(); }
 
