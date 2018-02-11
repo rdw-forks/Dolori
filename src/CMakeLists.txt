@@ -21,6 +21,8 @@ endforeach()
 target_include_directories(${PROJECT_NAME} PRIVATE ".")
 
 # Link libraries and add include directories for third parties
+target_link_libraries(${PROJECT_NAME} tinyxml2)
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})
 

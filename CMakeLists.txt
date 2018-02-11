@@ -25,4 +25,5 @@ find_package(ZLIB REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 set(GLM_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/3rdparty/glm/include")
 
+add_subdirectory(3rdparty)
 add_subdirectory(src)

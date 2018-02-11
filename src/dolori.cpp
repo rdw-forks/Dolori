@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
+#include <tinyxml2.h>
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Common/modetype.h"
@@ -9,7 +10,6 @@
 #include "Core/ModeMgr.h"
 #include "Core/Session.h"
 #include "Files/File.h"
-#include "Files/tinyxml2/tinyxml2.h"
 #include "Render/3dDevice.h"
 
 #ifndef WIN32
@@ -131,8 +131,7 @@ void SetOption(tinyxml2::XMLDocument* document) {
         strncpy(g_accountAddr, address->GetText(), sizeof(g_accountAddr));
 
       XMLElement* port = connection->FirstChildElement("port");
-      if (port)
-        strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
+      if (port) strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
     }
   }
 }
@@ -151,7 +150,7 @@ void InitClientInfo(const char* filename) {
 }
 
 int main(int argc, char* argv[]) {
-  if(!g_FileMgr->AddPak("data.grf")) {
+  if (!g_FileMgr->AddPak("data.grf")) {
     ErrorMsg("Cannot open data.grf.");
     return EXIT_FAILURE;
   }
