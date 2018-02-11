@@ -245,7 +245,7 @@ void CLoginMode::OnChangeState(int state) {
         return;
       }
 
-      if (g_serviceType != ServiceKorea) {
+      if (g_serviceType != ServiceType::Korea) {
         struct PACKET_CA_LOGIN packet;
         int packet_size;
 
@@ -624,7 +624,7 @@ void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
     //	v3 = MsgStr(MSI_FR_ERR_DELCHAR_INVALID_SLOT);
     // else
     //	v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER);
-  } else if (g_serviceType != ServiceKorea) {
+  } else if (g_serviceType != ServiceType::Korea) {
     // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_EMAIL);
   } else {
     // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);

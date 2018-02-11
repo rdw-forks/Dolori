@@ -1,5 +1,4 @@
 #include "Globals.h"
-#include "service_type.h"
 
 CRagConnection* g_RagConnection = new CRagConnection();
 CUIWindowMgr* g_WindowMgr = new CUIWindowMgr();
@@ -15,7 +14,7 @@ CMsgStrMgr* g_MsgStrMgr = new CMsgStrMgr();
 CLanguage* g_Language = new CLanguage();
 
 char TITLE_FILE[256];
-unsigned short g_serviceType;
+ServiceType g_serviceType;
 unsigned short g_serverType;
 unsigned int g_version = 23;
 char g_clientType = 23;

@@ -65,10 +65,12 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
     button_count = 4;
 
   for (int i = 0; i < button_count; i++) {
-    if (i == 3 && g_serviceType != ServiceKorea &&
-        g_serviceType != ServiceChina && g_serviceType != ServiceGermany &&
-        g_serviceType != ServiceIndia && g_serviceType != ServiceAustralia &&
-        g_serviceType != ServiceRussia)
+    if (i == 3 && g_serviceType != ServiceType::Korea &&
+        g_serviceType != ServiceType::China &&
+        g_serviceType != ServiceType::Germany &&
+        g_serviceType != ServiceType::India &&
+        g_serviceType != ServiceType::Australia &&
+        g_serviceType != ServiceType::Russia)
       break;
 
     CUIBitmapButton *button = new CUIBitmapButton();
@@ -102,7 +104,7 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
 
 void CUILoginWnd::OnDraw() {
   const std::string res_path = []() {
-    if (g_serviceType != ServiceKorea) {
+    if (g_serviceType != ServiceType::Korea) {
       return const_strings::kResourceSubfolder +
              "login_interface/win_login.bmp";
     } else if (g_isGravityID) {
@@ -127,7 +129,7 @@ void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
       size_t btn_id = (size_t)val1;
 
       if (btn_id == 201) {
-        if (g_isGravityID || g_serviceType != ServiceKorea) {
+        if (g_isGravityID || g_serviceType != ServiceType::Korea) {
           g_ModeMgr->Quit();
         } else {
           // v12 = MsgStr(MSI_3DAY_FREE);

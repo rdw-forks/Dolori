@@ -22,8 +22,8 @@ void CSession::InitTable() {
 }
 
 void CSession::SetTextType(bool isShorten, bool isBold) {
-  if (g_serviceType == ServiceKorea || g_serviceType == ServiceIndonesia ||
-      g_serviceType == ServiceGermany || g_serviceType == ServiceBrazil) {
+  if (g_serviceType == ServiceType::Korea || g_serviceType == ServiceType::Indonesia ||
+      g_serviceType == ServiceType::Germany || g_serviceType == ServiceType::Brazil) {
     g_NameBalloonShorten = isShorten;
     g_NameBalloonfontBold = isBold;
   }
@@ -48,7 +48,7 @@ std::list<std::string> CSession::GetNumExNameList() { return m_exNameList; }
 
 bool CSession::IsMasterAid(int showLevel) {
   if (IsGravityAid(m_aid) && showLevel == 7) return true;
-  if (g_serviceType != ServiceKorea) return false;
+  if (g_serviceType != ServiceType::Korea) return false;
 
   if (m_aid > 0x2C8C83) {
     if (m_aid != 2919558) return false;

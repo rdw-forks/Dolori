@@ -10,11 +10,12 @@
 #include "Core/UIWindowMgr.h"
 #include "Input/Language.h"
 #include "Input/Mouse.h"
+#include "MsgStrMgr.h"
 #include "Network/RagConnection.h"
 #include "Render/3dDevice.h"
 #include "Render/Renderer.h"
 #include "Render/TexMgr.h"
-#include "MsgStrMgr.h"
+#include "service_type.h"
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;
@@ -29,7 +30,7 @@ extern CMouse* g_Mouse;
 extern CMsgStrMgr* g_MsgStrMgr;
 extern CLanguage* g_Language;
 extern char TITLE_FILE[256];
-extern unsigned short g_serviceType;
+extern ServiceType g_serviceType;
 extern unsigned short g_serverType;
 extern unsigned int g_version;
 extern char g_clientType;
