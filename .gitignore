@@ -1,2 +1,5 @@
-.vs/*
+build
+.vs
 *.json
+x64
+Win32
