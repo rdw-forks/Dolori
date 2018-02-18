@@ -14,6 +14,7 @@ class CWorld {
   ~CWorld();
 
   void OnEnterFrame();
+  void Render();
 
  private:
   CMode* m_cur_mode;

@@ -4,13 +4,12 @@
 GND_SURFACE_FMT CGndRes::s_empty_surface;
 GND_CELL_FMT CGndRes::s_empty_cell;
 
-CGndRes::CGndRes() {
-  m_width = 0;
-  m_height = 0;
+CGndRes::CGndRes()
+    : m_width(), m_height(), m_lminfo(), m_surfaces(), m_cells() {
   // m_new_ver = 0;
 }
 
-CGndRes::~CGndRes() {}
+CGndRes::~CGndRes() { Reset(); }
 
 CRes* CGndRes::Clone() { return new CGndRes(); }
 
@@ -64,8 +63,9 @@ bool CGndRes::Load(const char* filename) {
   fp.Read(m_surfaces, m_num_surfaces * sizeof(GND_SURFACE_FMT));
 
   // Cells
-  m_cells = new GND_CELL_FMT[m_width * m_height];
-  fp.Read(m_cells, m_width * m_height * sizeof(GND_CELL_FMT));
+  m_num_cells = m_width * m_height;
+  m_cells = new GND_CELL_FMT[m_num_cells];
+  fp.Read(m_cells, m_num_cells * sizeof(GND_CELL_FMT));
 
   fp.Close();
 
@@ -74,9 +74,21 @@ bool CGndRes::Load(const char* filename) {
 
 void CGndRes::Reset() {
   m_tex_name_table.clear();
-  m_lminfo = NULL;
-  m_surfaces = NULL;
-  m_cells = NULL;
+
+  if (m_lminfo) {
+    delete m_lminfo;
+    m_lminfo = nullptr;
+  }
+
+  if (m_surfaces) {
+    delete m_surfaces;
+    m_surfaces = nullptr;
+  }
+
+  if (m_cells) {
+    delete m_cells;
+    m_cells = nullptr;
+  }
 }
 
 float CGndRes::GetZoom() { return m_zoom; }
@@ -87,14 +99,28 @@ int CGndRes::GetHeight() { return m_height; }
 
 uint32_t CGndRes::GetSurfaceCount() { return m_num_surfaces; }
 
-const GND_SURFACE_FMT* CGndRes::GetSurface(unsigned int index) {
-  if (index < m_num_surfaces) return &m_surfaces[index];
-  return &s_empty_surface;
+const GND_SURFACE_FMT& CGndRes::GetSurface(unsigned int index) {
+  if (index < m_num_surfaces) {
+    return m_surfaces[index];
+  }
+
+  return s_empty_surface;
 }
 
-const GND_CELL_FMT* CGndRes::GetCell(unsigned int x, unsigned int y) {
+const GND_CELL_FMT& CGndRes::GetCell(unsigned int x, unsigned int y) {
   unsigned int index = x + y * m_width;
 
-  if (index < m_num_surfaces) return &m_cells[index];
-  return &s_empty_cell;
+  if (index < m_num_cells) {
+    return m_cells[index];
+  }
+
+  return s_empty_cell;
+}
+
+const char* CGndRes::GetTextureName(int texture_id) {
+  if (texture_id < m_tex_name_table.size() && texture_id >= 0) {
+    return m_tex_name_table[texture_id];
+  }
+
+  return nullptr;
 }

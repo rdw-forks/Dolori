@@ -1,6 +1,14 @@
 #include "Mode.h"
 #include "Common/Globals.h"
 
+CMode::CMode()
+    : m_sub_mode(),
+      m_sub_mode_cnt(),
+      m_next_sub_mode(),
+      m_fadeInCount(),
+      m_loop_cond(true),
+      m_isConnected() {}
+
 bool CMode::GetLoopCond() { return m_loop_cond; }
 
 void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }

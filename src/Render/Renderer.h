@@ -31,11 +31,13 @@ class CRenderer {
   void DrawBoxScreen(int, int, int, int, unsigned int);
   CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
   CSurface *GetSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
+  CRPQuadFace *BorrowQuadRP();
 
  private:
   void FlushAlphaNoDepthList();
   void FlushEmissiveNoDepthList();
   void FlushFaceList();
+  void FlushAlphaList();
 
   //		private void CRenderer::FlushFaceList()
   //		private void CRenderer::FlushLMGroundList()
@@ -117,17 +119,17 @@ class CRenderer {
   //
   std::list<CACHE_SURFACE> m_cache_surfaces[0x10];
   std::list<CTexture *> m_unused_cache_surfaces;
-  std::list<CRPFace> m_rpNullFaceList;
+  std::list<CRPFace *> m_rpNullFaceList;
   std::list<CRPFace>::iterator m_rpNullFaceListIter;
-  std::list<CRPQuadFace> m_rpQuadFaceList;
-  //
-  //		 class std::list<RPQuadFace, std::allocator<RPQuadFace>
-  //>::iterator m_rpQuadFaceListIter
-  //
-  //		 class std::list<RPLmQuadFace, std::allocator<RPLmQuadFace> >
+  std::list<CRPQuadFace *> m_rpQuadFacePool;
+  std::list<CRPQuadFace *>::iterator m_rpQuadFacePoolIter;
+
+  //		 class std::list<RPLmQuadFace,
+  // std::allocator<RPLmQuadFace> >
   // m_rpLmQuadFaceList
   //
-  //		 class std::list<RPLmQuadFace, std::allocator<RPLmQuadFace>
+  //		 class std::list<RPLmQuadFace,
+  // std::allocator<RPLmQuadFace>
   //>::iterator m_rpLmQuadFaceListIter
   //
   std::vector<tlvertex3d> m_vertBuffer;

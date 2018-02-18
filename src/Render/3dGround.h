@@ -15,7 +15,7 @@ struct lmvertex3d {
 };
 
 struct GND_SURFACE {
-  struct lmvertex3d vertex[0x4];
+  lmvertex3d vertex[0x4];
   int offset;
   CTexture* tex;
   CTexture* lmtex;
@@ -28,9 +28,9 @@ struct GND_SURFACE {
 struct GND_CELL {
   float h[0x4];
   glm::vec3 water_vert[0x4];
-  struct GND_SURFACE* top;
-  struct GND_SURFACE* right;
-  struct GND_SURFACE* front;
+  GND_SURFACE* top;
+  GND_SURFACE* right;
+  GND_SURFACE* front;
   int render_signature;
   unsigned char cell_color[0x3];
 };
@@ -50,7 +50,7 @@ class C3dGround {
   int m_height;
   float m_zoom;
   // class CLightmapMgr m_lightmapMgr;
-  // int m_num_surfaces;
+  int m_num_surfaces;
   float m_water_level;
   int m_tex_anim_cycle;
   int m_wave_pitch;

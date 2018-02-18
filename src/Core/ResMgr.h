@@ -26,7 +26,7 @@ class CResMgr {
   void ReadResNameTable(const char *);
   void RegisterType(const char *, const char *, CRes *);
   char *GetRealResName(const char *);
-  CRes *Get(const char *, bool);
+  CRes *Get(const char *fNameInput, bool bRefresh);
 
  private:
   char *ToLower(char *);

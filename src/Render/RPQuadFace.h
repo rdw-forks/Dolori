@@ -10,8 +10,10 @@ class CRPQuadFace : public CRPFace {
  public:
   CRPQuadFace();
 
+  void Draw() const override;
+
  private:
-  struct tlvertex3d m_qverts[0x4];
+  tlvertex3d m_qverts[0x4];
 };
 
 #endif  // DOLORI_RENDER_RPQUADFACE_H_

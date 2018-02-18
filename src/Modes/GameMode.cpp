@@ -1,14 +1,18 @@
 #include "GameMode.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/talktype.h"
 #include "Network/Packets.h"
 #include "Render/View.h"
 #include "Render/World.h"
+
+CGameMode::CGameMode() : CMode(), m_world() {}
 
 void CGameMode::Intialize() {
   m_noMove = 0;
@@ -57,24 +61,25 @@ void CGameMode::OnInit(const char *mode_name) {
   m_posOfBossMon.y = -1;
   m_isBossAlarm = 0;
   m_onCopyName = 0;
-  m_world = new CWorld();
   m_view = new CView();
   strncpy(m_rsw_name, mode_name, sizeof(m_rsw_name));
+
   g_Renderer->Clear(true);
   g_WindowMgr->SetWallpaper(NULL);
   g_WindowMgr->RenderWallPaper();
-  if (g_Renderer->DrawScene()) g_Renderer->Flip();
+  if (g_Renderer->DrawScene()) {
+    g_Renderer->Flip();
+  }
+
   m_view->OnEnterFrame();
-  m_world->OnEnterFrame();
+  m_world.OnEnterFrame();
   m_isCheckGndAlpha = 0;
   // SetCamera();
   // m_mousePointer = new CMousePointer();
   Intialize();
   auto name_list = g_Session->GetNumExNameList();
-  if (!name_list.empty()) {
-    for (auto it = name_list.begin(); it != name_list.end(); ++it) {
-      ProcessTalkType(TT_REQ_WHISPER_PC_EX, *it);
-    }
+  for (const auto &name : name_list) {
+    ProcessTalkType(TT_REQ_WHISPER_PC_EX, name);
   }
   m_is_ctrl_lock = 0;
   m_show_time_start_tick = 0;
@@ -88,15 +93,12 @@ void CGameMode::OnInit(const char *mode_name) {
 }
 
 int CGameMode::OnRun() {
-  while (m_loop_cond) {
-    if (g_sys_quit) break;
-    if (true /*!dword_7687C8*/) {
-      if (m_next_sub_mode != -1) {
-        m_sub_mode = m_next_sub_mode;
-        m_sub_mode_cnt = 0;
-        m_next_sub_mode = -1;
-        OnChangeState(m_sub_mode);
-      }
+  while (m_loop_cond && !g_sys_quit) {
+    if (m_next_sub_mode != -1) {
+      m_sub_mode = m_next_sub_mode;
+      m_sub_mode_cnt = 0;
+      m_next_sub_mode = -1;
+      OnChangeState(m_sub_mode);
     }
     OnUpdate();
   }
@@ -106,57 +108,43 @@ int CGameMode::OnRun() {
 
 void CGameMode::OnExit() {}
 
-void cube(float s = 1.0f) {
-  float vertices[][3] = {{s / 2, s / 2, s / 2},   {s / 2, s / 2, -s / 2},
-                         {s / 2, -s / 2, s / 2},  {s / 2, -s / 2, -s / 2},
-                         {-s / 2, s / 2, s / 2},  {-s / 2, s / 2, -s / 2},
-                         {-s / 2, -s / 2, s / 2}, {-s / 2, -s / 2, -s / 2}};
-
-  short indexes[] = {0, 1, 3, 2, 0, 2, 6, 4, 0, 1, 5, 4,
-                     1, 3, 7, 5, 2, 3, 7, 6, 4, 5, 7, 6};
-
-  glEnableClientState(GL_VERTEX_ARRAY);
-
-  glVertexPointer(3, GL_FLOAT, 0, vertices);
-  glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, indexes);
-
-  glDisableClientState(GL_VERTEX_ARRAY);
-}
-
 void CGameMode::OnUpdate() {
-  PollNetworkStatus();
+  // PollNetworkStatus();
 
   // m_scheduler->OnRun()
   // ProcessDamageSituation()
 
   g_Renderer->ClearBackground();
   // TEST CODE
-  glm::mat4 projection = glm::perspective(70.0, 640.0 / 480.0, 1.0, 100.0);
+  // glm::mat4 projection = glm::perspective(70.0, 640.0 / 480.0, 1.0, 100.0);
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glColor3f(1.0, 1.0, 1.0);
+  // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // glColor3f(1.0, 1.0, 1.0);
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixf(glm::value_ptr(projection));
+  // glMatrixMode(GL_PROJECTION);
+  // glLoadMatrixf(glm::value_ptr(projection));
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  // glMatrixMode(GL_MODELVIEW);
+  // glLoadIdentity();
 
-  glPushMatrix();
+  // glPushMatrix();
 
-  gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  // gluLookAt(30.0, 10.0, 10.0, 30.0, 0.0, 0.0, 0.0, 1.0, 0.0);
   // glScalef(1.0, 1.0, 1.0); /* modeling transformation */
-  cube();
+  // cube();
 
-  glPopMatrix();
-  // TEST CODE
+  // glPopMatrix();
+  // TEST CODE END
   if (m_loop_cond) {
     // ProcessInput();
     // m_world->ProcessActors();
     m_view->OnCalcViewInfo();
   }
   m_view->OnRender();
-  if (g_Renderer->DrawScene()) g_Renderer->Flip();
+  m_world.Render();
+  if (g_Renderer->DrawScene()) {
+    g_Renderer->Flip();
+  }
 }
 
 void CGameMode::OnChangeState(int state) {}

@@ -1,6 +1,7 @@
 #ifndef DOLORI_RENDER_TEXTURE_H_
 #define DOLORI_RENDER_TEXTURE_H_
 
+#include "Common/GetTick.h"
 #include "Surface.h"
 #include "pixel_format.h"
 
@@ -9,12 +10,14 @@ class CTexture : public CSurface {
   CTexture();
   CTexture(unsigned long, unsigned long, PIXEL_FORMAT);
   CTexture(unsigned long, unsigned long, PIXEL_FORMAT, SDL_Surface*);
-  virtual ~CTexture();
+
   // static void SetUVOffset(float, float);
   void Create(unsigned long, unsigned long, PIXEL_FORMAT);
   bool CreateBump(unsigned long, unsigned long);
   unsigned long GetUpdateWidth();
   unsigned long GetUpdateHeight();
+
+  void UpdateTimestamp();
 
  private:
   PIXEL_FORMAT m_pf;

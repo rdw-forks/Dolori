@@ -282,6 +282,7 @@ typedef enum MODE_MSG {
 
 class CMode {
  public:
+  CMode();
   virtual ~CMode() = default;
 
   bool GetLoopCond();

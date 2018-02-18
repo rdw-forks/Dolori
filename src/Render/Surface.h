@@ -18,6 +18,7 @@ class CSurface {
   CSurface(SDL_Surface*);
   virtual ~CSurface();
 
+  GLuint texture_id() const;
   unsigned long GetWidth();
   unsigned long GetHeight();
   SDL_Surface* GetSDLSurface();

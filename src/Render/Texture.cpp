@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-CTexture::CTexture() {}
+CTexture::CTexture() : CSurface() {}
 
 CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
   m_lock_count = 0;
@@ -8,14 +8,18 @@ CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
   m_tex_name[0] = 0;
   if (pf == PF_BUMP) {
     CreateBump(w, h);
-  } else {
-    Create(w, h, pf);
-    while (w > m_w) w >>= 1;
-    while (h > m_h) h >>= 1;
-
-    m_update_height = h;
-    m_update_width = w;
+    return;
   }
+
+  Create(w, h, pf);
+  while (w > m_w) {
+    w >>= 1;
+  }
+  while (h > m_h) {
+    h >>= 1;
+  }
+  m_update_height = h;
+  m_update_width = w;
 }
 
 CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf,
@@ -33,8 +37,6 @@ CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf,
   }
 }
 
-CTexture::~CTexture() {}
-
 // void CTexture::SetUVOffset(float u, float v) {
 //  m_uOffset = u;
 //  m_vOffset = v;
@@ -51,3 +53,5 @@ bool CTexture::CreateBump(unsigned long w, unsigned long h) { return false; }
 unsigned long CTexture::GetUpdateWidth() { return m_update_width; }
 
 unsigned long CTexture::GetUpdateHeight() { return m_update_height; }
+
+void CTexture::UpdateTimestamp() { m_time_stamp = GetTick(); }

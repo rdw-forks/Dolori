@@ -3,30 +3,37 @@
 
 #include <GL/glew.h>
 #include <SDL_opengl.h>
+#include "Texture.h"
 #include "tlvertex3d.h"
 
 class CRPFace {
  public:
-  CRPFace();
-  CRPFace(struct tlvertex3d*, int);
-  void SetGeomInfo(int, const struct tlvertex3d &);
+  virtual ~CRPFace();
+
+  void set_texture(CTexture* texture);
+
+  void SetGeomInfo(int, const struct tlvertex3d&);
   void SetColorInfo(int, unsigned long);
-  struct tlvertex3d GetVertex(int index);
-  void DrawPri();
+  struct tlvertex3d GetVertex(int index) const;
+  virtual void Draw() const;
   // public void RPFace::SetGeomInfo(int, const struct vector4d &)
   // public void RPFace::SetGeomInfo(int, const struct tlvertex3d &)
   // public void RPFace::InitSpecular()
 
  protected:
-  struct tlvertex3d* m_verts;
-  int m_numVerts;
-  class CTexture* tex;
-  unsigned short* indices;
-  unsigned long m_numIndices;
-  unsigned long srcAlphaMode;
-  unsigned long destAlphaMode;
-  unsigned long mtPreset;
+  CRPFace();
+  CRPFace(tlvertex3d*, int);
+
+ protected:
   GLenum m_primType;
+  tlvertex3d* m_verts;
+  int m_numVerts;
+  CTexture* m_texture;
+  unsigned short* m_indices;
+  unsigned long m_numIndices;
+  // unsigned long srcAlphaMode;
+  // unsigned long destAlphaMode;
+  // unsigned long mtPreset;
 };
 
 #endif  // DOLORI_RENDER_RPFACE_H_

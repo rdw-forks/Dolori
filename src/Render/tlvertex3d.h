@@ -12,9 +12,7 @@ struct tlvertex3d {
   unsigned long color;
   struct COLOR argb;
   unsigned long specular;
-  float tu;
-  float tv;
-  struct TEXCOOR coord;
+  TEXCOOR texcoord;
 };
 
 #endif  // DOLORI_RENDER_TLVERTEX3D_H_

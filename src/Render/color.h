@@ -6,7 +6,7 @@ struct COLOR {
   unsigned char g;
   unsigned char r;
   unsigned char a;
-  unsigned long color;
+  // unsigned long color;
 };
 
-#endif // DOLORI_RENDER_COLOR_H_
+#endif  // DOLORI_RENDER_COLOR_H_

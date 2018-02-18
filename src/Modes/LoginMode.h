@@ -40,7 +40,6 @@ typedef enum LOGINMODE_MSG {
 class CLoginMode : public CMode {
  public:
   CLoginMode();
-  ~CLoginMode();
 
   void OnInit(const char *) override;
   int OnRun() override;

@@ -38,7 +38,6 @@ class CView {
   glm::mat4 m_view_matrix;
   glm::mat4 m_inv_view_matrix;
   CViewFrustum m_view_frustum;
-  CWorld* m_world;
   class CSkyBoxEllipse* m_skybox;
 };
 

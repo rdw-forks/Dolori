@@ -10,13 +10,15 @@
 
 class CGameMode : public CMode {
  public:
+  CGameMode();
+
   void OnInit(const char *) override;
   int OnRun() override;
-  void OnUpdate();
   void OnExit() override;
 
   void Intialize();
   void OnChangeState(int);
+  void OnUpdate();
   void ProcessTalkType(int, const std::string &);
   void *SendMsg(size_t msg, void *val1, void *val2, void *val3);
   void PollNetworkStatus();
@@ -30,7 +32,7 @@ class CGameMode : public CMode {
   int m_areaBottom;
   char m_rsw_name[0x28];
   char m_minimapBmpName[0x3c];
-  CWorld *m_world;
+  CWorld m_world;
   CView *m_view;
   class CMousePointer *m_mousePointer;
   unsigned long m_leftBtnClickTick;

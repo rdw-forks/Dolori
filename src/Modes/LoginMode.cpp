@@ -17,9 +17,7 @@
 #include "UI/UINoticeConfirmWnd.h"
 #include "UI/UISelectServerWnd.h"
 
-CLoginMode::CLoginMode() {}
-
-CLoginMode::~CLoginMode() {}
+CLoginMode::CLoginMode() : CMode() {}
 
 void CLoginMode::OnInit(const char *mode_name) {
   memset(m_charParam, 5, 6);
