@@ -58,6 +58,4 @@ bool Game::Initialize() {
   return true;
 }
 
-void Game::Run() {
-  g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-}
+void Game::Run() { g_ModeMgr->Run(ModeType::kLogin, "login.rsw"); }

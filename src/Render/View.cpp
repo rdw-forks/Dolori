@@ -1,47 +1,42 @@
 #include "View.h"
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "Common/Globals.h"
 
-CView::CView() {
-  m_cur.longitude = 0.0f;
-  m_is_quake = false;
-  m_skybox = NULL;
-  m_quake_start_tick = 0;
-  m_is_FPS_mode = false;
-}
+CView::CView()
+    : m_is_FPS_mode(false),
+      m_cur(),
+      m_from(),
+      m_up(),
+      m_view_matrix(),
+      m_inv_view_matrix(),
+      m_skybox() {}
 
 CView::~CView() {}
 
+void CView::AddLongitude(double delta) { m_cur.longitude += delta; }
+
+void CView::AddLatitude(double delta) { m_cur.latitude += delta; }
+
+void CView::AddDistance(double delta) { m_cur.distance += delta; }
+
+const glm::mat4& CView::GetViewMatrix() { return m_view_matrix; }
+
 void CView::OnEnterFrame() {
-  m_cur.distance = 300.0f;
-  m_dest.distance = 300.0f;
-  m_cur.longitude = 0.f;
-  m_dest.longitude = 0.f;
-  m_cur.latitude = -45.0f;
-  m_dest.latitude = -45.0f;
-  m_cur.at = glm::vec3(0.0f);
-  m_dest.at = glm::vec3(0.0f);
-  m_up = glm::vec3(0.0f);
+  m_cur.distance = 300.0;
+  m_cur.longitude = 0.0;
+  m_cur.latitude = -45.0;
+  m_cur.at = glm::vec3(0.0);
+  m_from = m_cur.at + glm::vec3(-m_cur.distance, -m_cur.distance, 0.0);
+  m_up = glm::vec3(0.0, -1.0, 0.0);
 }
 
-void CView::OnCalcViewInfo() {
-  // m_dest.at = m_world->GetPlayer()->GetPos();
+void CView::OnCalcViewInfo(const glm::vec3& player_pos) {
+  m_cur.at = player_pos;
+  m_from = m_cur.at + glm::vec3(-m_cur.distance, -m_cur.distance, 0.0);
   // InterpolateViewInfo();
-  // ProcessQuake();
-  // BuildViewMatrix();
-  glm::mat4 projection = glm::perspective(70.0, 640.0 / 480.0, 1.0, 2000.0);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixf(glm::value_ptr(projection));
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  // gluLookAt(390.0, 10.0, -480.0, 390.0, 0.0, -480.0, 0.0, 1.0, 0.0);
-  gluLookAt(-100.0, -100.0, 10.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0);
+  BuildViewMatrix();
 }
 
 void CView::OnRender() {
@@ -49,4 +44,17 @@ void CView::OnRender() {
   // float vratio = g_Renderer->GetVerticalRatio();
 
   // m_view_frustum.Build(hratio, vratio, m_view_matrix, NULL);
+}
+
+void CView::BuildViewMatrix() {
+  glm::quat& q =
+      glm::angleAxis(static_cast<float>(glm::radians(-m_cur.longitude)),
+                     glm::vec3(0.0, 0.0, 1.0)) *
+      glm::angleAxis(static_cast<float>(glm::radians(m_cur.latitude)),
+                     glm::vec3(0.0, 1.0, 0.0));
+  m_view_matrix = glm::lookAt(m_from, m_cur.at, m_up) * glm::mat4_cast(q);
+
+  // g_Renderer->SetLookAt(m_from, m_cur.at, m_up);
+  // glm::mat4 view = glm::lookAt(m_from, m_cur.at, m_up);
+  g_Renderer->SetViewMatrix(m_view_matrix);
 }

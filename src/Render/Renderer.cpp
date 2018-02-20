@@ -1,19 +1,23 @@
 #include "Renderer.h"
+
 #include <math.h>
-#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 
-CRenderer::CRenderer() {}
+CRenderer::CRenderer() : m_projection() {}
 
 void CRenderer::SetSize(int cx, int cy) {
   m_width = cx;
   m_height = cy;
   m_halfWidth = cx / 2;
   m_halfHeight = cy / 2;
-  m_aspectRatio = cy / (float)cx;
-  m_hpc = (double)(cx / 2) / tan(3.141592 * 15.0 * 0.0027777778);
-  m_vpc = (double)(cy / 2) / tan(3.141592 * 15.0 * 0.0027777778);
+  m_aspectRatio = cy / static_cast<float>(cx);
+  m_hpc = static_cast<float>(cx / 2) / tan(3.141592 * 15.0 * 0.0027777778);
+  m_vpc = static_cast<float>(cy / 2) / tan(3.141592 * 15.0 * 0.0027777778);
   m_hratio = tan((90.0 - 15.0 * 0.5) * 3.141592 * 0.0055555557);
   m_xoffset = cx / 2;
   m_yoffset = cy / 2;
@@ -26,6 +30,10 @@ void CRenderer::SetSize(int cx, int cy) {
   // g_slope = g_gradient / m_screenYFactor;
   // g_shadowSlope = g_gradient / m_screenYFactor;
   m_nClearColor = 0xFF000000;
+  m_projection = glm::perspective(70., 640.0 / 480.0, 1.0, 2000.0);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadMatrixf(glm::value_ptr(m_projection));
 }
 
 int CRenderer::GetWidth() { return m_width; }
@@ -286,7 +294,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //}
 
 CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
-  std::list<CACHE_SURFACE>* surface_list = NULL;
+  std::list<CACHE_SURFACE>* surface_list = nullptr;
   unsigned long cur_time = GetTick();
   int id1, id2;
 
@@ -337,7 +345,7 @@ CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
 }
 
 CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
-  std::list<CACHE_SURFACE>* surface_list = NULL;
+  std::list<CACHE_SURFACE>* surface_list = nullptr;
   int id1, id2;
 
   if (img->width > 128)
@@ -366,7 +374,7 @@ CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 // CRenderer::BorrowQuadRP
@@ -383,6 +391,16 @@ CRPQuadFace* CRenderer::BorrowQuadRP() {
   } else {
     return *m_rpQuadFacePoolIter++;
   }
+}
+
+void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
+  glMatrixMode(GL_MODELVIEW);
+  glLoadMatrixf(glm::value_ptr(matrix));
+}
+
+void CRenderer::SetLookAt(const glm::vec3& from, const glm::vec3& at,
+                          const glm::vec3& up) {
+  gluLookAt(from.x, from.y, from.z, at.x, at.y, at.z, up.x, up.y, up.z);
 }
 
 void CRenderer::FlushAlphaNoDepthList() {
@@ -403,8 +421,7 @@ void CRenderer::FlushFaceList() {
   }
 }
 
-void CRenderer::FlushAlphaList()
-{
+void CRenderer::FlushAlphaList() {
   for (const auto& pair : m_rpAlphaList) {
     pair.second->Draw();
   }

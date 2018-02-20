@@ -197,16 +197,21 @@ int CUIWindowMgr::ProcessInput() {
       x_local = x - x_global;
       y_local = y - y_global;
 
-      if (g_Mouse->GetLBtn() == BTN_DOWN)
+      if (g_Mouse->GetLBtn() == CMouse::ButtonState::kDown) {
         hit_window->OnLBtnDown(x_local, y_local);
-      else if (g_Mouse->GetLBtn() == BTN_DBLCLK)
+      } else if (g_Mouse->GetLBtn() == CMouse::ButtonState::kDbClick) {
         hit_window->OnLBtnDblClk(x - x_global, y - y_global);
-      if (g_Mouse->GetRBtn() == BTN_DOWN)
+      }
+
+      if (g_Mouse->GetRBtn() == CMouse::ButtonState::kDown) {
         hit_window->OnRBtnDown(x_local, y_local);
-      else if (g_Mouse->GetRBtn() == BTN_DBLCLK)
+      } else if (g_Mouse->GetRBtn() == CMouse::ButtonState::kDbClick) {
         hit_window->OnRBtnDblClk(x - x_global, y - y_global);
-      if (g_Mouse->GetWBtn() == BTN_DOWN)
+      }
+
+      if (g_Mouse->GetWBtn() == CMouse::ButtonState::kDown) {
         hit_window->OnWBtnDown(x_local, y_local);
+      }
 
       hit_window->OnMouseShape(x_local, y_local);
       if (m_last_mouse_x != x || m_last_mouse_y != y)
@@ -214,9 +219,15 @@ int CUIWindowMgr::ProcessInput() {
       else
         hit_window->OnMouseHover(x_local, y_local);
 
-      if (g_Mouse->GetWBtn() == BTN_UP) hit_window->OnWBtnUp(x_local, y_local);
-      if (g_Mouse->GetRBtn() == BTN_UP) hit_window->OnRBtnUp(x_local, y_local);
-      if (g_Mouse->GetLBtn() == BTN_UP) hit_window->OnLBtnUp(x_local, y_local);
+      if (g_Mouse->GetWBtn() == CMouse::ButtonState::kUp) {
+        hit_window->OnWBtnUp(x_local, y_local);
+      }
+      if (g_Mouse->GetRBtn() == CMouse::ButtonState::kUp) {
+        hit_window->OnRBtnUp(x_local, y_local);
+      }
+      if (g_Mouse->GetLBtn() == CMouse::ButtonState::kUp) {
+        hit_window->OnLBtnUp(x_local, y_local);
+      }
 
       if (m_last_hit_window && hit_window != m_last_hit_window) {
         m_last_hit_window->GetGlobalCoor(&x_global, &y_global);
@@ -235,8 +246,8 @@ int CUIWindowMgr::ProcessInput() {
     x_local = x - x_global;
     y_local = y - y_global;
 
-    if (g_Mouse->GetLBtn() == BTN_DOWN) {
-    } else if (g_Mouse->GetLBtn() == BTN_DBLCLK) {
+    if (g_Mouse->GetLBtn() == CMouse::ButtonState::kDown) {
+    } else if (g_Mouse->GetLBtn() == CMouse::ButtonState::kDbClick) {
       m_captureWindow->OnLBtnDown(x_local, y_local);
       m_captureWindow->OnLBtnDblClk(x_local, y_local);
     }
@@ -248,7 +259,7 @@ int CUIWindowMgr::ProcessInput() {
       m_captureWindow->OnMouseHover(x_local, y_local);
     // if (g_Mouse.m_wheel)
     //  m_captureWindow->OnWheel(g_mouse.m_wheel);
-    if (g_Mouse->GetLBtn() == BTN_UP)
+    if (g_Mouse->GetLBtn() == CMouse::ButtonState::kUp)
       m_captureWindow->OnLBtnUp(x_local, y_local);
   }
 

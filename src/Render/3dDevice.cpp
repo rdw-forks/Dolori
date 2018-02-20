@@ -1,14 +1,16 @@
 #include "3dDevice.h"
+
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 #include <il.h>
+
 #include "Common/Globals.h"
 #include "Render/SurfaceWallpaper.h"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 768
 
 C3dDevice::C3dDevice() {}
 
@@ -46,18 +48,7 @@ long C3dDevice::Init(uint32_t dwFlags) {
 
   // Set the viewport
   glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-  // Initialize Projection Matrix
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
   glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 0.0, 1.0);
-
-  // Initialize Modelview Matrix
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  // Initialize clear color
-  glClearColor(0.f, 0.f, 0.f, 1.f);
 
   GLenum error = glGetError();
   if (error != GL_NO_ERROR) return -1;
@@ -79,7 +70,9 @@ long C3dDevice::Init(uint32_t dwFlags) {
 }
 
 long C3dDevice::DestroyObjects() {
-  if (m_sdlWnd) SDL_DestroyWindow(m_sdlWnd);
+  if (m_sdlWnd) {
+    SDL_DestroyWindow(m_sdlWnd);
+  }
   TTF_Quit();
   SDL_Quit();
 

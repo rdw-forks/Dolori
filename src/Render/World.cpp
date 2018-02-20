@@ -4,16 +4,16 @@
 #include "Common/Globals.h"
 #include "GndRes.h"
 
-CWorld::CWorld() {
-  m_calculated = NULL;
-  m_bgObjThread = 0;
-  m_ground = NULL;
-  // m_player = NULL;
-  m_isPKZone = false;
-  m_isSiegeMode = false;
-  m_isBattleFieldMode = false;
-  m_isEventPVPMode = false;
-}
+CWorld::CWorld()
+    : m_calculated(),
+      m_bgObjThread(),
+      m_ground(),
+      m_player(),
+      m_attr(),
+      m_isPKZone(false),
+      m_isSiegeMode(false),
+      m_isBattleFieldMode(false),
+      m_isEventPVPMode(false) {}
 
 CWorld::~CWorld() {}
 
@@ -33,15 +33,14 @@ void CWorld::OnEnterFrame() {
   }
   // g_ResMgr->Get(res->GetAttr(), false);
   gnd_res = (CGndRes*)g_ResMgr->Get(rsw_res->GetGnd(), false);
-  m_ground = new C3dGround();
-  m_ground->AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
+  m_ground.AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
   RECT_ test;
 
   test.bottom = 0;
   test.top = 10;
   test.left = 0;
   test.right = 10;
-  m_ground->Render(nullptr, &test, false);
+  m_ground.Render(nullptr, &test, false);
   // g_ResMgr->Unload(gnd_res);
 }
 
@@ -52,5 +51,7 @@ void CWorld::Render() {
   test.top = 10;
   test.left = 0;
   test.right = 10;
-  m_ground->Render(nullptr, &test, false);
+  m_ground.Render(nullptr, &test, false);
 }
+
+const CPlayer& CWorld::GetPlayer() const { return m_player; }

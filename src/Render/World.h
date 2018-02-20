@@ -3,8 +3,10 @@
 
 #include <list>
 #include <vector>
+
 #include "3dAttr.h"
 #include "3dGround.h"
+#include "GameObject/Player.h"
 #include "Modes/Mode.h"
 #include "SceneGraphNode.h"
 
@@ -15,6 +17,7 @@ class CWorld {
 
   void OnEnterFrame();
   void Render();
+  const CPlayer& GetPlayer() const;
 
  private:
   CMode* m_cur_mode;
@@ -22,10 +25,10 @@ class CWorld {
   // std::list<CGameActor*> m_actor_list;
   // std::list<CItem*> m_item_list;
   // std::list<CSkill*> m_skill_list;
-  C3dGround* m_ground;
-  // CPlayer* m_player;
-  C3dAttr* m_attr;
-  // std::vector<C3dActor*> m_bg_obj_list;
+  // std::list<C3dActor*> m_bg_obj_list;
+  C3dGround m_ground;
+  CPlayer m_player;
+  C3dAttr m_attr;
   long m_bgObjCount;
   long m_bgObjThread;
   bool m_isPKZone;

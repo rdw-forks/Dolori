@@ -21,6 +21,9 @@ class CGameMode : public CMode {
   void OnUpdate();
   void ProcessTalkType(int, const std::string &);
   void *SendMsg(size_t msg, void *val1, void *val2, void *val3);
+  void ProcessInput();
+  void ProcessRightButton();
+  void ProcessMouseWheel(int process_type);
   void PollNetworkStatus();
   void Zc_Notify_Playerchat(const char *buffer);
   void Zc_Npcack_Mapmove(const char *buffer);
@@ -33,7 +36,7 @@ class CGameMode : public CMode {
   char m_rsw_name[0x28];
   char m_minimapBmpName[0x3c];
   CWorld m_world;
-  CView *m_view;
+  CView m_view;
   class CMousePointer *m_mousePointer;
   unsigned long m_leftBtnClickTick;
   static unsigned long m_lastLockOnPcGid;

@@ -9,12 +9,12 @@ CMouse::~CMouse() {}
 void CMouse::Init() {
   m_xPos = 320;
   m_yPos = 240;
-  m_oldBtnState[0] = BTN_NONE;
-  m_oldBtnState[1] = BTN_NONE;
-  m_oldBtnState[2] = BTN_NONE;
-  m_btnState[0] = BTN_NONE;
-  m_btnState[1] = BTN_NONE;
-  m_btnState[2] = BTN_NONE;
+  m_oldBtnState[0] = ButtonState::kNone;
+  m_oldBtnState[1] = ButtonState::kNone;
+  m_oldBtnState[2] = ButtonState::kNone;
+  m_btnState[0] = ButtonState::kNone;
+  m_btnState[1] = ButtonState::kNone;
+  m_btnState[2] = ButtonState::kNone;
   m_dblclkTime = 500;
   m_bSwapButton = 0;
 }
@@ -24,12 +24,18 @@ void CMouse::ResetState() {
   m_yPos = g_3dDevice->GetHeight() / 2;
   m_xDelta = 0;
   m_yDelta = 0;
+  m_wheel = 0;
   ResetButtonState();
 }
 
 void CMouse::ResetButtonState() {
-  for (int i = 0; i < 3; i++) m_btnState[i] = BTN_NONE;
-  for (int i = 0; i < 3; i++) m_oldBtnState[i] = BTN_NONE;
+  for (int i = 0; i < 3; i++) {
+    m_btnState[i] = ButtonState::kNone;
+  }
+
+  for (int i = 0; i < 3; i++) {
+    m_oldBtnState[i] = ButtonState::kNone;
+  }
 }
 
 void CMouse::SetXPos(int x) {
@@ -46,31 +52,38 @@ void CMouse::SetYPos(int y) {
 
 int CMouse::GetYPos() { return m_yPos; }
 
-void CMouse::SetLBtn(MOUSE_BTN_STATE state) {
-  m_oldBtnState[BTN_LEFT] = m_btnState[BTN_LEFT];
-  m_btnState[BTN_LEFT] = state;
+void CMouse::SetWheel(int wheel) { m_wheel = wheel; }
+
+int CMouse::GetWheel() { return m_wheel; }
+
+void CMouse::SetLBtn(ButtonState state) {
+  m_oldBtnState[Button::kLeft] = m_btnState[Button::kLeft];
+  m_btnState[Button::kLeft] = state;
 }
 
-MOUSE_BTN_STATE CMouse::GetLBtn() { return m_btnState[BTN_LEFT]; }
+CMouse::ButtonState CMouse::GetLBtn() { return m_btnState[Button::kLeft]; }
 
-void CMouse::SetRBtn(MOUSE_BTN_STATE state) {
-  m_oldBtnState[BTN_RIGHT] = m_btnState[BTN_RIGHT];
-  m_btnState[BTN_RIGHT] = state;
+void CMouse::SetRBtn(ButtonState state) {
+  m_oldBtnState[Button::kRight] = m_btnState[Button::kRight];
+  m_btnState[Button::kRight] = state;
 }
 
-MOUSE_BTN_STATE CMouse::GetRBtn() { return m_btnState[BTN_RIGHT]; }
+CMouse::ButtonState CMouse::GetRBtn() { return m_btnState[Button::kRight]; }
 
-void CMouse::SetWBtn(MOUSE_BTN_STATE state) {
-  m_oldBtnState[BTN_WHEEL] = m_btnState[BTN_WHEEL];
-  m_btnState[BTN_WHEEL] = state;
+void CMouse::SetWBtn(ButtonState state) {
+  m_oldBtnState[Button::kWheel] = m_btnState[Button::kWheel];
+  m_btnState[Button::kWheel] = state;
 }
 
-MOUSE_BTN_STATE CMouse::GetWBtn() { return m_btnState[BTN_WHEEL]; }
+CMouse::ButtonState CMouse::GetWBtn() { return m_btnState[Button::kWheel]; }
 
-void CMouse::SetButtonPressed(MOUSE_BTN id) {
-  if (id > 2) return;
+void CMouse::SetButtonPressed(Button id) {
+  if (id > 2) {
+    return;
+  }
+
   m_oldBtnState[id] = m_btnState[id];
-  m_btnState[id] = BTN_PRESSED;
+  m_btnState[id] = ButtonState::kPressed;
 }
 
 void CMouse::ReadState() {}

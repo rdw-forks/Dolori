@@ -10,9 +10,9 @@ C3dGround::C3dGround() {
   m_wave_speed = 2;
   m_wave_height = 1.0f;
   m_water_set = 0;
-  // m_water_tex = NULL;
-  m_attr = NULL;
-  // m_p_bump_map = NULL;
+  // m_water_tex = nullptr;
+  m_attr = nullptr;
+  // m_p_bump_map = nullptr;
   // m_is_new_ver = 0;
 }
 

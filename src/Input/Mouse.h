@@ -1,22 +1,18 @@
 #ifndef DOLORI_INPUT_MOUSE_H_
 #define DOLORI_INPUT_MOUSE_H_
 
-typedef enum MOUSE_BTN_STATE {
-  BTN_NONE = 0x0,
-  BTN_DOWN = 0x1,
-  BTN_PRESSED = 0x2,
-  BTN_UP = 0x3,
-  BTN_DBLCLK = 0x4,
-} MOUSE_BTN_STATE;
-
-typedef enum MOUSE_BTN {
-  BTN_LEFT = 0x0,
-  BTN_RIGHT = 0x1,
-  BTN_WHEEL = 0x2
-} MOUSE_BTN;
-
 class CMouse {
  public:
+  enum ButtonState {
+    kNone = 0,
+    kDown = 1,
+    kPressed = 2,
+    kUp = 3,
+    kDbClick = 4
+  };
+
+  enum Button { kLeft = 0, kRight = 1, kWheel = 2 };
+
   CMouse();
   ~CMouse();
 
@@ -27,13 +23,15 @@ class CMouse {
   int GetXPos();
   void SetYPos(int);
   int GetYPos();
-  void SetLBtn(MOUSE_BTN_STATE);
-  MOUSE_BTN_STATE GetLBtn();
-  void SetRBtn(MOUSE_BTN_STATE);
-  MOUSE_BTN_STATE GetRBtn();
-  void SetWBtn(MOUSE_BTN_STATE);
-  MOUSE_BTN_STATE GetWBtn();
-  void SetButtonPressed(MOUSE_BTN);
+  void SetWheel(int wheel);
+  int GetWheel();
+  void SetLBtn(ButtonState);
+  ButtonState GetLBtn();
+  void SetRBtn(ButtonState);
+  ButtonState GetRBtn();
+  void SetWBtn(ButtonState);
+  ButtonState GetWBtn();
+  void SetButtonPressed(Button);
   void ReadState();
 
  private:
@@ -43,8 +41,8 @@ class CMouse {
   int m_xPos;
   int m_yPos;
   int m_wheel;
-  MOUSE_BTN_STATE m_oldBtnState[0x3];
-  MOUSE_BTN_STATE m_btnState[0x3];
+  ButtonState m_oldBtnState[0x3];
+  ButtonState m_btnState[0x3];
   int m_dblclkCnt[0x3];
   int m_dblclkTime;
   int m_bSwapButton;

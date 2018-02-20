@@ -5,11 +5,11 @@
 #include "ViewFrustum.h"
 #include "World.h"
 
-struct VIEWINFO3D {
+struct ViewInfo3d {
   glm::vec3 at;
-  float latitude;
-  float longitude;
-  float distance;
+  double latitude;
+  double longitude;
+  double distance;
 };
 
 class CView {
@@ -17,22 +17,31 @@ class CView {
   CView();
   ~CView();
 
+  void AddLongitude(double delta);
+  void AddLatitude(double delta);
+  void AddDistance(double delta);
+
+  const glm::mat4& GetViewMatrix();
+
   void OnEnterFrame();
-  void OnCalcViewInfo();
+  void OnCalcViewInfo(const glm::vec3& player_pos);
   void OnRender();
 
  private:
-  float m_side_quake;
-  float m_front_quake;
-  float m_latitude_quake;
+  void BuildViewMatrix();
+
+ private:
+  // float m_side_quake;
+  // float m_front_quake;
+  // float m_latitude_quake;
+  // bool m_is_quake;
+  // unsigned long m_quake_start_tick;
+  // unsigned long m_quake_time;
   bool m_is_FPS_mode;
-  bool m_is_quake;
-  unsigned long m_quake_start_tick;
-  unsigned long m_quake_time;
-  struct VIEWINFO3D m_cur;
-  struct VIEWINFO3D m_dest;
-  struct VIEWINFO3D m_backup_cur;
-  struct VIEWINFO3D m_backup_dest;
+  ViewInfo3d m_cur;
+  // ViewInfo3d m_dest;
+  // ViewInfo3d m_backup_cur;
+  // ViewInfo3d m_backup_dest;
   glm::vec3 m_from;
   glm::vec3 m_up;
   glm::mat4 m_view_matrix;

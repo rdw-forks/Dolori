@@ -8,11 +8,13 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/talktype.h"
+#include "Input/Mouse.h"
+#include "Input/SDLEvents.h"
 #include "Network/Packets.h"
 #include "Render/View.h"
 #include "Render/World.h"
 
-CGameMode::CGameMode() : CMode(), m_world() {}
+CGameMode::CGameMode() : CMode(), m_world(), m_view() {}
 
 void CGameMode::Intialize() {
   m_noMove = 0;
@@ -61,17 +63,16 @@ void CGameMode::OnInit(const char *mode_name) {
   m_posOfBossMon.y = -1;
   m_isBossAlarm = 0;
   m_onCopyName = 0;
-  m_view = new CView();
   strncpy(m_rsw_name, mode_name, sizeof(m_rsw_name));
 
   g_Renderer->Clear(true);
-  g_WindowMgr->SetWallpaper(NULL);
+  g_WindowMgr->SetWallpaper(nullptr);
   g_WindowMgr->RenderWallPaper();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
   }
 
-  m_view->OnEnterFrame();
+  m_view.OnEnterFrame();
   m_world.OnEnterFrame();
   m_isCheckGndAlpha = 0;
   // SetCamera();
@@ -114,33 +115,15 @@ void CGameMode::OnUpdate() {
   // m_scheduler->OnRun()
   // ProcessDamageSituation()
 
+  g_Renderer->Clear(false);
   g_Renderer->ClearBackground();
-  // TEST CODE
-  // glm::mat4 projection = glm::perspective(70.0, 640.0 / 480.0, 1.0, 100.0);
-
-  // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  // glColor3f(1.0, 1.0, 1.0);
-
-  // glMatrixMode(GL_PROJECTION);
-  // glLoadMatrixf(glm::value_ptr(projection));
-
-  // glMatrixMode(GL_MODELVIEW);
-  // glLoadIdentity();
-
-  // glPushMatrix();
-
-  // gluLookAt(30.0, 10.0, 10.0, 30.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-  // glScalef(1.0, 1.0, 1.0); /* modeling transformation */
-  // cube();
-
-  // glPopMatrix();
-  // TEST CODE END
   if (m_loop_cond) {
-    // ProcessInput();
+    ProcessInput();
     // m_world->ProcessActors();
-    m_view->OnCalcViewInfo();
+    m_view.OnCalcViewInfo(m_world.GetPlayer().GetPos());
   }
-  m_view->OnRender();
+
+  m_view.OnRender();
   m_world.Render();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
@@ -164,6 +147,40 @@ void *CGameMode::SendMsg(size_t msg, void *val1, void *val2, void *val3) {
   };
 }
 
+void CGameMode::ProcessInput() {
+  ProcessSDLEvents();
+  g_Mouse->ReadState();
+  int process_type = g_WindowMgr->ProcessInput();
+  // g_WindowMgr->OnProcess();
+  // ProcessNameBalloon(v1);
+  // ProcessHelpBalloon();
+  ProcessRightButton();
+  ProcessMouseWheel(process_type);
+  // ProcessKeyBoard();
+  // ProcessReqEmblem(v1);
+
+  m_oldMouseX = g_Mouse->GetXPos();
+  m_oldMouseY = g_Mouse->GetYPos();
+}
+
+void CGameMode::ProcessRightButton() {
+  CMouse::ButtonState button_state = g_Mouse->GetRBtn();
+  const double kSensitivity = 0.8;
+
+  if (button_state == CMouse::ButtonState::kDown) {
+    // m_rBtnClickX = g_Mouse->GetXPos();
+    // m_rBtnClickY = g_Mouse->GetYPos();
+    m_view.AddLongitude((g_Mouse->GetYPos() - m_oldMouseY) * kSensitivity);
+    m_view.AddLatitude(-(g_Mouse->GetXPos() - m_oldMouseX) * kSensitivity);
+  } else {
+  }
+}
+
+void CGameMode::ProcessMouseWheel(int process_type) {
+  const double kSensitivity = 10.0;
+
+  m_view.AddDistance(g_Mouse->GetWheel() * kSensitivity);
+}
 void CGameMode::PollNetworkStatus() {
   char buffer[2048];
 
@@ -202,14 +219,8 @@ void CGameMode::PollNetworkStatus() {
 void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
   PACKET_ZC_NOTIFY_PLAYERCHAT *packet = (PACKET_ZC_NOTIFY_PLAYERCHAT *)buffer;
   // CGameMode *v2;      // ebx@1
-  char *chat_msg;
-  size_t msg_size;
 
-  msg_size = packet->PacketLength - sizeof(PACKET_ZC_NOTIFY_PLAYERCHAT);
-  chat_msg = new char[msg_size];
-  memcpy(chat_msg, &packet->msg, msg_size);
-  printf("%s\n", chat_msg);
-  delete chat_msg;
+  printf("%s\n", packet->msg);
   // if (dword_768868) {
   //  g_WindowMgr->SendMsg(5, (int)chat_msg, 30720, 0, 0);
   //} else {
@@ -222,5 +233,6 @@ void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
 
 void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
   PACKET_ZC_NPCACK_MAPMOVE *packet = (PACKET_ZC_NPCACK_MAPMOVE *)buffer;
+
   printf("Moved to map %s\n", packet->map_name);
 }

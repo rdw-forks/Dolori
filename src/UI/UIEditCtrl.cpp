@@ -35,13 +35,14 @@ void CUIEditCtrl::OnDraw() {
   if (m_isSingColorFrame) {
     ClearDC((0xFF << 24) | (0xFF << 16) | (m_g << 8) | m_b);
     m_yOffset = 2;
-  } else {
+  }
+  else {
     const std::string dialog_l_name =
-        const_strings::kResourceSubfolder + "type_dialog_l.bmp";
+      const_strings::kResourceSubfolder + "type_dialog_l.bmp";
     const std::string dialog_m_name =
-        const_strings::kResourceSubfolder + "type_dialog_m.bmp";
+      const_strings::kResourceSubfolder + "type_dialog_m.bmp";
     const std::string dialog_r_name =
-        const_strings::kResourceSubfolder + "type_dialog_r.bmp";
+      const_strings::kResourceSubfolder + "type_dialog_r.bmp";
     CBitmapRes* bitmap;
 
     bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_l_name), false);
@@ -72,7 +73,8 @@ void CUIEditCtrl::DrawEditText() {
   if (g_WindowMgr->GetFocusEdit() == this) {
     RefreshText();
     if (m_maskchar) {
-    } else {
+    }
+    else {
     }
   }
   TextOutUTF8(m_xOffset, m_yOffset, m_text.c_str(), 0, 0, 12, text_color);
@@ -84,7 +86,8 @@ void CUIEditCtrl::OnBeginEdit() {
   // g_Language->HideText(m_maskchar != 0);
   if (g_WindowMgr->GetFocusEdit() == this) {
     // g_Language->SetSelection(0, g_Language->m_input._Len);
-  } else {
+  }
+  else {
     m_selectionOrigin = 0;
     m_selectionCursor = m_text.length();
   }
