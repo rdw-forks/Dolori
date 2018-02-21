@@ -138,7 +138,7 @@ class CRenderer {
   // std::allocator<RPLmQuadFace>
   //>::iterator m_rpLmQuadFaceListIter
   //
-  std::vector<tlvertex3d> m_vertBuffer;
+  std::vector<TlVertex3d> m_vertBuffer;
 };
 
 // class CRenderer {

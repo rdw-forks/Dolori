@@ -3,6 +3,8 @@
 
 #include <GL/glew.h>
 #include <SDL_opengl.h>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include "Texture.h"
 #include "tlvertex3d.h"
 
@@ -12,25 +14,26 @@ class CRPFace {
 
   void set_texture(CTexture* texture);
 
-  void SetGeomInfo(int, const struct tlvertex3d&);
+  void SetGeomInfo(int, const struct TlVertex3d&);
   void SetColorInfo(int, unsigned long);
-  struct tlvertex3d GetVertex(int index) const;
-  virtual void Draw() const;
+  float GetWCoord(int index) const;
+  void Draw() const;
   // public void RPFace::SetGeomInfo(int, const struct vector4d &)
   // public void RPFace::SetGeomInfo(int, const struct tlvertex3d &)
   // public void RPFace::InitSpecular()
 
  protected:
   CRPFace();
-  CRPFace(tlvertex3d*, int);
+  CRPFace(int num_vertices);
 
  protected:
   GLenum m_primType;
-  tlvertex3d* m_verts;
-  int m_numVerts;
+  std::vector<glm::vec3> m_vertices;
+  std::vector<glm::vec2> m_texture_coords;
+  std::vector<unsigned short> m_indices;
   CTexture* m_texture;
-  unsigned short* m_indices;
-  unsigned long m_numIndices;
+  std::vector<float> m_oows;
+
   // unsigned long srcAlphaMode;
   // unsigned long destAlphaMode;
   // unsigned long mtPreset;

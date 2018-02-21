@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/vec3.hpp>
 
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
@@ -97,9 +98,9 @@ void CRenderer::AddRP(CRPFace* face, int renderFlags) {
   }
 
   if (renderFlags & 0x1) {
-    tlvertex3d v0 = face->GetVertex(0);
-    tlvertex3d v1 = face->GetVertex(1);
-    float index = (v0.oow - v1.oow) * 0.5 + v1.oow;
+    float v0 = face->GetWCoord(0);
+    float v1 = face->GetWCoord(1);
+    float index = (v0 - v1) * 0.5 + v1;
 
     if (renderFlags & 0x4) {
       m_rpAlphaOPList.push_back(face);
@@ -134,26 +135,18 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
   }
 
   CRPQuadFace* face = g_Renderer->BorrowQuadRP();
-  tlvertex3d v[4];
+  TlVertex3d v[4];
 
-  v[0].x = x;
-  v[0].y = y;
-  v[0].z = 1e-006;
+  v[0].vertex = glm::vec3(x, y, 1e-006);
   v[0].oow = 0.999999f;
 
-  v[1].x = x + cx;
-  v[1].y = y;
-  v[1].z = 1e-006;
+  v[1].vertex = glm::vec3(x + cx, y, 1e-006);
   v[1].oow = 0.999999f;
 
-  v[2].x = x + cx;
-  v[2].y = y + cy;
-  v[2].z = 1e-006;
+  v[2].vertex = glm::vec3(x + cx, y + cy, 1e-006);
   v[2].oow = 0.999999f;
 
-  v[3].x = x;
-  v[3].y = y + cy;
-  v[3].z = 1e-006;
+  v[3].vertex = glm::vec3(x, y + cy, 1e-006);
   v[3].oow = 0.999999f;
 
   face->SetGeomInfo(0, v[0]);

@@ -1,18 +1,17 @@
 #ifndef DOLORI_RENDER_TLVERTEX3D_H_
 #define DOLORI_RENDER_TLVERTEX3D_H_
 
+#include <glm/glm.hpp>
 #include "color.h"
 #include "texcoor.h"
 
-struct tlvertex3d {
-  float x;
-  float y;
-  float z;
+struct TlVertex3d {
+  glm::vec3 vertex;
+  glm::vec2 texture_coords;
   float oow;
   unsigned long color;
-  struct COLOR argb;
+  COLOR argb;
   unsigned long specular;
-  TEXCOOR texcoord;
 };
 
 #endif  // DOLORI_RENDER_TLVERTEX3D_H_

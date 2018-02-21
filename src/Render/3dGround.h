@@ -6,16 +6,10 @@
 #include "GndRes.h"
 #include "Texture.h"
 #include "color.h"
-
-struct lmvertex3d {
-  glm::vec3 vert;
-  struct COLOR argbs;
-  glm::vec2 uv;
-  glm::vec2 uv2;
-};
+#include "tlvertex3d.h"
 
 struct GND_SURFACE {
-  lmvertex3d vertex[0x4];
+  TlVertex3d vertex[0x4];
   int offset;
   CTexture* tex;
   CTexture* lmtex;
