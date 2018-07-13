@@ -1,4 +1,4 @@
-#include "Language.h"
+#include "Input/Language.h"
 
 CLanguage::CLanguage() {
   m_selectionCursor = 0;

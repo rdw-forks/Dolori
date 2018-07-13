@@ -1,8 +1,9 @@
 #ifndef DOLORI_FILES_CLIENTINFO_H_
 #define DOLORI_FILES_CLIENTINFO_H_
 
-#include <tinyxml2.h>
 #include <string>
+
+#include <tinyxml2.h>
 
 class ClientInfo {
  public:

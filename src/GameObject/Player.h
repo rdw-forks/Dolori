@@ -9,7 +9,7 @@ class CPlayer : public CPc {
   int m_destCellZ;
   unsigned long m_attackReqTime;
   unsigned long m_preMoveStartTick;
-  enum PROCEEDTYPE m_proceedType;
+  // enum PROCEEDTYPE m_proceedType;
   int m_preMoveOn;
   int m_attackMode;
   int m_isAttackRequest;

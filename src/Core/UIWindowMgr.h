@@ -3,6 +3,7 @@
 
 #include <list>
 #include <string>
+
 #include "Modes/Mode.h"
 #include "Render/BitmapRes.h"
 #include "Render/Surface.h"

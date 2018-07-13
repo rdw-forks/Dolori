@@ -3,8 +3,9 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
+
 #include "Common/cell_pos.h"
-#include "Mode.h"
+#include "Modes/Mode.h"
 #include "Render/View.h"
 #include "Render/World.h"
 
@@ -20,7 +21,8 @@ class CGameMode : public CMode {
   void OnChangeState(int);
   void OnUpdate();
   void ProcessTalkType(int, const std::string &);
-  void *SendMsg(size_t msg, void *val1, void *val2, void *val3);
+  void *SendMsg(size_t msg, void *val1 = nullptr, void *val2 = nullptr,
+                void *val3 = nullptr);
   void ProcessInput();
   void ProcessRightButton();
   void ProcessMouseWheel(int process_type);

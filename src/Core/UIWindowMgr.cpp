@@ -1,4 +1,5 @@
-#include "UIWindowMgr.h"
+#include "Core/UIWindowMgr.h"
+
 #include "Common/Globals.h"
 #include "UI/UINoticeConfirmWnd.h"
 #include "UI/UISelectServerWnd.h"
@@ -8,12 +9,12 @@ int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }
 int UICY(int y) { return y * g_Renderer->GetHeight() / 480; }
 
 CUIWindowMgr::CUIWindowMgr() {
-  m_wallpaperSurface = NULL;
+  m_wallpaperSurface = nullptr;
   m_children.clear();
-  m_captureWindow = NULL;
-  m_editWindow = NULL;
-  m_modalWindow = NULL;
-  m_last_hit_window = NULL;
+  m_captureWindow = nullptr;
+  m_editWindow = nullptr;
+  m_modalWindow = nullptr;
+  m_last_hit_window = nullptr;
 }
 
 CUIWindowMgr::~CUIWindowMgr() {}
@@ -37,7 +38,7 @@ void CUIWindowMgr::SetWallpaper(CBitmapRes *bitmap) {
   } else {
     if (m_wallpaperSurface) {
       delete m_wallpaperSurface;
-      m_wallpaperSurface = NULL;
+      m_wallpaperSurface = nullptr;
     }
   }
 }
@@ -52,18 +53,16 @@ void CUIWindowMgr::RenderWallPaper() {
 }
 
 void CUIWindowMgr::Render(CMode *mode) {
-  for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-    CUIWindow *wnd = (CUIWindow *)*it;
-
-    if (wnd->IsShow()) {
-      wnd->DoDraw(false);
-      wnd->DrawSurface();
+  for (auto child : m_children) {
+    if (child->IsShow()) {
+      child->DoDraw(false);
+      child->DrawSurface();
     }
   }
 }
 
 CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
-  CUIFrameWnd *result = NULL;
+  CUIFrameWnd *result = nullptr;
 
   switch (windowId) {
     case WID_NOTICECONFIRMWND: {
@@ -123,8 +122,10 @@ void CUIWindowMgr::RemoveAllWindows() { m_children.clear(); }
 void CUIWindowMgr::InvalidateUpdateNeededUI() {
   if (!m_isInvalidatedByForce) {
     m_isInvalidatedByForce = true;
-    for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-      if ((*it)->IsUpdateNeeded()) (*it)->InvalidateChildren();
+    for (auto child : m_children) {
+      if (child->IsUpdateNeeded()) {
+        child->InvalidateChildren();
+      }
     }
   }
 }
@@ -133,54 +134,66 @@ CUIWindow *CUIWindowMgr::GetCapture() { return m_captureWindow; }
 
 void CUIWindowMgr::SetCapture(CUIWindow *window) { m_captureWindow = window; }
 
-void CUIWindowMgr::ReleaseCapture() { m_captureWindow = NULL; }
+void CUIWindowMgr::ReleaseCapture() { m_captureWindow = nullptr; }
 
 void CUIWindowMgr::SetFocusEdit(CUIWindow *window) {
-  if (m_editWindow) m_editWindow->OnFinishEdit();
+  if (m_editWindow) {
+    m_editWindow->OnFinishEdit();
+  }
+
   if (true /*window != m_chatWnd->m_commonChat*/) {
     m_editWindow = window;
-    if (window) window->OnBeginEdit();
+    if (m_editWindow) {
+      m_editWindow->OnBeginEdit();
+    }
   }
 }
 
 CUIWindow *CUIWindowMgr::GetFocusEdit() { return m_editWindow; }
 
 int CUIWindowMgr::ProcessInput() {
-  int x = g_Mouse->GetXPos();
-  int y = g_Mouse->GetYPos();
+  const int x = g_Mouse->GetXPos();
+  const int y = g_Mouse->GetYPos();
 
   if (!m_modalWindow) {
-    for (auto it = m_quit_window.begin(); it != m_quit_window.end(); ++it) {
-      if (m_captureWindow &&
-          (m_captureWindow == *it || m_captureWindow->IsChildOf(*it))) {
-        m_captureWindow = NULL;
+    for (auto quit_wnd : m_quit_window) {
+      if (m_captureWindow && (m_captureWindow == quit_wnd ||
+                              m_captureWindow->IsChildOf(quit_wnd))) {
+        m_captureWindow = nullptr;
       }
+
       if (m_editWindow &&
-          (m_editWindow == *it || m_editWindow->IsChildOf(*it))) {
-        m_editWindow = NULL;
+          (m_editWindow == quit_wnd || m_editWindow->IsChildOf(quit_wnd))) {
+        m_editWindow = nullptr;
       }
+
       if (m_modalWindow &&
-          (m_modalWindow == *it || m_modalWindow->IsChildOf(*it))) {
-        m_modalWindow = NULL;
+          (m_modalWindow == quit_wnd || m_modalWindow->IsChildOf(quit_wnd))) {
+        m_modalWindow = nullptr;
       }
-      if (m_last_hit_window &&
-          (m_last_hit_window == *it || m_last_hit_window->IsChildOf(*it))) {
-        m_last_hit_window = NULL;
+
+      if (m_last_hit_window && (m_last_hit_window == quit_wnd ||
+                                m_last_hit_window->IsChildOf(quit_wnd))) {
+        m_last_hit_window = nullptr;
       }
-      RemoveWindow(*it);
+
+      RemoveWindow(quit_wnd);
     }
+
     m_quit_window.clear();
   }
 
   if (!m_captureWindow) {
-    CUIWindow *hit_window = NULL;
+    CUIWindow *hit_window = nullptr;
 
-    if (m_children.empty())
-      hit_window = NULL;
-    else {
+    if (m_children.empty()) {
+      hit_window = nullptr;
+    } else {
       for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
         hit_window = (*it)->HitTest(x, y);
-        if (hit_window && hit_window->IsShow()) break;
+        if (hit_window && hit_window->IsShow()) {
+          break;
+        }
       }
     }
 
@@ -214,10 +227,11 @@ int CUIWindowMgr::ProcessInput() {
       }
 
       hit_window->OnMouseShape(x_local, y_local);
-      if (m_last_mouse_x != x || m_last_mouse_y != y)
+      if (m_last_mouse_x != x || m_last_mouse_y != y) {
         hit_window->OnMouseMove(x_local, y_local);
-      else
+      } else {
         hit_window->OnMouseHover(x_local, y_local);
+      }
 
       if (g_Mouse->GetWBtn() == CMouse::ButtonState::kUp) {
         hit_window->OnWBtnUp(x_local, y_local);
@@ -236,6 +250,7 @@ int CUIWindowMgr::ProcessInput() {
         m_last_hit_window->OnMouseMove(x_local, y_local);
         m_last_hit_window->OnMouseShape(x_local, y_local);
       }
+
       m_last_hit_window = hit_window;
     }
   } else {
@@ -253,17 +268,22 @@ int CUIWindowMgr::ProcessInput() {
     }
 
     m_captureWindow->OnMouseShape(x_local, y_local);
-    if (m_last_mouse_x != x || m_last_mouse_y != y)
+    if (m_last_mouse_x != x || m_last_mouse_y != y) {
       m_captureWindow->OnMouseMove(x_local, y_local);
-    else
+    } else {
       m_captureWindow->OnMouseHover(x_local, y_local);
+    }
+
     // if (g_Mouse.m_wheel)
     //  m_captureWindow->OnWheel(g_mouse.m_wheel);
-    if (g_Mouse->GetLBtn() == CMouse::ButtonState::kUp)
+    if (g_Mouse->GetLBtn() == CMouse::ButtonState::kUp) {
       m_captureWindow->OnLBtnUp(x_local, y_local);
+    }
   }
 
-  if (m_editWindow) m_editWindow->Invalidate();
+  if (m_editWindow) {
+    m_editWindow->Invalidate();
+  }
   // g_mouseMoved = false;
   // if (x != m_lastMouseX || y != m_lastMouseY)
   //  g_mouseMoved = true;

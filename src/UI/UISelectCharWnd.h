@@ -2,10 +2,10 @@
 #define DOLORI_UI_UISELECTCHARWND_H_
 
 #include "Render/view_sprite.h"
-#include "UIBitmapButton.h"
-#include "UIFrameWnd.h"
-#include "UISlotBitmap.h"
-#include "UIStaticText.h"
+#include "UI/UIBitmapButton.h"
+#include "UI/UIFrameWnd.h"
+#include "UI/UISlotBitmap.h"
+#include "UI/UIStaticText.h"
 
 #define NB_OF_SLOTS 12
 #define SLOTS_PER_PAGE 3
@@ -19,8 +19,9 @@ class CUISelectCharWnd : public CUIFrameWnd {
   void OnLBtnDown(int x, int y);
   void OnDraw();
   void InitTextControls();
-  void* SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-                void* val3, void* val4);
+  void* SendMsg(CUIWindow* sender, int message, void* val1 = nullptr,
+                void* val2 = nullptr, void* val3 = nullptr,
+                void* val4 = nullptr);
   void MakeButton(int id);
 
  private:

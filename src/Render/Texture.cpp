@@ -24,7 +24,7 @@ CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
 
 CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf,
                    SDL_Surface *surface) {
-  m_sdl_surface = NULL;
+  m_sdl_surface = nullptr;
   m_lock_count = 0;
   m_time_stamp = 0;
   m_pf = pf;

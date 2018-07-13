@@ -2,10 +2,12 @@
 #define DOLORI_CORE_RESMGR_H_
 
 #include <string.h>
+
 #include <map>
 #include <mutex>
 #include <string>
 #include <vector>
+
 #include "Render/Res.h"
 
 struct CharPrtLess {
@@ -25,7 +27,7 @@ class CResMgr {
 
   void ReadResNameTable(const char *);
   void RegisterType(const char *, const char *, CRes *);
-  char *GetRealResName(const char *);
+  const char *GetRealResName(const char *);
   CRes *Get(const char *fNameInput, bool bRefresh);
 
  private:

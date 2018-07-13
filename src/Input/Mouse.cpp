@@ -1,4 +1,5 @@
-#include "Mouse.h"
+#include "Input/Mouse.h"
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 

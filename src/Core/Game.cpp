@@ -1,8 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define SDL_MAIN_HANDLED
 
-#include "Game.h"
+#include "Core/Game.h"
+
 #include <SDL.h>
+#ifndef WIN32
+#include <strings.h>
+#define _strcmpi strcasecmp
+#endif
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Common/modetype.h"
@@ -11,10 +16,6 @@
 #include "Files/ClientInfo.h"
 #include "Files/File.h"
 #include "Render/3dDevice.h"
-#ifndef WIN32
-#include <strings.h>
-#define _strcmpi strcasecmp
-#endif
 
 Game::~Game() {
   g_RagConnection->Disconnect();

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+
 #include "Core/Game.h"
 
 int main(int argc, char* argv[]) {
@@ -9,5 +10,6 @@ int main(int argc, char* argv[]) {
   }
 
   game.Run();
+
   return EXIT_SUCCESS;
 }

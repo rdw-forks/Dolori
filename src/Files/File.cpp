@@ -1,11 +1,13 @@
-#include "File.h"
+#include "Files/File.h"
+
 #include <string.h>
+
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 
 CFile::CFile() {
   m_fileStream.clear();
-  m_buf = NULL;
+  m_buf = nullptr;
 }
 
 CFile::~CFile() { Close(); }
@@ -44,15 +46,23 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
     m_cursor = 0;
     MakeFileName(m_fileName, lpFileName, sizeof(m_fileName));
     if (g_readFolderFirst) {
-      if (OpenFromFolder(m_fileName)) return true;
-      m_buf = (unsigned char*)g_FileMgr->GetPak(m_fileName, &m_size);
+      if (OpenFromFolder(m_fileName)) {
+        return true;
+      }
+
+      m_buf =
+          static_cast<unsigned char*>(g_FileMgr->GetPak(m_fileName, &m_size));
     } else {
-      m_buf = (unsigned char*)g_FileMgr->GetPak(m_fileName, &m_size);
+      m_buf =
+          static_cast<unsigned char*>(g_FileMgr->GetPak(m_fileName, &m_size));
       if (!m_buf) {
-        if (OpenFromFolder(m_fileName)) return true;
+        if (OpenFromFolder(m_fileName)) {
+          return true;
+        }
       }
     }
-    result = (m_buf != NULL);
+
+    result = (m_buf != nullptr);
   }
 
   return result;
@@ -70,26 +80,28 @@ bool CFile::OpenFromFolder(const char* filename) {
     m_fileStream.seekg(0, std::ios::beg);
 
     if (m_size) {
-      m_buf = (unsigned char*)malloc(m_size);
+      m_buf = new uint8_t[m_size];
       if (m_buf) {
-        m_fileStream.read((char*)m_buf, m_size);
+        m_fileStream.read(reinterpret_cast<char*>(m_buf), m_size);
         m_fileStream.close();
         return true;
       }
     }
+
     m_fileStream.close();
   }
+
   return false;
 }
 
-bool CFile::Read(void* lpBuf, size_t nCount) {
+bool CFile::Read(void* buffer, size_t nCount) {
   if (m_fileStream.is_open()) {
-    m_fileStream.read((char*)lpBuf, nCount);
+    m_fileStream.read(static_cast<char*>(buffer), nCount);
     return (m_fileStream.gcount() == nCount);
   }
 
   if (m_buf && m_cursor + nCount <= m_size) {
-    memcpy(lpBuf, &m_buf[m_cursor], nCount);
+    memcpy(buffer, &m_buf[m_cursor], nCount);
     m_cursor += nCount;
     return true;
   }
@@ -114,6 +126,7 @@ bool CFile::Seek(long lOff, size_t nFrom) {
     };
     return true;
   }
+
   if (m_buf) {
     switch (nFrom) {
       case SEEK_SET:
@@ -127,19 +140,24 @@ bool CFile::Seek(long lOff, size_t nFrom) {
         break;
     }
 
-    if (m_cursor <= m_size) return true;
+    if (m_cursor <= m_size) {
+      return true;
+    }
     m_cursor = m_size;
   }
+
   return false;
 }
 
-bool CFile::Write(const void* lpBuf, size_t nCount) {
+bool CFile::Write(const void* buffer, size_t nCount) {
   bool result;
 
-  if (m_fileStream.is_open())
-    m_fileStream.write((const char*)lpBuf, nCount);
-  else
+  if (m_fileStream.is_open()) {
+    m_fileStream.write(static_cast<const char*>(buffer), nCount);
+  } else {
     result = false;
+  }
+
   return result;
 }
 
@@ -148,8 +166,8 @@ void CFile::Close() {
     m_fileStream.close();
     m_fileStream.clear();
   } else if (m_buf) {
-    free(m_buf);
-    m_buf = NULL;
+    delete[] m_buf;
+    m_buf = nullptr;
   }
 }
 
@@ -185,8 +203,9 @@ void CFile::MakeFileName(char* output, const char* input,
 char* CFile::NormalizeFileName(char* output, const char* input) {
   char* orig = output;
 
-  for (; *input != '\0'; output++, input++)
+  for (; *input != '\0'; output++, input++) {
     *output = (*input == '\\') ? '/' : *input;
+  }
 
   return orig;
 }

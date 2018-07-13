@@ -1,4 +1,4 @@
-#include "GameMode.h"
+#include "Modes/GameMode.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

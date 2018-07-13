@@ -1,4 +1,5 @@
-#include "Connection.h"
+#include "Network/Connection.h"
+
 #ifdef WIN32
 #include <WinSock2.h>
 #else
@@ -12,9 +13,10 @@
 #define SOCKET_ERROR (-1)
 #define INVALID_SOCKET (-1)
 #endif
+
 #include "Common/ErrorMsg.h"
 #include "Common/GetTick.h"
-#include "RagConnection.h"
+#include "Network/RagConnection.h"
 
 CConnection::CConnection() {}
 
@@ -29,8 +31,9 @@ bool CConnection::Startup() {
     ErrorMsg("Failed to load Winsock");
     WSACleanup();
     result = false;
-  } else
+  } else {
     result = true;
+  }
 #else
   result = true;
 #endif
@@ -46,10 +49,12 @@ void CConnection::Cleanup() {
 bool CConnection::Poll() {
   bool result;
 
-  if (m_socket == INVALID_SOCKET)
+  if (m_socket == INVALID_SOCKET) {
     result = true;
-  else
+  } else {
     result = OnRecv() && OnSend();
+  }
+
   return result;
 }
 
@@ -61,11 +66,14 @@ bool CConnection::Connect(const SERVER_ADDRESS *sa) {
   m_blockQueue.Init(40960);
 
   m_socket = socket(AF_INET, SOCK_STREAM, 0);
-  if (m_socket == INVALID_SOCKET) return false;
+  if (m_socket == INVALID_SOCKET) {
+    return false;
+  }
 
   u_long argp = 1;
-  if (setsockopt(m_socket, IPPROTO_TCP, TCP_NODELAY, (char *)&argp,
-                 sizeof(int)) == SOCKET_ERROR) {
+  if (setsockopt(m_socket, IPPROTO_TCP, TCP_NODELAY,
+                 reinterpret_cast<char *>(&argp),
+                 sizeof(argp)) == SOCKET_ERROR) {
     return false;
   }
 #ifdef WIN32
@@ -82,7 +90,8 @@ bool CConnection::Connect(const SERVER_ADDRESS *sa) {
   m_addr.sin_family = AF_INET;
   m_addr.sin_port = htons(sa->port);
 
-  if (connect(m_socket, (sockaddr *)&m_addr, 0x10) != SOCKET_ERROR ||
+  if (connect(m_socket, reinterpret_cast<sockaddr *>(&m_addr),
+              sizeof(m_addr)) != SOCKET_ERROR ||
 #ifdef WIN32
       WSAGetLastError() == WSAEWOULDBLOCK) {
 #else
@@ -109,7 +118,6 @@ void CConnection::Disconnect() {
 bool CConnection::OnSend() {
   int nb_sockets;
   int sent_bytes;
-  int err;
   struct timeval timeout;
   fd_set writefds;
 
@@ -126,12 +134,14 @@ bool CConnection::OnSend() {
 #endif
       nb_sockets = select(0, 0, &writefds, 0, &timeout);
       if (nb_sockets != -1) {
-        if (nb_sockets <= 0) return true;
+        if (nb_sockets <= 0) {
+          return true;
+        }
         sent_bytes =
             send(m_socket, m_sendQueue.GetDataPtr(), m_sendQueue.GetSize(), 0);
         if (sent_bytes == -1) {
 #ifdef WIN32
-          err = WSAGetLastError();
+          int err = WSAGetLastError();
           if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
 #else
           if (errno != EWOULDBLOCK && errno != ENOTCONN) {
@@ -148,7 +158,9 @@ bool CConnection::OnSend() {
           m_sendQueue.RemoveData(sent_bytes);
         }
       }
-      if (m_dwTime >= GetTick()) return true;
+      if (m_dwTime >= GetTick()) {
+        return true;
+      }
     }
   }
   return true;
@@ -157,10 +169,9 @@ bool CConnection::OnSend() {
 bool CConnection::OnRecv() {
   int nb_sockets;
   int received_bytes;
-  int err;
   struct timeval timeout;
   fd_set readfds;
-  char lpBuffer[2048];
+  char buffer[2048];
 
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
@@ -172,10 +183,13 @@ bool CConnection::OnRecv() {
   FD_SET(m_socket, &readfds);
 #endif
   nb_sockets = select(0, &readfds, 0, 0, &timeout);
-  if (nb_sockets == -1 || nb_sockets <= 0) return true;
-  received_bytes = recv(m_socket, lpBuffer, 2048, 0);
+  if (nb_sockets == -1 || nb_sockets <= 0) {
+    return true;
+  }
+
+  received_bytes = recv(m_socket, buffer, sizeof(buffer), 0);
   if (received_bytes > 0) {
-    m_recvQueue.InsertData(received_bytes, lpBuffer);
+    m_recvQueue.InsertData(received_bytes, buffer);
     return true;
   }
 
@@ -187,10 +201,14 @@ bool CConnection::OnRecv() {
   }
 
 #ifdef WIN32
-  err = WSAGetLastError();
-  if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) return true;
+  int err = WSAGetLastError();
+  if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
+    return true;
+  }
 #else
-  if (errno != EWOULDBLOCK && errno != ENOTCONN) return true;
+  if (errno != EWOULDBLOCK && errno != ENOTCONN) {
+    return true;
+  }
 #endif
 
   return false;
@@ -206,6 +224,7 @@ int CConnection::Recv(char *buf, int size, char mustRecv) {
     m_recvQueue.GetData(size, buf);
     result = size;
   }
+
   return result;
 }
 

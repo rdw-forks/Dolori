@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "ResMgr.h"
+#include "Core/ResMgr.h"
+
 #include "Files/File.h"
 #include "Render/3dWorldRes.h"
 #include "Render/ActRes.h"
@@ -42,7 +43,7 @@ void CResMgr::ReadResNameTable(const char* resNameTable) {
     char* buffer;
 
     buffer = new char[file_size + 1];
-    if (!buffer) return;
+    if (!buffer) {return;}
 
     if (!fp->Read(buffer, file_size)) {
       delete[] buffer;
@@ -97,7 +98,7 @@ void CResMgr::RegisterType(const char* resId, const char* baseDir, CRes* t) {
   m_fileList.push_back(map);
 }
 
-char* CResMgr::GetRealResName(const char* resName) { return (char*)resName; }
+const char* CResMgr::GetRealResName(const char* resName) { return resName; }
 
 CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
   char open_filename[0x100];
@@ -154,7 +155,7 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
   CRes* clone = m_objTypes[extIndex]->Clone();
   if (clone) {
     if (!clone->Load(open_filename)) {
-      char* real_res_name = GetRealResName(filename);
+      const char* real_res_name = GetRealResName(filename);
       char* filename_ptr = open_filename;
 
       if (strncmp(real_res_name, type_dir, type_dir_len)) {

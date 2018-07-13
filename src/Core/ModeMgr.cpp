@@ -1,5 +1,7 @@
-#include "ModeMgr.h"
+#include "Core/ModeMgr.h"
+
 #include <string.h>
+
 #include "Common/Globals.h"
 #include "Common/modetype.h"
 #include "Modes/GameMode.h"

@@ -2,6 +2,7 @@
 #define DOLORI_UI_UISTATICBITMAP_H_
 
 #include <string>
+
 #include "UIWindow.h"
 
 class CUIStaticBitmap : public CUIWindow {

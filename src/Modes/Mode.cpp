@@ -1,4 +1,5 @@
-#include "Mode.h"
+#include "Modes/Mode.h"
+
 #include "Common/Globals.h"
 
 CMode::CMode()
@@ -14,7 +15,7 @@ bool CMode::GetLoopCond() { return m_loop_cond; }
 void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }
 
 void* CMode::SendMsg(size_t msg, void* val1, void* val2, void* val3) {
-  void* result = NULL;
+  void* result = nullptr;
 
   switch (msg) {
     case MM_QUIT:

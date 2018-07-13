@@ -1,4 +1,10 @@
-#include "ClientInfo.h"
+#include "Files/ClientInfo.h"
+
+#ifndef WIN32
+#include <strings.h>
+#define _strcmpi strcasecmp
+#endif
+
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Common/server_type.h"
@@ -31,7 +37,9 @@ void ClientInfo::SetOption(tinyxml2::XMLDocument* document) {
   using namespace tinyxml2;
 
   XMLElement* clientinfo = document->FirstChildElement("clientinfo");
-  if (!clientinfo) return;
+  if (!clientinfo) {
+    return;
+  }
 
   XMLElement* servicetype = clientinfo->FirstChildElement("servicetype");
   if (servicetype) {
@@ -92,21 +100,30 @@ void ClientInfo::SetOption(tinyxml2::XMLDocument* document) {
       ErrorMsg("No ServerType !");
   }
 
-  if (clientinfo->FirstChildElement("hideaccountlist"))
+  if (clientinfo->FirstChildElement("hideaccountlist")) {
     g_hideAccountList = true;
-  if (clientinfo->FirstChildElement("passwordencrypt"))
+  }
+
+  if (clientinfo->FirstChildElement("passwordencrypt")) {
     g_passwordEncrypt = true;
+  }
+
   if (clientinfo->FirstChildElement("passwordencrypt2")) {
     g_passwordEncrypt = true;
     g_passwordEncrypt2 = true;
   }
-  if (clientinfo->FirstChildElement("extendedslot")) g_extendedSlot = true;
-  if (clientinfo->FirstChildElement("readfolder")) g_readFolderFirst = true;
+
+  if (clientinfo->FirstChildElement("extendedslot")) {
+    g_extendedSlot = true;
+  }
+  if (clientinfo->FirstChildElement("readfolder")) {
+    g_readFolderFirst = true;
+  }
 
   // Loading screens
   XMLElement* loading = clientinfo->FirstChildElement("loading");
   if (loading) {
-    for (XMLElement* e = loading->FirstChildElement("image"); e != NULL;
+    for (XMLElement* e = loading->FirstChildElement("image"); e != nullptr;
          e = e->NextSiblingElement("image")) {
       std::string name = e->GetText();
       s_loadingScreenList.push_back(name);
@@ -117,11 +134,14 @@ void ClientInfo::SetOption(tinyxml2::XMLDocument* document) {
   XMLElement* connection = clientinfo->FirstChildElement("connection");
   if (connection) {
     XMLElement* address = connection->FirstChildElement("address");
-    if (address)
+    if (address) {
       strncpy(g_accountAddr, address->GetText(), sizeof(g_accountAddr));
+    }
 
     XMLElement* port = connection->FirstChildElement("port");
-    if (port) strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
+    if (port) {
+      strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
+    }
   }
 }
 

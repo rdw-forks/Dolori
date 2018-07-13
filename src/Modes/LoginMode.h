@@ -4,11 +4,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <vector>
+
 #include "Common/AccountInfo.h"
 #include "Common/billing_info.h"
 #include "Common/character_info.h"
 #include "Common/server_addr.h"
-#include "Mode.h"
+#include "Modes/Mode.h"
 
 typedef enum LOGINMODE_MSG {
   LMM_CONNECT_TO_ACSVR = 0x2710,
@@ -44,7 +45,8 @@ class CLoginMode : public CMode {
   void OnInit(const char *) override;
   int OnRun() override;
   void OnExit() override;
-  void *SendMsg(size_t, void *, void *, void *) override;
+  void *SendMsg(size_t, void *val1 = nullptr, void *val2 = nullptr,
+                void *val3 = nullptr) override;
 
   void OnUpdate();
   void OnChangeState(int);

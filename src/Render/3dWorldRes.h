@@ -1,7 +1,11 @@
 #ifndef DOLORI_RENDER_3DWORLDRES_H_
 #define DOLORI_RENDER_3DWORLDRES_H_
 
+#include <stdint.h>
+
 #include <list>
+#include <string>
+
 #include "Common/Vector3d.h"
 #include "Res.h"
 

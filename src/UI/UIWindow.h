@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <list>
+
 #include "Render/BitmapRes.h"
 #include "Render/Surface.h"
 
@@ -25,7 +26,9 @@ class CUIWindow {
   virtual bool IsUpdateNeeded();
   virtual void OnBeginEdit();
   virtual void OnFinishEdit();
-  virtual void *SendMsg(CUIWindow *, int, void *, void *, void *, void *);
+  virtual void *SendMsg(CUIWindow *, int, void *val1 = nullptr,
+                        void *val2 = nullptr, void *val3 = nullptr,
+                        void *val4 = nullptr);
   void OnSize(int, int);
   bool IsShow();
   void SetShow(bool);

@@ -1,5 +1,7 @@
-#include "SDLEvents.h"
+#include "Input/SDLEvents.h"
+
 #include <SDL.h>
+
 #include "Common/Globals.h"
 
 void ProcessSDLEvents() {

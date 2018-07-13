@@ -1,4 +1,5 @@
 #include "TexMgr.h"
+
 #include "Common/Globals.h"
 
 CTexMgr::CTexMgr() {}

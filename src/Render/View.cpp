@@ -47,7 +47,7 @@ void CView::OnRender() {
 }
 
 void CView::BuildViewMatrix() {
-  glm::quat& q =
+  glm::quat q =
       glm::angleAxis(static_cast<float>(glm::radians(-m_cur.longitude)),
                      glm::vec3(0.0, 0.0, 1.0)) *
       glm::angleAxis(static_cast<float>(glm::radians(m_cur.latitude)),

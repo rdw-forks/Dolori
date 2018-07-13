@@ -2,6 +2,7 @@
 #define DOLORI_MODES_MODE_H_
 
 #include <stdlib.h>
+
 #include "Common/Vector2d.h"
 
 typedef enum MODE_MSG {
@@ -288,7 +289,8 @@ class CMode {
   bool GetLoopCond();
   void SetLoopCond(bool);
 
-  virtual void *SendMsg(size_t, void *, void *, void *);
+  virtual void *SendMsg(size_t, void *val1 = nullptr, void *val2 = nullptr,
+                        void *val3 = nullptr);
   virtual void OnInit(const char *) = 0;
   virtual int OnRun() = 0;
   virtual void OnExit() = 0;

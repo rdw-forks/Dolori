@@ -1,9 +1,10 @@
-#include "UISelectCharWnd.h"
+#include "UI/UISelectCharWnd.h"
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
 #include "Render/ActRes.h"
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
 CUISelectCharWnd::CUISelectCharWnd() {
   m_defPushId = 117;
@@ -11,24 +12,28 @@ CUISelectCharWnd::CUISelectCharWnd() {
   m_startGlobalX = 0;
   m_startGlobalY = 0;
   m_state_cnt = 0;
-  m_ok_button = NULL;
-  m_make_button = NULL;
-  m_cancel_button = NULL;
-  m_delete_button = NULL;
-  m_charge_button = NULL;
-  m_notice_button = NULL;
+  m_ok_button = nullptr;
+  m_make_button = nullptr;
+  m_cancel_button = nullptr;
+  m_delete_button = nullptr;
+  m_charge_button = nullptr;
+  m_notice_button = nullptr;
   m_dontmove = false;
   memset(m_viewChar, 0, sizeof(m_viewChar));
-  if (g_extendedSlot)
+  if (g_extendedSlot) {
     m_pageCount = 3;
-  else
+  } else {
     m_pageCount = 1;
-  for (int i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++)
+  }
+
+  for (int i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++) {
     m_isAvailable[i] = true;
+  }
+
   m_cur_slot = 0;
   m_cur_page = 0;
   m_stateStartTick = GetTick();
-  m_change_name_btn = NULL;
+  m_change_name_btn = nullptr;
 }
 
 CUISelectCharWnd::~CUISelectCharWnd() {}
@@ -46,7 +51,7 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     m_slots[i]->Create(m_slots[i]->GetWidth(), m_slots[i]->GetHeight());
     m_slots[i]->Move(56 + i * 163, 40);
     m_slots[i]->SetId(138);
-    m_slots[i]->SendMsg(this, 13, (void *)(m_cur_slot != i), 0, 0, 0);
+    m_slots[i]->SendMsg(this, 13, reinterpret_cast<void *>(m_cur_slot != i));
     AddChild(m_slots[i]);
   }
 
@@ -80,9 +85,11 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     uint16_t job;
     int sex;
 
-    char_info = (CHARACTER_INFO *)g_ModeMgr->GetCurMode()->SendMsg(
-        MM_QUERYCHARICTORINFO, (void *)i, 0, 0);
-    if (!char_info) continue;
+    char_info = static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
+        MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(i)));
+    if (!char_info) {
+      continue;
+    }
 
     vs = &m_viewChar[char_info->char_slot];
     job = char_info->class_;
@@ -129,7 +136,7 @@ void CUISelectCharWnd::OnDraw() {
       const_strings::kResourceSubfolder + "login_interface/win_select.bmp";
   CBitmapRes *bitmap;
 
-  bitmap = (CBitmapRes *)g_ResMgr->Get(UIBmp(filename), false);
+  bitmap = static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(filename), false));
   DrawBitmap(0, 0, bitmap, 0);
 
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
@@ -152,17 +159,25 @@ void CUISelectCharWnd::OnDraw() {
         CActRes *act;
 
         vs = &m_viewChar[char_id];
-        spr = (CSprRes *)g_ResMgr->Get(vs->spr_name[layer].c_str(), false);
-        act = (CActRes *)g_ResMgr->Get(vs->act_name[layer].c_str(), false);
-        if (!spr || !act) continue;
+        spr = static_cast<CSprRes *>(
+            g_ResMgr->Get(vs->spr_name[layer].c_str(), false));
+        act = static_cast<CActRes *>(
+            g_ResMgr->Get(vs->act_name[layer].c_str(), false));
+        if (!spr || !act) {
+          continue;
+        }
 
         motion = act->GetMotion(vs->cur_action, vs->cur_motion);
         if (motion) {
-          if (layer == 1)  // Head
+          if (layer == 1) {  // Head
             clip = motion->GetClip(1);
-          else
+          } else {
             clip = motion->GetClip(0);
-          if (!clip || clip->spr_index == -1) continue;
+          }
+
+          if (!clip || clip->spr_index == -1) {
+            continue;
+          }
 
           img = spr->GetSprImg(clip->clip_type, clip->spr_index);
           off_x = clip->x - img->width / 2;
@@ -174,8 +189,10 @@ void CUISelectCharWnd::OnDraw() {
 
           CSurface *surface =
               g_Renderer->GetSpriteIndex(img, spr->GetPalette());
-          if (!surface)
+          if (!surface) {
             surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
+          }
+
           m_surfaces->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
                                   img->width, img->height, 0, 1, 1);
         }
@@ -190,13 +207,18 @@ void CUISelectCharWnd::InitTextControls() {
   CHARACTER_INFO *char_info;
   char buffer[256];
 
-  char_info = (CHARACTER_INFO *)g_ModeMgr->GetCurMode()->SendMsg(
-      MM_QUERYCHARICTORINFO, (void *)(m_cur_slot + SLOTS_PER_PAGE * m_cur_page),
-      0, 0);
-  if (m_change_name_btn) m_change_name_btn->Move(-100, -100);
+  char_info = static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
+      MM_QUERYCHARICTORINFO,
+      reinterpret_cast<void *>(m_cur_slot + SLOTS_PER_PAGE * m_cur_page)));
+  if (m_change_name_btn) {
+    m_change_name_btn->Move(-100, -100);
+  }
+
   if (char_info) {
-    if (m_change_name_btn && !char_info->can_rename)
+    if (m_change_name_btn && !char_info->can_rename) {
       m_change_name_btn->Move(360, 318);
+    }
+
     m_text[0]->SetText(char_info->name, false);
     m_text[1]->SetText(g_Session->GetJobName(char_info->class_), false);
     sprintf(buffer, "%d", char_info->base_level);
@@ -220,31 +242,37 @@ void CUISelectCharWnd::InitTextControls() {
     sprintf(buffer, "%d", char_info->luk);
     m_text[11]->SetText(buffer, false);
   } else {
-    for (int i = 0; i < NB_OF_SLOTS; i++) m_text[i]->SetText("", false);
+    for (int i = 0; i < NB_OF_SLOTS; i++) {
+      m_text[i]->SetText("", false);
+    }
   }
 }
 
 void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
                                 void *val2, void *val3, void *val4) {
-  void *result = NULL;
+  void *result = nullptr;
 
   switch (message) {
     case 6: {
-      size_t btn_id = (size_t)val1;
+      size_t btn_id = reinterpret_cast<size_t>(val1);
       size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
       CHARACTER_INFO *char_info;
 
       if (btn_id == 118) {
-        if (!m_ok_button) return result;
+        if (!m_ok_button) {
+          return result;
+        }
 
         m_dontmove = true;
-        char_info = (CHARACTER_INFO *)g_ModeMgr->GetCurMode()->SendMsg(
-            MM_QUERYCHARICTORINFO, (void *)slot_id, 0, 0);
+        char_info =
+            static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
+                MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(slot_id)));
         g_Session->SetCharName(char_info->name);
         // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
-        g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND, (void *)10002, 0, 0);
-        g_ModeMgr->GetCurMode()->SendMsg(LMM_SELECT_CHARACTER, (void *)slot_id,
-                                         0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND,
+                                         reinterpret_cast<void *>(10002));
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_SELECT_CHARACTER,
+                                         reinterpret_cast<void *>(slot_id));
         g_WindowMgr->PostQuit(this);
       } else if (btn_id == 138) {
         Invalidate();
@@ -253,16 +281,17 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
           if (m_slots[index] == sender) {
             m_cur_slot = index;
-            m_slots[index]->SendMsg(this, 13, 0, 0, 0, 0);
-          } else
-            m_slots[index]->SendMsg(this, 13, (void *)1, 0, 0, 0);
+            m_slots[index]->SendMsg(this, 13);
+          } else {
+            m_slots[index]->SendMsg(this, 13, reinterpret_cast<void *>(1));
+          }
         }
         InitTextControls();
-        g_selected_char_num = (uint8_t)slot_id;
+        g_selected_char_num = static_cast<uint8_t>(slot_id);
       }
     } break;
     case 13:
-      m_cur_slot = (size_t)val1;
+      m_cur_slot = reinterpret_cast<size_t>(val1);
       break;
   };
 
@@ -275,43 +304,55 @@ void CUISelectCharWnd::MakeButton(int id) {
   switch (id) {
     case 118:
       if (!m_ok_button) {
-        if (m_make_button) m_make_button = NULL;
+        if (m_make_button) {
+          m_make_button = nullptr;
+        }
         index = 0;
-      } else
+      } else {
         return;
+      }
       break;
     case 137:
       if (!m_make_button) {
-        if (m_ok_button) m_ok_button = NULL;
+        if (m_ok_button) {
+          m_ok_button = nullptr;
+        }
         if (m_delete_button) {
           RemoveChild(m_delete_button);
-          m_delete_button = NULL;
+          m_delete_button = nullptr;
         }
         index = 1;
-      } else
+      } else {
         return;
+      }
       break;
     case 119:
       if (!m_cancel_button)
         index = 2;
-      else
+      else {
         return;
+      }
       break;
     case 145:
       if (!m_delete_button) {
         if (m_make_button) {
           RemoveChild(m_make_button);
-          m_make_button = NULL;
+          m_make_button = nullptr;
         }
         index = 3;
-      } else
+      } else {
         return;
+      }
       break;
     case 218:
-      if (!m_charge_button) index = 4;
+      if (!m_charge_button) {
+        index = 4;
+      }
       break;
     case 220:
-      if (m_notice_button) return;
+      if (m_notice_button) {
+        return;
+      }
       index = 5;
       break;
     default:

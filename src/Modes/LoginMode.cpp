@@ -1,4 +1,5 @@
-#include "LoginMode.h"
+#include "Modes/LoginMode.h"
+
 #ifdef WIN32
 #include <Ws2tcpip.h>
 #define inet_ntop InetNtop
@@ -6,6 +7,7 @@
 #include <arpa/inet.h>
 #endif
 #include <string.h>
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
@@ -189,7 +191,7 @@ void CLoginMode::OnChangeState(int state) {
     } break;
     case 1:
       break;
-      // Account server selection window
+    // Account server selection window
     case 2:
       // TODO
       // if (!InitAccountInfo())

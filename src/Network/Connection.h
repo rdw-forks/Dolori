@@ -1,7 +1,7 @@
 #ifndef DOLORI_NETWORK_CONNECTION_H_
 #define DOLORI_NETWORK_CONNECTION_H_
 
-#include "PacketQueue.h"
+#include "Network/PacketQueue.h"
 
 #ifdef WIN32
 #include <WinSock2.h>

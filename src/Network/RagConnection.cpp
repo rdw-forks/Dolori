@@ -1,6 +1,6 @@
-#include "RagConnection.h"
-//#include "PacketCipher.h"
-#include "Packets.h"
+#include "Network/RagConnection.h"
+//#include "Network/PacketCipher.h"
+#include "Network/Packets.h"
 
 #ifndef WIN32
 #define SOCKET_ERROR (-1)
@@ -19,15 +19,15 @@ CRagConnection::CRagConnection() {
 
 CRagConnection::~CRagConnection() {}
 
-bool CRagConnection::SendPacket(int len, char *lpPacket) {
+bool CRagConnection::SendPacket(int len, char *packet) {
   if (!m_bDrop) {
     //*(unsigned short *)lpPacket ^= (unsigned
     // short)PacketCipher->ChangeState(CPacketCipher::CLOCK);
     if (m_socket != SOCKET_ERROR) {
       if (m_bBlock) {
-        m_blockQueue.InsertData(len, lpPacket);
+        m_blockQueue.InsertData(len, packet);
       } else {
-        m_sendQueue.InsertData(len, lpPacket);
+        m_sendQueue.InsertData(len, packet);
         OnSend();
       }
     }
@@ -36,37 +36,56 @@ bool CRagConnection::SendPacket(int len, char *lpPacket) {
   return true;
 }
 
-bool CRagConnection::RecvPacket(char *lpBuffer, int *len) {
+bool CRagConnection::RecvPacket(char *buffer, int *len) {
   int nbOfReadBytes;
   unsigned int headerWithSize;
   unsigned short header;
 
-  if (!m_recvQueue.PeekData(sizeof(header), (char *)&header)) return false;
+  if (!m_recvQueue.PeekData(sizeof(header),
+                            reinterpret_cast<char *>(&header))) {
+    return false;
+  }
 
   if (m_packetLenMap[header] != -1) {
     nbOfReadBytes = GetPacketSize(header);
   } else {
-    if (!m_recvQueue.PeekData(sizeof(headerWithSize), (char *)&headerWithSize))
+    if (!m_recvQueue.PeekData(sizeof(headerWithSize),
+                              reinterpret_cast<char *>(&headerWithSize))) {
       return false;
+    }
+
     nbOfReadBytes = headerWithSize >> 16;
   }
 
-  if (!m_recvQueue.GetData(nbOfReadBytes, lpBuffer)) return false;
+  if (!m_recvQueue.GetData(nbOfReadBytes, buffer)) {
+    return false;
+  }
 
-  if (len != NULL) *len = nbOfReadBytes;
+  if (len != nullptr) {
+    *len = nbOfReadBytes;
+  }
 
   return true;
 }
 
 int CRagConnection::GetPacketSize(int packetType) {
-  if (packetType == HEADER_ZC_SRPACKETR2_INIT) return 12;
-  if (packetType == HEADER_CZ_SRPACKETR2_START) return 4;
-  if (m_packetLenMap[packetType] <= 2) return 2;
+  if (packetType == HEADER_ZC_SRPACKETR2_INIT) {
+    return 12;
+  }
+
+  if (packetType == HEADER_CZ_SRPACKETR2_START) {
+    return 4;
+  }
+
+  if (m_packetLenMap[packetType] <= 2) {
+    return 2;
+  }
+
   return m_packetLenMap[packetType];
 }
 
 short CRagConnection::GetPacketType(const char *buffer) {
-  return *((short *)buffer);
+  return *(reinterpret_cast<const short *>(buffer));
 }
 
 void CRagConnection::InitPacketMap() {

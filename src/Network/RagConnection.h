@@ -2,7 +2,8 @@
 #define DOLORI_NETWORK_RAGCONNECTION_H_
 
 #include <map>
-#include "Connection.h"
+
+#include "Network/Connection.h"
 
 class CRagConnection : public CConnection {
  public:
