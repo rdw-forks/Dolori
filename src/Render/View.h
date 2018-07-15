@@ -2,8 +2,9 @@
 #define DOLORI_RENDER_VIEW_H_
 
 #include <glm/glm.hpp>
-#include "ViewFrustum.h"
-#include "World.h"
+
+#include "Render/ViewFrustum.h"
+#include "Render/World.h"
 
 struct ViewInfo3d {
   glm::vec3 at;

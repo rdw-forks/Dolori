@@ -1,7 +1,7 @@
 #ifndef DOLORI_GAMEOBJECT_PLAYER_H_
 #define DOLORI_GAMEOBJECT_PLAYER_H_
 
-#include "Pc.h"
+#include "GameObject/Pc.h"
 
 class CPlayer : public CPc {
  private:

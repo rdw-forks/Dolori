@@ -1,7 +1,7 @@
 #ifndef DOLORI_GAMEOBJECT_GAMEACTOR_H_
 #define DOLORI_GAMEOBJECT_GAMEACTOR_H_
 
-#include "AbleToMakeEffect.h"
+#include "GameObject/AbleToMakeEffect.h"
 
 class CGameActor : public CAbleToMakeEffect {
  protected:

@@ -2,9 +2,10 @@
 #define DOLORI_RENDER_3DDEVICE_H_
 
 #include <SDL.h>
+
+#include "Render/Renderer.h"
 #include "Render/Surface.h"
-#include "Renderer.h"
-#include "palette_entry.h"
+#include "Render/palette_entry.h"
 
 class C3dDevice {
  public:

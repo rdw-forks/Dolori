@@ -1,4 +1,4 @@
-#include "RPTriFace.h"
+#include "Render/RPTriFace.h"
 
 CRPTriFace::CRPTriFace() : CRPFace(3) {
   m_primType = GL_TRIANGLES;

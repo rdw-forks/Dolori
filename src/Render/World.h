@@ -4,11 +4,11 @@
 #include <list>
 #include <vector>
 
-#include "3dAttr.h"
-#include "3dGround.h"
 #include "GameObject/Player.h"
 #include "Modes/Mode.h"
-#include "SceneGraphNode.h"
+#include "Render/3dAttr.h"
+#include "Render/3dGround.h"
+#include "Render/SceneGraphNode.h"
 
 class CWorld {
  public:

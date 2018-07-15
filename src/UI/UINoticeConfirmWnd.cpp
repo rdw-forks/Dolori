@@ -1,12 +1,14 @@
-#include "UINoticeConfirmWnd.h"
+#include "UI/UINoticeConfirmWnd.h"
+
 #include <string>
+
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
 #include "Render/BitmapRes.h"
-#include "UIBitmapButton.h"
-#include "UIBmp.h"
+#include "UI/UIBitmapButton.h"
+#include "UI/UIBmp.h"
 
-CUINoticeConfirmWnd::CUINoticeConfirmWnd() { m_target = 30; }
+CUINoticeConfirmWnd::CUINoticeConfirmWnd() : m_textViewer(), m_target(30) {}
 
 CUINoticeConfirmWnd::~CUINoticeConfirmWnd() {}
 
@@ -59,22 +61,26 @@ void CUINoticeConfirmWnd::OnDraw() {
 
 void *CUINoticeConfirmWnd::SendMsg(CUIWindow *sender, int message, void *val1,
                                    void *val2, void *val3, void *val4) {
-  void *result = 0;
+  void *result = nullptr;
 
   switch (message) {
     case 6: {
-      size_t btn_id = (size_t)val1;
+      size_t btn_id = reinterpret_cast<size_t>(val1);
 
       // Ok button has been pressed
-      if (btn_id == 118)
-        result = g_ModeMgr->GetCurMode()->SendMsg(m_target, 0, 0, 0);
+      if (btn_id == 118) {
+        result = g_ModeMgr->GetCurMode()->SendMsg(m_target);
+      }
       // Cancel button has been pressed so we quit the current mode
-      else if (btn_id == 119)
-        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
+      else if (btn_id == 119) {
+        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT);
+      }
     } break;
-    case 80:
-      m_target = (size_t)val1;
-      break;
+    case 80: {
+      size_t btn_id = reinterpret_cast<size_t>(val1);
+
+      m_target = btn_id;
+    } break;
     default:
       result = CUIFrameWnd::SendMsg(sender, message, val1, val2, val3, val4);
   };

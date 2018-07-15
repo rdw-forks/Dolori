@@ -1,27 +1,26 @@
-#include "MemMapFile.h"
+#include "Files/MemMapFile.h"
 
-CMemMapFile::CMemMapFile() {
-  m_dwFileMappingSize = 0;
-  m_dwFileSize = 0;
-  m_dwOpenOffset = 0;
-  m_dwOpenSize = 0;
-  m_pFile = NULL;
-}
+CMemMapFile::CMemMapFile()
+    : m_dwFileSize(),
+      m_dwOpenOffset(),
+      m_dwOpenSize(),
+      m_dwFileMappingSize(),
+      m_pFile() {}
 
 CMemMapFile::~CMemMapFile() { Close(); }
 
 bool CMemMapFile::Open(const char *name) {
 #ifdef WIN32
-  m_hFile = CreateFileA(name, GENERIC_READ, FILE_SHARE_READ, NULL,
-                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  m_hFile = CreateFileA(name, GENERIC_READ, FILE_SHARE_READ, nullptr,
+                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (m_hFile == INVALID_HANDLE_VALUE) {
-    m_hFile = NULL;
+    m_hFile = nullptr;
     return false;
   }
   m_dwFileSize = GetFileSize(m_hFile, 0);
   m_dwOpenOffset = 0;
   m_dwOpenSize = 0;
-  m_hFileMap = CreateFileMappingA(m_hFile, NULL, PAGE_READONLY, 0, 0, name);
+  m_hFileMap = CreateFileMappingA(m_hFile, nullptr, PAGE_READONLY, 0, 0, name);
   if (!m_hFileMap) {
     m_dwFileMappingSize = 0;
     return false;
@@ -37,6 +36,7 @@ bool CMemMapFile::Open(const char *name) {
     m_dwFileMappingSize = 0;
     return false;
   }
+
   m_dwFileSize = sb.st_size;
   m_dwOpenOffset = 0;
   m_dwOpenSize = 0;
@@ -50,20 +50,20 @@ void CMemMapFile::Close() {
 #ifdef WIN32
   if (m_dwFileMappingSize && m_pFile) {
     UnmapViewOfFile(m_pFile);
-    m_pFile = NULL;
+    m_pFile = nullptr;
   }
   if (m_hFileMap) {
     CloseHandle(m_hFileMap);
-    m_hFileMap = NULL;
+    m_hFileMap = nullptr;
   }
   if (m_hFile) {
     CloseHandle(m_hFile);
-    m_hFile = NULL;
+    m_hFile = nullptr;
   }
 #else
   if (m_pFile) {
     munmap(m_pFile, m_dwFileMappingSize);
-    m_pFile = NULL;
+    m_pFile = nullptr;
   }
 
   if (m_fd != -1) {
@@ -82,65 +82,72 @@ const unsigned char *CMemMapFile::Read(unsigned long offset,
 
   if (m_dwFileMappingSize) {
     if (offset >= m_dwOpenOffset &&
-        m_dwOpenOffset + m_dwOpenSize >= offset + size)
+        m_dwOpenOffset + m_dwOpenSize >= offset + size) {
       return m_pFile + offset - m_dwOpenOffset;
+    }
+
     if (m_pFile) {
 #ifdef WIN32
       UnmapViewOfFile(m_pFile);
 #else
       munmap(m_pFile, m_dwFileMappingSize);
 #endif
-      m_pFile = NULL;
+      m_pFile = nullptr;
     }
     if (m_dwFileMappingSize) {
       do {
-        if (m_dwFileMappingSize < size) break;
+        if (m_dwFileMappingSize < size) {
+          break;
+        }
 
         m_dwOpenSize = m_dwFileMappingSize;
         m_dwOpenOffset = offset & m_dwAllocationGranuarity;
         if (m_dwOpenOffset + m_dwFileMappingSize <= m_dwFileSize) {
 #ifdef WIN32
-          m_pFile = (unsigned char *)MapViewOfFile(
-              m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset,
-              m_dwFileMappingSize);
+          m_pFile = static_cast<unsigned char *>(
+              MapViewOfFile(m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset,
+                            m_dwFileMappingSize));
 #else
-          m_pFile =
-              (unsigned char *)mmap(NULL, m_dwFileMappingSize, PROT_READ,
-                                          MAP_PRIVATE, m_fd, m_dwOpenOffset);
+          m_pFile = static_cast<unsigned char *>(mmap(NULL, m_dwFileMappingSize,
+                                                      PROT_READ, MAP_PRIVATE,
+                                                      m_fd, m_dwOpenOffset));
 #endif
         } else {
 #ifdef WIN32
-          m_pFile = (unsigned char *)MapViewOfFile(
-              m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset, 0);
+          m_pFile = static_cast<unsigned char *>(
+              MapViewOfFile(m_hFileMap, PAGE_READWRITE, 0, m_dwOpenOffset, 0));
 #else
-          m_pFile =
-              (unsigned char *)mmap(NULL, m_dwFileMappingSize - m_dwOpenOffset,
-                                          PROT_READ, MAP_PRIVATE, m_fd,
-                                          m_dwOpenOffset);
+          m_pFile = static_cast<unsigned char *>(
+              mmap(NULL, m_dwFileMappingSize - m_dwOpenOffset, PROT_READ,
+                   MAP_PRIVATE, m_fd, m_dwOpenOffset));
 #endif
           m_dwOpenSize = m_dwFileSize - m_dwOpenOffset;
         }
 
-        if (m_pFile) return m_pFile + offset - m_dwOpenOffset;
+        if (m_pFile) {
+          return m_pFile + offset - m_dwOpenOffset;
+        }
 
         m_dwFileMappingSize = m_dwFileMappingSize >> 1;
       } while (m_dwFileMappingSize);
     }
 #ifdef WIN32
     CloseHandle(m_hFileMap);
-    m_hFileMap = NULL;
+    m_hFileMap = nullptr;
 #endif
-    m_pFile = NULL;
+    m_pFile = nullptr;
     m_dwOpenSize = 0;
     m_dwFileMappingSize = 0;
   }
 
   if (m_dwOpenSize < size) {
     m_dwOpenSize = size;
-    if (m_pFileBuf.data())
+    if (m_pFileBuf.data()) {
       bufferSize = m_pFileBuf.size();
-    else
+    } else {
       bufferSize = 0;
+    }
+
     // if (bufferSize >= size)
     //{
     //	if (m_pFileBuf[0] != '\0' && size < m_pFileBuf.size())
@@ -160,7 +167,7 @@ const unsigned char *CMemMapFile::Read(unsigned long offset,
   }
 #ifdef WIN32
   SetFilePointer(m_hFile, offset, 0, 0);
-  ReadFile(m_hFile, m_pFileBuf.data(), size, &dwRead, NULL);
+  ReadFile(m_hFile, m_pFileBuf.data(), size, &dwRead, nullptr);
 #else
   lseek(m_fd, offset, SEEK_SET);
   dwRead = read(m_fd, m_pFileBuf.data(), size);

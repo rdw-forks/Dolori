@@ -1,4 +1,4 @@
-#include "Texture.h"
+#include "Render/Texture.h"
 
 CTexture::CTexture() : CSurface() {}
 
@@ -15,6 +15,7 @@ CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
   while (w > m_w) {
     w >>= 1;
   }
+
   while (h > m_h) {
     h >>= 1;
   }

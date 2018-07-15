@@ -1,22 +1,22 @@
-#include "UIScrollBar.h"
+#include "UI/UIScrollBar.h"
+
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
-CUIScrollBar::CUIScrollBar() {
-  m_maxPos = 0;
-  m_curPos = 0;
-  m_drawMode = 0;
-  m_startDragX = 0;
-  m_startDragY = 0;
-  m_deltaDrag = 0;
-  m_parentNumItem = 0;
-  m_parentnumCanDisplayItem = 0;
-  m_scrollBtnSize = 13;
-  m_isVert = true;
-  m_fixedLength = 13;
-  m_type = 1;
-}
+CUIScrollBar::CUIScrollBar()
+    : m_drawMode(),
+      m_maxPos(),
+      m_curPos(),
+      m_isVert(true),
+      m_startDragX(),
+      m_startDragY(),
+      m_deltaDrag(),
+      m_parentNumItem(),
+      m_parentnumCanDisplayItem(),
+      m_scrollBtnSize(13),
+      m_fixedLength(13),
+      m_type(1) {}
 
 CUIScrollBar::~CUIScrollBar() {}
 

@@ -1,4 +1,4 @@
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
 const char* UIBmp(const char* bitmap_name) {
   // TODO

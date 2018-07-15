@@ -1,8 +1,8 @@
 #ifndef DOLORI_UI_UINOTICECONFIRMWND_H_
 #define DOLORI_UI_UINOTICECONFIRMWND_H_
 
-#include "UIFrameWnd.h"
-#include "UITextViewer.h"
+#include "UI/UIFrameWnd.h"
+#include "UI/UITextViewer.h"
 
 class CUINoticeConfirmWnd : public CUIFrameWnd {
  public:

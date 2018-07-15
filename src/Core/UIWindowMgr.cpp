@@ -8,13 +8,13 @@
 int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }
 int UICY(int y) { return y * g_Renderer->GetHeight() / 480; }
 
-CUIWindowMgr::CUIWindowMgr() {
-  m_wallpaperSurface = nullptr;
+CUIWindowMgr::CUIWindowMgr()
+    : m_captureWindow(),
+      m_editWindow(),
+      m_modalWindow(),
+      m_last_hit_window(),
+      m_wallpaperSurface() {
   m_children.clear();
-  m_captureWindow = nullptr;
-  m_editWindow = nullptr;
-  m_modalWindow = nullptr;
-  m_last_hit_window = nullptr;
 }
 
 CUIWindowMgr::~CUIWindowMgr() {}

@@ -1,4 +1,4 @@
-#include "RPQuadFace.h"
+#include "Render/RPQuadFace.h"
 
 CRPQuadFace::CRPQuadFace() : CRPFace(4) {
   m_primType = GL_QUADS;

@@ -1,37 +1,41 @@
-#include "ActRes.h"
+#include "Render/ActRes.h"
+
 #include "Common/ErrorMsg.h"
 #include "Files/File.h"
 
-CActRes::CActRes() { m_numMaxClipPerMotion = 0; }
+CActRes::CActRes()
+    : m_actions(), m_numMaxClipPerMotion(), m_events(), m_delay() {}
 
 CActRes::~CActRes() {
   m_delay.clear();
-
-  for (auto it = m_events.begin(); it != m_events.end(); ++it) it->clear();
-  m_events.clear();
-
-  for (auto it = m_actions.begin(); it != m_actions.end(); ++it) delete &(*it);
-  m_actions.clear();
+  Reset();
 }
 
 CRes* CActRes::Clone() {
   CRes* res;
 
   res = new CActRes();
-  if (res) return res;
+  if (res) {
+    return res;
+  }
 
-  return NULL;
+  return nullptr;
 }
 
 void CActRes::Reset() {
-  for (auto it = m_events.begin(); it != m_events.end(); ++it) it->clear();
+  for (auto& event : m_events) {
+    event.clear();
+  }
   m_events.clear();
 
-  for (auto it = m_actions.begin(); it != m_actions.end(); ++it) delete &(*it);
+  // Wtf is this ?
+  for (auto& action : m_actions) {
+    delete &action;
+  }
   m_actions.clear();
 }
 
-bool CActRes::Load(const char* filename) {
+bool CActRes::Load(const std::string& filename) {
   ACT_HEADER header;
   CFile fp;
 
@@ -69,7 +73,7 @@ bool CActRes::Load(const char* filename) {
     cur_action->Create(motion_count);
     // printf("%d motions\n", motion_count);
     for (int j = 0; j < motion_count; j++) {
-      CMotion* cur_motion = &cur_action->motions[j];
+      CMotion* cur_motion = cur_action->GetMotion(j);
       uint32_t sprite_count;
 
       fp.Read(&cur_motion->range1, sizeof(RECT_));
@@ -126,10 +130,11 @@ bool CActRes::Load(const char* filename) {
       // printf("Sprite index: %d\n", cur_motion->spr_clips[0].spr_index);
       // printf("Type: %d\n", cur_motion->spr_clips[0].clip_type);
 
-      if (header.version >= 0x200)
+      if (header.version >= 0x200) {
         fp.Read(&cur_motion->event_id, 4);
-      else
+      } else {
         cur_motion->event_id = -1;
+      }
       // printf("Event id: %d\n", cur_motion->event_id);
 
       if (header.version >= 0x203) {
@@ -159,7 +164,9 @@ bool CActRes::Load(const char* filename) {
     }
 
     if (header.version >= 0x202) {
-      for (int i = 0; i < m_delay.size(); i++) fp.Read(&m_delay[i], 4);
+      for (int i = 0; i < m_delay.size(); i++) {
+        fp.Read(&m_delay[i], 4);
+      }
     }
   }
 
@@ -168,19 +175,21 @@ bool CActRes::Load(const char* filename) {
 }
 
 CMotion* CActRes::GetMotion(unsigned int act_index, unsigned int mot_index) {
-  if (act_index < m_actions.size())
+  if (act_index < m_actions.size()) {
     return m_actions[act_index].GetMotion(mot_index);
-  else
-    return NULL;
+  }
+
+  return nullptr;
 }
 
 double CActRes::GetDelay(unsigned int act_index) {
   double result;
 
-  if (m_delay.size() && act_index < m_delay.size())
+  if (m_delay.size() && act_index < m_delay.size()) {
     result = m_delay[act_index];
-  else
+  } else {
     result = 4.0;
+  }
 
   return result;
 }

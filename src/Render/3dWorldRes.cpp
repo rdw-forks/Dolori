@@ -1,14 +1,15 @@
-#include "3dWorldRes.h"
+#include "Render/3dWorldRes.h"
+
 #include "Common/ErrorMsg.h"
 #include "Files/File.h"
 
-C3dWorldRes::C3dWorldRes() { m_calculated_node = NULL; }
+C3dWorldRes::C3dWorldRes() : m_calculated_node() {}
 
 C3dWorldRes::~C3dWorldRes() {}
 
 CRes* C3dWorldRes::Clone() { return new C3dWorldRes(); }
 
-bool C3dWorldRes::Load(const char* filename) {
+bool C3dWorldRes::Load(const std::string& filename) {
   RSW_HEADER header;
   char buffer[40];
   float x, y, z;
@@ -60,11 +61,11 @@ bool C3dWorldRes::Load(const char* filename) {
     fp.Read(&x, sizeof(x));
     fp.Read(&y, sizeof(y));
     fp.Read(&z, sizeof(z));
-    m_diffuse_col = CVector3d(x, y, z);
+    m_diffuse_col = glm::vec3(x, y, z);
     fp.Read(&x, sizeof(x));
     fp.Read(&y, sizeof(y));
     fp.Read(&z, sizeof(z));
-    m_ambient_col = CVector3d(x, y, z);
+    m_ambient_col = glm::vec3(x, y, z);
     if (header.version >= 0x107) {
       fp.Read(&m_light_opacity, sizeof(m_light_opacity));
     }

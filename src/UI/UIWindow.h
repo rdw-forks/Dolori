@@ -2,6 +2,7 @@
 #define DOLORI_UI_UIWINDOW_H_
 
 #include <stdint.h>
+
 #include <list>
 
 #include "Render/BitmapRes.h"

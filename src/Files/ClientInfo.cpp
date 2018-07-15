@@ -17,87 +17,91 @@ bool ClientInfo::Load() {
   using namespace tinyxml2;
 
   CFile fp;
-  if (!fp.Open(file_path_.c_str(), 0)) {
+  if (!fp.Open(file_path_, 0)) {
     return false;
   }
 
   tinyxml2::XMLDocument document;
-  if (document.Parse((char*)fp.GetBuf(), fp.GetLength()) != XML_SUCCESS) {
+  if (document.Parse(reinterpret_cast<const char*>(fp.GetBuf()),
+                     fp.GetLength()) != XML_SUCCESS) {
     fp.Close();
     return false;
   }
 
-  SetOption(&document);
+  SetOption(document);
   fp.Close();
 
   return true;
 }
 
-void ClientInfo::SetOption(tinyxml2::XMLDocument* document) {
+void ClientInfo::SetOption(const tinyxml2::XMLDocument& document) {
   using namespace tinyxml2;
 
-  XMLElement* clientinfo = document->FirstChildElement("clientinfo");
+  const XMLElement* clientinfo = document.FirstChildElement("clientinfo");
   if (!clientinfo) {
     return;
   }
 
-  XMLElement* servicetype = clientinfo->FirstChildElement("servicetype");
+  const XMLElement* servicetype = clientinfo->FirstChildElement("servicetype");
   if (servicetype) {
     const char* servicetype_str = servicetype->GetText();
-    if (!_strcmpi(servicetype_str, "korea"))
+    if (!_strcmpi(servicetype_str, "korea")) {
       g_serviceType = ServiceType::kKorea;
-    else if (!_strcmpi(servicetype_str, "america"))
+    } else if (!_strcmpi(servicetype_str, "america")) {
       g_serviceType = ServiceType::kAmerica;
-    else if (!_strcmpi(servicetype_str, "japan"))
+    } else if (!_strcmpi(servicetype_str, "japan")) {
       g_serviceType = ServiceType::kJapan;
-    else if (!_strcmpi(servicetype_str, "china"))
+    } else if (!_strcmpi(servicetype_str, "china")) {
       g_serviceType = ServiceType::kChina;
-    else if (!_strcmpi(servicetype_str, "taiwan"))
+    } else if (!_strcmpi(servicetype_str, "taiwan")) {
       g_serviceType = ServiceType::kTaiwan;
-    else if (!_strcmpi(servicetype_str, "thai"))
+    } else if (!_strcmpi(servicetype_str, "thai")) {
       g_serviceType = ServiceType::kThai;
-    else if (!_strcmpi(servicetype_str, "indonesia"))
+    } else if (!_strcmpi(servicetype_str, "indonesia")) {
       g_serviceType = ServiceType::kIndonesia;
-    else if (!_strcmpi(servicetype_str, "philippine"))
+    } else if (!_strcmpi(servicetype_str, "philippine")) {
       g_serviceType = ServiceType::kPhilippine;
-    else if (!_strcmpi(servicetype_str, "malaysia"))
+    } else if (!_strcmpi(servicetype_str, "malaysia")) {
       g_serviceType = ServiceType::kMalaysia;
-    else if (!_strcmpi(servicetype_str, "singapore"))
+    } else if (!_strcmpi(servicetype_str, "singapore")) {
       g_serviceType = ServiceType::kSingapore;
-    else if (!_strcmpi(servicetype_str, "germany"))
+    } else if (!_strcmpi(servicetype_str, "germany")) {
       g_serviceType = ServiceType::kGermany;
-    else if (!_strcmpi(servicetype_str, "india"))
+    } else if (!_strcmpi(servicetype_str, "india")) {
       g_serviceType = ServiceType::kIndia;
-    else if (!_strcmpi(servicetype_str, "brazil"))
+    } else if (!_strcmpi(servicetype_str, "brazil")) {
       g_serviceType = ServiceType::kBrazil;
-    else if (!_strcmpi(servicetype_str, "autralia"))
+    } else if (!_strcmpi(servicetype_str, "autralia")) {
       g_serviceType = ServiceType::kAustralia;
-    else if (!_strcmpi(servicetype_str, "russia"))
+    } else if (!_strcmpi(servicetype_str, "russia")) {
       g_serviceType = ServiceType::kRussia;
-    else if (!_strcmpi(servicetype_str, "vietnam"))
+    } else if (!_strcmpi(servicetype_str, "vietnam")) {
       g_serviceType = ServiceType::kVietnam;
-    else if (!_strcmpi(servicetype_str, "chile"))
+    } else if (!_strcmpi(servicetype_str, "chile")) {
       g_serviceType = ServiceType::kChile;
-    else if (!_strcmpi(servicetype_str, "france"))
+    } else if (!_strcmpi(servicetype_str, "france")) {
       g_serviceType = ServiceType::kFrance;
-    else
+    } else {
       ErrorMsg("No ServiceType !");
+    }
+
     SetLoginStartMode();
   }
 
-  XMLElement* servertype = clientinfo->FirstChildElement("servertype");
+  const XMLElement* servertype = clientinfo->FirstChildElement("servertype");
   if (servertype) {
     const char* servertype_str = servertype->GetText();
-    if (!_strcmpi(servertype_str, "primary"))
-      g_serverType = ServerPrimary;
-    else if (!_strcmpi(servertype_str, "sakray"))
-      g_serverType = ServerSakray;
-    else if (!_strcmpi(servertype_str, "local"))
-      g_serverType = ServerLocal;
-    else if (!_strcmpi(servertype_str, "pk"))
-      g_serverType = ServerPK;
-    else
+    if (!_strcmpi(servertype_str, "primary")) {
+      g_serverType = ServerType::kPrimary;
+    } else if (!_strcmpi(servertype_str, "sakray")) {
+      g_serverType = ServerType::kSakray;
+    } else if (!_strcmpi(servertype_str, "local")) {
+      g_serverType = ServerType::kLocal;
+    } else if (!_strcmpi(servertype_str, "pk")) {
+      g_serverType = ServerType::kPK;
+    } else {
       ErrorMsg("No ServerType !");
+    }
   }
 
   if (clientinfo->FirstChildElement("hideaccountlist")) {
@@ -116,29 +120,30 @@ void ClientInfo::SetOption(tinyxml2::XMLDocument* document) {
   if (clientinfo->FirstChildElement("extendedslot")) {
     g_extendedSlot = true;
   }
+
   if (clientinfo->FirstChildElement("readfolder")) {
     g_readFolderFirst = true;
   }
 
   // Loading screens
-  XMLElement* loading = clientinfo->FirstChildElement("loading");
+  const XMLElement* loading = clientinfo->FirstChildElement("loading");
   if (loading) {
-    for (XMLElement* e = loading->FirstChildElement("image"); e != nullptr;
-         e = e->NextSiblingElement("image")) {
+    for (const XMLElement* e = loading->FirstChildElement("image");
+         e != nullptr; e = e->NextSiblingElement("image")) {
       std::string name = e->GetText();
       s_loadingScreenList.push_back(name);
     }
   }
 
   // TODO: Iterate through connections
-  XMLElement* connection = clientinfo->FirstChildElement("connection");
+  const XMLElement* connection = clientinfo->FirstChildElement("connection");
   if (connection) {
-    XMLElement* address = connection->FirstChildElement("address");
+    const XMLElement* address = connection->FirstChildElement("address");
     if (address) {
       strncpy(g_accountAddr, address->GetText(), sizeof(g_accountAddr));
     }
 
-    XMLElement* port = connection->FirstChildElement("port");
+    const XMLElement* port = connection->FirstChildElement("port");
     if (port) {
       strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
     }

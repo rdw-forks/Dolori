@@ -1,8 +1,10 @@
 #ifndef DOLORI_FILES_PAK_PACK_H_
 #define DOLORI_FILES_PAK_PACK_H_
 
+#include <stdint.h>
 #include <stdlib.h>
-#include "Hash.h"
+
+#include "Files/Hash.h"
 
 typedef struct PAK_PACK {
   size_t m_dataSize;

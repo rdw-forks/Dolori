@@ -1,10 +1,12 @@
 #ifndef DOLORI_RENDER_GNDRES_H_
 #define DOLORI_RENDER_GNDRES_H_
 
+#include <string>
 #include <vector>
+
 #include "Files/File.h"
-#include "Res.h"
-#include "color.h"
+#include "Render/Res.h"
+#include "Render/color.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -53,7 +55,7 @@ class CGndRes : public CRes {
   ~CGndRes();
 
   CRes *Clone();
-  bool Load(const char *);
+  bool Load(const std::string &);
   void Reset();
   float GetZoom();
   int GetWidth();
@@ -61,7 +63,7 @@ class CGndRes : public CRes {
   uint32_t GetSurfaceCount();
   const GND_SURFACE_FMT &GetSurface(unsigned int index);
   const GND_CELL_FMT &GetCell(unsigned int x, unsigned int y);
-  const char * GetTextureName(int texture_id);
+  const char *GetTextureName(int texture_id);
 
   static GND_SURFACE_FMT s_empty_surface;
   static GND_CELL_FMT s_empty_cell;

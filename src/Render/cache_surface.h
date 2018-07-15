@@ -2,8 +2,9 @@
 #define DOLORI_RENDER_CACHE_SURFACE_H_
 
 #include <vector>
-#include "Texture.h"
-#include "cache_info.h"
+
+#include "Render/Texture.h"
+#include "Render/cache_info.h"
 
 // typedef struct CACHE_SURFACE {
 //  CTexture* tex;

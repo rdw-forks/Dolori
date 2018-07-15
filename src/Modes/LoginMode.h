@@ -6,12 +6,19 @@
 #include <vector>
 
 #include "Common/AccountInfo.h"
-#include "Common/billing_info.h"
 #include "Common/character_info.h"
 #include "Common/server_addr.h"
 #include "Modes/Mode.h"
 
-typedef enum LOGINMODE_MSG {
+typedef struct _BILLING_INFO {
+  char dummy1;
+  unsigned long code;
+  unsigned long time1;
+  unsigned long time2;
+  char dummy2[0x7];
+} BILLING_INFO;
+
+typedef enum _LOGINMODE_MSG {
   LMM_CONNECT_TO_ACSVR = 0x2710,
   LMM_MAKECHARACTER = 0x2711,
   LMM_TRANSFERCHARACTER = 0x2712,
@@ -45,8 +52,8 @@ class CLoginMode : public CMode {
   void OnInit(const char *) override;
   int OnRun() override;
   void OnExit() override;
-  void *SendMsg(size_t, void *val1 = nullptr, void *val2 = nullptr,
-                void *val3 = nullptr) override;
+  void *SendMsg(size_t, const void *val1 = nullptr, const void *val2 = nullptr,
+                const void *val3 = nullptr) override;
 
   void OnUpdate();
   void OnChangeState(int);
@@ -89,7 +96,7 @@ class CLoginMode : public CMode {
   struct SERVER_ADDR m_serverInfo[0x64];
   struct CHARACTER_INFO m_charInfo[0xc];
   std::string m_wallPaperBmpName;
-  struct BILLING_INFO m_billingInfo;
+  BILLING_INFO m_billingInfo;
   unsigned int m_syncRequestTime;
   // UIWaitWnd *m_wndWait;
   std::vector<CAccountInfo> m_accountInfo;

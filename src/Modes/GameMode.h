@@ -4,7 +4,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string>
 
-#include "Common/cell_pos.h"
+#include <glm/vec2.hpp>
+
 #include "Modes/Mode.h"
 #include "Render/View.h"
 #include "Render/World.h"
@@ -21,8 +22,8 @@ class CGameMode : public CMode {
   void OnChangeState(int);
   void OnUpdate();
   void ProcessTalkType(int, const std::string &);
-  void *SendMsg(size_t msg, void *val1 = nullptr, void *val2 = nullptr,
-                void *val3 = nullptr);
+  void *SendMsg(size_t msg, const void *val1 = nullptr,
+                const void *val2 = nullptr, const void *val3 = nullptr);
   void ProcessInput();
   void ProcessRightButton();
   void ProcessMouseWheel(int process_type);
@@ -120,7 +121,7 @@ class CGameMode : public CMode {
   int m_isUseYgdrasil;
   int m_isMakeYgdrasil;
   int m_auto_save_chat_cnt;
-  struct CELL_POS m_posOfBossMon;
+  glm::vec2 m_posOfBossMon;
   unsigned char m_isBossAlarm;
   unsigned char m_onCopyName;
   // CScheduler m_scheduler;

@@ -1,4 +1,4 @@
-#include "RenderObject.h"
+#include "GameObject/RenderObject.h"
 
 CRenderObject::CRenderObject() : CGameObject(), m_pos() {}
 

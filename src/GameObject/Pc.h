@@ -2,7 +2,8 @@
 #define DOLORI_GAMEOBJECT_PC_H_
 
 #include <string>
-#include "GameActor.h"
+
+#include "GameObject/GameActor.h"
 
 class CPc : public CGameActor {
  protected:

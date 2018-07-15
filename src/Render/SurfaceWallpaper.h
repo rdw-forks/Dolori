@@ -1,7 +1,7 @@
 #ifndef DOLORI_RENDER_SURFACEWALLPAPER_H_
 #define DOLORI_RENDER_SURFACEWALLPAPER_H_
 
-#include "Surface.h"
+#include "Render/Surface.h"
 
 class CSurfaceWallpaper : public CSurface {
  public:
@@ -15,9 +15,9 @@ class CSurfaceWallpaper : public CSurface {
 //
 //		public void CSurfaceWallpaper(const class CSurfaceWallpaper &)
 //		public void CSurfaceWallpaper::CSurfaceWallpaper(unsigned long,
-//unsigned long) 		public void CSurfaceWallpaper::Update(int, int,
-//int, int, unsigned long *, unsigned char, int) 		public class
-//CSurfaceWallpaper & operator=(const class CSurfaceWallpaper &)
+// unsigned long) 		public void CSurfaceWallpaper::Update(int, int,
+// int, int, unsigned long *, unsigned char, int) 		public class
+// CSurfaceWallpaper & operator=(const class CSurfaceWallpaper &)
 //		public void CSurfaceWallpaper::~CSurfaceWallpaper()
 //		public void * __vecDelDtor(unsigned int)
 //}

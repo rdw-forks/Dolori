@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "Common/Vector2d.h"
+#include <glm/vec2.hpp>
 
 typedef enum MODE_MSG {
   MM_COMMAND = 0x0,
@@ -289,8 +289,8 @@ class CMode {
   bool GetLoopCond();
   void SetLoopCond(bool);
 
-  virtual void *SendMsg(size_t, void *val1 = nullptr, void *val2 = nullptr,
-                        void *val3 = nullptr);
+  virtual void *SendMsg(size_t, const void *val1 = nullptr,
+                        const void *val2 = nullptr, const void *val3 = nullptr);
   virtual void OnInit(const char *) = 0;
   virtual int OnRun() = 0;
   virtual void OnExit() = 0;
@@ -307,7 +307,7 @@ class CMode {
   unsigned long m_mouseAnimStartTick;
   int m_isMouseLockOn;
   int m_screenShotNow;
-  CVector2d m_mouseSnapDiff;
+  glm::vec2 m_mouseSnapDiff;
   int m_cursorActNum;
   int m_cursorMotNum;
 };

@@ -2,7 +2,8 @@
 #define DOLORI_UI_UIBITMAPBUTTON_H_
 
 #include <string>
-#include "UIButton.h"
+
+#include "UI/UIButton.h"
 
 class CUIBitmapButton : public CUIButton {
  public:

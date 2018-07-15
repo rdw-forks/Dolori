@@ -6,14 +6,7 @@
 #define SOCKET_ERROR (-1)
 #endif
 
-CRagConnection::CRagConnection() {
-  m_socket = SOCKET_ERROR;
-  m_bBlock = false;
-  m_bDrop = false;
-  m_dwTime = 0;
-  m_recvQueue.Init(40960);
-  m_sendQueue.Init(40960);
-  m_blockQueue.Init(40960);
+CRagConnection::CRagConnection() : CConnection(), m_bDrop(false) {
   InitPacketMap();
 }
 

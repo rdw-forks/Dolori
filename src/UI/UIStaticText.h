@@ -2,7 +2,8 @@
 #define DOLORI_UI_UISTATICTEXT_H_
 
 #include <string>
-#include "UIWindow.h"
+
+#include "UI/UIWindow.h"
 
 class CUIStaticText : public CUIWindow {
  public:
@@ -10,7 +11,7 @@ class CUIStaticText : public CUIWindow {
   ~CUIStaticText();
 
   void OnDraw();
-  void SetText(const char * txt, int drawBold);
+  void SetText(const char* txt, int drawBold);
 
  private:
   int m_drawBackGround;

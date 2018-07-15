@@ -11,9 +11,9 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
-#include "Common/modetype.h"
 #include "Common/service_type.h"
 #include "Input/SDLEvents.h"
+#include "Modes/modetype.h"
 #include "Network/Packets.h"
 #include "UI/UIBmp.h"
 #include "UI/UINoticeConfirmWnd.h"
@@ -64,13 +64,13 @@ int CLoginMode::OnRun() {
 
 void CLoginMode::OnExit() {}
 
-void *CLoginMode::SendMsg(size_t messageId, void *val1, void *val2,
-                          void *val3) {
+void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
+                          const void *val3) {
   void *result = nullptr;
 
   switch (messageId) {
     case MM_COMMAND: {
-      size_t command_id = (size_t)val1;
+      size_t command_id = reinterpret_cast<size_t>(val1);
 
       switch (command_id) {
         case 10004:

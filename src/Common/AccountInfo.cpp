@@ -1,4 +1,4 @@
-#include "AccountInfo.h"
+#include "Common/AccountInfo.h"
 
 CAccountInfo::CAccountInfo() {}
 

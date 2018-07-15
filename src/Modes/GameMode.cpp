@@ -139,7 +139,8 @@ void CGameMode::ProcessTalkType(int talktype, const std::string &string) {
   };
 }
 
-void *CGameMode::SendMsg(size_t msg, void *val1, void *val2, void *val3) {
+void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
+                         const void *val3) {
   switch (msg) {
     case MM_QUERYRSWNAME:
       return m_rsw_name;

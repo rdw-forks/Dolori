@@ -3,8 +3,9 @@
 
 #include <string>
 #include <vector>
-#include "UIScrollBar.h"
-#include "UIWindow.h"
+
+#include "UI/UIScrollBar.h"
+#include "UI/UIWindow.h"
 
 class CUIListBox : public CUIWindow {
  public:

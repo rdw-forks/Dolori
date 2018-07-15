@@ -1,9 +1,13 @@
 #ifndef DOLORI_RENDER_BITMAPRES_H_
 #define DOLORI_RENDER_BITMAPRES_H_
 
-#include <il.h>
 #include <stdint.h>
-#include "Res.h"
+
+#include <string>
+
+#include <il.h>
+
+#include "Render/Res.h"
 
 class CBitmapRes : public CRes {
  public:
@@ -16,8 +20,8 @@ class CBitmapRes : public CRes {
   CRes *Clone();
   void Reset();
   unsigned int GetColor(int x, int y);
-  bool Load(const char *);
-  bool LoadFromBuffer(const char *, const uint8_t *, size_t);
+  bool Load(const std::string &);
+  bool LoadFromBuffer(const std::string &, const uint8_t *, size_t);
   bool LoadBMPData(const uint8_t *, size_t);
   bool LoadTGAData(const uint8_t *, size_t);
   bool LoadJPGData(const uint8_t *, size_t);

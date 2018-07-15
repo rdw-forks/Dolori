@@ -1,17 +1,17 @@
 #ifndef DOLORI_RENDER_RENDERER_H_
 #define DOLORI_RENDER_RENDERER_H_
 
-#include <glm/glm.hpp>
 #include <list>
 #include <vector>
 
-#include "Common/Vector3d.h"
+#include <glm/glm.hpp>
+
 #include "Render/RPFace.h"
 #include "Render/RPQuadFace.h"
 #include "Render/RPTriFace.h"
-#include "cache_surface.h"
-#include "pixel_format.h"
-#include "spr_img.h"
+#include "Render/cache_surface.h"
+#include "Render/pixel_format.h"
+#include "Render/spr_img.h"
 
 class CRenderer {
  public:
@@ -89,7 +89,7 @@ class CRenderer {
   float m_guardBandTop;
   float m_guardBandBottom;
   int m_isShowInfo;
-  CVector3d m_eyeVector;
+  glm::vec3 m_eyeVector;
   unsigned long m_nClearColor;
   unsigned long m_dwScreenWidth;
   unsigned long m_dwScreenHeight;

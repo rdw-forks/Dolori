@@ -1,7 +1,7 @@
 #ifndef DOLORI_UI_UISLOTBITMAP_H_
 #define DOLORI_UI_UISLOTBITMAP_H_
 
-#include "UIStaticBitmap.h"
+#include "UI/UIStaticBitmap.h"
 
 class CUISlotBitmap : public CUIStaticBitmap {
  public:

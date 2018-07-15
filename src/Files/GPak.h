@@ -2,9 +2,10 @@
 #define DOLORI_FILES_GPACK_H_
 
 #include <vector>
-#include "MemFile.h"
-#include "grf.h"
-#include "pak_pack.h"
+
+#include "Files/MemFile.h"
+#include "Files/grf.h"
+#include "Files/pak_pack.h"
 
 class CGPak {
  public:
@@ -19,8 +20,7 @@ class CGPak {
  protected:
   bool OpenPak01();
   bool OpenPak02();
-  char * NormalizeFileName(char *, const char *);
-
+  char *NormalizeFileName(char *, const char *);
 
  private:
   unsigned long m_FileVer;

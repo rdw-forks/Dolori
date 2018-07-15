@@ -1,9 +1,11 @@
 #ifndef DOLORI_RENDER_SPRRES_H_
 #define DOLORI_RENDER_SPRRES_H_
 
+#include <string>
 #include <vector>
-#include "Res.h"
-#include "spr_img.h"
+
+#include "Render/Res.h"
+#include "Render/spr_img.h"
 
 typedef enum SPR_TYPE { SPR_PAL = 0x0, SPR_RGBA = 0x1 } SPR_TYPE;
 
@@ -27,7 +29,7 @@ class CSprRes : public CRes {
   CRes* Clone();
   void Reset();
   const uint32_t* GetPalette();
-  bool Load(const char* fName);
+  bool Load(const std::string& fName);
   SPR_IMG* GetSprImg(SPR_TYPE clip_type, unsigned long spr_index);
   uint8_t* DecodeRLE(uint8_t* image, int x, int y, unsigned short* size);
 

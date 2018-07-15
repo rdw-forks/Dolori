@@ -1,4 +1,4 @@
-#include "SurfaceWallpaper.h"
+#include "Render/SurfaceWallpaper.h"
 
 #include <SDL_opengl.h>
 

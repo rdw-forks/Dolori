@@ -1,8 +1,9 @@
-#include "World.h"
-#include "3dWorldRes.h"
+#include "Render/World.h"
+
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
-#include "GndRes.h"
+#include "Render/3dWorldRes.h"
+#include "Render/GndRes.h"
 
 CWorld::CWorld()
     : m_calculated(),
@@ -23,16 +24,16 @@ void CWorld::OnEnterFrame() {
   C3dWorldRes* rsw_res;
   CGndRes* gnd_res;
 
-  rsw_filename =
-      (const char*)g_ModeMgr->GetCurMode()->SendMsg(MM_QUERYRSWNAME, 0, 0, 0);
-  rsw_res = (C3dWorldRes*)g_ResMgr->Get(rsw_filename, false);
+  rsw_filename = static_cast<const char*>(
+      g_ModeMgr->GetCurMode()->SendMsg(MM_QUERYRSWNAME));
+  rsw_res = static_cast<C3dWorldRes*>(g_ResMgr->Get(rsw_filename, false));
   if (!rsw_res) {
     std::string error = "Cannot load file ";
     ErrorMsg((error + rsw_filename).c_str());
     return;
   }
   // g_ResMgr->Get(res->GetAttr(), false);
-  gnd_res = (CGndRes*)g_ResMgr->Get(rsw_res->GetGnd(), false);
+  gnd_res = static_cast<CGndRes*>(g_ResMgr->Get(rsw_res->GetGnd(), false));
   m_ground.AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
   RECT_ test;
   m_ground.Render(nullptr, &test, false);

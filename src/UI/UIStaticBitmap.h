@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "UIWindow.h"
+#include "UI/UIWindow.h"
 
 class CUIStaticBitmap : public CUIWindow {
  public:

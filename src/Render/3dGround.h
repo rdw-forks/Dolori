@@ -2,11 +2,12 @@
 #define DOLORI_RENDER_3DGROUND_H_
 
 #include <glm/glm.hpp>
-#include "3dAttr.h"
-#include "GndRes.h"
-#include "Texture.h"
-#include "color.h"
-#include "tlvertex3d.h"
+
+#include "Render/3dAttr.h"
+#include "Render/GndRes.h"
+#include "Render/Texture.h"
+#include "Render/color.h"
+#include "Render/tlvertex3d.h"
 
 struct GND_SURFACE {
   TlVertex3d vertex[0x4];
@@ -51,11 +52,11 @@ class C3dGround {
   int m_wave_speed;
   int m_water_set;
   float m_wave_height;
-  // class CTexture* m_water_tex;
-  // class CTexture* m_p_bump_map;
+  class CTexture* m_water_tex;
+  class CTexture* m_p_bump_map;
   int m_water_cnt;
   int m_water_offset;
-  // int m_is_new_ver;
+  int m_is_new_ver;
   std::vector<GND_SURFACE> m_surfaces;
   // std::vector<LightmapRGBIntensity> m_lm_RGB_intensities;
   std::vector<GND_CELL> m_cells;

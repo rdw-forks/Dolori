@@ -1,7 +1,7 @@
 #ifndef DOLORI_RENDER_RPTRIFACE_H_
 #define DOLORI_RENDER_RPTRIFACE_H_
 
-#include "RPFace.h"
+#include "Render/RPFace.h"
 
 class CRPTriFace : public CRPFace {
  public:

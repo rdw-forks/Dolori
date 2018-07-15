@@ -1,22 +1,21 @@
-#include "UILoginWnd.h"
+#include "UI/UILoginWnd.h"
+
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
 #include "Common/service_type.h"
 #include "Files/File.h"
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
-CUILoginWnd::CUILoginWnd() {
+CUILoginWnd::CUILoginWnd()
+    : m_login(),
+      m_password(),
+      m_cancel_button(),
+      m_isCheckOn(),
+      m_isGravity(1),
+      m_isHangame(),
+      m_classText() {
   m_defPushId = 117;
   m_defCancelPushId = 117;
-  m_startGlobalX = 0;
-  m_startGlobalY = 0;
-  m_login = NULL;
-  m_password = NULL;
-  m_cancel_button = NULL;
-  m_isCheckOn = 0;
-  m_isHangame = 0;
-  m_classText = NULL;
-  m_isGravity = 1;
 }
 
 CUILoginWnd::~CUILoginWnd() {}
@@ -70,8 +69,9 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
         g_serviceType != ServiceType::kGermany &&
         g_serviceType != ServiceType::kIndia &&
         g_serviceType != ServiceType::kAustralia &&
-        g_serviceType != ServiceType::kRussia)
+        g_serviceType != ServiceType::kRussia) {
       break;
+    }
 
     CUIBitmapButton *button = new CUIBitmapButton();
 
@@ -84,7 +84,9 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
     button->SetId(ids[i]);
     AddChild(button);
 
-    if (ids[i] == 119) m_cancel_button = button;
+    if (ids[i] == 119) {
+      m_cancel_button = button;
+    }
   }
 
   CUIEditCtrl *login = new CUIEditCtrl();
@@ -116,17 +118,18 @@ void CUILoginWnd::OnDraw() {
     }
   }();
 
-  CBitmapRes *res = (CBitmapRes *)g_ResMgr->Get(UIBmp(res_path), false);
+  CBitmapRes *res =
+      static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(res_path), false));
   DrawBitmap(0, 0, res, 0);
 }
 
 void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
                            void *val2, void *val3, void *val4) {
-  void *result = NULL;
+  void *result = nullptr;
 
   switch (message) {
     case 6: {
-      size_t btn_id = (size_t)val1;
+      size_t btn_id = reinterpret_cast<size_t>(val1);
 
       if (btn_id == 201) {
         if (g_isGravityID || g_serviceType != ServiceType::kKorea) {
@@ -142,15 +145,15 @@ void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         // v19 = MsgStr(MSI_DO_YOU_REALLY_WANT_TO_QUIT);
         // if (UIWindowMgr::ErrorMsg(&g_windowMgr, v19, 2, 1, 0, 0) != 121)
         //  return 0;
-        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT);
         g_WindowMgr->PostQuit(this);
       } else if (btn_id == 120) {
         // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
-        g_ModeMgr->GetCurMode()->SendMsg(LMM_PASSWORD,
-                                         (void *)m_password->GetText(), 0, 0);
-        g_ModeMgr->GetCurMode()->SendMsg(LMM_ID, (void *)m_login->GetText(), 0,
-                                         0);
-        g_ModeMgr->GetCurMode()->SendMsg(LMM_CONNECT_TO_ACSVR, 0, 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(
+            LMM_PASSWORD, static_cast<const void *>(m_password->GetText()));
+        g_ModeMgr->GetCurMode()->SendMsg(
+            LMM_ID, static_cast<const void *>(m_login->GetText()));
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_CONNECT_TO_ACSVR);
         g_WindowMgr->PostQuit(this);
       }
     } break;

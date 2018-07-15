@@ -2,7 +2,8 @@
 #define DOLORI_RENDER_3DATTR_H_
 
 #include <vector>
-#include "Res.h"
+
+#include "Render/Res.h"
 
 typedef struct ATTR_CELL {
   /* this+0x0 */ float h1;

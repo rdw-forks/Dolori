@@ -3,7 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "UIListBox.h"
+
+#include "UI/UIListBox.h"
 
 class CUIServerListBox : public CUIListBox {
  public:
@@ -31,4 +32,4 @@ class CUIServerListBox : public CUIListBox {
 //    public void * __vecDelDtor(unsigned int)
 //}
 
-#endif // DOLORI_UI_UISERVERLISTBOX_H_
+#endif  // DOLORI_UI_UISERVERLISTBOX_H_

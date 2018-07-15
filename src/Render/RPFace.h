@@ -5,8 +5,9 @@
 #include <SDL_opengl.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
-#include "Texture.h"
-#include "tlvertex3d.h"
+
+#include "Render/Texture.h"
+#include "Render/tlvertex3d.h"
 
 class CRPFace {
  public:

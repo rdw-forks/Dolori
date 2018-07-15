@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-CPacketQueue::CPacketQueue() {}
+CPacketQueue::CPacketQueue() : m_buf(), m_frontPos(), m_rearPos(), m_buffer() {}
 
 CPacketQueue::~CPacketQueue() {}
 

@@ -6,20 +6,22 @@
 #include "Render/ActRes.h"
 #include "UI/UIBmp.h"
 
-CUISelectCharWnd::CUISelectCharWnd() {
+CUISelectCharWnd::CUISelectCharWnd()
+    : m_stateStartTick(GetTick()),
+      m_dontmove(false),
+      m_cur_page(),
+      m_cur_slot(),
+      m_ok_button(),
+      m_make_button(),
+      m_cancel_button(),
+      m_delete_button(),
+      m_notice_button(),
+      m_charge_button(),
+      m_change_name_btn() {
   m_defPushId = 117;
   m_defCancelPushId = 117;
-  m_startGlobalX = 0;
-  m_startGlobalY = 0;
-  m_state_cnt = 0;
-  m_ok_button = nullptr;
-  m_make_button = nullptr;
-  m_cancel_button = nullptr;
-  m_delete_button = nullptr;
-  m_charge_button = nullptr;
-  m_notice_button = nullptr;
-  m_dontmove = false;
   memset(m_viewChar, 0, sizeof(m_viewChar));
+
   if (g_extendedSlot) {
     m_pageCount = 3;
   } else {
@@ -29,11 +31,6 @@ CUISelectCharWnd::CUISelectCharWnd() {
   for (int i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++) {
     m_isAvailable[i] = true;
   }
-
-  m_cur_slot = 0;
-  m_cur_page = 0;
-  m_stateStartTick = GetTick();
-  m_change_name_btn = nullptr;
 }
 
 CUISelectCharWnd::~CUISelectCharWnd() {}

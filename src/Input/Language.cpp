@@ -1,11 +1,10 @@
 #include "Input/Language.h"
 
-CLanguage::CLanguage() {
-  m_selectionCursor = 0;
-  m_selectionOrigin = 0;
-  m_underLineStart = 0;
-  m_underLineEnd = 0;
-}
+CLanguage::CLanguage()
+    : m_selectionCursor(),
+      m_selectionOrigin(),
+      m_underLineStart(),
+      m_underLineEnd() {}
 
 CLanguage::~CLanguage() {}
 

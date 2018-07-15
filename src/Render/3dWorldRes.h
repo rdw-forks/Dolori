@@ -6,8 +6,9 @@
 #include <list>
 #include <string>
 
-#include "Common/Vector3d.h"
-#include "Res.h"
+#include <glm/vec3.hpp>
+
+#include "Render/Res.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -25,7 +26,7 @@ class C3dWorldRes : public CRes {
   ~C3dWorldRes();
 
   CRes* Clone();
-  bool Load(const char*);
+  bool Load(const std::string&);
   void Reset();
   const char* GetGnd();
   const char* GetAttr();
@@ -48,9 +49,9 @@ class C3dWorldRes : public CRes {
   int m_light_longitude;
   int m_light_latitude;
   float m_light_opacity;
-  CVector3d m_light_dir;
-  CVector3d m_diffuse_col;
-  CVector3d m_ambient_col;
+  glm::vec3 m_light_dir;
+  glm::vec3 m_diffuse_col;
+  glm::vec3 m_ambient_col;
   unsigned char m_ver_major;
   unsigned char m_ver_minor;
   int m_ground_top;

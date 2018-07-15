@@ -1,10 +1,12 @@
 #ifndef DOLORI_RENDER_SCENEGRAPHNODE_H_
 #define DOLORI_RENDER_SCENEGRAPHNODE_H_
 
-#include <glm/glm.hpp>
 #include <vector>
-#include "3dAttr.h"
-#include "3dGround.h"
+
+#include <glm/glm.hpp>
+
+#include "Render/3dAttr.h"
+#include "Render/3dGround.h"
 
 class CSceneGraphNode {
  public:

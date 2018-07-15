@@ -1,23 +1,7 @@
-#include "UITextViewer.h"
+#include "UI/UITextViewer.h"
 
-CUITextViewer::CUITextViewer() {
-  m_curItem = 0;
-  m_vertViewOffset = 0;
-  m_horzViewOffset = 0;
-  m_maxTextWidth = 0;
-  m_vertScrollBar = 0;
-  m_horzScrollBar = 0;
-  m_vertScrEnabled = 0;
-  m_horzScrEnabled = 0;
-  m_isTransParent = 0;
-  m_bR = 255;
-  m_bG = 255;
-  m_bB = 255;
+CUITextViewer::CUITextViewer() : m_bgR(), m_bgB(), m_bgG() {
   m_itemSpacing = 18;
-  m_bgR = 0;  // TO CHANGE
-  m_bgB = 0;
-  m_bgG = 0;
-  m_noColor = 0;
 }
 
 CUITextViewer::~CUITextViewer() {}
@@ -38,16 +22,22 @@ void CUITextViewer::OnDraw() {
 
   if (m_isTransParent) {
     ClearDC(0);
-    if (m_parent) m_parent->Invalidate();
+    if (m_parent) {
+      m_parent->Invalidate();
+    }
   } else {
     ClearDC((m_bgR << 16) | (m_bgG << 8) | m_bgB);
   }
 
-  if (spacing) div = spacing;
-  if (m_vertViewOffset + m_h / div >= nb_of_items)
+  if (spacing) {
+    div = spacing;
+  }
+
+  if (m_vertViewOffset + m_h / div >= nb_of_items) {
     nb_of_items_shown = nb_of_items;
-  else
+  } else {
     nb_of_items_shown = m_vertViewOffset + m_h / div;
+  }
 
   unsigned int color = 0;
   if (m_vertViewOffset > 0) {
@@ -64,7 +54,9 @@ void CUITextViewer::OnDraw() {
 
   if (m_noColor) {
     for (int i = 0; i < nb_of_items_shown; i++) {
-      if (m_vertViewOffset + i >= nb_of_items) break;
+      if (m_vertViewOffset + i >= nb_of_items) {
+        break;
+      }
 
       const char* str = m_items[m_vertViewOffset + i].c_str();
       size_t str_length = m_items[m_vertViewOffset + i].length();
@@ -74,7 +66,9 @@ void CUITextViewer::OnDraw() {
     }
   } else {
     for (int i = 0; i < nb_of_items_shown; i++) {
-      if (m_vertViewOffset + i >= nb_of_items) break;
+      if (m_vertViewOffset + i >= nb_of_items) {
+        break;
+      }
 
       const char* str = m_items[m_vertViewOffset + i].c_str();
       size_t str_length = m_items[m_vertViewOffset + i].length();

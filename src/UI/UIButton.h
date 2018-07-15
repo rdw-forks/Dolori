@@ -2,7 +2,8 @@
 #define DOLORI_UI_UIBUTTON_H_
 
 #include <string>
-#include "UIWindow.h"
+
+#include "UI/UIWindow.h"
 
 class CUIButton : public CUIWindow {
  public:

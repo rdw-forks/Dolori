@@ -1,9 +1,10 @@
-#include "SprRes.h"
+#include "Render/SprRes.h"
+
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Files/File.h"
 
-CSprRes::CSprRes() { m_count = 0; }
+CSprRes::CSprRes() : m_count() {}
 
 CSprRes::~CSprRes() {}
 
@@ -11,16 +12,18 @@ CRes* CSprRes::Clone() {
   CRes* res;
 
   res = new CSprRes();
-  if (res) return res;
+  if (res) {
+    return res;
+  }
 
-  return NULL;
+  return nullptr;
 }
 
 void CSprRes::Reset() { m_count = 0; }
 
 const uint32_t* CSprRes::GetPalette() { return m_pal; }
 
-bool CSprRes::Load(const char* filename) {
+bool CSprRes::Load(const std::string& filename) {
   uint8_t palette[0x400];
   uint16_t rgba_count;
   SPR_HEADER header;
@@ -41,11 +44,13 @@ bool CSprRes::Load(const char* filename) {
     fp.Close();
     return false;
   }
+
   if (header.version > 0x201) {
     ErrorMsg("Unsupported version. Content may be corrupted");
     fp.Close();
     return false;
   }
+
   m_count = header.pal_img_count;
   /*printf("Version: %X\n", header.version);
   printf("No of clips: %d\n", m_count);*/
@@ -92,9 +97,10 @@ bool CSprRes::Load(const char* filename) {
 
   // Palettes
   if (header.version > 0x101) {
-    if (fp.Seek(-0x400, SEEK_END)) {
-      fp.Read(palette, 0x400);
-      g_3dDevice->ConvertPalette(m_pal, (PALETTE_ENTRY*)palette, 256);
+    if (fp.Seek(-sizeof(palette), SEEK_END)) {
+      fp.Read(palette, sizeof(palette));
+      g_3dDevice->ConvertPalette(
+          m_pal, reinterpret_cast<PALETTE_ENTRY*>(palette), 256);
     }
   }
 
@@ -104,15 +110,22 @@ bool CSprRes::Load(const char* filename) {
 }
 
 SPR_IMG* CSprRes::GetSprImg(SPR_TYPE clip_type, unsigned long spr_index) {
-  if (clip_type > 2) return NULL;
-  if (spr_index > m_sprites[clip_type].size()) return NULL;
+  if (clip_type > 2) {
+    return nullptr;
+  }
+
+  if (spr_index > m_sprites[clip_type].size()) {
+    return nullptr;
+  }
 
   return m_sprites[clip_type][spr_index];
 }
 
 uint8_t* CSprRes::DecodeRLE(uint8_t* image, int w, int h,
                             unsigned short* size) {
-  if (*size < 1) return image;
+  if (*size < 1) {
+    return image;
+  }
 
   uint8_t* output = new uint8_t[w * h];
   size_t output_index = 0;
@@ -134,6 +147,7 @@ uint8_t* CSprRes::DecodeRLE(uint8_t* image, int w, int h,
       }
     }
   }
+
   *size = output_index - 1;
 
   return output;

@@ -2,7 +2,8 @@
 #define DOLORI_GAMEOBJECT_ABLETOMAKEEFFECT_H_
 
 #include <list>
-#include "RenderObject.h"
+
+#include "GameObject/RenderObject.h"
 
 class CAbleToMakeEffect : public CRenderObject {
  protected:

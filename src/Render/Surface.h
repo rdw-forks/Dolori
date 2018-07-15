@@ -1,15 +1,17 @@
 #ifndef DOLORI_RENDER_SURFACE_H_
 #define DOLORI_RENDER_SURFACE_H_
 
+#include <stdint.h>
+
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <il.h>
-#include <stdint.h>
-#include "Motion.h"
-#include "SprRes.h"
-#include "pixel_format.h"
-#include "tag_rect.h"
+
+#include "Render/Motion.h"
+#include "Render/SprRes.h"
+#include "Render/pixel_format.h"
+#include "Render/tag_rect.h"
 
 class CSurface {
  public:

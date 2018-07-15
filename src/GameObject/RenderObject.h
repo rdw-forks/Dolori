@@ -2,7 +2,8 @@
 #define DOLORI_GAMEOBJECT_RENDEROBJECT_H_
 
 #include <glm/vec3.hpp>
-#include "GameObject.h"
+
+#include "GameObject/GameObject.h"
 
 class CRenderObject : public CGameObject {
  public:

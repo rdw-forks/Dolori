@@ -1,8 +1,9 @@
-#include "UIFrameWnd.h"
+#include "UI/UIFrameWnd.h"
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 
-CUIFrameWnd::CUIFrameWnd() {}
+CUIFrameWnd::CUIFrameWnd() : m_startGlobalX(), m_startGlobalY() {}
 
 CUIFrameWnd::~CUIFrameWnd() {}
 

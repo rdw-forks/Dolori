@@ -1,4 +1,4 @@
-#include "3dDevice.h"
+#include "Render/3dDevice.h"
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -20,8 +20,13 @@ long C3dDevice::Init(uint32_t dwFlags) {
   m_bIsFullscreen = dwFlags & 1;
 
   // SDL_SetMainReady();
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) return -1;
-  if (TTF_Init() < 0) return -1;
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    return -1;
+  }
+
+  if (TTF_Init() < 0) {
+    return -1;
+  }
 
   // Pixel format
   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
@@ -38,20 +43,28 @@ long C3dDevice::Init(uint32_t dwFlags) {
   m_sdlWnd = SDL_CreateWindow("Dolori", SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
                               SCREEN_HEIGHT, flags);
-  if (!m_sdlWnd) return -1;
+  if (!m_sdlWnd) {
+    return -1;
+  }
 
   m_glCtx = SDL_GL_CreateContext(m_sdlWnd);
-  if (!m_glCtx) return -1;
+  if (!m_glCtx) {
+    return -1;
+  }
 
   GLenum glewError = glewInit();
-  if (glewError != GLEW_OK) return -1;
+  if (glewError != GLEW_OK) {
+    return -1;
+  }
 
   // Set the viewport
   glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 0.0, 1.0);
 
   GLenum error = glGetError();
-  if (error != GL_NO_ERROR) return -1;
+  if (error != GL_NO_ERROR) {
+    return -1;
+  }
 
   // Initialize DevIL
   ilInit();
@@ -61,7 +74,9 @@ long C3dDevice::Init(uint32_t dwFlags) {
 
   // Check for error
   ILenum ilError = ilGetError();
-  if (ilError != IL_NO_ERROR) return -1;
+  if (ilError != IL_NO_ERROR) {
+    return -1;
+  }
 
   m_dwRenderWidth = SCREEN_WIDTH;
   m_dwRenderHeight = SCREEN_HEIGHT;
@@ -73,6 +88,7 @@ long C3dDevice::DestroyObjects() {
   if (m_sdlWnd) {
     SDL_DestroyWindow(m_sdlWnd);
   }
+
   TTF_Quit();
   SDL_Quit();
 
@@ -111,7 +127,9 @@ CRenderer* C3dDevice::CreateRenderer(int arg) {
 }
 
 void C3dDevice::DestroyRenderer(CRenderer* renderer) {
-  if (renderer) delete renderer;
+  if (renderer) {
+    delete renderer;
+  }
 }
 
 long C3dDevice::Clear(unsigned long color) {
@@ -122,12 +140,14 @@ long C3dDevice::Clear(unsigned long color) {
   g = ((color >> 8) & 0xFF) / 255.f;
   b = ((color)&0xFF) / 255.f;
   glClearColor(r, g, b, a);
+
   return 0;
 }
 
 long C3dDevice::ClearZBuffer() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   return 0;
 }
 

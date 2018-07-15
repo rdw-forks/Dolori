@@ -2,9 +2,10 @@
 #define DOLORI_UI_UISELECTSERVERWND_H_
 
 #include <string>
-#include "UIBitmapButton.h"
-#include "UIFrameWnd.h"
-#include "UIServerListBox.h"
+
+#include "UI/UIBitmapButton.h"
+#include "UI/UIFrameWnd.h"
+#include "UI/UIServerListBox.h"
 
 class CUISelectServerWnd : public CUIFrameWnd {
  public:

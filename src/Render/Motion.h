@@ -2,9 +2,10 @@
 #define DOLORI_RENDER_MOTION_H_
 
 #include <vector>
-#include "SprRes.h"
-#include "attach_point_info.h"
-#include "rect.h"
+
+#include "Render/SprRes.h"
+#include "Render/attach_point_info.h"
+#include "Render/rect.h"
 
 #pragma pack(push)
 #pragma pack(1)

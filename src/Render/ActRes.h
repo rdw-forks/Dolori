@@ -3,8 +3,9 @@
 
 #include <string>
 #include <vector>
-#include "Action.h"
-#include "Res.h"
+
+#include "Render/Action.h"
+#include "Render/Res.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -25,7 +26,7 @@ class CActRes : public CRes {
 
   CRes* Clone();
   void Reset();
-  bool Load(const char* filename);
+  bool Load(const std::string& filename);
   CMotion* GetMotion(unsigned int act_index, unsigned int mot_index);
   double GetDelay(unsigned int actIndex);
 

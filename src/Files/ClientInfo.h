@@ -12,7 +12,7 @@ class ClientInfo {
   bool Load();
 
  private:
-  void SetOption(tinyxml2::XMLDocument* document);
+  void SetOption(const tinyxml2::XMLDocument& document);
   void SetLoginStartMode();
 
  private:

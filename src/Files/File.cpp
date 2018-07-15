@@ -5,10 +5,7 @@
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 
-CFile::CFile() {
-  m_fileStream.clear();
-  m_buf = nullptr;
-}
+CFile::CFile() : m_buf() { m_fileStream.clear(); }
 
 CFile::~CFile() { Close(); }
 
@@ -19,12 +16,12 @@ bool CFile::IsFileExist(const char* fName) {
   return g_FileMgr->IsDataExist(full_name);
 }
 
-bool CFile::Open(const char* lpFileName, int nOpenFlags) {
+bool CFile::Open(const std::string& file_name, int nOpenFlags) {
   bool result;
 
   if (nOpenFlags) {
     if (nOpenFlags & 1) {
-      strncpy(m_fileName, lpFileName, sizeof(m_fileName));
+      strncpy(m_fileName, file_name.c_str(), sizeof(m_fileName));
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
         ErrorMsg(m_fileName);
@@ -44,7 +41,7 @@ bool CFile::Open(const char* lpFileName, int nOpenFlags) {
     }
   } else {
     m_cursor = 0;
-    MakeFileName(m_fileName, lpFileName, sizeof(m_fileName));
+    MakeFileName(m_fileName, file_name.c_str(), sizeof(m_fileName));
     if (g_readFolderFirst) {
       if (OpenFromFolder(m_fileName)) {
         return true;
@@ -200,7 +197,7 @@ void CFile::MakeFileName(char* output, const char* input,
   }*/
 }
 
-char* CFile::NormalizeFileName(char* output, const char* input) {
+char* CFile::NormalizeFileName(const char* input, char* output) {
   char* orig = output;
 
   for (; *input != '\0'; output++, input++) {

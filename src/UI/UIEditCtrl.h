@@ -2,7 +2,8 @@
 #define DOLORI_UI_UIEDITCTRL_H_
 
 #include <string>
-#include "UIWindow.h"
+
+#include "UI/UIWindow.h"
 
 class CUIEditCtrl : public CUIWindow {
  public:

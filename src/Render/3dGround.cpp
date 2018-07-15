@@ -1,20 +1,22 @@
-#include "3dGround.h"
-#include "Common/Globals.h"
-#include "rect.h"
+#include "Render/3dGround.h"
 
-C3dGround::C3dGround() {
-  m_zoom = 10.0f;
-  m_water_level = 0;
-  m_tex_anim_cycle = 3;
-  m_wave_pitch = 50;
-  m_wave_speed = 2;
-  m_wave_height = 1.0f;
-  m_water_set = 0;
-  // m_water_tex = nullptr;
-  m_attr = nullptr;
-  // m_p_bump_map = nullptr;
-  // m_is_new_ver = 0;
-}
+#include "Common/Globals.h"
+#include "Render/rect.h"
+
+C3dGround::C3dGround()
+    : m_attr(),
+      m_width(),
+      m_height(),
+      m_zoom(10.0f),
+      m_water_level(),
+      m_tex_anim_cycle(3),
+      m_wave_pitch(50),
+      m_wave_speed(2),
+      m_water_set(),
+      m_wave_height(1.0f),
+      m_water_tex(),
+      m_p_bump_map(),
+      m_is_new_ver() {}
 
 C3dGround::~C3dGround() {}
 
@@ -84,7 +86,7 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
         // if (g_is_lightmap) {
         //}
         // else {
-        surface->lmtex = NULL;
+        surface->lmtex = nullptr;
         //}
 
         cell->top = surface;
@@ -128,7 +130,7 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
           // if (g_is_lightmap) {
           //}
           // else {
-          surface->lmtex = NULL;
+          surface->lmtex = nullptr;
           //}
 
           cell->front = surface;
@@ -173,7 +175,7 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
           // if (g_is_lightmap) {
           //}
           // else {
-          surface->lmtex = NULL;
+          surface->lmtex = nullptr;
           //}
 
           cell->right = surface;
@@ -195,6 +197,7 @@ void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
         for (int i = 0; i < 4; i++) {
           rp->SetGeomInfo(i, cell.top->vertex[i]);
         }
+
         rp->set_texture(cell.top->tex);
         g_Renderer->AddRP(rp, 1);
       }
@@ -204,6 +207,7 @@ void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
         for (int i = 0; i < 4; i++) {
           rp->SetGeomInfo(i, cell.front->vertex[i]);
         }
+
         rp->set_texture(cell.front->tex);
         g_Renderer->AddRP(rp, 1);
       }
@@ -213,6 +217,7 @@ void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
         for (int i = 0; i < 4; i++) {
           rp->SetGeomInfo(i, cell.right->vertex[i]);
         }
+
         rp->set_texture(cell.right->tex);
         g_Renderer->AddRP(rp, 1);
       }

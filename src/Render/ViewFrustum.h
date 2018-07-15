@@ -1,9 +1,11 @@
 #ifndef DOLORI_RENDER_VIEWFRUSTUM_H_
 #define DOLORI_RENDER_VIEWFRUSTUM_H_
 
-#include <glm/glm.hpp>
 #include <list>
-#include "SceneGraphNode.h"
+
+#include <glm/glm.hpp>
+
+#include "Render/SceneGraphNode.h"
 
 class CViewFrustum {
  public:

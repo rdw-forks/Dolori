@@ -2,6 +2,9 @@
 #define DOLORI_RENDER_RES_H_
 
 #include <stdlib.h>
+
+#include <string>
+
 #include "Files/Hash.h"
 
 class CRes {
@@ -13,7 +16,7 @@ class CRes {
   void UpdateInfo(const char*, size_t);
   void UpdateTimeStamp();
   void OnLoadError(const char*);
-  virtual bool Load(const char*) { return false; };
+  virtual bool Load(const std::string&) { return false; };
   virtual CRes* Clone() { return nullptr; };
 
  private:

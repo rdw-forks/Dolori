@@ -10,11 +10,11 @@
 #endif
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
-#include "Common/modetype.h"
 #include "Core/ModeMgr.h"
 #include "Core/Session.h"
 #include "Files/ClientInfo.h"
 #include "Files/File.h"
+#include "Modes/modetype.h"
 #include "Render/3dDevice.h"
 
 Game::~Game() {

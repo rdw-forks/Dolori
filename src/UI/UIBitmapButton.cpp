@@ -1,14 +1,10 @@
-#include "UIBitmapButton.h"
+#include "UI/UIBitmapButton.h"
+
 #include "Common/Globals.h"
 #include "Common/service_type.h"
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
-CUIBitmapButton::CUIBitmapButton() {
-  m_state = 0;
-  m_isDisabled = 0;
-  m_bitmapWidth = 0;
-  m_bitmapHeight = 0;
-}
+CUIBitmapButton::CUIBitmapButton() : m_bitmapWidth(), m_bitmapHeight() {}
 
 CUIBitmapButton::~CUIBitmapButton() {}
 

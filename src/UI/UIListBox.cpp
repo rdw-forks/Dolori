@@ -1,17 +1,21 @@
-#include "UIListBox.h"
+#include "UI/UIListBox.h"
 
-CUIListBox::CUIListBox() {
-  m_curItem = 0;
-  m_vertViewOffset = 0;
-  m_horzViewOffset = 0;
-  m_maxTextWidth = 0;
-  m_vertScrollBar = 0;
-  m_horzScrollBar = 0;
-  m_vertScrEnabled = 0;
-  m_horzScrEnabled = 0;
-  m_isTransParent = false;
+CUIListBox::CUIListBox()
+    : m_bR(255),
+      m_bG(255),
+      m_bB(255),
+      m_curItem(),
+      m_vertViewOffset(),
+      m_horzViewOffset(),
+      m_maxTextWidth(),
+      m_vertScrEnabled(),
+      m_horzScrEnabled(),
+      m_vertScrollBar(),
+      m_horzScrollBar(),
+      m_isTransParent(false),
+      m_itemSpacing(16),
+      m_noColor() {
   SetColor(255, 255, 255);
-  m_itemSpacing = 16;
 }
 
 CUIListBox::~CUIListBox() {}
@@ -45,10 +49,11 @@ void CUIListBox::RecalcScrbarPos() {
   size_t nb_of_items_shown = m_h / m_itemSpacing;
   size_t nb_of_items = m_items.size();
 
-  if (nb_of_items <= nb_of_items_shown)
+  if (nb_of_items <= nb_of_items_shown) {
     m_vertScrEnabled = 0;
-  else
+  } else {
     m_vertScrEnabled = 1;
+  }
 
   if (m_vertScrEnabled) {
     m_vertScrollBar->SetRange(
@@ -96,23 +101,33 @@ void CUIListBox::OnDraw() {
 
   if (m_isTransParent) {
     ClearDC(0);
-    if (m_parent) m_parent->Invalidate();
+    if (m_parent) {
+      m_parent->Invalidate();
+    }
   } else {
     ClearDC((m_bR << 16) | (m_bG << 8) | m_bB);
   }
 
-  if (spacing) div = spacing;
-  if (m_vertViewOffset + m_h / div >= nb_of_items)
+  if (spacing) {
+    div = spacing;
+  }
+
+  if (m_vertViewOffset + m_h / div >= nb_of_items) {
     nb_of_items_shown = nb_of_items;
-  else
+  } else {
     nb_of_items_shown = m_vertViewOffset + m_h / div;
+  }
 
   const char *str;
   size_t str_length;
   for (int i = 0; i < nb_of_items_shown; i++) {
-    if (m_vertViewOffset + i >= nb_of_items) break;
-    if (m_vertViewOffset + i == m_curItem)
+    if (m_vertViewOffset + i >= nb_of_items) {
+      break;
+    }
+
+    if (m_vertViewOffset + i == m_curItem) {
       DrawBox(0, m_itemSpacing * i, m_w, m_itemSpacing - 1, 0xFFFBDFCA);
+    }
 
     str = m_items[m_vertViewOffset + i].c_str();
     str_length = m_items[m_vertViewOffset + i].length();
@@ -125,10 +140,11 @@ void CUIListBox::OnLBtnDown(int x, int y) {
   int target_id = m_vertViewOffset + y / m_itemSpacing;
 
   if (x < 0 || y < 0 || x >= m_w || y >= m_h || target_id < 0 ||
-      target_id >= m_items.size())
+      target_id >= m_items.size()) {
     m_curItem = -1;
-  else
+  } else {
     m_curItem = target_id;
+  }
 
   Invalidate();
 }
@@ -143,14 +159,18 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
     case 9:
     case 10:
       prev_view_offset = m_vertViewOffset;
-      if (message == 9)
+      if (message == 9) {
         m_vertViewOffset -= m_h / m_itemSpacing - 1;
-      else if (message == 10)
+      } else if (message == 10) {
         m_vertViewOffset += m_h / m_itemSpacing - 1;
-      else
+      } else {
         m_vertViewOffset += val1;
+      }
 
-      if (m_vertViewOffset < 0) m_vertViewOffset = 0;
+      if (m_vertViewOffset < 0) {
+        m_vertViewOffset = 0;
+      }
+
       nb_of_items = m_items.size();
       if (m_vertViewOffset >
           (m_horzScrEnabled - m_h / m_itemSpacing) + nb_of_items) {
@@ -161,7 +181,9 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
       m_vertScrollBar->SetPos(m_vertViewOffset);
       m_vertScrollBar->Invalidate();
       Invalidate();
-      if (m_isTransParent && m_parent) m_parent->Invalidate();
+      if (m_isTransParent && m_parent) {
+        m_parent->Invalidate();
+      }
 
       return m_vertViewOffset - prev_view_offset;
   };
@@ -174,10 +196,11 @@ int CUIListBox::HitTest(int x, int y) {
   int result;
 
   if (x < 0 || y < 0 || x >= m_w || y >= m_h || target_id < 0 ||
-      target_id >= m_items.size())
+      target_id >= m_items.size()) {
     result = -1;
-  else
+  } else {
     result = target_id;
+  }
 
   return result;
 }

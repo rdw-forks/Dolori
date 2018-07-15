@@ -5,14 +5,15 @@
 
 #include <fstream>
 #include <iostream>
+#include <string>
 
 class CFile {
  public:
   CFile();
   ~CFile();
 
-  static bool IsFileExist(const char * fName);
-  bool Open(const char *, int);
+  static bool IsFileExist(const char *fName);
+  bool Open(const std::string &, int);
   bool Read(void *lpBuf, size_t nCount);
   bool Seek(long lOff, size_t nFrom);
   bool Write(const void *, size_t);
@@ -24,7 +25,7 @@ class CFile {
  protected:
   bool OpenFromFolder(const char *);
   static void MakeFileName(char *, const char *, unsigned long);
-  static char *NormalizeFileName(char *, const char *);
+  static char *NormalizeFileName(const char *, char *);
 
  private:
   std::fstream m_fileStream;

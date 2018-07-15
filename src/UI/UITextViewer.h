@@ -1,7 +1,7 @@
 #ifndef DOLORI_UI_UITEXTVIEWER_H_
 #define DOLORI_UI_UITEXTVIEWER_H_
 
-#include "UIListBox.h"
+#include "UI/UIListBox.h"
 
 class CUITextViewer : public CUIListBox {
  public:
@@ -16,10 +16,9 @@ class CUITextViewer : public CUIListBox {
   int m_bgR;
   int m_bgG;
   int m_bgB;
-  bool m_isTransParent;
 };
 
-//class UITextViewer {
+// class UITextViewer {
 //  UIListBox, offset = 0x0
 //
 //                      public void
@@ -33,7 +32,8 @@ class CUITextViewer : public CUIListBox {
 //                          UITextViewer::OnLBtnDblClk(int, int) public void
 //                          UITextViewer::OnLBtnUp(int, int) public void
 //                          UITextViewer::OnDraw() public int
-//                          UITextViewer::SendMsg(class UIWindow *, int, int, int,
+//                          UITextViewer::SendMsg(class UIWindow *, int, int,
+//                          int,
 //                                                int, int)
 //                      /* this+0x90 */ int m_bgR
 //                      /* this+0x94 */ int m_bgG
@@ -43,4 +43,4 @@ class CUITextViewer : public CUIListBox {
 //                          __vecDelDtor(unsigned int)
 //}
 
-#endif // DOLORI_UI_UITEXTVIEWER_H_
+#endif  // DOLORI_UI_UITEXTVIEWER_H_

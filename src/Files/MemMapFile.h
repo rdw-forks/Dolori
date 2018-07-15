@@ -9,8 +9,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #endif
+
 #include <vector>
-#include "MemFile.h"
+
+#include "Files/MemFile.h"
 
 class CMemMapFile : public CMemFile {
  public:

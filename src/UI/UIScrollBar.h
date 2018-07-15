@@ -1,7 +1,7 @@
 #ifndef DOLORI_UI_UISCROLLBAR_H_
 #define DOLORI_UI_UISCROLLBAR_H_
 
-#include "UIWindow.h"
+#include "UI/UIWindow.h"
 
 class CUIScrollBar : public CUIWindow {
  public:

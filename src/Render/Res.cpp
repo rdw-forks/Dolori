@@ -1,9 +1,11 @@
-#include "Res.h"
+#include "Render/Res.h"
+
 #include <stdio.h>
+
 #include "Common/ErrorMsg.h"
 #include "Common/GetTick.h"
 
-CRes::CRes() { m_extIndex = 0; }
+CRes::CRes() : m_extIndex() {}
 
 CRes::~CRes() {}
 

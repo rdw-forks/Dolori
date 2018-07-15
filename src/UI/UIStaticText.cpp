@@ -1,19 +1,18 @@
-#include "UIStaticText.h"
+#include "UI/UIStaticText.h"
 
-CUIStaticText::CUIStaticText() {
-  m_fontType = 0;
-  m_drawBackGround = 0;
-  m_isShorten = 0;
-  m_drawTwice = 0;
-  m_drawBold = 0;
-  m_textR = 0;
-  m_textG = 0;
-  m_textB = 0;
-  m_fontHeight = 12;
-  m_backR = 255;
-  m_backG = 255;
-  m_backB = 255;
-}
+CUIStaticText::CUIStaticText()
+    : m_drawBackGround(),
+      m_backR(255),
+      m_backG(255),
+      m_backB(255),
+      m_textR(),
+      m_textG(),
+      m_textB(),
+      m_drawTwice(),
+      m_drawBold(),
+      m_fontHeight(12),
+      m_fontType(),
+      m_isShorten() {}
 
 CUIStaticText::~CUIStaticText() {}
 

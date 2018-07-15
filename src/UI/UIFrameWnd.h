@@ -1,7 +1,7 @@
 #ifndef DOLORI_UI_UIFRAMEWND_H_
 #define DOLORI_UI_UIFRAMEWND_H_
 
-#include "UIWindow.h"
+#include "UI/UIWindow.h"
 
 class CUIFrameWnd : public CUIWindow {
  public:

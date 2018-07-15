@@ -1,4 +1,5 @@
-#include "Hash.h"
+#include "Files/Hash.h"
+
 #include <ctype.h>
 #include <string.h>
 

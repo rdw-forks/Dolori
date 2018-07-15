@@ -2,7 +2,11 @@
 #define DOLORI_COMMON_GLOBALS_H_
 
 #include <vector>
+
+#include "Common/MsgStrMgr.h"
 #include "Common/character_info.h"
+#include "Common/server_type.h"
+#include "Common/service_type.h"
 #include "Core/FileMgr.h"
 #include "Core/ModeMgr.h"
 #include "Core/ResMgr.h"
@@ -10,12 +14,10 @@
 #include "Core/UIWindowMgr.h"
 #include "Input/Language.h"
 #include "Input/Mouse.h"
-#include "MsgStrMgr.h"
 #include "Network/RagConnection.h"
 #include "Render/3dDevice.h"
 #include "Render/Renderer.h"
 #include "Render/TexMgr.h"
-#include "service_type.h"
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;
@@ -31,7 +33,7 @@ extern CMsgStrMgr* g_MsgStrMgr;
 extern CLanguage* g_Language;
 extern char TITLE_FILE[256];
 extern ServiceType g_serviceType;
-extern unsigned short g_serverType;
+extern ServerType g_serverType;
 extern unsigned int g_version;
 extern char g_clientType;
 extern bool g_hideAccountList;

@@ -2,7 +2,8 @@
 #define DOLORI_RENDER_ACTION_H_
 
 #include <vector>
-#include "Motion.h"
+
+#include "Render/Motion.h"
 
 class CAction {
  public:
@@ -12,8 +13,8 @@ class CAction {
   void Create(unsigned int motion_count);
   CMotion* GetMotion(unsigned int motion_number);
 
- public:
-  std::vector<CMotion> motions;
+ private:
+  std::vector<CMotion> m_motions;
 };
 
 // struct CAction {

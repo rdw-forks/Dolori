@@ -1,4 +1,5 @@
-#include "Surface.h"
+#include "Render/Surface.h"
+
 #include "Common/Globals.h"
 
 CSurface::CSurface() : m_w(), m_h(), m_sdl_surface(), m_textureId() {
@@ -19,8 +20,13 @@ CSurface::CSurface(SDL_Surface *surface) {
 }
 
 CSurface::~CSurface() {
-  if (m_sdl_surface) SDL_FreeSurface(m_sdl_surface);
-  if (m_textureId) glDeleteTextures(1, &m_textureId);
+  if (m_sdl_surface) {
+    SDL_FreeSurface(m_sdl_surface);
+  }
+
+  if (m_textureId) {
+    glDeleteTextures(1, &m_textureId);
+  }
 }
 
 GLuint CSurface::texture_id() const { return m_textureId; }
@@ -43,11 +49,13 @@ void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
     SDL_FreeSurface(m_sdl_surface);
     m_sdl_surface = nullptr;
   }
+
   if (!m_sdl_surface) {
     Create(width, height);
     m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
                                          0xff00, 0xff0000, 0xff000000);
   }
+
   SDL_LockSurface(m_sdl_surface);
   memcpy(m_sdl_surface->pixels, image, m_sdl_surface->w * m_sdl_surface->h * 4);
   SDL_UnlockSurface(m_sdl_surface);
@@ -61,27 +69,33 @@ void CSurface::UpdateSprite(int x, int y, int width, int height, SPR_IMG *img,
     SDL_FreeSurface(m_sdl_surface);
     m_sdl_surface = nullptr;
   }
+
   if (!m_sdl_surface) {
     Create(width, height);
     m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
                                          0xff00, 0xff0000, 0xff000000);
   }
+
   int surface_size = m_sdl_surface->w * m_sdl_surface->h;
   uint32_t *surface_data = (uint32_t *)m_sdl_surface->pixels;
 
   SDL_LockSurface(m_sdl_surface);
   for (int i = 0; i < surface_size; i++) {
-    if (img->image_8bit[i])
+    if (img->image_8bit[i]) {
       surface_data[i] = pal[img->image_8bit[i]];
-    else
+    } else {
       surface_data[i] = 0;
+    }
   }
+
   SDL_UnlockSurface(m_sdl_surface);
   UpdateGlTexture();
 }
 
 void CSurface::CopyRect(int x, int y, int w, int h, SDL_Surface *src) {
-  if (!src || !m_sdl_surface) return;
+  if (!src || !m_sdl_surface) {
+    return;
+  }
 
   SDL_Rect dst_rect;
   dst_rect.x = x;
@@ -93,7 +107,9 @@ void CSurface::CopyRect(int x, int y, int w, int h, SDL_Surface *src) {
 }
 
 void CSurface::BlitBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
-  if (!bitmap || !m_sdl_surface) return;
+  if (!bitmap || !m_sdl_surface) {
+    return;
+  }
 
   SDL_Surface *surface;
   surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff, 0xff00,
@@ -108,7 +124,9 @@ void CSurface::BlitBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
 void CSurface::BlitSurface(int x, int y, CSurface *src, int srcx, int srcy,
                            int width, int height, int xflip, int zoomx,
                            int zoomy) {
-  if (!src || !m_sdl_surface) return;
+  if (!src || !m_sdl_surface) {
+    return;
+  }
 
   SDL_Rect src_rect, dst_rect;
   src_rect.x = srcx;
@@ -151,7 +169,9 @@ void CSurface::BlitSprite(int x, int y, CSprRes *spr_res, CMotion *cur_motion,
 }
 
 void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color) {
-  if (m_sdl_surface) SDL_FillRect(m_sdl_surface, rect, color);
+  if (m_sdl_surface) {
+    SDL_FillRect(m_sdl_surface, rect, color);
+  }
 }
 
 void CSurface::DrawSurface(int x, int y, int width, int height,
@@ -165,19 +185,29 @@ void CSurface::DrawSurface(int x, int y, int width, int height,
   left = 0;
   top = 0;
   bottom = height;
-  if (x + width > g_3dDevice->GetWidth()) right = g_3dDevice->GetWidth() - x;
+
+  if (x + width > g_3dDevice->GetWidth()) {
+    right = g_3dDevice->GetWidth() - x;
+  }
+
   s_y = y;
-  if (y + height > g_3dDevice->GetHeight())
+  if (y + height > g_3dDevice->GetHeight()) {
     bottom = g_3dDevice->GetHeight() - y;
+  }
+
   if (x < 0) {
     left = -x;
     s_x = 0;
   }
+
   if (y < 0) {
     top = -y;
     s_y = 0;
   }
-  if (right > left && bottom > top) DrawSurfaceStretch(s_x, s_y, right, bottom);
+
+  if (right > left && bottom > top) {
+    DrawSurfaceStretch(s_x, s_y, right, bottom);
+  }
 }
 
 void CSurface::DrawSurfaceStretch(int x, int y, int width, int height) {

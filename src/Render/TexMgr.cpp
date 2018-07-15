@@ -1,4 +1,4 @@
-#include "TexMgr.h"
+#include "Render/TexMgr.h"
 
 #include "Common/Globals.h"
 

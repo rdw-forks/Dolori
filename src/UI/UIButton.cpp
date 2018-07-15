@@ -1,7 +1,8 @@
-#include "UIButton.h"
+#include "UI/UIButton.h"
+
 #include "Common/Globals.h"
 
-CUIButton::CUIButton() {}
+CUIButton::CUIButton() : m_isDisabled() {}
 
 CUIButton::~CUIButton() {}
 
@@ -20,10 +21,11 @@ void CUIButton::OnLBtnUp(int x, int y) {
     } else {
       m_state = 1;
 
-      if (m_parent)
-        m_parent->SendMsg(this, 6, (void*)m_id, 0, 0, 0);
-      else
-        g_ModeMgr->GetCurMode()->SendMsg(0, (void*)m_id, 0, 0);
+      if (m_parent) {
+        m_parent->SendMsg(this, 6, reinterpret_cast<void*>(m_id));
+      } else {
+        g_ModeMgr->GetCurMode()->SendMsg(0, reinterpret_cast<void*>(m_id));
+      }
     }
     Invalidate();
     g_WindowMgr->ReleaseCapture();

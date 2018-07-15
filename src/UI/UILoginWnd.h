@@ -3,10 +3,11 @@
 
 #include <string>
 #include <vector>
-#include "UIBitmapButton.h"
-#include "UIEditCtrl.h"
-#include "UIFrameWnd.h"
-#include "UIStaticText.h"
+
+#include "UI/UIBitmapButton.h"
+#include "UI/UIEditCtrl.h"
+#include "UI/UIFrameWnd.h"
+#include "UI/UIStaticText.h"
 
 class CUILoginWnd : public CUIFrameWnd {
  public:

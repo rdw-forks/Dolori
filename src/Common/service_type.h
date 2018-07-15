@@ -1,7 +1,7 @@
 #ifndef DOLORI_COMMON_SERVICETYPE_H_
 #define DOLORI_COMMON_SERVICETYPE_H_
 
-enum ServiceType {
+enum class ServiceType {
   kKorea = 0x0,
   kAmerica = 0x1,
   kJapan = 0x2,
@@ -22,7 +22,7 @@ enum ServiceType {
   kChile = 0x11,
   kFrance = 0x12,
 
-  kLast = 0x13
+  kLast
 };
 
 #endif  // DOLORI_COMMON_SERVICETYPE_H_

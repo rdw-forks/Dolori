@@ -1,4 +1,5 @@
-#include "ErrorMsg.h"
+#include "Common/ErrorMsg.h"
+
 #include <SDL.h>
 
 void ErrorMsg(const char* msg) {

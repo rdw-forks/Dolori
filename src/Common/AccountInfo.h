@@ -22,4 +22,4 @@ class CAccountInfo {
   unsigned long version;
 };
 
-#endif // DOLORI_COMMON_ACCOUNTINFO_H_
+#endif  // DOLORI_COMMON_ACCOUNTINFO_H_

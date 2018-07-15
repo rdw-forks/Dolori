@@ -1,4 +1,5 @@
-#include "GndRes.h"
+#include "Render/GndRes.h"
+
 #include "Common/ErrorMsg.h"
 
 GND_SURFACE_FMT CGndRes::s_empty_surface;
@@ -13,7 +14,7 @@ CGndRes::~CGndRes() { Reset(); }
 
 CRes* CGndRes::Clone() { return new CGndRes(); }
 
-bool CGndRes::Load(const char* filename) {
+bool CGndRes::Load(const std::string& filename) {
   uint32_t name_length;
   GND_HEADER header;
   char* buffer;

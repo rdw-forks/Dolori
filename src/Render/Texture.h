@@ -2,8 +2,8 @@
 #define DOLORI_RENDER_TEXTURE_H_
 
 #include "Common/GetTick.h"
-#include "Surface.h"
-#include "pixel_format.h"
+#include "Render/Surface.h"
+#include "Render/pixel_format.h"
 
 class CTexture : public CSurface {
  public:

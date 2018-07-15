@@ -1,6 +1,6 @@
 #include "UI/UISlotBitmap.h"
 
-CUISlotBitmap::CUISlotBitmap(int slot_id) { m_slot_id = slot_id; }
+CUISlotBitmap::CUISlotBitmap(int slot_id) : m_slot_id(slot_id) {}
 
 CUISlotBitmap::~CUISlotBitmap() {}
 

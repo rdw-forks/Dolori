@@ -1,6 +1,7 @@
-#include "UIStaticBitmap.h"
+#include "UI/UIStaticBitmap.h"
+
 #include "Common/Globals.h"
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
 CUIStaticBitmap::CUIStaticBitmap() {}
 

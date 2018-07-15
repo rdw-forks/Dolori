@@ -1,4 +1,4 @@
-#include "Globals.h"
+#include "Common/Globals.h"
 
 CRagConnection* g_RagConnection = new CRagConnection();
 CUIWindowMgr* g_WindowMgr = new CUIWindowMgr();
@@ -15,7 +15,7 @@ CLanguage* g_Language = new CLanguage();
 
 char TITLE_FILE[256];
 ServiceType g_serviceType;
-unsigned short g_serverType;
+ServerType g_serverType;
 unsigned int g_version = 23;
 char g_clientType = 23;
 bool g_hideAccountList;

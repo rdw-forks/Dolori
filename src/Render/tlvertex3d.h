@@ -2,8 +2,9 @@
 #define DOLORI_RENDER_TLVERTEX3D_H_
 
 #include <glm/glm.hpp>
-#include "color.h"
-#include "texcoor.h"
+
+#include "Render/color.h"
+#include "Render/texcoor.h"
 
 struct TlVertex3d {
   glm::vec3 vertex;

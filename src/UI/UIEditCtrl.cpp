@@ -1,7 +1,8 @@
-#include "UIEditCtrl.h"
+#include "UI/UIEditCtrl.h"
+
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
-#include "UIBmp.h"
+#include "UI/UIBmp.h"
 
 CUIEditCtrl::CUIEditCtrl() {
   m_maxchar = 255;
@@ -35,23 +36,24 @@ void CUIEditCtrl::OnDraw() {
   if (m_isSingColorFrame) {
     ClearDC((0xFF << 24) | (0xFF << 16) | (m_g << 8) | m_b);
     m_yOffset = 2;
-  }
-  else {
+  } else {
     const std::string dialog_l_name =
-      const_strings::kResourceSubfolder + "type_dialog_l.bmp";
+        const_strings::kResourceSubfolder + "type_dialog_l.bmp";
     const std::string dialog_m_name =
-      const_strings::kResourceSubfolder + "type_dialog_m.bmp";
+        const_strings::kResourceSubfolder + "type_dialog_m.bmp";
     const std::string dialog_r_name =
-      const_strings::kResourceSubfolder + "type_dialog_r.bmp";
+        const_strings::kResourceSubfolder + "type_dialog_r.bmp";
     CBitmapRes* bitmap;
 
-    bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_l_name), false);
+    bitmap =
+        static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_l_name), false));
     DrawBitmap(0, 0, bitmap, 0);
 
-    int nb_of_elements = (m_w - 20) / 24;
+    const int nb_of_elements = (m_w - 20) / 24;
     int pos_x = 10;
     if (nb_of_elements > 0) {
-      bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_m_name), false);
+      bitmap =
+          static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_m_name), false));
       for (int i = 0; i < nb_of_elements; i++) {
         DrawBitmap(pos_x, 0, bitmap, 0);
         pos_x += 24;
@@ -63,6 +65,7 @@ void CUIEditCtrl::OnDraw() {
 
     m_yOffset = 5;
   }
+
   DrawEditText();
 }
 
@@ -73,10 +76,10 @@ void CUIEditCtrl::DrawEditText() {
   if (g_WindowMgr->GetFocusEdit() == this) {
     RefreshText();
     if (m_maskchar) {
-    }
-    else {
+    } else {
     }
   }
+
   TextOutUTF8(m_xOffset, m_yOffset, m_text.c_str(), 0, 0, 12, text_color);
 }
 
@@ -86,11 +89,11 @@ void CUIEditCtrl::OnBeginEdit() {
   // g_Language->HideText(m_maskchar != 0);
   if (g_WindowMgr->GetFocusEdit() == this) {
     // g_Language->SetSelection(0, g_Language->m_input._Len);
-  }
-  else {
+  } else {
     m_selectionOrigin = 0;
     m_selectionCursor = m_text.length();
   }
+
   SDL_StartTextInput();
 }
 
@@ -103,7 +106,9 @@ void CUIEditCtrl::OnFinishEdit() {
 void CUIEditCtrl::RefreshText() { m_text = g_Language->GetLanguageText(); }
 
 const char* CUIEditCtrl::GetText() {
-  if (g_WindowMgr->GetFocusEdit() == this) RefreshText();
+  if (g_WindowMgr->GetFocusEdit() == this) {
+    RefreshText();
+  }
 
   return m_text.c_str();
 }

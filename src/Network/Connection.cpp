@@ -18,7 +18,12 @@
 #include "Common/GetTick.h"
 #include "Network/RagConnection.h"
 
-CConnection::CConnection() {}
+CConnection::CConnection()
+    : m_socket(SOCKET_ERROR), m_bBlock(false), m_dwTime() {
+  m_recvQueue.Init(40960);
+  m_sendQueue.Init(40960);
+  m_blockQueue.Init(40960);
+}
 
 CConnection::~CConnection() {}
 

@@ -3,4 +3,4 @@
 
 unsigned int GetTick();
 
-#endif // DOLORI_COMMON_GETTICK_H_
+#endif  // DOLORI_COMMON_GETTICK_H_

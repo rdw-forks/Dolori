@@ -1,11 +1,11 @@
 #ifndef DOLORI_RENDER_GND_CELL_H_
 #define DOLORI_RENDER_GND_CELL_H_
 
-#include "Common/Vector3d.h"
+#include <glm/vec3.hpp>
 
 typedef struct GND_CELL {
   float h[0x4];
-  CVector3d watervert[0x4];
+  glm::vec3 watervert[0x4];
   struct CGndSurface* top;
   struct CGndSurface* right;
   struct CGndSurface* front;

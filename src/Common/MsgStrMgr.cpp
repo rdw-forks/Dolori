@@ -1,18 +1,22 @@
-#include "MsgStrMgr.h"
+#include "Common/MsgStrMgr.h"
+
 #include "Files/File.h"
 
 CMsgStrMgr::CMsgStrMgr() {}
 
 CMsgStrMgr::~CMsgStrMgr() {}
 
-void CMsgStrMgr::InitMsgStrings(const char* imf_name) {
+void CMsgStrMgr::InitMsgStrings(const std::string& imf_name) {
   size_t file_size;
   CFile file;
   char* buffer;
 
-  if (!file.Open(imf_name, 0)) return;
+  if (!file.Open(imf_name, 0)) {
+    return;
+  }
+
   file_size = file.GetLength();
-  buffer = (char*)malloc(file_size);
+  buffer = new char[file_size];
   if (buffer) {
     file.Read(buffer, file_size);
     char* start_ptr = buffer;
@@ -28,13 +32,15 @@ void CMsgStrMgr::InitMsgStrings(const char* imf_name) {
           m_msgStrings.push_back(start_ptr);
       };
     }
-    free(buffer);
+    delete[] buffer;
   }
   file.Close();
 }
 
 const char* CMsgStrMgr::GetMsgStr(MSGSTRINGID id) {
-  if (m_msgStrings.size() > id) return m_msgStrings[id].c_str();
+  if (m_msgStrings.size() > id) {
+    return m_msgStrings[id].c_str();
+  }
 
-  return NULL;
+  return nullptr;
 }

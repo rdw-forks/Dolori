@@ -2,9 +2,10 @@
 #define DOLORI_RENDER_TEXMGR_H_
 
 #include <map>
+
 #include "Core/ResMgr.h"
-#include "Texture.h"
-#include "pixel_format.h"
+#include "Render/Texture.h"
+#include "Render/pixel_format.h"
 
 class CTexMgr {
  public:

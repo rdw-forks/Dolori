@@ -1,15 +1,12 @@
 #include "Core/ModeMgr.h"
 
-#include <string.h>
-
 #include "Common/Globals.h"
-#include "Common/modetype.h"
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 
 CModeMgr::CModeMgr() : m_loop_cond(true) {}
 
-void CModeMgr::Run(int mode_type, const char* world_name) {
+void CModeMgr::Run(ModeType mode_type, const char* world_name) {
   m_cur_mode_type = mode_type;
   m_next_mode_type = mode_type;
   m_cur_mode_name = world_name;
@@ -36,7 +33,7 @@ void CModeMgr::Run(int mode_type, const char* world_name) {
   }
 }
 
-void CModeMgr::Switch(int mode_type, const char* mode_name) {
+void CModeMgr::Switch(ModeType mode_type, const char* mode_name) {
   m_cur_mode->SetLoopCond(false);
   m_next_mode_name = mode_name;
   m_next_mode_type = mode_type;
