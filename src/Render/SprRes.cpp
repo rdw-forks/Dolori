@@ -54,42 +54,42 @@ bool CSprRes::Load(const std::string& filename) {
   m_count = header.pal_img_count;
   /*printf("Version: %X\n", header.version);
   printf("No of clips: %d\n", m_count);*/
-  if (header.version >= 0x200) fp.Read(&rgba_count, 2);
+  if (header.version >= 0x200) {
+    fp.Read(&rgba_count, 2);
+  }
 
-  if (m_count) {
-    for (int i = 0; i < m_count; i++) {
-      SPR_IMG* img = new SPR_IMG();
+  for (uint16_t i = 0; i < m_count; i++) {
+    SPR_IMG* img = new SPR_IMG();
 
-      fp.Read(img, 4);
-      img->isHalfH = 0;
-      img->isHalfW = 0;
-      // img.tex = NULL;
-      img->image_8bit = NULL;
-      if (false /*g_isXHalfSpr || g_isYHalfSpr*/) {
-        if (header.version < 0x201) {
-        } else {
-        }
+    fp.Read(img, 4);
+    img->isHalfH = 0;
+    img->isHalfW = 0;
+    // img.tex = NULL;
+    img->image_8bit = nullptr;
+    if (false /*g_isXHalfSpr || g_isYHalfSpr*/) {
+      if (header.version < 0x201) {
       } else {
-        if (header.version < 0x201) {
-          // uint16_t uncompressed_size;
-          // fp.Read(&uncompressed_size, 2);
-          size_t size = img->width * img->height;
-          img->image_8bit = new uint8_t[size];
-          fp.Read(img->image_8bit, size);
-        } else {
-          uint16_t compressed_size;
-          uint8_t* compressed_data;
-
-          fp.Read(&compressed_size, sizeof(compressed_size));
-          compressed_data = new uint8_t[compressed_size];
-          fp.Read(compressed_data, compressed_size);
-          img->image_8bit = DecodeRLE(compressed_data, img->width, img->height,
-                                      &compressed_size);
-          delete compressed_data;
-        }
       }
-      m_sprites[SPR_PAL].push_back(img);
+    } else {
+      if (header.version < 0x201) {
+        // uint16_t uncompressed_size;
+        // fp.Read(&uncompressed_size, 2);
+        size_t size = img->width * img->height;
+        img->image_8bit = new uint8_t[size];
+        fp.Read(img->image_8bit, size);
+      } else {
+        uint16_t compressed_size;
+        uint8_t* compressed_data;
+
+        fp.Read(&compressed_size, sizeof(compressed_size));
+        compressed_data = new uint8_t[compressed_size];
+        fp.Read(compressed_data, compressed_size);
+        img->image_8bit = DecodeRLE(compressed_data, img->width, img->height,
+                                    &compressed_size);
+        delete compressed_data;
+      }
     }
+    m_sprites[SPR_PAL].push_back(img);
   }
 
   if (header.version >= 0x200 && rgba_count) {

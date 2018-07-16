@@ -6,9 +6,7 @@ GND_SURFACE_FMT CGndRes::s_empty_surface;
 GND_CELL_FMT CGndRes::s_empty_cell;
 
 CGndRes::CGndRes()
-    : m_width(), m_height(), m_lminfo(), m_surfaces(), m_cells() {
-  // m_new_ver = 0;
-}
+    : m_width(), m_height(), m_lminfo(), m_surfaces(), m_cells() {}
 
 CGndRes::~CGndRes() { Reset(); }
 
@@ -43,14 +41,14 @@ bool CGndRes::Load(const std::string& filename) {
   // Textures
   fp.Read(&m_num_textures, sizeof(m_num_textures));
   fp.Read(&name_length, sizeof(name_length));
-  for (int i = 0; i < m_num_textures; i++) {
+  for (uint32_t i = 0; i < m_num_textures; i++) {
     buffer = new char[name_length];
     fp.Read(buffer, name_length);
     m_tex_name_table.push_back(buffer);
   }
 
   // Lightmaps
-  int cell_x, cell_y, cell_size;
+  int32_t cell_x, cell_y, cell_size;
   fp.Read(&m_num_lightmaps, sizeof(m_num_lightmaps));
   fp.Read(&cell_x, sizeof(cell_x));
   fp.Read(&cell_y, sizeof(cell_y));
@@ -76,29 +74,29 @@ bool CGndRes::Load(const std::string& filename) {
 void CGndRes::Reset() {
   m_tex_name_table.clear();
 
-  if (m_lminfo) {
-    delete m_lminfo;
+  if (m_lminfo != nullptr) {
+    delete[] m_lminfo;
     m_lminfo = nullptr;
   }
 
-  if (m_surfaces) {
-    delete m_surfaces;
+  if (m_surfaces != nullptr) {
+    delete[] m_surfaces;
     m_surfaces = nullptr;
   }
 
-  if (m_cells) {
-    delete m_cells;
+  if (m_cells != nullptr) {
+    delete[] m_cells;
     m_cells = nullptr;
   }
 }
 
-float CGndRes::GetZoom() { return m_zoom; }
+float CGndRes::GetZoom() const { return m_zoom; }
 
-int CGndRes::GetWidth() { return m_width; }
+int32_t CGndRes::GetWidth() const { return m_width; }
 
-int CGndRes::GetHeight() { return m_height; }
+int32_t CGndRes::GetHeight() const { return m_height; }
 
-uint32_t CGndRes::GetSurfaceCount() { return m_num_surfaces; }
+uint32_t CGndRes::GetSurfaceCount() const { return m_num_surfaces; }
 
 const GND_SURFACE_FMT& CGndRes::GetSurface(unsigned int index) {
   if (index < m_num_surfaces) {

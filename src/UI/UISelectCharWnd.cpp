@@ -97,9 +97,9 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     vs->act_name[0] = g_Session->GetJobActName(job, sex, buffer);
     vs->spr_name[0] = g_Session->GetJobSprName(job, sex, buffer);
     vs->act_name[1] =
-        g_Session->GetHeadActName(job, &char_info->head_style, sex, buffer);
+        g_Session->GetHeadActName(job, char_info->head_style, sex, buffer);
     vs->spr_name[1] =
-        g_Session->GetHeadSprName(job, &char_info->head_style, sex, buffer);
+        g_Session->GetHeadSprName(job, char_info->head_style, sex, buffer);
   }
 
   MakeButton(119);

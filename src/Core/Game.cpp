@@ -61,5 +61,5 @@ bool Game::Initialize() {
 
 void Game::Run() {
   // g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-  g_ModeMgr->Run(ModeType::kGame, "rachel.rsw");
+  g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
 }

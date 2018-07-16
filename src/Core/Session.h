@@ -22,17 +22,17 @@ class CSession {
   void SetServerTime(unsigned int);
   void SetPlayerPosDir(int x, int y, int dir);
   std::list<std::string> GetNumExNameList();
-  bool IsGravityAid(int);
+  bool IsGravityAid(uint32_t);
   void InvalidateBasicWnd();
   void InitPcNameTable();
   void InitJobNameTable();
   const char *GetJobName(int job);
   char *GetJobActName(int job, int sex, char *buf);
   char *GetJobSprName(int job, int sex, char *buf);
-  char *GetHeadActName(int job, unsigned short * head, int sex, char *buf);
-  char *GetHeadSprName(int job, unsigned short * head, int sex, char *buf);
+  char *GetHeadActName(int job, unsigned short head, int sex, char *buf);
+  char *GetHeadSprName(int job, unsigned short head, int sex, char *buf);
   char *GetImfName(int job, int head, int sex, char *buf);
-  bool IsMasterAid(int);
+  bool IsMasterAid(uint32_t);
 
  private:
   int m_diffTime;

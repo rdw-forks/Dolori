@@ -13,7 +13,8 @@
 
 typedef struct GND_HEADER {
   uint32_t magic;
-  uint16_t version;
+  uint8_t version_major;
+  uint8_t version_minor;
 } GND_HEADER;
 
 struct LM_INFO {
@@ -38,13 +39,13 @@ struct GND_SURFACE_FMT {
 
 struct GND_CELL_FMT {
   float height[4];
-  int top_surface_id;
-  int front_surface_id;
-  int right_surface_id;
+  int32_t top_surface_id;
+  int32_t front_surface_id;
+  int32_t right_surface_id;
 };
 
 struct COLOR_CHANNEL {
-  unsigned char m_buffer[0x28];
+  uint8_t m_buffer[0x28];
 };
 
 #pragma pack(pop)
@@ -54,13 +55,13 @@ class CGndRes : public CRes {
   CGndRes();
   ~CGndRes();
 
-  CRes *Clone();
-  bool Load(const std::string &);
+  CRes *Clone() override;
+  bool Load(const std::string &) override;
   void Reset();
-  float GetZoom();
-  int GetWidth();
-  int GetHeight();
-  uint32_t GetSurfaceCount();
+  float GetZoom() const;
+  int32_t GetWidth() const;
+  int32_t GetHeight() const;
+  uint32_t GetSurfaceCount() const;
   const GND_SURFACE_FMT &GetSurface(unsigned int index);
   const GND_CELL_FMT &GetCell(unsigned int x, unsigned int y);
   const char *GetTextureName(int texture_id);
@@ -72,8 +73,8 @@ class CGndRes : public CRes {
   // int m_new_ver;
   // unsigned char m_ver_major;
   // unsigned char m_ver_minor;
-  int m_width;
-  int m_height;
+  int32_t m_width;
+  int32_t m_height;
   float m_zoom;
   uint32_t m_num_textures;
   uint32_t m_num_lightmaps;

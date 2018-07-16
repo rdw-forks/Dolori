@@ -36,10 +36,10 @@ CResMgr::CResMgr()
 CResMgr::~CResMgr() {}
 
 void CResMgr::ReadResNameTable(const std::string& resNameTable) {
-  CFile* fp = new CFile();
+  CFile file;
 
-  if (fp->Open(resNameTable, 0)) {
-    size_t file_size = fp->GetLength();
+  if (file.Open(resNameTable, 0)) {
+    size_t file_size = file.GetLength();
     char* buffer;
 
     buffer = new char[file_size + 1];
@@ -47,17 +47,17 @@ void CResMgr::ReadResNameTable(const std::string& resNameTable) {
       return;
     }
 
-    if (!fp->Read(buffer, file_size)) {
+    if (!file.Read(buffer, file_size)) {
       delete[] buffer;
       return;
     }
 
     buffer[file_size] = '\0';
-    fp->Close();
+    file.Close();
 
     // Parse the content of the name table
-    std::string a("");
-    std::string b("");
+    std::string a;
+    std::string b;
     char* beg_of_line = buffer;
     for (size_t i = 0; i < file_size; i++) {
       char cur_char = buffer[i];
@@ -144,8 +144,8 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
   }
 
   // Is the res already loaded ?
-  CHash* hash = new CHash(open_filename);
-  auto res_node = m_fileList[extIndex].find(hash);
+  CHash hash(open_filename);
+  auto res_node = m_fileList[extIndex].find(&hash);
   if (res_node != m_fileList[extIndex].end()) {
     CRes* res = res_node->second;
     if (res && !bRefresh) {
@@ -157,37 +157,41 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
 
   // Try to load the res
   CRes* clone = m_objTypes[extIndex]->Clone();
-  if (clone) {
-    if (!clone->Load(open_filename)) {
-      const char* real_res_name = GetRealResName(filename);
-      char* filename_ptr = open_filename;
-
-      if (strncmp(real_res_name, type_dir, type_dir_len)) {
-        strncpy(open_filename, type_dir, sizeof(open_filename));
-        filename_ptr = open_filename + type_dir_len;
-      }
-      strncpy(filename_ptr, real_res_name,
-              sizeof(open_filename) - type_dir_len);
-
-      if (!clone->Load(open_filename)) {
-        clone->OnLoadError(filename);
-        delete clone;
-        m_getResSection.unlock();
-        return nullptr;
-      }
-    }
-    clone->UpdateInfo(open_filename, extIndex);
-    m_fileList[extIndex][clone->GetHash()] = clone;
+  if (clone == nullptr) {
     m_getResSection.unlock();
-    return clone;
+    return nullptr;
   }
 
+  if (!clone->Load(open_filename)) {
+    const char* real_res_name = GetRealResName(filename);
+    char* filename_ptr = open_filename;
+
+    if (strncmp(real_res_name, type_dir, type_dir_len)) {
+      strncpy(open_filename, type_dir, sizeof(open_filename));
+      filename_ptr = open_filename + type_dir_len;
+    }
+
+    strncpy(filename_ptr, real_res_name, sizeof(open_filename) - type_dir_len);
+
+    if (!clone->Load(open_filename)) {
+      clone->OnLoadError(filename);
+      delete clone;
+      m_getResSection.unlock();
+      return nullptr;
+    }
+  }
+
+  clone->UpdateInfo(open_filename, extIndex);
+  m_fileList[extIndex][clone->GetHash()] = clone;
   m_getResSection.unlock();
-  return nullptr;
+  return clone;
 }
 
 char* CResMgr::ToLower(char* str) {
-  for (; *str != '\0'; str++) *str = (char)tolower(*str);
+  for (; *str != '\0'; str++) {
+    *str = (char)tolower(*str);
+  }
+
   return str;
 }
 
@@ -196,13 +200,12 @@ const char* CResMgr::StrChrBackward(const char* strName, char c) {
 
   result = &strName[strlen(strName) - 1];
   if (result < strName) {
-  LABEL_4:
-    result = 0;
-  } else {
-    while (*result != c) {
-      if (--result < strName) {
-        goto LABEL_4;
-      }
+    return nullptr;
+  }
+
+  while (*result != c) {
+    if (--result < strName) {
+      result = nullptr;
     }
   }
 

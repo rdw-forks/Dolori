@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 #include <il.h>
 
+#include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Render/SurfaceWallpaper.h"
 
@@ -18,6 +19,8 @@ long C3dDevice::Init(uint32_t dwFlags) {
   unsigned int flags;
 
   m_bIsFullscreen = dwFlags & 1;
+  m_dwRenderWidth = SCREEN_WIDTH;
+  m_dwRenderHeight = SCREEN_HEIGHT;
 
   // SDL_SetMainReady();
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -33,16 +36,19 @@ long C3dDevice::Init(uint32_t dwFlags) {
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-  // SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, bpp);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
   flags = SDL_WINDOW_OPENGL;
-  if (m_bIsFullscreen) flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
+  if (m_bIsFullscreen) {
+    flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE;
+  }
+
   m_sdlWnd = SDL_CreateWindow("Dolori", SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
-                              SCREEN_HEIGHT, flags);
+                              SDL_WINDOWPOS_UNDEFINED, m_dwRenderWidth,
+                              m_dwRenderHeight, flags);
   if (!m_sdlWnd) {
     return -1;
   }
@@ -58,11 +64,18 @@ long C3dDevice::Init(uint32_t dwFlags) {
   }
 
   // Set the viewport
-  glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-  glOrtho(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 0.0, 1.0);
+  glViewport(0, 0, m_dwRenderWidth, m_dwRenderHeight);
+  if (glGetError() != GL_NO_ERROR) {
+    return -1;
+  }
 
-  GLenum error = glGetError();
-  if (error != GL_NO_ERROR) {
+  glEnable(GL_CULL_FACE);
+  if (glGetError() != GL_NO_ERROR) {
+    return -1;
+  }
+
+  glEnable(GL_DEPTH_TEST);
+  if (glGetError() != GL_NO_ERROR) {
     return -1;
   }
 
@@ -77,9 +90,6 @@ long C3dDevice::Init(uint32_t dwFlags) {
   if (ilError != IL_NO_ERROR) {
     return -1;
   }
-
-  m_dwRenderWidth = SCREEN_WIDTH;
-  m_dwRenderHeight = SCREEN_HEIGHT;
 
   return 0;
 }

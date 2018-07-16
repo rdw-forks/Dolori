@@ -41,8 +41,8 @@ class C3dGround {
 
  private:
   C3dAttr* m_attr;
-  int m_width;
-  int m_height;
+  int32_t m_width;
+  int32_t m_height;
   float m_zoom;
   // class CLightmapMgr m_lightmapMgr;
   int m_num_surfaces;

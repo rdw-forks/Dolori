@@ -1,4 +1,5 @@
-#include "Session.h"
+#include "Core/Session.h"
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/service_type.h"
@@ -22,8 +23,10 @@ void CSession::InitTable() {
 }
 
 void CSession::SetTextType(bool isShorten, bool isBold) {
-  if (g_serviceType == ServiceType::kKorea || g_serviceType == ServiceType::kIndonesia ||
-      g_serviceType == ServiceType::kGermany || g_serviceType == ServiceType::kBrazil) {
+  if (g_serviceType == ServiceType::kKorea ||
+      g_serviceType == ServiceType::kIndonesia ||
+      g_serviceType == ServiceType::kGermany ||
+      g_serviceType == ServiceType::kBrazil) {
     g_NameBalloonShorten = isShorten;
     g_NameBalloonfontBold = isBold;
   }
@@ -46,37 +49,53 @@ void CSession::SetPlayerPosDir(int x, int y, int dir) {
 
 std::list<std::string> CSession::GetNumExNameList() { return m_exNameList; }
 
-bool CSession::IsMasterAid(int showLevel) {
-  if (IsGravityAid(m_aid) && showLevel == 7) return true;
-  if (g_serviceType != ServiceType::kKorea) return false;
+bool CSession::IsMasterAid(uint32_t showLevel) {
+  if (IsGravityAid(m_aid) && showLevel == 7) {
+    return true;
+  }
+  if (g_serviceType != ServiceType::kKorea) {
+    return false;
+  }
 
   if (m_aid > 0x2C8C83) {
-    if (m_aid != 2919558) return false;
+    if (m_aid != 2919558) {
+      return false;
+    }
   } else if (m_aid != 2919555) {
-    if (m_aid == 100025) return showLevel == 5;
-    if (m_aid != 234073) return false;
+    if (m_aid == 100025) {
+      return showLevel == 5;
+    }
+
+    if (m_aid != 234073) {
+      return false;
+    }
     return showLevel == 1;
   }
-  if (showLevel == 2) return true;
-  return showLevel == 1;
+
+  return showLevel == 1 || showLevel == 2;
 }
 
-bool CSession::IsGravityAid(int aid) {
-  auto it = s_dwAdminAID.begin();
+bool CSession::IsGravityAid(uint32_t aid) {
+  bool result = false;
 
-  for (; it != s_dwAdminAID.end(); ++it) {
-    if (*it == aid) break;
+  for (const auto &admin_aid : s_dwAdminAID) {
+    if (aid == admin_aid) {
+      result = true;
+      break;
+    }
   }
-  return it != s_dwAdminAID.end();
+
+  return result;
 }
 
 void CSession::InvalidateBasicWnd() {
-  if (g_ModeMgr->GetGameMode()) {
+  CGameMode *game_mode = g_ModeMgr->GetGameMode();
+  if (game_mode != nullptr) {
     /*if (dword_7687EC)
     {
       UIWindow::InvalidateChildren(dword_7687EC);
     }
-    g_ModeMgr->GetGameMode()->InvalidatePlayerGage();*/
+    game_mode->InvalidatePlayerGage();*/
   }
 }
 
@@ -160,10 +179,12 @@ const char *CSession::GetJobName(int job) { return m_jobNameTable[job]; }
 char *CSession::GetJobActName(int job, int sex, char *buf) {
   const char *job_name;
 
-  if (job <= 3950)
+  if (job <= 3950) {
     job_name = m_newPcJobNameTable[job];
-  else
+  } else {
     job_name = m_newPcJobNameTable[job - 3950];
+  }
+
   sprintf(buf, "인간족/몸통/%s/%s%s.act", m_newPcSexNameTable[sex], job_name,
           m_pcSexNameTable[sex]);
 
@@ -173,54 +194,61 @@ char *CSession::GetJobActName(int job, int sex, char *buf) {
 char *CSession::GetJobSprName(int job, int sex, char *buf) {
   const char *job_name;
 
-  if (job <= 3950)
+  if (job <= 3950) {
     job_name = m_newPcJobNameTable[job];
-  else
+  } else {
     job_name = m_newPcJobNameTable[job - 3950];
+  }
+
   sprintf(buf, "인간족/몸통/%s/%s%s.spr", m_newPcSexNameTable[sex], job_name,
           m_pcSexNameTable[sex]);
 
   return buf;
 }
 
-char *CSession::GetHeadActName(int job, unsigned short *head, int sex,
+char *CSession::GetHeadActName(int job, unsigned short head, int sex,
                                char *buf) {
   const char *sex_folder_name;
   const char *head_name;
   const char *sex_suffix;
 
-  if (*head < 0 || *head > 25) *head = 13;
+  if (head < 0 || head > 25) {
+    head = 13;
+  }
 
   if (sex) {
     sex_suffix = m_pcSexNameTable[1];
-    head_name = m_newPcHeadNameTable_M[*head];
+    head_name = m_newPcHeadNameTable_M[head];
     sex_folder_name = m_newPcSexNameTable[1];
   } else {
     sex_suffix = m_pcSexNameTable[0];
-    head_name = m_newPcHeadNameTable_F[*head];
+    head_name = m_newPcHeadNameTable_F[head];
     sex_folder_name = m_newPcSexNameTable[0];
   }
+
   sprintf(buf, "인간족/머리통/%s/%s%s.act", sex_folder_name, head_name,
           sex_suffix);
 
   return buf;
 }
 
-char *CSession::GetHeadSprName(int job, unsigned short *head, int sex,
+char *CSession::GetHeadSprName(int job, unsigned short head, int sex,
                                char *buf) {
   const char *sex_folder_name;
   const char *head_name;
   const char *sex_suffix;
 
-  if (*head < 0 || *head > 25) *head = 13;
+  if (head < 0 || head > 25) {
+    head = 13;
+  }
 
   if (sex) {
     sex_suffix = m_pcSexNameTable[1];
-    head_name = m_newPcHeadNameTable_M[*head];
+    head_name = m_newPcHeadNameTable_M[head];
     sex_folder_name = m_newPcSexNameTable[1];
   } else {
     sex_suffix = m_pcSexNameTable[0];
-    head_name = m_newPcHeadNameTable_F[*head];
+    head_name = m_newPcHeadNameTable_F[head];
     sex_folder_name = m_newPcSexNameTable[0];
   }
   sprintf(buf, "인간족/머리통/%s/%s%s.spr", sex_folder_name, head_name,
@@ -232,10 +260,12 @@ char *CSession::GetHeadSprName(int job, unsigned short *head, int sex,
 char *CSession::GetImfName(int job, int head, int sex, char *buf) {
   const char *imf_name;
 
-  if (job <= 3950)
+  if (job <= 3950) {
     imf_name = m_newPcJobImfNameTable[job];
-  else
+  } else {
     imf_name = m_newPcJobImfNameTable[job - 3950];
+  }
+
   sprintf(buf, "%s%s.imf", imf_name, m_pcSexNameTable[sex]);
 
   return buf;

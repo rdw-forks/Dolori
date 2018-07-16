@@ -36,7 +36,7 @@ class CSprRes : public CRes {
  private:
   uint32_t m_pal[0x100];
   std::vector<SPR_IMG*> m_sprites[0x2];
-  int m_count;
+  uint16_t m_count;
 };
 
 // class CSprRes {
