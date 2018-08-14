@@ -72,6 +72,9 @@ bool CGndRes::Load(const std::string& filename) {
 }
 
 void CGndRes::Reset() {
+  for (auto buffer : m_tex_name_table) {
+    delete[] buffer;
+  }
   m_tex_name_table.clear();
 
   if (m_lminfo != nullptr) {
@@ -122,4 +125,8 @@ const char* CGndRes::GetTextureName(int texture_id) {
   }
 
   return nullptr;
+}
+
+const std::vector<char const*>& CGndRes::GetTextureNameTable() const {
+  return m_tex_name_table;
 }

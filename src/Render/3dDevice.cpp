@@ -1,26 +1,21 @@
 #include "Render/3dDevice.h"
 
-#include <GL/glew.h>
-#include <GL/glu.h>
-#include <SDL_opengl.h>
 #include <SDL_ttf.h>
+#include <glad/glad.h>
 #include <il.h>
 
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Render/SurfaceWallpaper.h"
 
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 768
-
 C3dDevice::C3dDevice() {}
 
-long C3dDevice::Init(uint32_t dwFlags) {
+long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
   unsigned int flags;
 
   m_bIsFullscreen = dwFlags & 1;
-  m_dwRenderWidth = SCREEN_WIDTH;
-  m_dwRenderHeight = SCREEN_HEIGHT;
+  m_dwRenderWidth = width;
+  m_dwRenderHeight = height;
 
   // SDL_SetMainReady();
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -38,8 +33,11 @@ long C3dDevice::Init(uint32_t dwFlags) {
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
   flags = SDL_WINDOW_OPENGL;
   if (m_bIsFullscreen) {
@@ -58,10 +56,14 @@ long C3dDevice::Init(uint32_t dwFlags) {
     return -1;
   }
 
-  GLenum glewError = glewInit();
-  if (glewError != GLEW_OK) {
+  // Load extensions
+  if (gladLoadGLLoader(SDL_GL_GetProcAddress) == 0) {
     return -1;
   }
+
+  std::cout << "Vendor:   " << glGetString(GL_VENDOR) << std::endl;
+  std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+  std::cout << "Version:  " << glGetString(GL_VERSION) << std::endl;
 
   // Set the viewport
   glViewport(0, 0, m_dwRenderWidth, m_dwRenderHeight);

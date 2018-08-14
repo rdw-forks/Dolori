@@ -24,6 +24,11 @@ void CWorld::OnEnterFrame() {
   C3dWorldRes* rsw_res;
   CGndRes* gnd_res;
 
+  if (!m_ground.Init()) {
+    std::cerr << "Failed to init ground" << std::endl;
+    return;
+  }
+
   rsw_filename = static_cast<const char*>(
       g_ModeMgr->GetCurMode()->SendMsg(MM_QUERYRSWNAME));
   rsw_res = static_cast<C3dWorldRes*>(g_ResMgr->Get(rsw_filename, false));
@@ -35,8 +40,6 @@ void CWorld::OnEnterFrame() {
   // g_ResMgr->Get(res->GetAttr(), false);
   gnd_res = static_cast<CGndRes*>(g_ResMgr->Get(rsw_res->GetGnd(), false));
   m_ground.AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
-  RECT_ test;
-  m_ground.Render(nullptr, &test, false);
   // g_ResMgr->Unload(gnd_res);
 }
 

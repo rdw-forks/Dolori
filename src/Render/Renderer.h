@@ -2,6 +2,7 @@
 #define DOLORI_RENDER_RENDERER_H_
 
 #include <list>
+#include <map>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -34,9 +35,9 @@ class CRenderer {
   CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
   CSurface *GetSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
   CRPQuadFace *BorrowQuadRP();
+  const glm::mat4 &projection_matrix() const;
+  const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);
-  void SetLookAt(const glm::vec3 &from, const glm::vec3 &at,
-                 const glm::vec3 &up);
 
  private:
   void FlushAlphaNoDepthList();
@@ -61,7 +62,8 @@ class CRenderer {
   //		private void CRenderer::FlushLmList()
 
  private:
-  glm::mat4 m_projection;
+  glm::mat4 m_projection_matrix;
+  glm::mat4 m_view_matrix;
   float m_hpc;
   float m_vpc;
   float m_hratio;
@@ -138,7 +140,6 @@ class CRenderer {
   // std::allocator<RPLmQuadFace>
   //>::iterator m_rpLmQuadFaceListIter
   //
-  std::vector<TlVertex3d> m_vertBuffer;
 };
 
 // class CRenderer {

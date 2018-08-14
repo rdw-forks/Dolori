@@ -1,8 +1,7 @@
 #ifndef DOLORI_RENDER_RPFACE_H_
 #define DOLORI_RENDER_RPFACE_H_
 
-#include <GL/glew.h>
-#include <SDL_opengl.h>
+#include <glad/glad.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 

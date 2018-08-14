@@ -65,6 +65,7 @@ class CGndRes : public CRes {
   const GND_SURFACE_FMT &GetSurface(unsigned int index);
   const GND_CELL_FMT &GetCell(unsigned int x, unsigned int y);
   const char *GetTextureName(int texture_id);
+  const std::vector<char const *> &GetTextureNameTable() const;
 
   static GND_SURFACE_FMT s_empty_surface;
   static GND_CELL_FMT s_empty_cell;

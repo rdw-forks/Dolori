@@ -5,7 +5,6 @@ Requirements
 ---------
 * OpenGL
 * DevIL
-* Glew
 * SDL2
 * SDL2_ttf
 * zlib

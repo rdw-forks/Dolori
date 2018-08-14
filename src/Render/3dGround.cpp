@@ -1,10 +1,50 @@
 #include "Render/3dGround.h"
 
+#include <glm/gtc/round.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Common/Globals.h"
+#include "Render/GlShader.h"
 #include "Render/rect.h"
 
+const std::string kVertexShader =
+    "#version 140\n"
+
+    "attribute vec3 aPosition;"
+    "attribute vec2 aTextureCoord;"
+
+    "uniform mat4 uModelViewMat;"
+    "uniform mat4 uProjectionMat;"
+
+    "varying vec2 vTextureCoord;"
+
+    "void main() {"
+    "  gl_Position = uProjectionMat * uModelViewMat * vec4(aPosition, 1.0);"
+    "  vTextureCoord = aTextureCoord;"
+    "}";
+
+const std::string kFragmentShader =
+    "#version 140\n"
+
+    "varying vec2 vTextureCoord;"
+
+    "uniform sampler2D uTexture;"
+
+    "void main() {"
+    "  vec4 texture = texture2D(uTexture, vTextureCoord.st);"
+    "  gl_FragColor = texture * vec4(1.0, 1.0, 1.0, 1.0);"
+    "}";
+
+struct GndVertex {
+  float position[3];
+  float texture_coord[2];
+};
+
 C3dGround::C3dGround()
-    : m_attr(),
+    : m_program(),
+      m_vbo(),
+      m_texture_atlas(nullptr),
+      m_attr(),
       m_width(),
       m_height(),
       m_zoom(10.0f),
@@ -20,14 +60,38 @@ C3dGround::C3dGround()
 
 C3dGround::~C3dGround() {}
 
+bool C3dGround::Init() {
+  CGlShader vertex_shader;
+  CGlShader fragment_shader;
+
+  // Setup the VBO to store GndVertex objects
+  m_vbo.SetVertexFormat<GndVertex>();
+
+  if (!vertex_shader.Init(kVertexShader, GL_VERTEX_SHADER)) {
+    return false;
+  }
+
+  if (!fragment_shader.Init(kFragmentShader, GL_FRAGMENT_SHADER)) {
+    return false;
+  }
+
+  return m_program.Init({vertex_shader, fragment_shader});
+}
+
 void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
                           glm::vec3 *diffuse_col, glm::vec3 *ambient_col) {
   using namespace glm;
+
+  std::vector<GndVertex> gnd_vertices;
 
   m_width = gnd->GetWidth();
   m_height = gnd->GetHeight();
   m_zoom = gnd->GetZoom();
   m_num_surfaces = gnd->GetSurfaceCount();
+
+  UpdateTextureAtlas(gnd->GetTextureNameTable());
+
+  const float atlas_texture_size = m_texture_atlas->texture_size();
 
   m_cells.resize(m_width * m_height);
   m_surfaces.resize(m_num_surfaces);
@@ -57,32 +121,47 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
         GND_SURFACE *surface = &m_surfaces[surface_id];
 
         surface->argb = surface_fmt.argb;
-        surface->tex = g_TexMgr->GetTexture(
-            gnd->GetTextureName(surface_fmt.texture_id), false);
-        if (surface->tex) {
-          const float r_width =
-              (surface->tex->GetUpdateWidth() / surface->tex->GetWidth());
-          const float r_height =
-              (surface->tex->GetUpdateHeight() / surface->tex->GetHeight());
+        auto texture_name = gnd->GetTextureName(surface_fmt.texture_id);
+        surface->tex = g_TexMgr->GetTexture(texture_name, false);
 
-          surface->vertex[0].texture_coords =
-              vec2(r_width * surface_fmt.u[0], r_height * surface_fmt.v[0]);
-          surface->vertex[1].texture_coords =
-              vec2(r_width * surface_fmt.u[1], r_height * surface_fmt.v[1]);
-          surface->vertex[2].texture_coords =
-              vec2(r_width * surface_fmt.u[2], r_height * surface_fmt.v[2]);
-          surface->vertex[3].texture_coords =
-              vec2(r_width * surface_fmt.u[3], r_height * surface_fmt.v[3]);
+        float r_width = 0;
+        float r_height = 0;
+        glm::vec2 texture_position = {};
+        if (surface->tex) {
+          r_width =
+              (surface->tex->GetUpdateWidth() / surface->tex->GetWidth()) *
+              (atlas_texture_size / m_texture_atlas->GetWidth());
+          r_height =
+              (surface->tex->GetUpdateHeight() / surface->tex->GetHeight()) *
+              (atlas_texture_size / m_texture_atlas->GetHeight());
+          texture_position = m_texture_atlas->GetTexturePosition(texture_name);
         }
 
-        surface->vertex[0].vertex =
-            vec3(coord_x * m_zoom, cell.h[0], coord_y * m_zoom);
-        surface->vertex[1].vertex =
-            vec3((coord_x + 1) * m_zoom, cell.h[1], coord_y * m_zoom);
-        surface->vertex[2].vertex =
-            vec3(coord_x * m_zoom, cell.h[2], (coord_y + 1) * m_zoom);
-        surface->vertex[3].vertex =
-            vec3((coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom);
+        gnd_vertices.push_back(
+            {coord_x * m_zoom, cell.h[0], coord_y * m_zoom,
+             r_width * surface_fmt.u[0] + texture_position.x,
+             r_height * surface_fmt.v[0] + texture_position.y});  // 0
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[1], coord_y * m_zoom,
+             r_width * surface_fmt.u[1] + texture_position.x,
+             r_height * surface_fmt.v[1] + texture_position.y});  // 1
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[3] + texture_position.x,
+             r_height * surface_fmt.v[3] + texture_position.y});  // 3
+
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[3] + texture_position.x,
+             r_height * surface_fmt.v[3] + texture_position.y});  // 3
+        gnd_vertices.push_back(
+            {coord_x * m_zoom, cell.h[2], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[2] + texture_position.x,
+             r_height * surface_fmt.v[2] + texture_position.y});  // 2
+        gnd_vertices.push_back(
+            {coord_x * m_zoom, cell.h[0], coord_y * m_zoom,
+             r_width * surface_fmt.u[0] + texture_position.x,
+             r_height * surface_fmt.v[0] + texture_position.y});  // 0
 
         // if (g_is_lightmap) {
         //}
@@ -101,33 +180,48 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
         GND_SURFACE *surface = &m_surfaces[surface_id];
 
         surface->argb = surface_fmt.argb;
-        surface->tex = g_TexMgr->GetTexture(
-            gnd->GetTextureName(surface_fmt.texture_id), false);
-        if (surface->tex) {
-          const float r_width =
-              (surface->tex->GetUpdateWidth() / surface->tex->GetWidth());
-          const float r_height =
-              (surface->tex->GetUpdateHeight() / surface->tex->GetHeight());
+        auto texture_name = gnd->GetTextureName(surface_fmt.texture_id);
+        surface->tex = g_TexMgr->GetTexture(texture_name, false);
 
-          surface->vertex[0].texture_coords =
-              vec2(r_width * surface_fmt.u[0], r_height * surface_fmt.v[0]);
-          surface->vertex[1].texture_coords =
-              vec2(r_width * surface_fmt.u[1], r_height * surface_fmt.v[1]);
-          surface->vertex[2].texture_coords =
-              vec2(r_width * surface_fmt.u[2], r_height * surface_fmt.v[2]);
-          surface->vertex[3].texture_coords =
-              vec2(r_width * surface_fmt.u[3], r_height * surface_fmt.v[3]);
+        float r_width = 0;
+        float r_height = 0;
+        glm::vec2 texture_position = {};
+        if (surface->tex) {
+          r_width =
+              (surface->tex->GetUpdateWidth() / surface->tex->GetWidth()) *
+              (atlas_texture_size / m_texture_atlas->GetWidth());
+          r_height =
+              (surface->tex->GetUpdateHeight() / surface->tex->GetHeight()) *
+              (atlas_texture_size / m_texture_atlas->GetHeight());
+          texture_position = m_texture_atlas->GetTexturePosition(texture_name);
         }
 
-        surface->vertex[0].vertex =
-            vec3(coord_x * m_zoom, cell.h[2], (coord_y + 1) * m_zoom);
-        surface->vertex[1].vertex =
-            vec3((coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom);
-        surface->vertex[2].vertex = vec3(
-            coord_x * m_zoom, front_cell_fmt.height[0], (coord_y + 1) * m_zoom);
-        surface->vertex[3].vertex =
-            vec3((coord_x + 1) * m_zoom, front_cell_fmt.height[1],
-                 (coord_y + 1) * m_zoom);
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[1] + texture_position.x,
+             r_height * surface_fmt.v[1] + texture_position.y});  // 1
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, front_cell_fmt.height[1],
+             (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[3] + texture_position.x,
+             r_height * surface_fmt.v[3] + texture_position.y});  // 3
+        gnd_vertices.push_back(
+            {coord_x * m_zoom, front_cell_fmt.height[0], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[2] + texture_position.x,
+             r_height * surface_fmt.v[2] + texture_position.y});  // 2
+
+        gnd_vertices.push_back(
+            {coord_x * m_zoom, front_cell_fmt.height[0], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[2] + texture_position.x,
+             r_height * surface_fmt.v[2] + texture_position.y});  // 2
+        gnd_vertices.push_back(
+            {coord_x * m_zoom, cell.h[2], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[0] + texture_position.x,
+             r_height * surface_fmt.v[0] + texture_position.y});  // 0
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[1] + texture_position.x,
+             r_height * surface_fmt.v[1] + texture_position.y});  // 1
 
         // if (g_is_lightmap) {
         //}
@@ -146,33 +240,48 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
         GND_SURFACE *surface = &m_surfaces[surface_id];
 
         surface->argb = surface_fmt.argb;
-        surface->tex = g_TexMgr->GetTexture(
-            gnd->GetTextureName(surface_fmt.texture_id), false);
-        if (surface->tex) {
-          const float r_width =
-              (surface->tex->GetUpdateWidth() / surface->tex->GetWidth());
-          const float r_height =
-              (surface->tex->GetUpdateHeight() / surface->tex->GetHeight());
+        auto texture_name = gnd->GetTextureName(surface_fmt.texture_id);
+        surface->tex = g_TexMgr->GetTexture(texture_name, false);
 
-          surface->vertex[0].texture_coords =
-              vec2(r_width * surface_fmt.u[0], r_height * surface_fmt.v[0]);
-          surface->vertex[1].texture_coords =
-              vec2(r_width * surface_fmt.u[1], r_height * surface_fmt.v[1]);
-          surface->vertex[2].texture_coords =
-              vec2(r_width * surface_fmt.u[2], r_height * surface_fmt.v[2]);
-          surface->vertex[3].texture_coords =
-              vec2(r_width * surface_fmt.u[3], r_height * surface_fmt.v[3]);
+        float r_width = 0;
+        float r_height = 0;
+        glm::vec2 texture_position = {};
+        if (surface->tex) {
+          r_width =
+              (surface->tex->GetUpdateWidth() / surface->tex->GetWidth()) *
+              (atlas_texture_size / m_texture_atlas->GetWidth());
+          r_height =
+              (surface->tex->GetUpdateHeight() / surface->tex->GetHeight()) *
+              (atlas_texture_size / m_texture_atlas->GetHeight());
+          texture_position = m_texture_atlas->GetTexturePosition(texture_name);
         }
 
-        surface->vertex[0].vertex =
-            vec3((coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom);
-        surface->vertex[1].vertex =
-            vec3((coord_x + 1) * m_zoom, cell.h[1], coord_y * m_zoom);
-        surface->vertex[2].vertex =
-            vec3((coord_x + 1) * m_zoom, right_cell_fmt.height[2],
-                 (coord_y + 1) * m_zoom);
-        surface->vertex[3].vertex = vec3(
-            (coord_x + 1) * m_zoom, right_cell_fmt.height[0], coord_y * m_zoom);
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[0] + texture_position.x,
+             r_height * surface_fmt.v[0] + texture_position.y});  // 0
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[1], coord_y * m_zoom,
+             r_width * surface_fmt.u[1] + texture_position.x,
+             r_height * surface_fmt.v[1] + texture_position.y});  // 1
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, right_cell_fmt.height[0], coord_y * m_zoom,
+             r_width * surface_fmt.u[3] + texture_position.x,
+             r_height * surface_fmt.v[3] + texture_position.y});  // 3
+
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, right_cell_fmt.height[0], coord_y * m_zoom,
+             r_width * surface_fmt.u[3] + texture_position.x,
+             r_height * surface_fmt.v[3] + texture_position.y});  // 3
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, right_cell_fmt.height[2],
+             (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[2] + texture_position.x,
+             r_height * surface_fmt.v[2] + texture_position.y});  // 2
+        gnd_vertices.push_back(
+            {(coord_x + 1) * m_zoom, cell.h[3], (coord_y + 1) * m_zoom,
+             r_width * surface_fmt.u[0] + texture_position.x,
+             r_height * surface_fmt.v[0] + texture_position.y});  // 0
 
         // if (g_is_lightmap) {
         //}
@@ -184,44 +293,51 @@ void C3dGround::AssignGnd(CGndRes *gnd, glm::vec3 *light,
       }
     }
   }
+
+  m_vbo.SetData(gnd_vertices.data(), gnd_vertices.size());
+}
+
+void C3dGround::UpdateTextureAtlas(
+    const std::vector<char const *> &texture_names) {
+  if (m_texture_atlas != nullptr) {
+    // Destroy previous texture atlas
+    m_texture_atlas.reset();
+  }
+
+  m_texture_atlas = std::make_unique<CTextureAtlas>();
+  m_texture_atlas->Create(256, texture_names);
 }
 
 void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
-  for (uint32_t y = 0; y < m_height; y++) {
-    for (uint32_t x = 0; x < m_width; x++) {
-      // for (uint32_t y = area->bottom; y < area->top; y++) {
-      //  for (uint32_t x = area->left; x < area->right; x++) {
-      GND_CELL &cell = m_cells[x + y * m_width];
+  GLuint location_id;
 
-      if (cell.top) {
-        CRPQuadFace *rp = g_Renderer->BorrowQuadRP();
-        for (int i = 0; i < 4; i++) {
-          rp->SetGeomInfo(i, cell.top->vertex[i]);
-        }
+  m_program.Bind();
 
-        rp->set_texture(cell.top->tex);
-        g_Renderer->AddRP(rp, 1);
-      }
+  const auto projection_matrix = g_Renderer->projection_matrix();
+  location_id = m_program.GetUniformLocation("uProjectionMat");
+  glUniformMatrix4fv(location_id, 1, GL_FALSE,
+                     glm::value_ptr(projection_matrix));
 
-      if (cell.front) {
-        CRPQuadFace *rp = g_Renderer->BorrowQuadRP();
-        for (int i = 0; i < 4; i++) {
-          rp->SetGeomInfo(i, cell.front->vertex[i]);
-        }
+  const auto view_matrix = g_Renderer->view_matrix();
+  location_id = m_program.GetUniformLocation("uModelViewMat");
+  glUniformMatrix4fv(location_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
-        rp->set_texture(cell.front->tex);
-        g_Renderer->AddRP(rp, 1);
-      }
+  GLuint position_attrib = m_program.GetAttributeLocation("aPosition");
+  GLuint tex_coord_attrib = m_program.GetAttributeLocation("aTextureCoord");
 
-      if (cell.right) {
-        CRPQuadFace *rp = g_Renderer->BorrowQuadRP();
-        for (int i = 0; i < 4; i++) {
-          rp->SetGeomInfo(i, cell.right->vertex[i]);
-        }
+  glEnableVertexAttribArray(position_attrib);
+  glEnableVertexAttribArray(tex_coord_attrib);
 
-        rp->set_texture(cell.right->tex);
-        g_Renderer->AddRP(rp, 1);
-      }
-    }
-  }
+  // Bind our vertex attributes buffer
+  m_vbo.Bind();
+
+  glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
+  glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 5 * 4,
+                        reinterpret_cast<void *>(3 * 4));
+
+  m_texture_atlas->Bind(GL_TEXTURE0);
+
+  glDrawArrays(GL_TRIANGLES, 0, m_vbo.size());
+
+  m_program.Unbind();
 }

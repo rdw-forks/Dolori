@@ -17,6 +17,9 @@
 #include "Modes/modetype.h"
 #include "Render/3dDevice.h"
 
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 768
+
 Game::~Game() {
   g_RagConnection->Disconnect();
   CConnection::Cleanup();
@@ -40,12 +43,16 @@ bool Game::Initialize() {
   g_Session->Init();
   g_Session->Create();
   g_ResMgr->ReadResNameTable("resNameTable.txt");
-  if (g_3dDevice->Init(0) < 0) {
+  if (g_3dDevice->Init(SCREEN_WIDTH, SCREEN_HEIGHT, 0) < 0) {
     ErrorMsg("Cannot init SDL or OpenGL.");
     return false;
   }
 
   g_Renderer = g_3dDevice->CreateRenderer(0);
+  if (g_Renderer == nullptr) {
+    return false;
+  }
+
   if (!CConnection::Startup()) {
     return false;
   }
@@ -61,5 +68,5 @@ bool Game::Initialize() {
 
 void Game::Run() {
   // g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-  g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
+  g_ModeMgr->Run(ModeType::kGame, "aldebaran.rsw");
 }

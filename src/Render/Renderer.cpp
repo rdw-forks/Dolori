@@ -1,6 +1,8 @@
-#include "Renderer.h"
+#include "Render/Renderer.h"
 
 #include <math.h>
+
+#include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
@@ -9,7 +11,7 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 
-CRenderer::CRenderer() : m_projection() {}
+CRenderer::CRenderer() : m_view_matrix() {}
 
 void CRenderer::SetSize(int cx, int cy) {
   m_width = cx;
@@ -31,10 +33,7 @@ void CRenderer::SetSize(int cx, int cy) {
   // g_slope = g_gradient / m_screenYFactor;
   // g_shadowSlope = g_gradient / m_screenYFactor;
   m_nClearColor = 0xFF000000;
-  m_projection = glm::perspective(70., 640.0 / 480.0, 1.0, 2000.0);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixf(glm::value_ptr(m_projection));
+  m_projection_matrix = glm::perspective(70., 640.0 / 480.0, 1.0, 2000.0);
 }
 
 int CRenderer::GetWidth() { return m_width; }
@@ -65,10 +64,11 @@ void CRenderer::DestroyAllRPList() {
 }
 
 void CRenderer::Clear(bool clearScreen) {
-  if (clearScreen)
+  if (clearScreen) {
     g_3dDevice->Clear(0xFF000000);
-  else
+  } else {
     g_3dDevice->ClearZBuffer();
+  }
 }
 
 void CRenderer::ClearBackground() { g_3dDevice->Clear(m_nClearColor); }
@@ -82,7 +82,10 @@ bool CRenderer::DrawScene() {
   return true;
 }
 
-void CRenderer::Flip() { g_3dDevice->ShowFrame(); }
+void CRenderer::Flip() {
+  // m_fpsFrameCount++;
+  g_3dDevice->ShowFrame();
+}
 
 void CRenderer::FlushRenderList() {
   FlushFaceList();
@@ -138,16 +141,16 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
   TlVertex3d v[4];
 
   v[0].vertex = glm::vec3(x, y, 1e-006);
-  v[0].oow = 0.999999f;
+  v[0].oow = 1.f;
 
   v[1].vertex = glm::vec3(x + cx, y, 1e-006);
-  v[1].oow = 0.999999f;
+  v[1].oow = 1.f;
 
   v[2].vertex = glm::vec3(x + cx, y + cy, 1e-006);
-  v[2].oow = 0.999999f;
+  v[2].oow = 1.f;
 
   v[3].vertex = glm::vec3(x, y + cy, 1e-006);
-  v[3].oow = 0.999999f;
+  v[3].oow = 1.f;
 
   face->SetGeomInfo(0, v[0]);
   face->SetColorInfo(0, color);
@@ -291,23 +294,25 @@ CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
   unsigned long cur_time = GetTick();
   int id1, id2;
 
-  if (img->width > 128)
+  if (img->width > 128) {
     id1 = 12;
-  else if (img->width > 64)
+  } else if (img->width > 64) {
     id1 = 8;
-  else if (img->width > 32)
+  } else if (img->width > 32) {
     id1 = 4;
-  else
+  } else {
     id1 = 0;
+  }
 
-  if (img->height > 128)
+  if (img->height > 128) {
     id2 = 3;
-  else if (img->height > 64)
+  } else if (img->height > 64) {
     id2 = 2;
-  else if (img->height > 32)
+  } else if (img->height > 32) {
     id2 = 1;
-  else
+  } else {
     id2 = 0;
+  }
 
   surface_list = &m_cache_surfaces[id1 + id2];
   // Try to find a recyclable surface
@@ -325,8 +330,9 @@ CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
   if (!m_unused_cache_surfaces.empty()) {
     new_surface.tex = m_unused_cache_surfaces.back();
     m_unused_cache_surfaces.pop_back();
-  } else
+  } else {
     new_surface.tex = new CSurface(img->width, img->height);
+  }
 
   new_surface.id = (size_t)img;
   new_surface.pal_id = (size_t)pal;
@@ -341,23 +347,25 @@ CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
   std::list<CACHE_SURFACE>* surface_list = nullptr;
   int id1, id2;
 
-  if (img->width > 128)
+  if (img->width > 128) {
     id1 = 12;
-  else if (img->width > 64)
+  } else if (img->width > 64) {
     id1 = 8;
-  else if (img->width > 32)
+  } else if (img->width > 32) {
     id1 = 4;
-  else
+  } else {
     id1 = 0;
+  }
 
-  if (img->height > 128)
+  if (img->height > 128) {
     id2 = 3;
-  else if (img->height > 64)
+  } else if (img->height > 64) {
     id2 = 2;
-  else if (img->height > 32)
+  } else if (img->height > 32) {
     id2 = 1;
-  else
+  } else {
     id2 = 0;
+  }
 
   surface_list = &m_cache_surfaces[id1 + id2];
   for (auto it = surface_list->begin(); it != surface_list->end(); ++it) {
@@ -370,11 +378,6 @@ CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
   return nullptr;
 }
 
-// CRenderer::BorrowQuadRP
-// Regarde si le QuadListIter fait partie de la liste QuadFace non vide
-// Si tel est le cas, on retourne le QuadFace corresepondant
-// Sinon on créer un nouveau QuadFace qu'on insère dans la liste des QuadFace
-// Puis on retourne le QuadFace nouvellement créé
 CRPQuadFace* CRenderer::BorrowQuadRP() {
   if (m_rpQuadFacePoolIter == m_rpQuadFacePool.end()) {
     CRPQuadFace* rp = new CRPQuadFace();
@@ -386,14 +389,14 @@ CRPQuadFace* CRenderer::BorrowQuadRP() {
   }
 }
 
-void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixf(glm::value_ptr(matrix));
+const glm::mat4& CRenderer::projection_matrix() const {
+  return m_projection_matrix;
 }
 
-void CRenderer::SetLookAt(const glm::vec3& from, const glm::vec3& at,
-                          const glm::vec3& up) {
-  gluLookAt(from.x, from.y, from.z, at.x, at.y, at.z, up.x, up.y, up.z);
+const glm::mat4& CRenderer::view_matrix() const { return m_view_matrix; }
+
+void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
+  m_view_matrix = matrix;
 }
 
 void CRenderer::FlushAlphaNoDepthList() {

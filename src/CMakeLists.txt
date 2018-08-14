@@ -25,6 +25,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ".")
 # Link libraries and add include directories for third parties
 target_link_libraries(${PROJECT_NAME} tinyxml2)
 target_link_libraries(${PROJECT_NAME} grflib)
+target_link_libraries(${PROJECT_NAME} glad)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})
@@ -40,9 +41,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIR})
-
-target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${GLEW_INCLUDE_DIRS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLM_INCLUDE_DIRS})
 

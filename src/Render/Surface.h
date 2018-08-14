@@ -3,9 +3,8 @@
 
 #include <stdint.h>
 
-#include <GL/glew.h>
 #include <SDL.h>
-#include <SDL_opengl.h>
+#include <glad/glad.h>
 #include <il.h>
 
 #include "Render/Motion.h"
@@ -24,6 +23,10 @@ class CSurface {
   unsigned long GetWidth();
   unsigned long GetHeight();
   SDL_Surface* GetSDLSurface();
+
+  void Bind(GLenum target) const;
+  void Unbind(GLenum target) const;
+
   void Create(unsigned long, unsigned long);
   virtual void Update(int, int, int, int, const ILubyte*, int);
   void UpdateSprite(int x, int y, int width, int height, SPR_IMG* img,

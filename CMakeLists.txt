@@ -10,7 +10,6 @@ set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS ON)
 if (WIN32)
   set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
     "3rdparty/SDL2"
-    "3rdparty/glew-2.1.0"
     "3rdparty/DevIL-1.8.0"
     "3rdparty/zlib-1.2.3"
     "3rdparty/SDL2_ttf-2.0.14"
@@ -19,11 +18,12 @@ endif ()
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(DevIL REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 set(GLM_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/3rdparty/glm/include")
+
+add_compile_options("$<$<CONFIG:DEBUG>:-DDOLORI_DEBUG>")
 
 add_subdirectory(3rdparty)
 add_subdirectory(src)

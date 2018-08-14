@@ -1,11 +1,16 @@
 #ifndef DOLORI_RENDER_3DGROUND_H_
 #define DOLORI_RENDER_3DGROUND_H_
 
+#include <memory>
+
 #include <glm/glm.hpp>
 
 #include "Render/3dAttr.h"
+#include "Render/GlProgram.h"
 #include "Render/GndRes.h"
 #include "Render/Texture.h"
+#include "Render/TextureAtlas.h"
+#include "Render/VBO.h"
 #include "Render/color.h"
 #include "Render/tlvertex3d.h"
 
@@ -35,11 +40,16 @@ class C3dGround {
   C3dGround();
   ~C3dGround();
 
+  bool Init();
   void AssignGnd(CGndRes* gnd, glm::vec3* light, glm::vec3* diffuse_col,
                  glm::vec3* ambient_col);
+  void UpdateTextureAtlas(const std::vector<char const*>& texture_names);
   void Render(glm::mat4* wtm, RECT_* area, bool need_clip);
 
  private:
+  CGlProgram m_program;
+  VBO m_vbo;
+  std::unique_ptr<CTextureAtlas> m_texture_atlas;
   C3dAttr* m_attr;
   int32_t m_width;
   int32_t m_height;
