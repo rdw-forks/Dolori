@@ -12,11 +12,11 @@ class CSession {
   CSession();
   ~CSession();
   void Init();
-  void Create();
+  bool Create();
 
   void SetSex(int);
   int GetSex();
-  void InitTable();
+  bool InitTable();
   void SetTextType(bool, bool);
   void SetCharName(const char *);
   void SetServerTime(unsigned int);

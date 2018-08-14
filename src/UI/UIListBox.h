@@ -18,7 +18,7 @@ class CUIListBox : public CUIWindow {
   void RecalcScrbarPos();
   size_t GetSelected();
   void OnCreate(int, int);
-  void AddItem(const char*);
+  void AddItem(const std::string& text);
   void OnDraw();
   void OnLBtnDown(int x, int y);
   int SendMsg(CUIWindow* sender, int message, int val1, int val2, int val3,

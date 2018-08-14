@@ -47,7 +47,8 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   text_viewer->Create2(10, 22, cx - 20, cy - 55, false);
   AddChild(text_viewer);
   // TODO: replace with the correct SendMsg call
-  text_viewer->AddItem(g_MsgStrMgr->GetMsgStr(MSI_DO_YOU_AGREE));
+  std::string notice_msg = g_MsgStrMgr->GetMsgStr(MSI_DO_YOU_AGREE);
+  text_viewer->AddItem(notice_msg);
 }
 
 void CUINoticeConfirmWnd::OnDraw() {

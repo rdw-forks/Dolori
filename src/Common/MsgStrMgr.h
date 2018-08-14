@@ -1400,8 +1400,8 @@ class CMsgStrMgr {
   CMsgStrMgr();
   ~CMsgStrMgr();
 
-  void InitMsgStrings(const std::string& imf_name);
-  const char* GetMsgStr(MSGSTRINGID id);
+  bool InitMsgStrings(const std::string& imf_name);
+  std::string GetMsgStr(MSGSTRINGID id);
 
  private:
   std::vector<std::string> m_msgStrings;

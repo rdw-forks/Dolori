@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "Common/debug.h"
 #include "Files/MemMapFile.h"
 #include "Files/pak_pack.h"
 
@@ -15,7 +16,7 @@ bool CFileMgr::AddPak(char const *name) {
   CMemMapFile *memfile;
   CGPak *gpak;
 
-  std::cout << "Opening " << name << std::endl;
+  LOG(debug, "Opening file {}", name);
   gpak = new CGPak();
   if (!gpak) {
     return false;
@@ -57,7 +58,7 @@ void *CFileMgr::GetPak(const char *filename, size_t *size) {
         result = nullptr;
       } else {
         *size = pakPack.m_size;
-        std::cout << "Fetched " << filename << " from Pak" << std::endl;
+        LOG(debug, "Fetched file {} from pak file", filename);
       }
       break;
     }

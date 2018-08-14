@@ -1,7 +1,8 @@
 #include "Render/GlShader.h"
 
-#include <iostream>
 #include <vector>
+
+#include "Common/debug.h"
 
 CGlShader::CGlShader() {}
 
@@ -29,8 +30,7 @@ bool CGlShader::Init(const std::string& shader_code, GLenum shader_type) {
     std::vector<GLchar> error_log(max_length);
     glGetShaderInfoLog(shader_id_, max_length, &max_length, &error_log[0]);
 
-    std::cout << "Shader compilation failed:" << std::endl;
-    std::cout << error_log.data() << std::endl;
+    LOG(error, "Shader compilation failed:\n{}", error_log.data());
 
     glDeleteShader(shader_id_);
     shader_id_ = 0;

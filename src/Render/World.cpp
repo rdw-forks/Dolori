@@ -2,6 +2,7 @@
 
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 #include "Render/3dWorldRes.h"
 #include "Render/GndRes.h"
 
@@ -25,7 +26,7 @@ void CWorld::OnEnterFrame() {
   CGndRes* gnd_res;
 
   if (!m_ground.Init()) {
-    std::cerr << "Failed to init ground" << std::endl;
+    LOG(error, "Failed to initialize ground resource");
     return;
   }
 

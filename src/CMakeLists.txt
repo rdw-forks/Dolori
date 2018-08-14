@@ -26,6 +26,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ".")
 target_link_libraries(${PROJECT_NAME} tinyxml2)
 target_link_libraries(${PROJECT_NAME} grflib)
 target_link_libraries(${PROJECT_NAME} glad)
+target_link_libraries(${PROJECT_NAME} spdlog)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})

@@ -41,7 +41,11 @@ bool Game::Initialize() {
   }
 
   g_Session->Init();
-  g_Session->Create();
+  if (!g_Session->Create()) {
+    ErrorMsg("Cannot create session");
+    return false;
+  }
+
   g_ResMgr->ReadResNameTable("resNameTable.txt");
   if (g_3dDevice->Init(SCREEN_WIDTH, SCREEN_HEIGHT, 0) < 0) {
     ErrorMsg("Cannot init SDL or OpenGL.");

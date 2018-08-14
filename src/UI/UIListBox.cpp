@@ -87,8 +87,8 @@ void CUIListBox::OnCreate(int cx, int cy) {
   AddChild(m_horzScrollBar);
 }
 
-void CUIListBox::AddItem(const char *txt) {
-  m_items.push_back(txt);
+void CUIListBox::AddItem(const std::string &text) {
+  m_items.push_back(text);
   RecalcScrbarPos();
 }
 

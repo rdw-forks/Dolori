@@ -6,13 +6,13 @@ CMsgStrMgr::CMsgStrMgr() {}
 
 CMsgStrMgr::~CMsgStrMgr() {}
 
-void CMsgStrMgr::InitMsgStrings(const std::string& imf_name) {
+bool CMsgStrMgr::InitMsgStrings(const std::string& imf_name) {
   size_t file_size;
   CFile file;
   char* buffer;
 
   if (!file.Open(imf_name, 0)) {
-    return;
+    return false;
   }
 
   file_size = file.GetLength();
@@ -35,12 +35,14 @@ void CMsgStrMgr::InitMsgStrings(const std::string& imf_name) {
     delete[] buffer;
   }
   file.Close();
+
+  return true;
 }
 
-const char* CMsgStrMgr::GetMsgStr(MSGSTRINGID id) {
+std::string CMsgStrMgr::GetMsgStr(MSGSTRINGID id) {
   if (m_msgStrings.size() > id) {
-    return m_msgStrings[id].c_str();
+    return m_msgStrings[id];
   }
 
-  return nullptr;
+  return {};
 }

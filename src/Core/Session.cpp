@@ -2,6 +2,7 @@
 
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 #include "Common/service_type.h"
 
 CSession::CSession() {}
@@ -10,16 +11,21 @@ CSession::~CSession() {}
 
 void CSession::Init() {}
 
-void CSession::Create() { InitTable(); }
+bool CSession::Create() { return InitTable(); }
 
 void CSession::SetSex(int sex) { m_sex = sex; }
 
 int CSession::GetSex() { return m_sex; }
 
-void CSession::InitTable() {
+bool CSession::InitTable() {
   InitPcNameTable();
   InitJobNameTable();
-  g_MsgStrMgr->InitMsgStrings("msgStringTable.txt");
+  if (!g_MsgStrMgr->InitMsgStrings("msgStringTable.txt")) {
+    LOG(error, "Failed to init message strings");
+    return false;
+  }
+
+  return true;
 }
 
 void CSession::SetTextType(bool isShorten, bool isBold) {

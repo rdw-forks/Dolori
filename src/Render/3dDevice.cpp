@@ -6,6 +6,7 @@
 
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 #include "Render/SurfaceWallpaper.h"
 
 C3dDevice::C3dDevice() {}
@@ -61,9 +62,9 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
     return -1;
   }
 
-  std::cout << "Vendor:   " << glGetString(GL_VENDOR) << std::endl;
-  std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-  std::cout << "Version:  " << glGetString(GL_VERSION) << std::endl;
+  LOG(info, "Vendor:   {}", glGetString(GL_VENDOR));
+  LOG(info, "Renderer: {}", glGetString(GL_RENDERER));
+  LOG(info, "Version:  {}", glGetString(GL_VERSION));
 
   // Set the viewport
   glViewport(0, 0, m_dwRenderWidth, m_dwRenderHeight);

@@ -516,7 +516,7 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
 void CLoginMode::Ac_Refuse_Login(const char *buffer) {
   struct PACKET_AC_REFUSE_LOGIN *packet =
       (struct PACKET_AC_REFUSE_LOGIN *)buffer;
-  const char *msg;
+  std::string msg;
 
   if (packet->error_code != 18) g_RagConnection->Disconnect();
   switch (packet->error_code) {
@@ -536,7 +536,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, 0, 0);
 }
 
 void CLoginMode::CheckExeHashFromAccServer() {}
@@ -558,7 +558,7 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
 void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
   struct PACKET_HC_REFUSE_ENTER *packet =
       (struct PACKET_HC_REFUSE_ENTER *)buffer;
-  const char *msg;
+  std::string msg;
   int change_msg;
 
   g_RagConnection->Disconnect();
@@ -569,7 +569,7 @@ void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
     change_msg = 0;
     msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   }
-  g_WindowMgr->ErrorMsg(msg, 0, 1, change_msg, 0);
+  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, change_msg, 0);
 }
 
 void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
@@ -586,7 +586,7 @@ void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
 void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
   struct PACKET_HC_REFUSE_MAKECHAR *packet =
       (struct PACKET_HC_REFUSE_MAKECHAR *)buffer;
-  const char *msg;
+  std::string msg;
 
   switch (packet->error_code) {
     case 0x0:
@@ -607,7 +607,7 @@ void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
@@ -693,7 +693,7 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
 
 void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
   PACKET_ZC_REFUSE_ENTER *packet = (PACKET_ZC_REFUSE_ENTER *)buffer;
-  const char *msg;
+  std::string msg;
 
   switch (packet->error) {
     case 0:
@@ -705,7 +705,7 @@ void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, 0, 0);
   g_RagConnection->Disconnect();
   m_next_sub_mode = 3;
 }
