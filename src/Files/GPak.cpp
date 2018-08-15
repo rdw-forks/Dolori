@@ -1,21 +1,20 @@
+#include "Files/GPak.h"
+
 #ifdef WIN32
 #define ZLIB_WINAPI
 #endif
 
-#include "Files/GPak.h"
-
-#include <string.h>
-#include <zlib.h>
-
 #include <iostream>
 
 #include <grfcrypt.h>
+#include <string.h>
+#include <zlib.h>
 
-CGPak::CGPak() { Init(); }
+CGPak::CGPak() : m_memFile() { Init(); }
 
 CGPak::~CGPak() {}
 
-bool CGPak::Open(CMemFile *memFile) {
+bool CGPak::Open(std::shared_ptr<CMemFile> memFile) {
   if (!memFile) {
     return false;
   }

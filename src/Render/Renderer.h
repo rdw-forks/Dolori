@@ -7,9 +7,11 @@
 
 #include <glm/glm.hpp>
 
+#include "Render/GlProgram.h"
 #include "Render/RPFace.h"
 #include "Render/RPQuadFace.h"
 #include "Render/RPTriFace.h"
+#include "Render/VBO.h"
 #include "Render/cache_surface.h"
 #include "Render/pixel_format.h"
 #include "Render/spr_img.h"
@@ -18,6 +20,7 @@ class CRenderer {
  public:
   CRenderer();
 
+  bool Init();
   void SetSize(int, int);
   int GetWidth();
   int GetHeight();
@@ -30,6 +33,7 @@ class CRenderer {
   bool DrawScene();
   void Flip();
   void FlushRenderList();
+  void AddSurface(CSurface *surface, const RECT &position);
   void AddRP(CRPFace *, int);
   void DrawBoxScreen(int, int, int, int, unsigned int);
   CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
@@ -44,6 +48,7 @@ class CRenderer {
   void FlushEmissiveNoDepthList();
   void FlushFaceList();
   void FlushAlphaList();
+  void FlushSurfacesList();
 
   //		private void CRenderer::FlushFaceList()
   //		private void CRenderer::FlushLMGroundList()
@@ -64,6 +69,8 @@ class CRenderer {
  private:
   glm::mat4 m_projection_matrix;
   glm::mat4 m_view_matrix;
+  CGlProgram m_surface_program;
+  VBO m_surface_vbo;
   float m_hpc;
   float m_vpc;
   float m_hratio;
@@ -98,6 +105,7 @@ class CRenderer {
   PIXEL_FORMAT m_pf;
   void *m_lpSurfacePtr;
   long m_lPitch;
+  std::vector<std::pair<CSurface *, RECT>> m_surfaces_list;
   std::vector<CRPFace *> m_rpFaceList;
   std::vector<CRPFace *> m_rpLMGroundList;
   std::vector<CRPFace *> m_rpLMLightList;

@@ -165,7 +165,9 @@ void CLoginMode::OnUpdate() {
   g_Renderer->Clear(true);
   g_WindowMgr->RenderWallPaper();
   g_WindowMgr->Render(this);
-  if (g_Renderer->DrawScene()) g_Renderer->Flip();
+  if (g_Renderer->DrawScene()) {
+    g_Renderer->Flip();
+  }
 }
 
 void CLoginMode::OnChangeState(int state) {

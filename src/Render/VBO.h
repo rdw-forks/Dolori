@@ -15,8 +15,8 @@ class VBO {
     element_size_ = sizeof(T);
   }
 
-  void SetData(void* data, int size);
-  void SetSubData(int offset, void* data, int size);
+  void SetData(const void* data, int size);
+  void SetSubData(int offset, const void* data, int size);
   void Bind();
   void Unbind();
 

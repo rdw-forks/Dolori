@@ -1,10 +1,11 @@
 #include "Render/Surface.h"
 
-#include "Common/Globals.h"
+#include <glad/glad.h>
 
-CSurface::CSurface() : m_w(), m_h(), m_sdl_surface(), m_textureId() {
-  glGenTextures(1, &m_textureId);
-}
+#include "Common/Globals.h"
+#include "Common/debug.h"
+
+CSurface::CSurface() : m_w(), m_h(), m_sdl_surface() {}
 
 CSurface::CSurface(unsigned long w, unsigned long h) : CSurface() {
   Create(w, h);
@@ -23,22 +24,13 @@ CSurface::~CSurface() {
   if (m_sdl_surface) {
     SDL_FreeSurface(m_sdl_surface);
   }
-
-  if (m_textureId) {
-    glDeleteTextures(1, &m_textureId);
-  }
 }
-
-GLuint CSurface::texture_id() const { return m_textureId; }
 
 unsigned long CSurface::GetWidth() { return m_w; }
 
 unsigned long CSurface::GetHeight() { return m_h; }
 
 SDL_Surface *CSurface::GetSDLSurface() { return m_sdl_surface; }
-
-void CSurface::Bind(GLenum target) const { glBindTexture(target, m_textureId); }
-void CSurface::Unbind(GLenum target) const { glBindTexture(target, 0); }
 
 void CSurface::Create(unsigned long w, unsigned long h) {
   m_w = w;
@@ -214,41 +206,11 @@ void CSurface::DrawSurface(int x, int y, int width, int height,
 }
 
 void CSurface::DrawSurfaceStretch(int x, int y, int width, int height) {
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glTranslatef(x, y, 0.f);
-
-  glBindTexture(GL_TEXTURE_2D, m_textureId);
-
-  if (glGetError() != GL_NO_ERROR) {
-    glDisable(GL_BLEND);
-    glDisable(GL_TEXTURE_2D);
-    return;
-  }
-
-  // Render textured quad
-  glColor4f(1.f, 1.f, 1.f, 1.f);
-  glBegin(GL_QUADS);
-  glTexCoord2f(0.f, 0.f);
-  glVertex3f(0.f, 0.f, 0.f);
-  glTexCoord2f(1.f, 0.f);
-  glVertex3f(width, 0.f, 0.f);
-  glTexCoord2f(1.f, 1.f);
-  glVertex3f(width, height, 0.f);
-  glTexCoord2f(0.f, 1.f);
-  glVertex3f(0.f, height, 0.f);
-  glEnd();
-
-  glDisable(GL_BLEND);
-  glDisable(GL_TEXTURE_2D);
+  g_Renderer->AddSurface(this, {x, y, width, height});
 }
 
 void CSurface::UpdateGlTexture() {
-  glBindTexture(GL_TEXTURE_2D, m_textureId);
+  Bind(GL_TEXTURE_2D);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_sdl_surface->w, m_sdl_surface->h, 0,
                GL_RGBA, GL_UNSIGNED_BYTE, m_sdl_surface->pixels);
 

@@ -3,6 +3,8 @@
 #include <SDL_ttf.h>
 #include <glad/glad.h>
 #include <il.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
@@ -111,6 +113,11 @@ long C3dDevice::DestroyObjects() {
 CRenderer* C3dDevice::CreateRenderer(int arg) {
   CRenderer* renderer = new CRenderer();
   PIXEL_FORMAT pf;
+
+  if (!renderer->Init()) {
+    LOG(error, "Failed to initialize renderer");
+    return nullptr;
+  }
 
   switch (m_pfRBitMask) {
     case 0xF800u:

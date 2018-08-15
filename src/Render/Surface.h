@@ -4,28 +4,24 @@
 #include <stdint.h>
 
 #include <SDL.h>
-#include <glad/glad.h>
 #include <il.h>
 
+#include "Render/GlTexture.h"
 #include "Render/Motion.h"
 #include "Render/SprRes.h"
 #include "Render/pixel_format.h"
 #include "Render/tag_rect.h"
 
-class CSurface {
+class CSurface : public CGlTexture {
  public:
   CSurface();
   CSurface(unsigned long, unsigned long);
   CSurface(SDL_Surface*);
   virtual ~CSurface();
 
-  GLuint texture_id() const;
   unsigned long GetWidth();
   unsigned long GetHeight();
   SDL_Surface* GetSDLSurface();
-
-  void Bind(GLenum target) const;
-  void Unbind(GLenum target) const;
 
   void Create(unsigned long, unsigned long);
   virtual void Update(int, int, int, int, const ILubyte*, int);
@@ -48,7 +44,6 @@ class CSurface {
   unsigned long m_w;
   unsigned long m_h;
   SDL_Surface* m_sdl_surface;
-  GLuint m_textureId;
 };
 
 #endif  // DOLORI_RENDER_SURFACE_H_

@@ -13,6 +13,7 @@ class CGlProgram {
   bool Init(const std::vector<CGlShader>& shaders);
   void Bind() const;
   void Unbind() const;
+  GLuint GetId() const;
   GLuint GetUniformLocation(const std::string& uniform_name) const;
   GLuint GetAttributeLocation(const std::string& attribute_name) const;
 

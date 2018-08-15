@@ -1,6 +1,7 @@
 #ifndef DOLORI_FILES_GPACK_H_
 #define DOLORI_FILES_GPACK_H_
 
+#include <memory>
 #include <vector>
 
 #include "Files/MemFile.h"
@@ -12,7 +13,7 @@ class CGPak {
   CGPak();
   virtual ~CGPak();
 
-  bool Open(CMemFile *);
+  bool Open(std::shared_ptr<CMemFile> memfile);
   void Init();
   bool GetInfo(CHash *, PAK_PACK *);
   bool GetData(PAK_PACK *pakPack, void *buffer);
@@ -29,7 +30,7 @@ class CGPak {
   unsigned long m_PakInfoSize;
   std::vector<PAK_PACK> m_PakPack;
   std::vector<unsigned char> m_pDecBuf;
-  CMemFile *m_memFile;
+  std::shared_ptr<CMemFile> m_memFile;
   // CRITICAL_SECTION m_csPak;
 };
 

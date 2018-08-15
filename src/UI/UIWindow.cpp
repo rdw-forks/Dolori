@@ -1,8 +1,7 @@
 #include "UI/UIWindow.h"
 
-#include <SDL_ttf.h>
-
 #include "Common/GetTick.h"
+#include "Common/Globals.h"
 
 CUIWindow::CUIWindow()
     : m_parent(),
@@ -240,7 +239,7 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
     return;
   }
 
-  TTF_Font* font = TTF_OpenFont("arial.ttf", fontHeight);
+  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
   SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
                      colorText & 0xFF};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
@@ -251,8 +250,6 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
       m_surfaces = new CSurface(sdl_surface);
     }
   }
-
-  TTF_CloseFont(font);
 }
 
 void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
@@ -262,7 +259,7 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
     return;
   }
 
-  TTF_Font* font = TTF_OpenFont("arial.ttf", fontHeight);
+  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
   SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
                      colorText & 0xFF};
   SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
@@ -273,8 +270,6 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
       m_surfaces = new CSurface(sdl_surface);
     }
   }
-
-  TTF_CloseFont(font);
 }
 
 void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
@@ -285,7 +280,7 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
                              (colorOutline >> 8) & 0xFF, colorOutline & 0xFF};
   SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
                      colorText & 0xFF};
-  TTF_Font* font = TTF_OpenFont("arial.ttf", fontHeight);
+  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
 
   TTF_SetFontOutline(font, 1);
   SDL_Surface* bg_surface = TTF_RenderText_Blended(font, text, color_outline);
@@ -303,8 +298,6 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
   } else {
     m_surfaces = new CSurface(bg_surface);
   }
-
-  TTF_CloseFont(font);
 }
 
 void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,

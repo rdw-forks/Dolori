@@ -16,6 +16,7 @@
 #include "Input/Mouse.h"
 #include "Network/RagConnection.h"
 #include "Render/3dDevice.h"
+#include "Render/FontMgr.h"
 #include "Render/Renderer.h"
 #include "Render/TexMgr.h"
 
@@ -28,6 +29,7 @@ extern CFileMgr* g_FileMgr;
 extern CTexMgr* g_TexMgr;
 extern CUIWindowMgr* g_WindowMgr;
 extern CResMgr* g_ResMgr;
+extern CFontMgr* g_FontMgr;
 extern CMouse* g_Mouse;
 extern CMsgStrMgr* g_MsgStrMgr;
 extern CLanguage* g_Language;

@@ -5,7 +5,7 @@
 #include "Common/debug.h"
 #include "Common/service_type.h"
 
-CSession::CSession() {}
+CSession::CSession() : m_char_name() {}
 
 CSession::~CSession() {}
 
@@ -38,8 +38,8 @@ void CSession::SetTextType(bool isShorten, bool isBold) {
   }
 }
 
-void CSession::SetCharName(const char *char_name) {
-  strncpy(m_cName, char_name, sizeof(m_cName));
+void CSession::SetCharName(const std::string &char_name) {
+  m_char_name = char_name;
 }
 
 void CSession::SetServerTime(unsigned int startTime) {

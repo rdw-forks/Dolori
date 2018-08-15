@@ -31,8 +31,7 @@ const std::string kFragmentShader =
     "uniform sampler2D uTexture;"
 
     "void main() {"
-    "  vec4 texture = texture2D(uTexture, vTextureCoord.st);"
-    "  gl_FragColor = texture * vec4(1.0, 1.0, 1.0, 1.0);"
+    "  gl_FragColor= texture2D(uTexture, vTextureCoord.st);"
     "}";
 
 struct GndVertex {
@@ -308,7 +307,7 @@ void C3dGround::UpdateTextureAtlas(
   m_texture_atlas->Create(256, texture_names);
 }
 
-void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
+void C3dGround::Render(glm::mat4 *wtm, RECT *area, bool need_clip) {
   GLuint location_id;
 
   m_program.Bind();
@@ -317,6 +316,8 @@ void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
   location_id = m_program.GetUniformLocation("uProjectionMat");
   glUniformMatrix4fv(location_id, 1, GL_FALSE,
                      glm::value_ptr(projection_matrix));
+  location_id = m_program.GetUniformLocation("uTexture");
+  glUniform1i(location_id, 0);
 
   const auto view_matrix = g_Renderer->view_matrix();
   location_id = m_program.GetUniformLocation("uModelViewMat");
@@ -328,14 +329,15 @@ void C3dGround::Render(glm::mat4 *wtm, RECT_ *area, bool need_clip) {
   glEnableVertexAttribArray(position_attrib);
   glEnableVertexAttribArray(tex_coord_attrib);
 
-  // Bind our vertex attributes buffer
-  m_vbo.Bind();
-
   glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
   glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 5 * 4,
                         reinterpret_cast<void *>(3 * 4));
+  // Bind our vertex attributes buffer
+  m_vbo.Bind();
 
-  m_texture_atlas->Bind(GL_TEXTURE0);
+  // Bind the texture
+  glActiveTexture(GL_TEXTURE0);
+  m_texture_atlas->Bind(GL_TEXTURE_2D);
 
   glDrawArrays(GL_TRIANGLES, 0, m_vbo.size());
 

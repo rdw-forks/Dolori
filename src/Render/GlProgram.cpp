@@ -40,6 +40,8 @@ void CGlProgram::Bind() const { glUseProgram(program_id_); }
 
 void CGlProgram::Unbind() const { glUseProgram(0); }
 
+GLuint CGlProgram::GetId() const { return program_id_; }
+
 GLuint CGlProgram::GetUniformLocation(const std::string& uniform_name) const {
   return glGetUniformLocation(program_id_, uniform_name.c_str());
 }

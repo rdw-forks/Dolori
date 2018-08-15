@@ -38,8 +38,8 @@ class CMotion {
   SPR_CLIP* GetClip(unsigned int clip_number);
 
  public:
-  RECT_ range1;
-  RECT_ range2;
+  RECT range1;
+  RECT range2;
   std::vector<SPR_CLIP> spr_clips;
   int num_clips;
   std::vector<ATTACH_POINT_INFO> attach_info;

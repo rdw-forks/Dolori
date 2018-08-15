@@ -76,8 +76,8 @@ bool CActRes::Load(const std::string& filename) {
       CMotion* cur_motion = cur_action->GetMotion(j);
       uint32_t sprite_count;
 
-      fp.Read(&cur_motion->range1, sizeof(RECT_));
-      fp.Read(&cur_motion->range2, sizeof(RECT_));
+      fp.Read(&cur_motion->range1, sizeof(RECT));
+      fp.Read(&cur_motion->range2, sizeof(RECT));
       fp.Read(&sprite_count, 4);
 
       if (sprite_count > m_numMaxClipPerMotion)

@@ -8,6 +8,7 @@ CSession* g_Session = new CSession();
 CFileMgr* g_FileMgr = new CFileMgr();
 CTexMgr* g_TexMgr = new CTexMgr();
 CResMgr* g_ResMgr = new CResMgr();
+CFontMgr* g_FontMgr = new CFontMgr();
 CMouse* g_Mouse = new CMouse();
 CRenderer* g_Renderer;
 CMsgStrMgr* g_MsgStrMgr = new CMsgStrMgr();

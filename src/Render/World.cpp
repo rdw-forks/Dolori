@@ -34,10 +34,10 @@ void CWorld::OnEnterFrame() {
       g_ModeMgr->GetCurMode()->SendMsg(MM_QUERYRSWNAME));
   rsw_res = static_cast<C3dWorldRes*>(g_ResMgr->Get(rsw_filename, false));
   if (!rsw_res) {
-    std::string error = "Cannot load file ";
-    ErrorMsg((error + rsw_filename).c_str());
+    LOG(error, "Failed to load file: {}", rsw_filename);
     return;
   }
+
   // g_ResMgr->Get(res->GetAttr(), false);
   gnd_res = static_cast<CGndRes*>(g_ResMgr->Get(rsw_res->GetGnd(), false));
   m_ground.AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
@@ -45,7 +45,7 @@ void CWorld::OnEnterFrame() {
 }
 
 void CWorld::Render() {
-  RECT_ test;
+  RECT test;
   m_ground.Render(nullptr, &test, false);
 }
 

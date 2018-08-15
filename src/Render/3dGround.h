@@ -44,7 +44,7 @@ class C3dGround {
   void AssignGnd(CGndRes* gnd, glm::vec3* light, glm::vec3* diffuse_col,
                  glm::vec3* ambient_col);
   void UpdateTextureAtlas(const std::vector<char const*>& texture_names);
-  void Render(glm::mat4* wtm, RECT_* area, bool need_clip);
+  void Render(glm::mat4* wtm, RECT* area, bool need_clip);
 
  private:
   CGlProgram m_program;

@@ -45,7 +45,7 @@ float CRPFace::GetWCoord(int index) const {
 void CRPFace::Draw() const {
   if (m_texture) {
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, m_texture->texture_id());
+    m_texture->Bind(GL_TEXTURE_2D);
   }
 
   glColor4f(1.f, 1.f, 1.f, 1.f);

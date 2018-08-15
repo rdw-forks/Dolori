@@ -18,7 +18,7 @@ class CSession {
   int GetSex();
   bool InitTable();
   void SetTextType(bool, bool);
-  void SetCharName(const char *);
+  void SetCharName(const std::string &char_name);
   void SetServerTime(unsigned int);
   void SetPlayerPosDir(int x, int y, int dir);
   std::list<std::string> GetNumExNameList();
@@ -44,7 +44,7 @@ class CSession {
   unsigned long m_killTimeStartTick;
   int m_isShowTime;
   int m_isNeverDie;
-  char m_cName[0x40];
+  std::string m_char_name;
   char m_aName[0x40];
   // struct TAG_CHARACTER_BLOCK_INFO m_charBlockInfo2[0x9];
   int m_sex;

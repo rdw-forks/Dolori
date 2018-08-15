@@ -11,14 +11,14 @@ VBO::~VBO() {
 
 int VBO::size() const { return size_; }
 
-void VBO::SetData(void* data, int size) {
+void VBO::SetData(const void* data, int size) {
   size_ = size;
   Bind();
   glBufferData(GL_ARRAY_BUFFER, element_size_ * size, data, GL_DYNAMIC_DRAW);
   Unbind();
 }
 
-void VBO::SetSubData(int offset, void* data, int size) {
+void VBO::SetSubData(int offset, const void* data, int size) {
   Bind();
   glBufferSubData(GL_ARRAY_BUFFER, element_size_ * offset, element_size_ * size,
                   data);
