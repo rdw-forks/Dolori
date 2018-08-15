@@ -38,9 +38,8 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
   flags = SDL_WINDOW_OPENGL;
   if (m_bIsFullscreen) {
@@ -83,6 +82,11 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
   if (glGetError() != GL_NO_ERROR) {
     return -1;
   }
+
+  // Bind a dummy vao to comply with core profile's specifications
+  GLuint dummy_vao;
+  glGenVertexArrays(1, &dummy_vao);
+  glBindVertexArray(dummy_vao);
 
   // Initialize DevIL
   ilInit();
