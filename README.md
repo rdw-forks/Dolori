@@ -1,13 +1,12 @@
 Dolori
 =======
 
-Requirements
+External dependencies
 ---------
 * OpenGL
 * DevIL
 * SDL2
 * SDL2_ttf
-* zlib
 
 Build
 -----

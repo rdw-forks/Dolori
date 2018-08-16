@@ -10,6 +10,8 @@
 #include <string.h>
 #include <zlib.h>
 
+#include "Common/debug.h"
+
 CGPak::CGPak() : m_memFile() { Init(); }
 
 CGPak::~CGPak() {}
@@ -73,8 +75,10 @@ bool CGPak::OpenPak02() {
   z_buffer = m_memFile->Read(m_PakInfoOffset + 8, z_table_size);
 
   buffer = new uint8_t[table_size];
-  if (uncompress(buffer, static_cast<uLongf *>(&table_size), z_buffer,
-                 z_table_size) != Z_OK) {
+  int z_result = uncompress(buffer, static_cast<uLongf *>(&table_size),
+                            z_buffer, z_table_size);
+  if (z_result != Z_OK) {
+    LOG(error, "uncompress failed with code {}", z_result);
     delete[] buffer;
     return false;
   }
@@ -152,10 +156,11 @@ bool CGPak::GetData(PAK_PACK *pakPack, void *buffer) {
               pakPack->m_compressSize, keyschedule, GRFCRYPT_DECRYPT);
 
   size_t size = pakPack->m_size;
-  if (uncompress(reinterpret_cast<Bytef *>(buffer),
-                 static_cast<uLongf *>(&size),
-                 reinterpret_cast<const Bytef *>(z_data),
-                 pakPack->m_dataSize) != Z_OK) {
+  int z_result = uncompress(
+      reinterpret_cast<Bytef *>(buffer), static_cast<uLongf *>(&size),
+      reinterpret_cast<const Bytef *>(z_data), pakPack->m_dataSize);
+  if (z_result != Z_OK) {
+    LOG(error, "uncompress failed with code {}", z_result);
     delete[] z_data;
     return false;
   }
