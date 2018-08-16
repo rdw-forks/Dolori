@@ -21,6 +21,7 @@ class C3dDevice {
   int GetHeight();
   CSurface* CreateWallPaper(unsigned int, unsigned int);
   void ConvertPalette(uint32_t* dest, PALETTE_ENTRY* srcPal, int palCnt);
+  void EnableVsync(bool enable);
 
  private:
   SDL_Window* m_sdlWnd;

@@ -58,6 +58,9 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
     return -1;
   }
 
+  // Disable vsync
+  EnableVsync(false);
+
   // Load extensions
   if (gladLoadGLLoader(SDL_GL_GetProcAddress) == 0) {
     return -1;
@@ -212,5 +215,13 @@ void C3dDevice::ConvertPalette(uint32_t* dest, PALETTE_ENTRY* palette,
       //          4 * ((current_entry->peGreen & 0xF8) +
       //               32 * ((current_entry->peRed & 0xF8) + 256));
     }
+  }
+}
+
+void C3dDevice::EnableVsync(bool enable) {
+  if (enable) {
+    SDL_GL_SetSwapInterval(1);
+  } else {
+    SDL_GL_SetSwapInterval(0);
   }
 }

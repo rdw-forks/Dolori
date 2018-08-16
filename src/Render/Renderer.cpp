@@ -45,7 +45,8 @@ CRenderer::CRenderer()
     : m_view_matrix(),
       m_surface_program(),
       m_surface_vbo(),
-      m_surfaces_list() {}
+      m_surfaces_list(),
+      m_fpsFrameCount() {}
 
 bool CRenderer::Init() {
   CGlShader vertex_shader;
@@ -137,8 +138,14 @@ bool CRenderer::DrawScene() {
 }
 
 void CRenderer::Flip() {
-  // m_fpsFrameCount++;
   g_3dDevice->ShowFrame();
+  m_fpsFrameCount++;
+  auto current_ticks = SDL_GetTicks();
+  if (current_ticks > m_fpsStartTick + 1000) {
+    // LOG(debug, "FPS: {}", m_fpsFrameCount);
+    m_fpsFrameCount = 0;
+    m_fpsStartTick = SDL_GetTicks();
+  }
 }
 
 void CRenderer::FlushRenderList() {
