@@ -7,6 +7,7 @@
 
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 #include "Common/talktype.h"
 #include "Input/Mouse.h"
 #include "Input/SDLEvents.h"
@@ -211,7 +212,7 @@ void CGameMode::PollNetworkStatus() {
       case HEADER_ZC_ATTACK_RANGE:
         break;
       default:
-        printf("Unknown packet: %X\n", packet_type);
+        LOG(error, "Unknown packet: {:x}", packet_type);
         return;
     };
   }
@@ -221,7 +222,7 @@ void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
   PACKET_ZC_NOTIFY_PLAYERCHAT *packet = (PACKET_ZC_NOTIFY_PLAYERCHAT *)buffer;
   // CGameMode *v2;      // ebx@1
 
-  printf("%s\n", packet->msg);
+  LOG(debug, "{}", packet->msg);
   // if (dword_768868) {
   //  g_WindowMgr->SendMsg(5, (int)chat_msg, 30720, 0, 0);
   //} else {
@@ -235,5 +236,5 @@ void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
 void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
   PACKET_ZC_NPCACK_MAPMOVE *packet = (PACKET_ZC_NPCACK_MAPMOVE *)buffer;
 
-  printf("Moved to map %s\n", packet->map_name);
+  LOG(info, "Moved to map {}", packet->map_name);
 }

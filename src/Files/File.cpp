@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 
 CFile::CFile() : m_buf() { m_fileStream.clear(); }
 
@@ -24,7 +24,7 @@ bool CFile::Open(const std::string& file_name, int nOpenFlags) {
       strncpy(m_fileName, file_name.c_str(), sizeof(m_fileName));
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
-        ErrorMsg(m_fileName);
+        LOG(error, "Failed to open file: {}", m_fileName);
         result = false;
       } else {
         std::streampos file_size = 0;

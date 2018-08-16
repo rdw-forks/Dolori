@@ -4,6 +4,7 @@
 
 #include "Common/ErrorMsg.h"
 #include "Common/GetTick.h"
+#include "Common/debug.h"
 
 CRes::CRes() : m_extIndex() {}
 
@@ -20,8 +21,8 @@ void CRes::UpdateInfo(const char *fName, size_t extIndex) {
 void CRes::UpdateTimeStamp() { m_timeStamp = GetTick(); }
 
 void CRes::OnLoadError(const char *fName) {
-  char msg[256];
-
-  snprintf(msg, sizeof(msg), "ResourceError : Can't find file %s", fName);
-  ErrorMsg(msg);
+  LOG(error, "Failed to find file {}", fName);
+  const auto error_msg =
+      std::string("ResourceError : Can't find file ") + std::string(fName);
+  ErrorMsg(error_msg.c_str());
 }

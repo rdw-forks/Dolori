@@ -27,18 +27,18 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
   int pos[5][2];
   int ids[5];
 
-  button_name[0][0] = "btn_connect";
-  button_name[0][1] = "btn_connect_a";
-  button_name[0][2] = "btn_connect_b";
-  button_name[1][0] = "btn_exit";
-  button_name[1][1] = "btn_exit_a";
-  button_name[1][2] = "btn_exit_b";
+  button_name[0][0] = "login_interface/btn_connect";
+  button_name[0][1] = "login_interface/btn_connect_a";
+  button_name[0][2] = "login_interface/btn_connect_b";
+  button_name[1][0] = "login_interface/btn_exit";
+  button_name[1][1] = "login_interface/btn_exit_a";
+  button_name[1][2] = "login_interface/btn_exit_b";
   button_name[2][0] = "btn_cancel";
   button_name[2][1] = "btn_cancel_a";
   button_name[2][2] = "btn_cancel_b";
-  button_name[3][0] = "btn_request";
-  button_name[3][1] = "btn_request_a";
-  button_name[3][2] = "btn_request_b";
+  button_name[3][0] = "login_interface/btn_request";
+  button_name[3][1] = "login_interface/btn_request_a";
+  button_name[3][2] = "login_interface/btn_request_b";
   button_name[4][0] = "btn_intro";
   button_name[4][1] = "btn_intro_a";
   button_name[4][2] = "btn_intro_b";

@@ -11,6 +11,7 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
+#include "Common/debug.h"
 #include "Common/service_type.h"
 #include "Input/SDLEvents.h"
 #include "Modes/modetype.h"
@@ -268,10 +269,11 @@ void CLoginMode::ConnectToAccountServer() {
 
   strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
   server_addr.port = atoi(g_accountPort);
-  printf("Connecting to the account server ...\n");
-  printf("IP: %s\nPort: %d\n", server_addr.ip, server_addr.port);
+  LOG(info, "Connecting to the account server ({}:{}) ...", server_addr.ip,
+      server_addr.port);
   m_isConnected = g_RagConnection->Connect(&server_addr);
   if (!m_isConnected) {
+    LOG(error, "Failed to connect to the account server");
     g_RagConnection->Disconnect();
     return;
   }
@@ -341,9 +343,11 @@ void CLoginMode::ConnectToCharServer() {
   int packet_size;
 
   g_RagConnection->Disconnect();
-  printf("Connecting to the char server ...\n");
-  printf("IP: %s\nPort: %d\n", g_charServerAddr.ip, g_charServerAddr.port);
+
+  LOG(info, "Connecting to the char server ({}:{}) ...", g_charServerAddr.ip,
+      g_charServerAddr.port);
   m_isConnected = g_RagConnection->Connect(&g_charServerAddr);
+  LOG(error, "Failed to connect to the char server");
   // WinMainNpKeyStopEncryption();
   if (!m_isConnected) {
     g_RagConnection->Disconnect();
@@ -369,10 +373,11 @@ void CLoginMode::ConnectToCharServer() {
 
 void CLoginMode::ConnectToZoneServer() {
   // Connection to zone server
-  printf("Connecting to the zone server ...\n");
-  printf("IP: %s\nPort: %d\n", g_zoneServerAddr.ip, g_zoneServerAddr.port);
+  LOG(info, "Connecting to the zone server ({}:{}) ...", g_zoneServerAddr.ip,
+      g_zoneServerAddr.port);
   m_isConnected = g_RagConnection->Connect(&g_zoneServerAddr);
   if (!m_isConnected) {
+    LOG(error, "Failed to connect to the zone server");
     g_RagConnection->Disconnect();
     /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
     if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
@@ -660,7 +665,7 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
       (packet->PosDir[1] >> 6) | 4 * packet->PosDir[0],
       (packet->PosDir[2] >> 4) | 16 * (packet->PosDir[1] & 0x3F),
       packet->PosDir[2] & 0xF);
-  printf("Entered zone server, the current map is %s\n", g_current_map);
+  LOG(info, "Entered zone server. The current map is {}", g_current_map);
   snprintf(current_map, sizeof(current_map), "%s.rsw", g_current_map);
   g_ModeMgr->Switch(ModeType::kGame, current_map);
   // wnd = (UIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);

@@ -1,6 +1,7 @@
 #include "Core/UIWindowMgr.h"
 
 #include "Common/Globals.h"
+#include "Common/debug.h"
 #include "UI/UINoticeConfirmWnd.h"
 #include "UI/UISelectServerWnd.h"
 
@@ -297,7 +298,7 @@ int CUIWindowMgr::ProcessInput() {
 
 int CUIWindowMgr::ErrorMsg(const char *msg, int type, int isDefYes,
                            int changeMsg, unsigned int autoReturnTime) {
-  printf("%s\n", msg);
+  LOG(error, "{}", msg);
 
   return 0;
 }
