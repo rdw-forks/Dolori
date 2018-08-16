@@ -23,6 +23,7 @@ endforeach()
 target_include_directories(${PROJECT_NAME} PRIVATE ".")
 
 # Link libraries and add include directories for third parties
+target_link_libraries(${PROJECT_NAME} SDL2-static)
 target_link_libraries(${PROJECT_NAME} tinyxml2)
 target_link_libraries(${PROJECT_NAME} grflib)
 target_link_libraries(${PROJECT_NAME} glad)
@@ -37,9 +38,6 @@ target_link_libraries(${PROJECT_NAME} ${SDL2_TTF_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
-
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARY})
-target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_INCLUDE_DIR})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLM_INCLUDE_DIRS})
 
