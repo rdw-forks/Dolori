@@ -5,7 +5,6 @@ External dependencies
 ---------
 * OpenGL
 * DevIL
-* SDL2
 * SDL2_ttf
 
 Build

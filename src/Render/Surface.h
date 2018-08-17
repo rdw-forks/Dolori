@@ -6,9 +6,9 @@
 #include <SDL.h>
 #include <il.h>
 
+#include "Files/SprRes.h"
 #include "Render/GlTexture.h"
 #include "Render/Motion.h"
-#include "Render/SprRes.h"
 #include "Render/pixel_format.h"
 #include "Render/tag_rect.h"
 

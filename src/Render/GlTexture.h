@@ -6,12 +6,12 @@
 class CGlTexture {
  public:
   CGlTexture();
-  ~CGlTexture();
+  virtual ~CGlTexture();
 
   void Bind(GLenum target);
   void Unbind();
 
-  GLuint id() const;
+  GLuint texture_id() const;
 
  private:
   GLuint texture_id_;

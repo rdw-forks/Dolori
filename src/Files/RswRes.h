@@ -1,38 +1,48 @@
-#ifndef DOLORI_RENDER_3DWORLDRES_H_
-#define DOLORI_RENDER_3DWORLDRES_H_
+#ifndef DOLORI_RENDER_RSWRES_H_
+#define DOLORI_RENDER_RSWRES_H_
 
 #include <stdint.h>
 
 #include <list>
+#include <memory>
 #include <string>
 
 #include <glm/vec3.hpp>
 
-#include "Render/Res.h"
+#include "Files/Res.h"
 
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct RSW_HEADER {
-  uint32_t magic;
-  uint16_t version;
-} RSW_HEADER;
+typedef struct _ActorInfo {
+  char name[0x28];
+  int32_t anim_type;
+  float anim_speed;
+  int32_t block_type;
+  char model_name[0x50];
+  char node_name[0x50];
+  float position[3];
+  float rotation[3];
+  float scale[3];
+} ModelInfo;
 
 #pragma pack(pop)
 
-class C3dWorldRes : public CRes {
+class CRswRes : public CRes {
  public:
-  C3dWorldRes();
-  ~C3dWorldRes();
+  CRswRes();
+  ~CRswRes();
 
   CRes* Clone();
   bool Load(const std::string&);
   void Reset();
-  const char* GetGnd();
-  const char* GetAttr();
+
+  const std::string& GetGnd() const;
+  const std::string& GetAttr() const;
+  const std::list<std::shared_ptr<ModelInfo>>& GetModels() const;
 
  private:
-  // std::list<C3dWorldRes::actorInfo *> m_3dActors;
+  std::list<std::shared_ptr<ModelInfo>> m_models;
   // std::list<C3dWorldRes::effectSrcInfo *> m_particles;
   // std::list<C3dWorldRes::soundSrcInfo *> m_sounds;
   struct SceneGraphNode* m_calculated_node;
@@ -41,23 +51,21 @@ class C3dWorldRes : public CRes {
   std::string m_attr_file;
   std::string m_src_file;
   float m_water_level;
-  int m_water_type;
+  int32_t m_water_type;
   float m_wave_height;
   float m_wave_speed;
   float m_wave_pitch;
-  int m_water_anim_speed;
-  int m_light_longitude;
-  int m_light_latitude;
+  int32_t m_water_anim_speed;
+  int32_t m_light_longitude;
+  int32_t m_light_latitude;
   float m_light_opacity;
   glm::vec3 m_light_dir;
   glm::vec3 m_diffuse_col;
   glm::vec3 m_ambient_col;
-  unsigned char m_ver_major;
-  unsigned char m_ver_minor;
-  int m_ground_top;
-  int m_ground_bottom;
-  int m_ground_left;
-  int m_ground_right;
+  int32_t m_ground_top;
+  int32_t m_ground_bottom;
+  int32_t m_ground_left;
+  int32_t m_ground_right;
 };
 
 // class C3dWorldRes {
@@ -110,5 +118,26 @@ class C3dWorldRes : public CRes {
 //    public void * __vecDelDtor(unsigned int)
 //}
 //
+
+// struct C3dWorldRes::actorInfo {
+//  /* this+0x0 */ char[0x28] name
+//  /* this+0x28 */ char[0x50] modelName
+//  /* this+0x78 */ char[0x50] nodeName
+//  /* this+0xc8 */ struct vector3d pos
+
+//  /* this+0xd4 */ struct vector3d rot
+
+//  /* this+0xe0 */ struct vector3d scale
+
+//  /* this+0xec */ int animType
+//  /* this+0xf0 */ int blockType
+//  /* this+0xf4 */ float animSpeed
+//  /* this+0xf8 */ float posx
+//  /* this+0xfc */ float posy
+//  /* this+0x100 */ float posz
+//  public void actorInfo()
+//  public struct C3dWorldRes::actorInfo & operator=(const struct
+//  C3dWorldRes::actorInfo &)
+//}
 
 #endif  // DOLORI_RENDER_3DWORLDRES_H_

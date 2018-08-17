@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "Files/Res.h"
 #include "Render/Action.h"
-#include "Render/Res.h"
 
 #pragma pack(push)
 #pragma pack(1)

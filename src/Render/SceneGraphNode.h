@@ -5,7 +5,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Render/3dAttr.h"
+#include "Files/GatRes.h"
 #include "Render/3dGround.h"
 
 class CSceneGraphNode {
@@ -23,7 +23,7 @@ class CSceneGraphNode {
   // std::vector<C3dActor *> m_actor_list;
   C3dGround *m_ground;
   // struct tagRECT m_groundArea;
-  C3dAttr *m_attr;
+  CGatRes *m_attr;
   // struct tagRECT m_attrArea;
 };
 

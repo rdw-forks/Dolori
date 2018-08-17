@@ -5,9 +5,9 @@
 
 #include <glm/glm.hpp>
 
-#include "Render/3dAttr.h"
+#include "Files/GatRes.h"
+#include "Files/GndRes.h"
 #include "Render/GlProgram.h"
-#include "Render/GndRes.h"
 #include "Render/Texture.h"
 #include "Render/TextureAtlas.h"
 #include "Render/VBO.h"
@@ -48,9 +48,9 @@ class C3dGround {
 
  private:
   CGlProgram m_program;
-  VBO m_vbo;
+  GlVBO m_vbo;
   std::unique_ptr<CTextureAtlas> m_texture_atlas;
-  C3dAttr* m_attr;
+  CGatRes* m_attr;
   int32_t m_width;
   int32_t m_height;
   float m_zoom;

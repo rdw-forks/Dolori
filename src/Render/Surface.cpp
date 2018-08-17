@@ -5,7 +5,7 @@
 #include "Common/Globals.h"
 #include "Common/debug.h"
 
-CSurface::CSurface() : m_w(), m_h(), m_sdl_surface() {}
+CSurface::CSurface() : m_w(), m_h(), m_sdl_surface(nullptr) {}
 
 CSurface::CSurface(unsigned long w, unsigned long h) : CSurface() {
   Create(w, h);
@@ -21,7 +21,7 @@ CSurface::CSurface(SDL_Surface *surface) {
 }
 
 CSurface::~CSurface() {
-  if (m_sdl_surface) {
+  if (m_sdl_surface != nullptr) {
     SDL_FreeSurface(m_sdl_surface);
   }
 }
@@ -39,13 +39,13 @@ void CSurface::Create(unsigned long w, unsigned long h) {
 
 void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
                       int drawOnlyNoTrans) {
-  if (m_sdl_surface &&
+  if (m_sdl_surface != nullptr &&
       (m_sdl_surface->w != width || m_sdl_surface->h != height)) {
     SDL_FreeSurface(m_sdl_surface);
     m_sdl_surface = nullptr;
   }
 
-  if (!m_sdl_surface) {
+  if (m_sdl_surface == nullptr) {
     Create(width, height);
     m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
                                          0xff00, 0xff0000, 0xff000000);
@@ -59,13 +59,13 @@ void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
 
 void CSurface::UpdateSprite(int x, int y, int width, int height, SPR_IMG *img,
                             const uint32_t *pal) {
-  if (m_sdl_surface &&
+  if (m_sdl_surface != nullptr &&
       (m_sdl_surface->w != width || m_sdl_surface->h != height)) {
     SDL_FreeSurface(m_sdl_surface);
     m_sdl_surface = nullptr;
   }
 
-  if (!m_sdl_surface) {
+  if (m_sdl_surface == nullptr) {
     Create(width, height);
     m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,
                                          0xff00, 0xff0000, 0xff000000);
@@ -88,10 +88,9 @@ void CSurface::UpdateSprite(int x, int y, int width, int height, SPR_IMG *img,
 }
 
 void CSurface::CopyRect(int x, int y, int w, int h, SDL_Surface *src) {
-  if (!src || !m_sdl_surface) {
+  if (src == nullptr || m_sdl_surface == nullptr) {
     return;
   }
-
   SDL_Rect dst_rect;
   dst_rect.x = x;
   dst_rect.y = y;
@@ -102,7 +101,7 @@ void CSurface::CopyRect(int x, int y, int w, int h, SDL_Surface *src) {
 }
 
 void CSurface::BlitBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
-  if (!bitmap || !m_sdl_surface) {
+  if (bitmap == nullptr || m_sdl_surface == nullptr) {
     return;
   }
 
@@ -119,7 +118,7 @@ void CSurface::BlitBitmap(int x, int y, int w, int h, const ILubyte *bitmap) {
 void CSurface::BlitSurface(int x, int y, CSurface *src, int srcx, int srcy,
                            int width, int height, int xflip, int zoomx,
                            int zoomy) {
-  if (!src || !m_sdl_surface) {
+  if (src == nullptr || m_sdl_surface == nullptr) {
     return;
   }
 
@@ -164,30 +163,30 @@ void CSurface::BlitSprite(int x, int y, CSprRes *spr_res, CMotion *cur_motion,
 }
 
 void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color) {
-  if (m_sdl_surface) {
+  if (m_sdl_surface != nullptr) {
     SDL_FillRect(m_sdl_surface, rect, color);
   }
 }
 
 void CSurface::DrawSurface(int x, int y, int width, int height,
                            unsigned int color) {
-  int right, left, top, bottom;
+  int s_width, left, top, s_height;
   int s_x;
   int s_y;
 
   s_x = x;
-  right = width;
+  s_width = width;
   left = 0;
   top = 0;
-  bottom = height;
+  s_height = height;
 
   if (x + width > g_3dDevice->GetWidth()) {
-    right = g_3dDevice->GetWidth() - x;
+    s_width = g_3dDevice->GetWidth() - x;
   }
 
   s_y = y;
   if (y + height > g_3dDevice->GetHeight()) {
-    bottom = g_3dDevice->GetHeight() - y;
+    s_height = g_3dDevice->GetHeight() - y;
   }
 
   if (x < 0) {
@@ -200,8 +199,8 @@ void CSurface::DrawSurface(int x, int y, int width, int height,
     s_y = 0;
   }
 
-  if (right > left && bottom > top) {
-    DrawSurfaceStretch(s_x, s_y, right, bottom);
+  if (s_width > left && s_height > top) {
+    DrawSurfaceStretch(s_x, s_y, s_width, s_height);
   }
 }
 

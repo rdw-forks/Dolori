@@ -8,17 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "Render/Res.h"
-
-struct CharPrtLess {
-  bool operator()(const char *a, const char *b) const {
-    return strcmp(a, b) < 0;
-  }
-};
-
-struct ResPtrLess {
-  bool operator()(CHash *a, CHash *b) const { return *a < *b; }
-};
+#include "Files/Res.h"
 
 class CResMgr {
  public:
@@ -26,19 +16,20 @@ class CResMgr {
   ~CResMgr();
 
   void ReadResNameTable(const std::string &);
-  void RegisterType(const char *, const char *, CRes *);
+  void RegisterType(const std::string &, const std::string &, CRes *);
   const char *GetRealResName(const char *);
-  CRes *Get(const char *fNameInput, bool bRefresh);
+  CRes *Get(const std::string &fNameInput, bool bRefresh);
+  void Unload(CRes *);
 
  private:
   char *ToLower(char *);
   const char *StrChrBackward(const char *, char);
 
  private:
-  std::map<const char *, size_t, CharPrtLess> m_resExt;
-  std::vector<const char *> m_typeDir;
+  std::map<std::string, size_t> m_resExt;
+  std::vector<std::string> m_typeDir;
   std::vector<CRes *> m_objTypes;
-  std::vector<std::map<CHash *const, CRes *, ResPtrLess>> m_fileList;
+  std::vector<std::map<std::string, CRes *>> m_fileList;
   std::recursive_mutex m_getResSection;
   std::map<std::string, std::string> m_realResName;
   unsigned long m_usedForSprTexture;

@@ -4,7 +4,7 @@
 
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
-#include "Render/BitmapRes.h"
+#include "Files/BitmapRes.h"
 #include "UI/UIBitmapButton.h"
 #include "UI/UIBmp.h"
 

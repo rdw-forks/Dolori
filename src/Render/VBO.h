@@ -1,12 +1,12 @@
-#ifndef DOLORI_RENDER_VBO_H_
-#define DOLORI_RENDER_VBO_H_
+#ifndef DOLORI_RENDER_GLVBO_H_
+#define DOLORI_RENDER_GLVBO_H_
 
 #include <glad/glad.h>
 
-class VBO {
+class GlVBO {
  public:
-  VBO();
-  ~VBO();
+  GlVBO();
+  ~GlVBO();
 
   int size() const;
 
@@ -26,4 +26,4 @@ class VBO {
   int size_;
 };
 
-#endif  // DOLORI_RENDER_VBO_H_
+#endif  // DOLORI_RENDER_GLVBO_H_

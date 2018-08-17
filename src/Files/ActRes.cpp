@@ -1,4 +1,4 @@
-#include "Render/ActRes.h"
+#include "Files/ActRes.h"
 
 #include "Common/ErrorMsg.h"
 #include "Files/File.h"
@@ -120,7 +120,7 @@ bool CActRes::Load(const std::string& filename) {
           cur_clip->zoomx = .0f;
           cur_clip->zoomy = .0f;
           cur_clip->angle = 0;
-          cur_clip->clip_type = SPR_PAL;
+          cur_clip->clip_type = SPR_TYPE_PAL;
           cur_clip->w = 0;
           cur_clip->h = 0;
         }

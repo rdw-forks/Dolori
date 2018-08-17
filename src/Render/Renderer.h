@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Files/SprRes.h"
 #include "Render/GlProgram.h"
 #include "Render/RPFace.h"
 #include "Render/RPQuadFace.h"
@@ -14,7 +15,6 @@
 #include "Render/VBO.h"
 #include "Render/cache_surface.h"
 #include "Render/pixel_format.h"
-#include "Render/spr_img.h"
 
 class CRenderer {
  public:
@@ -70,7 +70,7 @@ class CRenderer {
   glm::mat4 m_projection_matrix;
   glm::mat4 m_view_matrix;
   CGlProgram m_surface_program;
-  VBO m_surface_vbo;
+  GlVBO m_surface_vbo;
   float m_hpc;
   float m_vpc;
   float m_hratio;

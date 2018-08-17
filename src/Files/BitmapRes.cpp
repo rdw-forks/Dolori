@@ -1,4 +1,4 @@
-#include "Render/BitmapRes.h"
+#include "Files/BitmapRes.h"
 
 #ifndef WIN32
 #include <string.h>

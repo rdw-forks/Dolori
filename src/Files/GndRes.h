@@ -4,18 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "Files/File.h"
-#include "Render/Res.h"
+#include "Files/Res.h"
 #include "Render/color.h"
 
 #pragma pack(push)
 #pragma pack(1)
-
-typedef struct GND_HEADER {
-  uint32_t magic;
-  uint8_t version_major;
-  uint8_t version_minor;
-} GND_HEADER;
 
 struct LM_INFO {
   uint8_t idata[0x8][0x8];
@@ -57,6 +50,7 @@ class CGndRes : public CRes {
 
   CRes *Clone() override;
   bool Load(const std::string &) override;
+
   void Reset();
   float GetZoom() const;
   int32_t GetWidth() const;

@@ -1,12 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Core/ResMgr.h"
 
+#include "Files/ActRes.h"
+#include "Files/BitmapRes.h"
 #include "Files/File.h"
-#include "Render/3dWorldRes.h"
-#include "Render/ActRes.h"
-#include "Render/BitmapRes.h"
-#include "Render/GndRes.h"
-#include "Render/SprRes.h"
+#include "Files/GatRes.h"
+#include "Files/GndRes.h"
+#include "Files/RsmRes.h"
+#include "Files/RswRes.h"
+#include "Files/SprRes.h"
 
 CResMgr::CResMgr()
     : m_usedForSprTexture(),
@@ -29,8 +31,10 @@ CResMgr::CResMgr()
   RegisterType("bmp", "texture/", new CBitmapRes());
   RegisterType("spr", "sprite/", new CSprRes());
   RegisterType("act", "sprite/", new CActRes());
-  RegisterType("rsw", "", new C3dWorldRes());
+  RegisterType("rsw", "", new CRswRes());
   RegisterType("gnd", "", new CGndRes());
+  RegisterType("gat", "", new CGatRes());
+  RegisterType("rsm", "model/", new CRsmRes());
 }
 
 CResMgr::~CResMgr() {}
@@ -90,49 +94,42 @@ void CResMgr::ReadResNameTable(const std::string& resNameTable) {
   }
 }
 
-void CResMgr::RegisterType(const char* resId, const char* baseDir, CRes* t) {
+void CResMgr::RegisterType(const std::string& resId, const std::string& baseDir,
+                           CRes* t) {
   size_t extIndex = m_resExt.size();
 
   m_resExt[resId] = extIndex;
   m_objTypes.push_back(t);
   m_typeDir.push_back(baseDir);
-  std::map<CHash* const, CRes*, ResPtrLess> map;
-  m_fileList.push_back(map);
+  m_fileList.push_back(std::map<std::string, CRes*>());
 }
 
 const char* CResMgr::GetRealResName(const char* resName) { return resName; }
 
-CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
+CRes* CResMgr::Get(const std::string& fNameInput, bool bRefresh) {
+  std::unique_lock<std::recursive_mutex> lock(m_getResSection);
   char open_filename[0x100];
   char filename[0x80];
 
-  if (!fNameInput) {
-    return nullptr;
-  }
-
-  m_getResSection.lock();
-  strncpy(filename, fNameInput, sizeof(filename));
+  strncpy(filename, fNameInput.c_str(), sizeof(filename));
   ToLower(filename);
   const char* ext_ptr = StrChrBackward(filename, '.');
   if (!ext_ptr) {
-    m_getResSection.unlock();
     return nullptr;
   }
 
   auto resext_node = m_resExt.find(ext_ptr + 1);
   if (resext_node == m_resExt.end()) {
-    m_getResSection.unlock();
     return nullptr;
   }
 
   size_t extIndex = resext_node->second;
   if (extIndex < 0) {
-    m_getResSection.unlock();
     return nullptr;
   }
 
   // Type directory
-  const char* type_dir = m_typeDir[extIndex];
+  const char* type_dir = m_typeDir[extIndex].c_str();
   size_t type_dir_len = strlen(type_dir);
   memset(open_filename, 0, sizeof(open_filename));
   if (!strncmp(filename, type_dir, type_dir_len)) {
@@ -144,13 +141,11 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
   }
 
   // Is the res already loaded ?
-  CHash hash(open_filename);
-  auto res_node = m_fileList[extIndex].find(&hash);
+  auto res_node = m_fileList[extIndex].find(open_filename);
   if (res_node != m_fileList[extIndex].end()) {
     CRes* res = res_node->second;
     if (res && !bRefresh) {
       res->UpdateTimeStamp();
-      m_getResSection.unlock();
       return res;
     }
   }
@@ -158,7 +153,6 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
   // Try to load the res
   CRes* clone = m_objTypes[extIndex]->Clone();
   if (clone == nullptr) {
-    m_getResSection.unlock();
     return nullptr;
   }
 
@@ -174,17 +168,28 @@ CRes* CResMgr::Get(const char* fNameInput, bool bRefresh) {
     strncpy(filename_ptr, real_res_name, sizeof(open_filename) - type_dir_len);
 
     if (!clone->Load(open_filename)) {
-      clone->OnLoadError(filename);
       delete clone;
-      m_getResSection.unlock();
       return nullptr;
     }
   }
 
   clone->UpdateInfo(open_filename, extIndex);
-  m_fileList[extIndex][clone->GetHash()] = clone;
-  m_getResSection.unlock();
+  m_fileList[extIndex][clone->GetName()] = clone;
   return clone;
+}
+
+void CResMgr::Unload(CRes* res_to_unload) {
+  if (res_to_unload == nullptr) {
+    return;
+  }
+
+  const size_t ext_index = res_to_unload->ext_index();
+  const auto res_name = res_to_unload->GetName();
+  auto res_node = m_fileList[ext_index].find(res_name);
+  if (res_node != std::cend(m_fileList[ext_index])) {
+    m_fileList[ext_index].erase(res_node);
+    delete res_to_unload;
+  }
 }
 
 char* CResMgr::ToLower(char* str) {

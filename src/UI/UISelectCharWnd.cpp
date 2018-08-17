@@ -3,7 +3,7 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/const_strings.h"
-#include "Render/ActRes.h"
+#include "Files/ActRes.h"
 #include "UI/UIBmp.h"
 
 CUISelectCharWnd::CUISelectCharWnd()

@@ -4,9 +4,9 @@
 #include <list>
 #include <vector>
 
+#include "Files/GatRes.h"
 #include "GameObject/Player.h"
 #include "Modes/Mode.h"
-#include "Render/3dAttr.h"
 #include "Render/3dGround.h"
 #include "Render/SceneGraphNode.h"
 
@@ -21,14 +21,14 @@ class CWorld {
 
  private:
   CMode* m_cur_mode;
-  // std::list<CGameObject*> m_game_object_list;
-  // std::list<CGameActor*> m_actor_list;
+  std::list<CGameObject*> m_game_object_list;
+  std::list<CGameActor*> m_actor_list;
   // std::list<CItem*> m_item_list;
   // std::list<CSkill*> m_skill_list;
   // std::list<C3dActor*> m_bg_obj_list;
   C3dGround m_ground;
   CPlayer m_player;
-  C3dAttr m_attr;
+  CGatRes m_attr;
   long m_bgObjCount;
   long m_bgObjThread;
   bool m_isPKZone;

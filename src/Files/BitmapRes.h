@@ -7,7 +7,7 @@
 
 #include <il.h>
 
-#include "Render/Res.h"
+#include "Files/Res.h"
 
 class CBitmapRes : public CRes {
  public:

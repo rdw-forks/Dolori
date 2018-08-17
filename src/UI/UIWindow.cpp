@@ -10,7 +10,7 @@ CUIWindow::CUIWindow()
       m_w(),
       m_h(),
       m_isDirty(true),
-      m_surfaces(),
+      m_surfaces(nullptr),
       m_id(117),
       m_state(),
       m_state_cnt(),
@@ -19,11 +19,7 @@ CUIWindow::CUIWindow()
       m_transTarget(255),
       m_transTime(GetTick()) {}
 
-CUIWindow::~CUIWindow() {
-  if (m_surfaces) {
-    delete m_surfaces;
-  }
-}
+CUIWindow::~CUIWindow() {}
 
 void CUIWindow::Create(int cx, int cy) {
   OnCreate(cx, cy);
@@ -39,11 +35,7 @@ void CUIWindow::Move(int x, int y) {
 void CUIWindow::Resize(int cx, int cy) {
   m_w = cx;
   m_h = cy;
-  if (m_surfaces) {
-    delete m_surfaces;
-  }
-
-  m_surfaces = new CSurface(m_w, m_h);
+  m_surfaces = std::make_unique<CSurface>(m_w, m_h);
   Invalidate();
 }
 
@@ -240,14 +232,15 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
   }
 
   TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
-  SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
-                     colorText & 0xFF};
+  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
+                           static_cast<Uint8>((colorText >> 8) & 0xFF),
+                           static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
   if (sdl_surface) {
     if (m_surfaces) {
       m_surfaces->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     } else {
-      m_surfaces = new CSurface(sdl_surface);
+      m_surfaces = std::make_unique<CSurface>(sdl_surface);
     }
   }
 }
@@ -260,14 +253,15 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
   }
 
   TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
-  SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
-                     colorText & 0xFF};
+  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
+                           static_cast<Uint8>((colorText >> 8) & 0xFF),
+                           static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
   if (sdl_surface) {
     if (m_surfaces) {
       m_surfaces->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     } else {
-      m_surfaces = new CSurface(sdl_surface);
+      m_surfaces = std::make_unique<CSurface>(sdl_surface);
     }
   }
 }
@@ -276,10 +270,13 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
                                    size_t textLen, uint32_t colorText,
                                    uint32_t colorOutline, int fontType,
                                    int fontHeight, bool bold) {
-  SDL_Color color_outline = {(colorOutline >> 16) & 0xFF,
-                             (colorOutline >> 8) & 0xFF, colorOutline & 0xFF};
-  SDL_Color color = {(colorText >> 16) & 0xFF, (colorText >> 8) & 0xFF,
-                     colorText & 0xFF};
+  const SDL_Color color_outline = {
+      static_cast<Uint8>((colorOutline >> 16) & 0xFF),
+      static_cast<Uint8>((colorOutline >> 8) & 0xFF),
+      static_cast<Uint8>(colorOutline & 0xFF)};
+  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
+                           static_cast<Uint8>((colorText >> 8) & 0xFF),
+                           static_cast<Uint8>(colorText & 0xFF)};
   TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
 
   TTF_SetFontOutline(font, 1);
@@ -296,7 +293,7 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
   if (m_surfaces) {
     m_surfaces->CopyRect(x, y, 40, 20, bg_surface);
   } else {
-    m_surfaces = new CSurface(bg_surface);
+    m_surfaces = std::make_unique<CSurface>(bg_surface);
   }
 }
 

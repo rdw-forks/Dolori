@@ -20,11 +20,7 @@ CTexture* CTexMgr::CreateTexture(unsigned long w, unsigned long h,
   return new CTexture(w, h, pf);
 }
 
-CTexture* CTexMgr::GetTexture(const char* filename, bool blackkey) {
-  if (!filename) {
-    return nullptr;
-  }
-
+CTexture* CTexMgr::GetTexture(const std::string& filename, bool blackkey) {
   auto it = m_tex_table.find(filename);
   if (it != std::end(m_tex_table)) {
     it->second->UpdateTimestamp();

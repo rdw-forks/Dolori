@@ -4,22 +4,27 @@
 #include <string>
 #include <vector>
 
-#include "Render/Res.h"
-#include "Render/spr_img.h"
-
-typedef enum SPR_TYPE { SPR_PAL = 0x0, SPR_RGBA = 0x1 } SPR_TYPE;
+#include "Files/Res.h"
 
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct SPR_HEADER {
-  uint16_t magic;
-  uint16_t version;
-  uint16_t pal_img_count;
-  // uint16_t rgba_img_count;
-} SPR_HEADER;
+typedef struct _SPR_IMG {
+  uint16_t width;
+  uint16_t height;
+  uint16_t isHalfW;
+  uint16_t isHalfH;
+  uint8_t* image_8bit;
+} SPR_IMG;
 
 #pragma pack(pop)
+
+typedef enum _SPR_TYPE {
+  SPR_TYPE_PAL = 0,
+  SPR_TYPE_RGBA,
+
+  SPR_TYPE_COUNT
+} SPR_TYPE;
 
 class CSprRes : public CRes {
  public:
@@ -34,8 +39,8 @@ class CSprRes : public CRes {
   uint8_t* DecodeRLE(uint8_t* image, int x, int y, unsigned short* size);
 
  private:
-  uint32_t m_pal[0x100];
-  std::vector<SPR_IMG*> m_sprites[0x2];
+  uint32_t m_palette[0x100];
+  std::vector<SPR_IMG*> m_sprites[SPR_TYPE_COUNT];
   uint16_t m_count;
 };
 

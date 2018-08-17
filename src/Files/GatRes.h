@@ -1,9 +1,10 @@
-#ifndef DOLORI_RENDER_3DATTR_H_
-#define DOLORI_RENDER_3DATTR_H_
+#ifndef DOLORI_RENDER_GATRES_H_
+#define DOLORI_RENDER_GATRES_H_
 
+#include <string>
 #include <vector>
 
-#include "Render/Res.h"
+#include "Files/Res.h"
 
 typedef struct ATTR_CELL {
   /* this+0x0 */ float h1;
@@ -13,10 +14,13 @@ typedef struct ATTR_CELL {
   /* this+0x10 */ int flag;
 } ATTR_CELL;
 
-class C3dAttr : public CRes {
+class CGatRes : public CRes {
  public:
-  C3dAttr();
-  ~C3dAttr();
+  CGatRes();
+  ~CGatRes();
+
+  CRes* Clone() override { return nullptr; }
+  bool Load(const std::string&) override { return false; }
 
  private:
   int m_width;
@@ -56,4 +60,4 @@ class C3dAttr : public CRes {
 //    public void * __vecDelDtor(unsigned int)
 //}
 
-#endif  // DOLORI_RENDER_3DATTR_H_
+#endif  // DOLORI_RENDER_GATRES_H_

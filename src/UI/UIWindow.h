@@ -4,8 +4,9 @@
 #include <stdint.h>
 
 #include <list>
+#include <memory>
 
-#include "Render/BitmapRes.h"
+#include "Files/BitmapRes.h"
 #include "Render/Surface.h"
 
 class CUIWindow {
@@ -80,7 +81,7 @@ class CUIWindow {
   int m_w;
   int m_h;
   bool m_isDirty;
-  CSurface *m_surfaces;
+  std::unique_ptr<CSurface> m_surfaces;
   size_t m_id;
   size_t m_state;
   int m_state_cnt;

@@ -1,6 +1,20 @@
-#include "Render/GndRes.h"
+#include "Files/GndRes.h"
 
-#include "Common/ErrorMsg.h"
+#include "Common/debug.h"
+#include "Files/File.h"
+
+#define GND_RES_HEADER "GRGN"
+
+#pragma pack(push)
+#pragma pack(1)
+
+typedef struct GND_HEADER {
+  uint32_t magic;
+  uint8_t version_major;
+  uint8_t version_minor;
+} GND_HEADER;
+
+#pragma pack(pop)
 
 GND_SURFACE_FMT CGndRes::s_empty_surface;
 GND_CELL_FMT CGndRes::s_empty_cell;
@@ -19,18 +33,13 @@ bool CGndRes::Load(const std::string& filename) {
   CFile fp;
 
   if (!fp.Open(filename, false)) {
-    std::string error = "Cannot find ";
-    error += filename;
-    ErrorMsg(error.c_str());
+    LOG(error, "Failed to find file: {}", filename);
     return false;
   }
 
   fp.Read(&header, sizeof(header));
-  if (header.magic != 'NGRG') {
-    std::string error = "Illegal file format: ";
-    error += filename;
-    ErrorMsg(error.c_str());
-    fp.Close();
+  if (memcmp(&header.magic, GND_RES_HEADER, sizeof(header.magic)) != 0) {
+    LOG(error, "Failed to parse file: {}", filename);
     return false;
   }
 

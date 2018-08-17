@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Render/SprRes.h"
+#include "Files/SprRes.h"
 #include "Render/attach_point_info.h"
 #include "Render/rect.h"
 
