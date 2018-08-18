@@ -5,40 +5,23 @@
 #define _strcmpi strcasecmp
 #endif
 
-#include "Common/ErrorMsg.h"
+#include "Common/debug.h"
 #include "Files/File.h"
 
 CBitmapRes::CBitmapRes() : m_isAlpha(), m_width(), m_height(), m_data() {}
 
-CBitmapRes::~CBitmapRes() {
-  if (m_data) {
-    delete[] m_data;
-  }
-}
+CBitmapRes::~CBitmapRes() { Reset(); }
 
 uint32_t CBitmapRes::GetWidth() { return m_width; }
 
 uint32_t CBitmapRes::GetHeight() { return m_height; }
 
-const ILubyte* CBitmapRes::GetData() { return m_data; }
+const ILubyte* CBitmapRes::GetData() { return m_data.data(); }
 
-CRes* CBitmapRes::Clone() {
-  CRes* res;
-
-  res = new CBitmapRes();
-  if (res) {
-    return res;
-  }
-
-  return nullptr;
-}
+CRes* CBitmapRes::Clone() { return new CBitmapRes(); }
 
 void CBitmapRes::Reset() {
-  if (m_data) {
-    delete[] m_data;
-    m_data = nullptr;
-  }
-
+  m_data.clear();
   m_width = 0;
   m_height = 0;
 }
@@ -55,26 +38,27 @@ unsigned int CBitmapRes::GetColor(int x, int y) {
   return result;
 }
 
-bool CBitmapRes::Load(const std::string& fName) {
-  CFile* fp;
+bool CBitmapRes::Load(const std::string& filename) {
+  CFile file;
 
-  fp = new CFile();
-  if (fp->Open(fName, 0)) {
-    if (LoadFromBuffer(fName, fp->GetBuf(), fp->GetLength())) {
-      delete fp;
-      return true;
-    }
+  if (!file.Open(filename, false)) {
+    LOG(error, "Failed to find file: {}", filename);
+    return false;
   }
-  delete fp;
 
-  return false;
+  if (!LoadFromBuffer(filename, file.GetBuf(), file.GetLength())) {
+    LOG(error, "Failed to parse file: {}", filename);
+    return false;
+  }
+
+  return true;
 }
 
-bool CBitmapRes::LoadFromBuffer(const std::string& fName, const uint8_t* buffer,
-                                size_t size) {
+bool CBitmapRes::LoadFromBuffer(const std::string& filename,
+                                const uint8_t* buffer, size_t size) {
   const char* str_extension;
 
-  str_extension = strrchr(fName.c_str(), '.');
+  str_extension = strrchr(filename.c_str(), '.');
   if (str_extension) {
     if (!_strcmpi(str_extension, ".bmp")) {
       return LoadBMPData(buffer, size);
@@ -88,7 +72,7 @@ bool CBitmapRes::LoadFromBuffer(const std::string& fName, const uint8_t* buffer,
       return LoadJPGData(buffer, size);
     }
 
-    ErrorMsg("Unsupported file format");
+    LOG(error, "Unsupported file format: {}", filename);
   }
 
   return false;
@@ -123,12 +107,11 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
     return false;
   }
 
+  ILint Bpp = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL);
   m_width = ilGetInteger(IL_IMAGE_WIDTH);
   m_height = ilGetInteger(IL_IMAGE_HEIGHT);
-  ILint Bpp = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL);
-  m_data = new ILubyte[Bpp * m_width * m_height];
-  memcpy(m_data, ilGetData(), Bpp * m_width * m_height);
-  ilDeleteImages(1, &imgID);
+  m_data.resize(Bpp * m_width * m_height);
+  memcpy(m_data.data(), ilGetData(), Bpp * m_width * m_height);
 
   // If the image was a BMP, replace purple pixels with transparent ones
   if (type == IL_BMP && Bpp == 4) {
@@ -139,6 +122,8 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
       }
     }
   }
+
+  ilDeleteImages(1, &imgID);
 
   return true;
 }

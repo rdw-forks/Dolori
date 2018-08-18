@@ -16,3 +16,9 @@ $ mkdir build && cd build
 $ cmake ..
 $ cmake --build . --config MinSizeRel
 ```
+
+Current supported settings
+--------------------------
+* Packet version: 20080910
+* Packet obfuscation: Disabled
+* Client version: 23

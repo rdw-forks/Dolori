@@ -26,7 +26,7 @@ struct CHARACTER_INFO {
   unsigned short sp;
   unsigned short max_sp;
   unsigned short speed;
-  unsigned short class_;
+  unsigned short job;
   unsigned short head_style;
 #if PACKETVER >= 20141022
   unsigned short body;

@@ -1,10 +1,16 @@
 #ifndef DOLORI_RENDER_RSMRES_H_
 #define DOLORI_RENDER_RSMRES_H_
 
+#include <list>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "Files/3dNodeRes.h"
+#include "Files/File.h"
 #include "Files/Res.h"
+#include "Render/3dMesh.h"
 
 typedef enum _SHADING_TYPE {
   SHADING_TYPE_NONE = 0,
@@ -19,19 +25,23 @@ class CRsmRes : public CRes {
   bool Load(const std::string& file_name) override;
   CRes* Clone() override;
 
+ protected:
+  void Reset() override;
+
  private:
-  std::vector<std::string> m_textures;
+  void LoadNode(CFile& file, std::shared_ptr<C3dNodeRes> node);
+
+ private:
   char name[0x50];
-  int32_t m_shade_type;
+  int32_t m_shading_type;
   int32_t m_anim_len;
   uint8_t m_alpha;
+  std::vector<std::string> m_textures;
   //  struct MaterialInfo * m_material;
-  //  std::list<C3dNodeRes *> m_objectList;
-  //  std::list<std::string> m_rootObjList;
-  //  std::map<std::string, C3dMesh *> m_meshList;
+  std::list<std::shared_ptr<C3dNodeRes>> m_object_list;
+  std::list<std::string> m_root_obj_list;
+  std::map<std::string, C3dMesh*> m_mesh_list;
 };
-
-#endif  // DOLORI_RENDER_RSMRES_H_
 
 // class C3dModelRes {
 //  CRes, offset = 0x0
@@ -78,3 +88,5 @@ class CRsmRes : public CRes {
 //  public void __local_vftable_ctor_closure()
 //  public void * __vecDelDtor(unsigned int)
 //}
+
+#endif  // DOLORI_RENDER_RSMRES_H_

@@ -2142,6 +2142,14 @@ struct PACKET_ZC_ATTACK_RANGE {
   short current_att_range;
 };
 
+struct PACKET_HC_BLOCK_CHARACTER {
+  short PacketType;
+  short PacketLength;
+  struct TAG_CHARACTER_BLOCK_INFO {
+    unsigned long GID;
+    char szExpireDate[20];
+  } charList[];
+};
 #pragma pack(pop)
 #pragma warning(default : 4200)
 

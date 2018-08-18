@@ -33,7 +33,7 @@ bool CConnection::Startup() {
   WSADATA data;
 
   if (WSAStartup(0x101u, &data)) {
-    ErrorMsg("Failed to load Winsock");
+    ErrorMsg("Failed to initialize Winsock");
     WSACleanup();
     result = false;
   } else {
@@ -126,48 +126,51 @@ bool CConnection::OnSend() {
   struct timeval timeout;
   fd_set writefds;
 
-  if (m_dwTime < GetTick()) {
-    while (m_sendQueue.GetSize()) {
-      timeout.tv_sec = 0;
-      timeout.tv_usec = 0;
+  if (m_dwTime >= GetTick()) {
+    return true;
+  }
+
+  while (m_sendQueue.GetSize()) {
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
 #ifdef WIN32
-      writefds.fd_array[0] = m_socket;
-      writefds.fd_count = 1;
+    writefds.fd_array[0] = m_socket;
+    writefds.fd_count = 1;
 #else
-      FD_ZERO(&writefds);
-      FD_SET(m_socket, &writefds);
+    FD_ZERO(&writefds);
+    FD_SET(m_socket, &writefds);
 #endif
-      nb_sockets = select(0, 0, &writefds, 0, &timeout);
-      if (nb_sockets != -1) {
-        if (nb_sockets <= 0) {
-          return true;
-        }
-        sent_bytes =
-            send(m_socket, m_sendQueue.GetDataPtr(), m_sendQueue.GetSize(), 0);
-        if (sent_bytes == -1) {
+    nb_sockets = select(m_socket + 1, 0, &writefds, 0, &timeout);
+    if (nb_sockets <= 0) {
+      return true;
+    }
+
+    sent_bytes =
+        send(m_socket, m_sendQueue.GetDataPtr(), m_sendQueue.GetSize(), 0);
+    if (sent_bytes == -1) {
 #ifdef WIN32
-          int err = WSAGetLastError();
-          if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
+      int err = WSAGetLastError();
+      if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
 #else
-          if (errno != EWOULDBLOCK && errno != ENOTCONN) {
+      if (errno != EWOULDBLOCK && errno != ENOTCONN) {
 #endif
-            if (m_socket != INVALID_SOCKET) {
-              closesocket(m_socket);
-              m_socket = INVALID_SOCKET;
-              m_sendQueue.Init(40960);
-              m_blockQueue.Init(40960);
-            }
-            return false;
-          }
-        } else {
-          m_sendQueue.RemoveData(sent_bytes);
+        if (m_socket != INVALID_SOCKET) {
+          closesocket(m_socket);
+          m_socket = INVALID_SOCKET;
+          m_sendQueue.Init(40960);
+          m_blockQueue.Init(40960);
         }
+        return false;
       }
-      if (m_dwTime >= GetTick()) {
-        return true;
-      }
+    } else {
+      m_sendQueue.RemoveData(sent_bytes);
+    }
+
+    if (m_dwTime >= GetTick()) {
+      return true;
     }
   }
+
   return true;
 }
 
@@ -187,8 +190,8 @@ bool CConnection::OnRecv() {
   FD_ZERO(&readfds);
   FD_SET(m_socket, &readfds);
 #endif
-  nb_sockets = select(0, &readfds, 0, 0, &timeout);
-  if (nb_sockets == -1 || nb_sockets <= 0) {
+  nb_sockets = select(m_socket + 1, &readfds, 0, 0, &timeout);
+  if (nb_sockets <= 0) {
     return true;
   }
 

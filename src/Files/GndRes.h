@@ -51,7 +51,6 @@ class CGndRes : public CRes {
   CRes *Clone() override;
   bool Load(const std::string &) override;
 
-  void Reset();
   float GetZoom() const;
   int32_t GetWidth() const;
   int32_t GetHeight() const;
@@ -63,6 +62,9 @@ class CGndRes : public CRes {
 
   static GND_SURFACE_FMT s_empty_surface;
   static GND_CELL_FMT s_empty_cell;
+
+ protected:
+  void Reset() override;
 
  private:
   // int m_new_ver;

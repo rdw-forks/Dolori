@@ -107,6 +107,11 @@ void CSession::InvalidateBasicWnd() {
 
 void CSession::InitPcNameTable() {
   // Jobs
+  m_newPcJobNameTable[0] = "초보자";     // Novice
+  m_newPcJobNameTable[1] = "검사";       // Swordman
+  // m_newPcJobNameTable[2] = "";           // Mage
+  m_newPcJobNameTable[3] = "마법사";     // Magician
+  m_newPcJobNameTable[4] = "궁수";       // Archer
   m_newPcJobNameTable[16] = "세이지";    // Monk
   m_newPcJobNameTable[17] = "몽크";      // Sage
   m_newPcJobNameTable[66] = "챔피온";    // Champion
@@ -183,7 +188,13 @@ void CSession::InitJobNameTable() {
 const char *CSession::GetJobName(int job) { return m_jobNameTable[job]; }
 
 char *CSession::GetJobActName(int job, int sex, char *buf) {
-  const char *job_name;
+  const char *job_name = nullptr;
+
+  const auto job_elem = m_newPcJobNameTable.find(job);
+  if (job_elem == std::cend(m_newPcJobNameTable)) {
+    LOG(error, "Cannot find .act name for job #{}", job);
+    return nullptr;
+  }
 
   if (job <= 3950) {
     job_name = m_newPcJobNameTable[job];
@@ -198,7 +209,13 @@ char *CSession::GetJobActName(int job, int sex, char *buf) {
 }
 
 char *CSession::GetJobSprName(int job, int sex, char *buf) {
-  const char *job_name;
+  const char *job_name = nullptr;
+
+  const auto job_elem = m_newPcJobNameTable.find(job);
+  if (job_elem == std::cend(m_newPcJobNameTable)) {
+    LOG(error, "Cannot find .spr name for job #{}", job);
+    return nullptr;
+  }
 
   if (job <= 3950) {
     job_name = m_newPcJobNameTable[job];

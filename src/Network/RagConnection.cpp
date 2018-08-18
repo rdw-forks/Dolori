@@ -1,5 +1,7 @@
 #include "Network/RagConnection.h"
+
 //#include "Network/PacketCipher.h"
+#include "Common/debug.h"
 #include "Network/Packets.h"
 
 #ifndef WIN32
@@ -74,7 +76,13 @@ int CRagConnection::GetPacketSize(int packetType) {
     return 2;
   }
 
-  return m_packetLenMap[packetType];
+  const auto elem = m_packetLenMap.find(packetType);
+  if (elem != std::cend(m_packetLenMap)) {
+    return elem->second;
+  }
+
+  LOG(error, "Unknown packet type: {}", packetType);
+  return -2;
 }
 
 short CRagConnection::GetPacketType(const char *buffer) {
@@ -83,11 +91,13 @@ short CRagConnection::GetPacketType(const char *buffer) {
 
 void CRagConnection::InitPacketMap() {
   m_packetLenMap[HEADER_CA_LOGIN] = sizeof(PACKET_CA_LOGIN);
+  m_packetLenMap[HEADER_CA_LOGIN_CHANNEL] = sizeof(PACKET_CA_LOGIN_CHANNEL);
   m_packetLenMap[HEADER_AC_ACCEPT_LOGIN] = -1;
   m_packetLenMap[HEADER_AC_REFUSE_LOGIN] = sizeof(PACKET_AC_REFUSE_LOGIN);
   m_packetLenMap[HEADER_CH_ENTER] = sizeof(PACKET_CH_ENTER);
   m_packetLenMap[HEADER_HC_ACCEPT_ENTER] = -1;
   m_packetLenMap[HEADER_HC_REFUSE_ENTER] = sizeof(PACKET_HC_REFUSE_ENTER);
+  m_packetLenMap[HEADER_HC_BLOCK_CHARACTER] = -1;
   m_packetLenMap[HEADER_CH_SELECT_CHAR] = sizeof(PACKET_CH_SELECT_CHAR);
   m_packetLenMap[HEADER_HC_NOTIFY_ZONESVR] = sizeof(PACKET_HC_NOTIFY_ZONESVR);
   m_packetLenMap[HEADER_ZC_AID] = sizeof(PACKET_ZC_AID);

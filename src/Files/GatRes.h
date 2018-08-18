@@ -22,6 +22,9 @@ class CGatRes : public CRes {
   CRes* Clone() override { return nullptr; }
   bool Load(const std::string&) override { return false; }
 
+ protected:
+  void Reset() override;
+
  private:
   int m_width;
   int m_height;

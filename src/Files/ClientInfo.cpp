@@ -36,6 +36,7 @@ bool ClientInfo::Load() {
 
 void ClientInfo::SetOption(const tinyxml2::XMLDocument& document) {
   using namespace tinyxml2;
+  XMLError error;
 
   const XMLElement* clientinfo = document.FirstChildElement("clientinfo");
   if (!clientinfo) {
@@ -146,6 +147,12 @@ void ClientInfo::SetOption(const tinyxml2::XMLDocument& document) {
     const XMLElement* port = connection->FirstChildElement("port");
     if (port) {
       strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
+    }
+
+    const XMLElement* version = connection->FirstChildElement("version");
+    error = version->QueryUnsignedText(&g_version);
+    if (error != XML_SUCCESS) {
+      g_version = kDefaultClientVersion;
     }
   }
 }

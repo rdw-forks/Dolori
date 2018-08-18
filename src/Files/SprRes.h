@@ -31,12 +31,15 @@ class CSprRes : public CRes {
   CSprRes();
   ~CSprRes();
 
-  CRes* Clone();
-  void Reset();
+  bool Load(const std::string& fName) override;
+  CRes* Clone() override;
+
   const uint32_t* GetPalette();
-  bool Load(const std::string& fName);
   SPR_IMG* GetSprImg(SPR_TYPE clip_type, unsigned long spr_index);
   uint8_t* DecodeRLE(uint8_t* image, int x, int y, unsigned short* size);
+
+ protected:
+  void Reset() override;
 
  private:
   uint32_t m_palette[0x100];

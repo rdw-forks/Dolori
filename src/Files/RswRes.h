@@ -35,11 +35,13 @@ class CRswRes : public CRes {
 
   CRes* Clone();
   bool Load(const std::string&);
-  void Reset();
 
   const std::string& GetGnd() const;
   const std::string& GetAttr() const;
   const std::list<std::shared_ptr<ModelInfo>>& GetModels() const;
+
+ protected:
+  void Reset() override;
 
  private:
   std::list<std::shared_ptr<ModelInfo>> m_models;

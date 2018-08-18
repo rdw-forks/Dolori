@@ -18,13 +18,26 @@ typedef struct _SprHeader {
 
 #pragma pack(pop)
 
-CSprRes::CSprRes() : m_count() {}
+CSprRes::CSprRes() : m_sprites(), m_count() {}
 
-CSprRes::~CSprRes() {}
+CSprRes::~CSprRes() { Reset(); }
 
 CRes* CSprRes::Clone() { return new CSprRes(); }
 
-void CSprRes::Reset() { m_count = 0; }
+void CSprRes::Reset() {
+  for (size_t i = 0; i < SPR_TYPE_COUNT; i++) {
+    for (auto img : m_sprites[i]) {
+      if (img->image_8bit != nullptr) {
+        delete[] img->image_8bit;
+      }
+      delete img;
+    }
+
+    m_sprites[i].clear();
+  }
+
+  m_count = 0;
+}
 
 const uint32_t* CSprRes::GetPalette() { return m_palette; }
 
@@ -49,7 +62,7 @@ bool CSprRes::Load(const std::string& filename) {
   LOG(debug, "SPR file version: {:x}", version);
 
   if (version > 0x201) {
-    LOG(error, "Unsupported version. Content may be corrupted");
+    LOG(error, "Unsupported version.");
     return false;
   }
 
@@ -66,7 +79,7 @@ bool CSprRes::Load(const std::string& filename) {
     img->isHalfH = 0;
     img->isHalfW = 0;
     img->image_8bit = nullptr;
-    if (version < 0x201) {
+    if (version >= 0x200) {
       // Read pal images
       size_t size = img->width * img->height;
       img->image_8bit = new uint8_t[size];

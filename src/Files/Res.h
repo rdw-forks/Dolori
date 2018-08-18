@@ -18,6 +18,9 @@ class CRes {
   void UpdateInfo(const std::string&, size_t);
   void UpdateTimeStamp();
 
+ protected:
+  virtual void Reset() = 0;
+
  private:
   int m_lockCnt;
   unsigned long m_timeStamp;

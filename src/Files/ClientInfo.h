@@ -7,6 +7,8 @@
 
 class ClientInfo {
  public:
+  const unsigned int kDefaultClientVersion = 23;
+
   ClientInfo(const std::string& file_path);
 
   bool Load();

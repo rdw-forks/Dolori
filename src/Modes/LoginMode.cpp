@@ -117,7 +117,9 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
     } break;
     case LMM_SELECTSVR: {
       m_serverSelected = (size_t)val1;
-      if (m_serverSelected == -1) break;
+      if (m_serverSelected == -1) {
+        break;
+      }
 
       struct in_addr ip;
       ip.s_addr = m_serverInfo[m_serverSelected].ip;
@@ -185,7 +187,7 @@ void CLoginMode::OnChangeState(int state) {
       CBitmapRes *bitmap;
 
       m_wallPaperBmpName = UIBmp(wallpaper_name);
-      bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
+      bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName, false);
       g_WindowMgr->SetWallpaper(bitmap);
       wnd =
           (CUINoticeConfirmWnd *)g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND);
@@ -257,11 +259,13 @@ void CLoginMode::MakeLoginWindow() {
   CBitmapRes *res;
 
   // WinMainNpKeyStartEncryption();
-  m_wallPaperBmpName = UIBmp(wallpaper_name.c_str());
-  res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName.c_str(), false);
+  m_wallPaperBmpName = UIBmp(wallpaper_name);
+  res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName, false);
   g_WindowMgr->SetWallpaper(res);
   login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
-  if (!g_hideAccountList && login_wnd) login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
+  if (!g_hideAccountList && login_wnd) {
+    login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
+  }
 }
 
 void CLoginMode::ConnectToAccountServer() {
@@ -288,6 +292,7 @@ void CLoginMode::ConnectToAccountServer() {
         g_RagConnection->GetPacketSize(HEADER_CA_CONNECT_INFO_CHANGED);
     g_RagConnection->SendPacket(packet_size, (char *)&packet);
   }
+
   CheckExeHashFromAccServer();
   if (g_passwordEncrypt) {
     struct PACKET_CA_REQ_HASH packet;
@@ -312,10 +317,6 @@ void CLoginMode::ConnectToAccountServer() {
     packet.client_type = g_clientType;  // GetAccountType();
     packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN);
     g_RagConnection->SendPacket(packet_size, (char *)&packet);
-    // CUIWaitWnd *waitwnd =
-    //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
-    // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
-    // 16, 1);
   } else {
     struct PACKET_CA_LOGIN_CHANNEL packet;
     int packet_size;
@@ -330,11 +331,12 @@ void CLoginMode::ConnectToAccountServer() {
     packet.channeling_corp = g_isGravityID;
     packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
     g_RagConnection->SendPacket(packet_size, (char *)&packet);
-    // CUIWaitWnd *waitwnd =
-    //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
-    // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
-    // 16, 1);
   }
+
+  // CUIWaitWnd *waitwnd =
+  //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
+  // waitwnd->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
+  // 16, 1);
 }
 
 void CLoginMode::ConnectToCharServer() {
@@ -347,9 +349,9 @@ void CLoginMode::ConnectToCharServer() {
   LOG(info, "Connecting to the char server ({}:{}) ...", g_charServerAddr.ip,
       g_charServerAddr.port);
   m_isConnected = g_RagConnection->Connect(&g_charServerAddr);
-  LOG(error, "Failed to connect to the char server");
   // WinMainNpKeyStopEncryption();
   if (!m_isConnected) {
+    LOG(error, "Failed to connect to the char server");
     g_RagConnection->Disconnect();
     /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
     if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
@@ -366,7 +368,7 @@ void CLoginMode::ConnectToCharServer() {
   packet.account_id = m_account_id;
   packet.user_level = m_userLevel;
   packet.Sex = g_Session->GetSex();
-  g_mustPumpOutReceiveQueue = 1;
+  g_mustPumpOutReceiveQueue = true;
   packet_size = g_RagConnection->GetPacketSize(HEADER_CH_ENTER);
   g_RagConnection->SendPacket(packet_size, (char *)&packet);
 }
@@ -410,18 +412,21 @@ void CLoginMode::ConnectToZoneServer() {
 void CLoginMode::PollNetworkStatus() {
   char buffer[2048];
 
-  if (!g_RagConnection->Poll()) g_ModeMgr->GetCurMode()->SendMsg(1, 0, 0, 0);
+  if (!g_RagConnection->Poll()) {
+    g_ModeMgr->GetCurMode()->SendMsg(1, 0, 0, 0);
+  }
 
   if (g_mustPumpOutReceiveQueue) {
     unsigned int aid;
-    if (g_RagConnection->Recv((char *)&aid, 4, 1))
+    if (g_RagConnection->Recv((char *)&aid, 4, 1)) {
       g_mustPumpOutReceiveQueue = false;
+    }
     return;
   }
 
   int size_of_buffer;
   while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
-    short packet_type = g_RagConnection->GetPacketType(buffer);
+    const short packet_type = g_RagConnection->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_AC_ACCEPT_LOGIN:
         Ac_Accept_Login(buffer);
@@ -490,6 +495,7 @@ void CLoginMode::PollNetworkStatus() {
       case HEADER_ZC_AID:
         break;
       default:
+        LOG(error, "Received unknown packet {}", packet_type);
         return;
     };
   }
@@ -505,10 +511,12 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
   m_account_id = packet->account_id;
   m_userLevel = packet->user_level;
 
-  if (packet->sex < 0xA)
+  if (packet->sex < 0xA) {
     sex = packet->sex;
-  else
+  } else {
     sex = packet->sex - 10;
+  }
+
   g_Session->SetSex(sex);
   // g_Session->SetTextType(false, false);
   m_numServer = (packet->packet_len - sizeof(PACKET_AC_ACCEPT_LOGIN)) /
@@ -525,7 +533,10 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
       (struct PACKET_AC_REFUSE_LOGIN *)buffer;
   std::string msg;
 
-  if (packet->error_code != 18) g_RagConnection->Disconnect();
+  if (packet->error_code != 18) {
+    g_RagConnection->Disconnect();
+  }
+
   switch (packet->error_code) {
     case 0:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INCORRECT_USERID);

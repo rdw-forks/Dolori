@@ -1,7 +1,6 @@
 #include "Files/RsmRes.h"
 
 #include "Common/debug.h"
-#include "Files/File.h"
 
 #define RSM_RES_HEADER "GRSM"
 
@@ -16,7 +15,11 @@ typedef struct _RsmHeader {
 
 #pragma pack(pop)
 
-CRsmRes::CRsmRes() {}
+CRsmRes::CRsmRes() { Reset(); }
+
+CRes* CRsmRes::Clone() { return new CRsmRes(); }
+
+void CRsmRes::Reset() { m_textures.clear(); }
 
 bool CRsmRes::Load(const std::string& file_name) {
   uint32_t name_length;
@@ -40,7 +43,7 @@ bool CRsmRes::Load(const std::string& file_name) {
 
   // Info
   fp.Read(&m_anim_len, sizeof(m_anim_len));
-  fp.Read(&m_shade_type, sizeof(m_shade_type));
+  fp.Read(&m_shading_type, sizeof(m_shading_type));
   if (version >= 0x104) {
     fp.Read(&m_alpha, sizeof(m_alpha));
     m_alpha /= 255;
@@ -69,6 +72,10 @@ bool CRsmRes::Load(const std::string& file_name) {
   fp.Read(&node_name, sizeof(node_name));
   fp.Read(&nodes_count, sizeof(nodes_count));
   for (int32_t i = 0; i < nodes_count; i++) {
+    // TODO: Parse individual nodes
+    auto node = std::make_shared<C3dNodeRes>();
+    LoadNode(fp, node);
+    m_object_list.push_back(std::move(node));
   }
 
   // PosKeyFrame
@@ -80,4 +87,23 @@ bool CRsmRes::Load(const std::string& file_name) {
   return true;
 }
 
-CRes* CRsmRes::Clone() { return new CRsmRes(); }
+void CRsmRes::LoadNode(CFile& file, std::shared_ptr<C3dNodeRes> node) {
+  file.Read(node->name, sizeof(node->name));
+  file.Read(node->parentname, sizeof(node->parentname));
+
+  // Textures
+  int32_t textures_count;
+  file.Read(&textures_count, sizeof(textures_count));
+  for (int32_t i = 0; i < textures_count; i++) {
+    int32_t id;
+    file.Read(&id, sizeof(id));
+  }
+
+  // Info
+
+  // Vertices
+
+  // Texture vertices
+
+  // Faces
+}

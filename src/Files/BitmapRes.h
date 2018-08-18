@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <vector>
 
 #include <il.h>
 
@@ -14,17 +15,20 @@ class CBitmapRes : public CRes {
   CBitmapRes();
   ~CBitmapRes();
 
+  bool Load(const std::string &) override;
+  CRes *Clone() override;
+
   uint32_t GetWidth();
   uint32_t GetHeight();
   const ILubyte *GetData();
-  CRes *Clone();
-  void Reset();
   unsigned int GetColor(int x, int y);
-  bool Load(const std::string &);
   bool LoadFromBuffer(const std::string &, const uint8_t *, size_t);
   bool LoadBMPData(const uint8_t *, size_t);
   bool LoadTGAData(const uint8_t *, size_t);
   bool LoadJPGData(const uint8_t *, size_t);
+
+ protected:
+  void Reset() override;
 
  private:
   bool LoadImageData(const uint8_t *, size_t, ILenum);
@@ -33,7 +37,7 @@ class CBitmapRes : public CRes {
   int m_isAlpha;
   uint32_t m_width;
   uint32_t m_height;
-  ILubyte *m_data;
+  std::vector<ILubyte> m_data;
 };
 
 #endif  // DOLORI_RENDER_BITMAPRES_H_

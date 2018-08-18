@@ -7,7 +7,8 @@
 #include "UI/UIBmp.h"
 
 CUISelectCharWnd::CUISelectCharWnd()
-    : m_stateStartTick(GetTick()),
+    : m_viewChar(),
+      m_stateStartTick(GetTick()),
       m_dontmove(false),
       m_cur_page(),
       m_cur_slot(),
@@ -20,7 +21,6 @@ CUISelectCharWnd::CUISelectCharWnd()
       m_change_name_btn() {
   m_defPushId = 117;
   m_defCancelPushId = 117;
-  memset(m_viewChar, 0, sizeof(m_viewChar));
 
   if (g_extendedSlot) {
     m_pageCount = 3;
@@ -89,7 +89,7 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     }
 
     vs = &m_viewChar[char_info->char_slot];
-    job = char_info->class_;
+    job = char_info->job;
     sex = g_Session->GetSex();
     m_isEmpty[char_info->char_slot] = false;
     vs->x = 163 * (i % SLOTS_PER_PAGE) + 124;
@@ -156,10 +156,8 @@ void CUISelectCharWnd::OnDraw() {
         CActRes *act;
 
         vs = &m_viewChar[char_id];
-        spr = static_cast<CSprRes *>(
-            g_ResMgr->Get(vs->spr_name[layer].c_str(), false));
-        act = static_cast<CActRes *>(
-            g_ResMgr->Get(vs->act_name[layer].c_str(), false));
+        spr = static_cast<CSprRes *>(g_ResMgr->Get(vs->spr_name[layer], false));
+        act = static_cast<CActRes *>(g_ResMgr->Get(vs->act_name[layer], false));
         if (!spr || !act) {
           continue;
         }
@@ -217,7 +215,7 @@ void CUISelectCharWnd::InitTextControls() {
     }
 
     m_text[0]->SetText(char_info->name, false);
-    m_text[1]->SetText(g_Session->GetJobName(char_info->class_), false);
+    m_text[1]->SetText(g_Session->GetJobName(char_info->job), false);
     sprintf(buffer, "%d", char_info->base_level);
     m_text[2]->SetText(buffer, false);
     sprintf(buffer, "%d", char_info->base_exp);
@@ -264,6 +262,10 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         char_info =
             static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
                 MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(slot_id)));
+        if (char_info == nullptr) {
+          return result;
+        }
+
         g_Session->SetCharName(char_info->name);
         // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
         g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND,
