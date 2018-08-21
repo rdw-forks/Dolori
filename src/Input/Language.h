@@ -8,9 +8,13 @@ class CLanguage {
   CLanguage();
   ~CLanguage();
 
-  void AddInput(const char * input);
+  void AddInput(const std::string& input);
   void ResetInput();
-  const char * GetLanguageText();
+  void SetSelection(int, int);
+  int GetInputSize() const;
+  std::string GetLanguageText() const;
+  void HideText(bool);
+  void OnKeyDown(unsigned int, long);
 
  private:
   std::string m_input;
@@ -20,7 +24,7 @@ class CLanguage {
   std::string m_keyStroke;
   std::string m_compStr;
   int m_compCursorPos;
-  unsigned char m_bHideText;
+  bool m_bHideText;
   unsigned short m_langId;
   unsigned int m_codePage;
   int m_underLineStart;

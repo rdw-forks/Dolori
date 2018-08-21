@@ -51,7 +51,7 @@ extern char g_accountPort[64];
 extern SERVER_ADDRESS g_charServerAddr;
 extern SERVER_ADDRESS g_zoneServerAddr;
 extern bool g_sys_quit;
-extern char g_current_map[16];
+extern std::string g_current_map;
 extern bool g_bUseCommand;
 extern bool g_mustPumpOutReceiveQueue;
 extern bool g_NameBalloonShorten;

@@ -2,11 +2,13 @@
 #define DOLORI_RENDER_WORLD_H_
 
 #include <list>
+#include <memory>
 #include <vector>
 
 #include "Files/GatRes.h"
 #include "GameObject/Player.h"
 #include "Modes/Mode.h"
+#include "Render/3dActor.h"
 #include "Render/3dGround.h"
 #include "Render/SceneGraphNode.h"
 
@@ -25,7 +27,7 @@ class CWorld {
   std::list<CGameActor*> m_actor_list;
   // std::list<CItem*> m_item_list;
   // std::list<CSkill*> m_skill_list;
-  // std::list<C3dActor*> m_bg_obj_list;
+  std::list<std::unique_ptr<C3dActor>> m_bg_obj_list;
   C3dGround m_ground;
   CPlayer m_player;
   CGatRes m_attr;

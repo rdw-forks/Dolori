@@ -188,7 +188,7 @@ class CUIWindowMgr {
   void SetFocusEdit(CUIWindow *window);
   CUIWindow *GetFocusEdit();
   int ProcessInput();
-  int ErrorMsg(const char *msg, int type, int isDefYes, int changeMsg,
+  int ErrorMsg(const std::string &msg, int type, int isDefYes, int changeMsg,
                unsigned int autoReturnTime);
 
  private:

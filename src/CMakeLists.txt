@@ -20,10 +20,11 @@ foreach(source IN LISTS DOLORI_FILES)
 	source_group("${source_path_msvc}" FILES "${source}")
 endforeach()
 
-target_include_directories(${PROJECT_NAME} PRIVATE ".")
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
 # Link libraries and add include directories for third parties
 target_link_libraries(${PROJECT_NAME} SDL2-static)
+target_link_libraries(${PROJECT_NAME} glm)
 target_link_libraries(${PROJECT_NAME} tinyxml2)
 target_link_libraries(${PROJECT_NAME} grflib)
 target_link_libraries(${PROJECT_NAME} glad)
@@ -38,8 +39,6 @@ target_link_libraries(${PROJECT_NAME} ${SDL2_TTF_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${GLM_INCLUDE_DIRS})
 
 if (WIN32)
 	target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)

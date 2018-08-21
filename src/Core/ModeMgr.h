@@ -14,7 +14,7 @@ class CModeMgr {
   CModeMgr();
 
   void Run(ModeType, const char*);
-  void Switch(ModeType modeType, const char* modeName);
+  void Switch(ModeType modeType, const std::string& modeName);
   void Quit();
   CMode* GetCurMode();
   CGameMode* GetGameMode();

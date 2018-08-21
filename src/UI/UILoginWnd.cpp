@@ -101,6 +101,7 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
   password->Create(125, 16);
   password->Move(92, 62);
   password->SetFrameColor(242, 242, 242);
+  password->HideChars(true);
   AddChild(password);
 }
 

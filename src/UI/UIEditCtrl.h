@@ -10,6 +10,7 @@ class CUIEditCtrl : public CUIWindow {
   CUIEditCtrl();
   ~CUIEditCtrl();
 
+  void HideChars(bool);
   void SetFrameColor(int r, int g, int b);
   void OnLBtnDown(int x, int y);
   void OnDraw();
@@ -22,7 +23,7 @@ class CUIEditCtrl : public CUIWindow {
  private:
   size_t m_selectionOrigin;
   size_t m_selectionCursor;
-  int m_maskchar;
+  bool m_maskchar;
   int m_maxchar;
   int m_isSingColorFrame;
   int m_r;
@@ -31,6 +32,7 @@ class CUIEditCtrl : public CUIWindow {
   int m_textR;
   int m_textG;
   int m_textB;
+  uint32_t m_text_color;
   int m_xOffset;
   int m_yOffset;
   int m_type;

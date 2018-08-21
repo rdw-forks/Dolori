@@ -45,6 +45,8 @@ void ProcessSDLEvents() {
       case SDL_MOUSEWHEEL:
         g_Mouse->SetWheel(ev.wheel.y);
         break;
+      case SDL_KEYDOWN:
+        break;
       case SDL_TEXTINPUT:
         g_Language->AddInput(ev.text.text);
         break;

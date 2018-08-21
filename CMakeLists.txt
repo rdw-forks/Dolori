@@ -17,7 +17,6 @@ endif ()
 find_package(OpenGL REQUIRED)
 find_package(DevIL REQUIRED)
 find_package(SDL2_ttf REQUIRED)
-set(GLM_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/3rdparty/glm/include")
 
 add_compile_options("$<$<CONFIG:DEBUG>:-DDOLORI_DEBUG>")
 

@@ -33,7 +33,7 @@ void CModeMgr::Run(ModeType mode_type, const char* world_name) {
   }
 }
 
-void CModeMgr::Switch(ModeType mode_type, const char* mode_name) {
+void CModeMgr::Switch(ModeType mode_type, const std::string& mode_name) {
   m_cur_mode->SetLoopCond(false);
   m_next_mode_name = mode_name;
   m_next_mode_type = mode_type;

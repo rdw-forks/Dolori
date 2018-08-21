@@ -3,20 +3,62 @@
 
 #include <list>
 
+#include "Files/File.h"
 #include "Render/Texture.h"
 
-struct C3dNodeRes {
+#pragma pack(push)
+#pragma pack(1)
+
+typedef struct _NodeInfo {
+  float mat3[9];
+  float offset[3];
+  float position[3];
+  float rot_angle;
+  float rot_axis[3];
+  float scale[3];
+} NodeInfo;
+
+typedef struct _ModelVertex { float position[3]; } ModelVertex;
+
+typedef struct _TextureVertex {
+  uint32_t color;
+  float position[2];
+} TextureVertex;
+
+typedef struct _FaceInfo {
+  uint16_t vertex_id[3];
+  uint16_t tex_vertex_id[3];
+  uint16_t tex_id;
+  uint16_t padding;
+  int32_t two_sides;
+  int32_t smooth_group;
+} FaceInfo;
+
+typedef struct _PosKeyFrame {
+  int32_t frame;
+  float position[3];
+} PosKeyFrame;
+
+typedef struct _RotKeyFrame {
+  int32_t frame;
+  float quaternion[4];
+} RotKeyFrame;
+
+#pragma pack(pop)
+
+class C3dNodeRes {
+ public:
+  void Load(uint16_t version, CFile &file);
+
+ private:
   char name[0x28];
   char parentname[0x28];
   class C3dModelRes *scene;
   C3dNodeRes *parent;
   std::list<C3dNodeRes *> children;
-  class C3dMesh *mesh;
-  std::vector<CTexture *> m_textures;
-  float position[0x3];
-  float rotaxis[0x3];
-  float rotangle;
-  float scale[0x3];
+  // C3dMesh *mesh;
+  std::vector<CTexture *> textures;
+  NodeInfo info;
   unsigned char alpha;
   // class C3dPosAnim posanim;
   // class C3dRotAnim rotanim;

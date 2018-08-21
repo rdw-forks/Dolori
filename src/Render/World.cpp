@@ -45,6 +45,11 @@ void CWorld::OnEnterFrame() {
     return;
   }
 
+  m_ground.AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
+
+  // Unload unneeded resources
+  g_ResMgr->Unload(gnd_res);
+
   // Load GAT file
   //  const auto gat_filename = rsw_res->GetAttr();
   //  auto gat_res = static_cast<C3dAttr*>(g_ResMgr->Get(gat_filename, false));
@@ -60,17 +65,21 @@ void CWorld::OnEnterFrame() {
     if (rsm_res == nullptr) {
       LOG(error, "Cannot get resource: {}", rsm_filename);
     }
+
+    auto actor = std::make_unique<C3dActor>();
+    actor->AssignModel(rsm_res);
+    m_bg_obj_list.push_back(std::move(actor));
   }
-
-  m_ground.AssignGnd(gnd_res, &light_dir, &diffuse_color, &ambient_color);
-
-  // Unload unneeded resources
-  g_ResMgr->Unload(gnd_res);
 }
 
 void CWorld::Render() {
   RECT test;
   m_ground.Render(nullptr, &test, false);
+
+  // Render 3D map models
+  for (auto& actor : m_bg_obj_list) {
+    actor->Render(nullptr, 0, 0);
+  }
 }
 
 const CPlayer& CWorld::GetPlayer() const { return m_player; }

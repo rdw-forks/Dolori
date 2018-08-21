@@ -7,17 +7,17 @@
 
 typedef struct _MeshVertex {
   float position[3];
-  float normal[3];
-  float face_normal[3];
   uint32_t color;
   float tex_coord[2];
+  float normal[3];
+  float face_normal[3];
 } MeshVertex;
 
 class C3dMesh {
  private:
-  std::vector<MeshVertex> m_vertices;
   C3dMesh* m_parent;
-  std::vector<int> m_shadeGroup[0x20];
+  std::vector<MeshVertex> m_vertices;
+  std::vector<int> m_shade_group[0x20];
 };
 
 // class C3dMesh {

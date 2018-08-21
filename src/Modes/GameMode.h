@@ -1,7 +1,6 @@
 #ifndef DOLORI_MODES_GAMEMODE_H_
 #define DOLORI_MODES_GAMEMODE_H_
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 
 #include <glm/vec2.hpp>

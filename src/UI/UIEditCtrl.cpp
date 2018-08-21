@@ -4,24 +4,23 @@
 #include "Common/const_strings.h"
 #include "UI/UIBmp.h"
 
-CUIEditCtrl::CUIEditCtrl() {
-  m_maxchar = 255;
-  m_selectionCursor = 0;
-  m_selectionOrigin = 0;
-  m_maskchar = 0;
-  m_isSingColorFrame = 1;
-  m_r = 255;
-  m_g = 255;
-  m_b = 255;
-  m_textR = 0;
-  m_textG = 0;
-  m_textB = 0;
-  m_xOffset = 0;
-  m_yOffset = 0;
-  m_type = 0;
-}
+CUIEditCtrl::CUIEditCtrl()
+    : m_maxchar(255),
+      m_selectionCursor(0),
+      m_selectionOrigin(0),
+      m_isSingColorFrame(1),
+      m_r(255),
+      m_g(255),
+      m_b(255),
+      m_text_color(0),
+      m_xOffset(0),
+      m_yOffset(0),
+      m_type(0),
+      m_maskchar(false) {}
 
 CUIEditCtrl::~CUIEditCtrl() {}
+
+void CUIEditCtrl::HideChars(bool hide_chars) { m_maskchar = hide_chars; }
 
 void CUIEditCtrl::SetFrameColor(int r, int g, int b) {
   m_r = r;
@@ -60,7 +59,8 @@ void CUIEditCtrl::OnDraw() {
       }
     }
 
-    bitmap = (CBitmapRes*)g_ResMgr->Get(UIBmp(dialog_r_name), false);
+    bitmap =
+        static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_r_name), false));
     DrawBitmap(24 * pos_x + 10, 0, bitmap, 0);
 
     m_yOffset = 5;
@@ -70,25 +70,19 @@ void CUIEditCtrl::OnDraw() {
 }
 
 void CUIEditCtrl::DrawEditText() {
-  uint32_t text_color;
-
-  text_color = (m_textR << 16) | (m_textG << 8) | m_textB;
   if (g_WindowMgr->GetFocusEdit() == this) {
     RefreshText();
-    if (m_maskchar) {
-    } else {
-    }
   }
 
-  TextOutUTF8(m_xOffset, m_yOffset, m_text.c_str(), 0, 0, 12, text_color);
+  TextOutUTF8(m_xOffset, m_yOffset, m_text.c_str(), 0, 0, 12, m_text_color);
 }
 
 void CUIEditCtrl::OnBeginEdit() {
   g_Language->ResetInput();
-  g_Language->AddInput(m_text.c_str());
-  // g_Language->HideText(m_maskchar != 0);
+  g_Language->AddInput(m_text);
+  g_Language->HideText(m_maskchar);
   if (g_WindowMgr->GetFocusEdit() == this) {
-    // g_Language->SetSelection(0, g_Language->m_input._Len);
+    g_Language->SetSelection(0, g_Language->GetInputSize());
   } else {
     m_selectionOrigin = 0;
     m_selectionCursor = m_text.length();

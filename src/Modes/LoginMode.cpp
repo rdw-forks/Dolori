@@ -103,17 +103,22 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
       m_next_sub_mode = 4;
       break;
     case LMM_PASSWORD:
-      if (val1) strncpy(m_userPassword, (char *)val1, sizeof(m_userPassword));
+      if (val1) {
+        strncpy(m_userPassword, (char *)val1, sizeof(m_userPassword));
+      }
       break;
     case LMM_ID:
-      if (val1) strncpy(m_userId, (char *)val1, sizeof(m_userId));
+      if (val1) {
+        strncpy(m_userId, (char *)val1, sizeof(m_userId));
+      }
       break;
     case LMM_GOTOSELECTACCOUNT: {
       size_t val = (size_t)val2;
-      if (val == 135)
+      if (val == 135) {
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
-      else
+      } else {
         m_next_sub_mode = 2;
+      }
     } break;
     case LMM_SELECTSVR: {
       m_serverSelected = (size_t)val1;
@@ -161,6 +166,7 @@ void CLoginMode::OnUpdate() {
     packet_size = g_RagConnection->GetPacketSize(HEADER_PING);
     g_RagConnection->SendPacket(packet_size, (char *)&packet);
   }
+
   ProcessSDLEvents();
   g_Mouse->ReadState();
   g_WindowMgr->ProcessInput();
@@ -187,12 +193,14 @@ void CLoginMode::OnChangeState(int state) {
       CBitmapRes *bitmap;
 
       m_wallPaperBmpName = UIBmp(wallpaper_name);
-      bitmap = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName, false);
+      bitmap =
+          static_cast<CBitmapRes *>(g_ResMgr->Get(m_wallPaperBmpName, false));
       g_WindowMgr->SetWallpaper(bitmap);
-      wnd =
-          (CUINoticeConfirmWnd *)g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND);
-      if (wnd)
+      wnd = static_cast<CUINoticeConfirmWnd *>(
+          g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND));
+      if (wnd) {
         wnd->SendMsg(nullptr, 80, (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
+      }
     } break;
     case 1:
       break;
@@ -214,8 +222,12 @@ void CLoginMode::OnChangeState(int state) {
       CUISelectServerWnd *wnd;
       char buffer[256];
 
-      wnd = (CUISelectServerWnd *)g_WindowMgr->MakeWindow(WID_SELECTSERVERWND);
-      if (wnd) wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, nullptr, 0, 0);
+      wnd = static_cast<CUISelectServerWnd *>(
+          g_WindowMgr->MakeWindow(WID_SELECTSERVERWND));
+      if (wnd) {
+        wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, nullptr, 0, 0);
+      }
+
       if (m_numServer < 0) {
         wnd->SendMsg(0, 40, 0, 0, 0, 0);
         return;
@@ -554,7 +566,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, 0, 0);
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
 }
 
 void CLoginMode::CheckExeHashFromAccServer() {}
@@ -587,7 +599,7 @@ void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
     change_msg = 0;
     msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   }
-  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, change_msg, 0);
+  g_WindowMgr->ErrorMsg(msg, 0, 1, change_msg, 0);
 }
 
 void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
@@ -625,7 +637,7 @@ void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, 0, 0);
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
@@ -651,38 +663,39 @@ void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
 void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
   struct PACKET_HC_REFUSE_DELETECHAR *packet =
       (struct PACKET_HC_REFUSE_DELETECHAR *)buffer;
+  std::string msg;
 
   if (packet->error_code) {
-    // if (buf[2] == 1)
-    //	v3 = MsgStr(MSI_FR_ERR_DELCHAR_INVALID_SLOT);
-    // else
-    //	v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER);
+    if (packet->error_code == 1) {
+      msg = g_MsgStrMgr->GetMsgStr(MSI_FR_ERR_DELCHAR_INVALID_SLOT);
+    } else {
+      msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER);
+    }
   } else if (g_serviceType != ServiceType::kKorea) {
-    // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_EMAIL);
+    msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER_EMAIL);
   } else {
-    // v3 = MsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
+    msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
   }
-  // g_windowMgr->ErrorMsg(v3, 0, 1, 0, 0);
+
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
 void CLoginMode::Zc_Accept_Enter(const char *buffer) {
   struct PACKET_ZC_ACCEPT_ENTER *packet =
       (struct PACKET_ZC_ACCEPT_ENTER *)buffer;
-  char current_map[24];
-
   g_Session->SetServerTime(packet->startTime);
   g_Session->SetPlayerPosDir(
       (packet->PosDir[1] >> 6) | 4 * packet->PosDir[0],
       (packet->PosDir[2] >> 4) | 16 * (packet->PosDir[1] & 0x3F),
       packet->PosDir[2] & 0xF);
+
   LOG(info, "Entered zone server. The current map is {}", g_current_map);
-  snprintf(current_map, sizeof(current_map), "%s.rsw", g_current_map);
-  g_ModeMgr->Switch(ModeType::kGame, current_map);
+  g_ModeMgr->Switch(ModeType::kGame, g_current_map);
+  g_RagConnection->SetBlock(false);
   // wnd = (UIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
   // str = MsgStr(MSI_PLEASE_BE_PATIENT);
   // wnd->SetMsg(str, 17, 1);
-  g_RagConnection->SetBlock(false);
 }
 
 void CLoginMode::Zc_Accept_Enter2(const char *buffer) {
@@ -694,14 +707,10 @@ void CLoginMode::Zc_Accept_Enter2(const char *buffer) {
 void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
   struct PACKET_HC_NOTIFY_ZONESVR *packet =
       (struct PACKET_HC_NOTIFY_ZONESVR *)buffer;
-  size_t map_name_length;
   struct in_addr ip;
 
   m_char_id = packet->char_id;
-  map_name_length = strlen((char *)packet->map_name) - 4;
-  if (map_name_length > sizeof(g_current_map))
-    map_name_length = sizeof(g_current_map);
-  strncpy(g_current_map, (char *)packet->map_name, map_name_length);
+  g_current_map = std::string((char *)packet->map_name);
   ip.s_addr = packet->addr.ip;
   inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
@@ -723,7 +732,7 @@ void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg.c_str(), 0, 1, 0, 0);
+  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   g_RagConnection->Disconnect();
   m_next_sub_mode = 3;
 }

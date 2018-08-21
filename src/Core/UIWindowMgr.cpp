@@ -296,7 +296,7 @@ int CUIWindowMgr::ProcessInput() {
   return 1;
 }
 
-int CUIWindowMgr::ErrorMsg(const char *msg, int type, int isDefYes,
+int CUIWindowMgr::ErrorMsg(const std::string &msg, int type, int isDefYes,
                            int changeMsg, unsigned int autoReturnTime) {
   LOG(error, "{}", msg);
 

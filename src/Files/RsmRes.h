@@ -32,7 +32,8 @@ class CRsmRes : public CRes {
   void LoadNode(CFile& file, std::shared_ptr<C3dNodeRes> node);
 
  private:
-  char name[0x50];
+  uint16_t m_version;
+  char m_name[0x50];
   int32_t m_shading_type;
   int32_t m_anim_len;
   uint8_t m_alpha;
