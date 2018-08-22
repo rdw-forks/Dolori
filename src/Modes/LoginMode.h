@@ -90,11 +90,12 @@ class CLoginMode : public CMode {
   char m_userId[0x40];
   int m_numServer;
   size_t m_serverSelected;
+  size_t m_selected_char;
   int m_num_char;
   uint32_t m_char_id;
   unsigned int m_subModeStartTime;
   struct SERVER_ADDR m_serverInfo[0x64];
-  struct CHARACTER_INFO m_charInfo[0xc];
+  CharacterInfo m_charInfo[0xc];
   std::string m_wallPaperBmpName;
   BILLING_INFO m_billingInfo;
   unsigned int m_syncRequestTime;

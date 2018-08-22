@@ -212,30 +212,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
     return;
   }
 
-  CRPQuadFace* face = g_Renderer->BorrowQuadRP();
-  TlVertex3d v[4];
-
-  v[0].vertex = glm::vec3(x, y, 1e-006);
-  v[0].oow = 1.f;
-
-  v[1].vertex = glm::vec3(x + cx, y, 1e-006);
-  v[1].oow = 1.f;
-
-  v[2].vertex = glm::vec3(x + cx, y + cy, 1e-006);
-  v[2].oow = 1.f;
-
-  v[3].vertex = glm::vec3(x, y + cy, 1e-006);
-  v[3].oow = 1.f;
-
-  face->SetGeomInfo(0, v[0]);
-  face->SetColorInfo(0, color);
-  face->SetGeomInfo(1, v[1]);
-  face->SetColorInfo(1, color);
-  face->SetGeomInfo(2, v[2]);
-  face->SetColorInfo(2, color);
-  face->SetGeomInfo(3, v[3]);
-  face->SetColorInfo(3, color);
-  AddRP(face, 0x201);
+  // TODO: Render unicolor surface
 }
 
 // CTexture* CRenderer::AddSpriteIndex(SPR_IMG* img, uint32_t* pal,
@@ -504,8 +481,9 @@ void CRenderer::FlushSurfacesList() {
 
   m_surface_program.Bind();
 
-  GLuint position_attrib = m_surface_program.GetAttributeLocation("aPosition");
-  GLuint tex_coord_attrib =
+  const GLuint position_attrib =
+      m_surface_program.GetAttributeLocation("aPosition");
+  const GLuint tex_coord_attrib =
       m_surface_program.GetAttributeLocation("aTextureCoord");
   glEnableVertexAttribArray(position_attrib);
   glEnableVertexAttribArray(tex_coord_attrib);
@@ -514,12 +492,12 @@ void CRenderer::FlushSurfacesList() {
   glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4,
                         reinterpret_cast<void*>(2 * 4));
 
-  GLuint location_id = m_surface_program.GetUniformLocation("uProjectionMat");
-  glUniformMatrix4fv(location_id, 1, GL_FALSE,
+  GLuint uniform_id = m_surface_program.GetUniformLocation("uProjectionMat");
+  glUniformMatrix4fv(uniform_id, 1, GL_FALSE,
                      glm::value_ptr(projection_matrix));
 
-  location_id = m_surface_program.GetUniformLocation("uTexture");
-  glUniform1i(location_id, 0);
+  uniform_id = m_surface_program.GetUniformLocation("uTexture");
+  glUniform1i(uniform_id, 0);
 
   glActiveTexture(GL_TEXTURE0);
 

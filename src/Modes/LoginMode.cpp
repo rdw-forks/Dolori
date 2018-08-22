@@ -144,6 +144,9 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
         }
       }
     } break;
+    case LMM_SELECT_CHARACTER:
+      m_selected_char = reinterpret_cast<size_t>(val1);
+      break;
     default:
       return CMode::SendMsg(messageId, val1, val2, val3);
   };
@@ -249,7 +252,7 @@ void CLoginMode::OnChangeState(int state) {
       int packet_size;
 
       packet.header = HEADER_CH_SELECT_CHAR;
-      packet.char_num = g_selected_char_num;
+      packet.char_num = m_selected_char;
       packet_size = g_RagConnection->GetPacketSize(HEADER_CH_SELECT_CHAR);
       g_RagConnection->SendPacket(packet_size, (char *)&packet);
       // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
@@ -268,11 +271,10 @@ void CLoginMode::MakeLoginWindow() {
   const std::string wallpaper_name =
       const_strings::kResourceSubfolder + "bgi_temp.bmp";
   CUIFrameWnd *login_wnd;
-  CBitmapRes *res;
 
-  // WinMainNpKeyStartEncryption();
   m_wallPaperBmpName = UIBmp(wallpaper_name);
-  res = (CBitmapRes *)g_ResMgr->Get(m_wallPaperBmpName, false);
+  auto res =
+      static_cast<CBitmapRes *>(g_ResMgr->Get(m_wallPaperBmpName, false));
   g_WindowMgr->SetWallpaper(res);
   login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
   if (!g_hideAccountList && login_wnd) {
@@ -580,8 +582,8 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
   m_billingInfo.time1 = ntohl(m_billingInfo.time1);
   m_billingInfo.time2 = ntohl(m_billingInfo.time2);*/
   m_num_char = (packet->packet_len - sizeof(PACKET_HC_ACCEPT_ENTER)) /
-               sizeof(CHARACTER_INFO);
-  memcpy(m_charInfo, packet->charinfo, m_num_char * sizeof(CHARACTER_INFO));
+               sizeof(CharacterInfo);
+  memcpy(m_charInfo, packet->charinfo, m_num_char * sizeof(CharacterInfo));
   m_next_sub_mode = 7;
 }
 
@@ -606,7 +608,6 @@ void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
   struct PACKET_HC_ACCEPT_MAKECHAR *packet =
       (struct PACKET_HC_ACCEPT_MAKECHAR *)buffer;
 
-  memcpy(&g_charInfo, &packet->charinfo, sizeof(CHARACTER_INFO));
   memcpy(&m_charInfo[m_num_char], &packet->charinfo,
          sizeof(m_charInfo[m_num_char]));
   m_next_sub_mode = 7;
@@ -642,21 +643,23 @@ void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
 }
 
 void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
-  struct CHARACTER_INFO tmp_char_infos[0xC];
+  CharacterInfo tmp_char_infos[0xC];
   unsigned int char_index = m_num_char;
   unsigned int i = 0;
   unsigned int j = 0;
 
   // Remove deleted char's info from m_charInfo
   while (char_index) {
-    if (m_charInfo->char_slot != g_selected_char_num)
-      memcpy(&tmp_char_infos[i++], &m_charInfo[j], sizeof(CHARACTER_INFO));
+    if (m_charInfo->char_slot != m_selected_char) {
+      memcpy(&tmp_char_infos[i++], &m_charInfo[j], sizeof(tmp_char_infos[0]));
+    }
 
     j++;
     char_index--;
   }
+
   m_num_char--;
-  memcpy(m_charInfo, tmp_char_infos, m_num_char * sizeof(CHARACTER_INFO));
+  memcpy(&m_charInfo, tmp_char_infos, m_num_char * sizeof(m_charInfo[0]));
   m_next_sub_mode = 7;
 }
 

@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "Files/MemFile.h"
-#include "Files/grf.h"
 #include "Files/pak_pack.h"
 
 class CGPak {
@@ -15,8 +14,8 @@ class CGPak {
 
   bool Open(std::shared_ptr<CMemFile> memfile);
   void Init();
-  bool GetInfo(CHash *, PAK_PACK *);
-  bool GetData(PAK_PACK *pakPack, void *buffer);
+  bool GetInfo(const CHash *, PAK_PACK *);
+  bool GetData(const PAK_PACK *pakPack, void *buffer);
 
  protected:
   bool OpenPak01();

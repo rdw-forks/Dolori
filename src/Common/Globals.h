@@ -59,8 +59,4 @@ extern bool g_NameBalloonfontBold;
 extern bool g_passwordWrong;
 extern std::vector<unsigned long> s_dwAdminAID;
 
-// Used for communication between objects, not a good design
-extern CHARACTER_INFO g_charInfo;
-extern uint8_t g_selected_char_num;
-
 #endif  // DOLORI_COMMON_GLOBALS_H_

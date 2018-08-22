@@ -27,4 +27,4 @@ void CHash::SetString(const char* str) {
   }
 }
 
-const char* CHash::GetString() { return m_String; }
+const char* CHash::GetString() const { return m_String; }

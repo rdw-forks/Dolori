@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 #include "Render/color.h"
-#include "Render/texcoor.h"
 
 struct TlVertex3d {
   glm::vec3 vertex;

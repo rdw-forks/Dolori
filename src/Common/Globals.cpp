@@ -39,6 +39,3 @@ bool g_NameBalloonShorten;
 bool g_NameBalloonfontBold;
 bool g_passwordWrong;
 std::vector<unsigned long> s_dwAdminAID;
-
-CHARACTER_INFO g_charInfo;
-uint8_t g_selected_char_num;

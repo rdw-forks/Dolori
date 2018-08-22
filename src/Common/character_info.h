@@ -9,7 +9,7 @@
 #pragma pack(1)
 #pragma warning(disable : 4200)
 
-struct CHARACTER_INFO {
+typedef struct _CharacterInfo {
   unsigned int char_id;
   unsigned int base_exp;
   int zeny;
@@ -64,7 +64,7 @@ struct CHARACTER_INFO {
   // Non-standard (and probably wrong), since can_rename is a 2-byte boolean.
   unsigned int can_changeslot;
 #endif
-};
+} CharacterInfo;
 
 #pragma pack(pop)
 #pragma warning(default : 4200)

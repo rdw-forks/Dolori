@@ -1,13 +1,8 @@
-#define _CRT_SECURE_NO_WARNINGS
+#include "Core/GameClient.h"
+
 #define SDL_MAIN_HANDLED
-
-#include "Core/Game.h"
-
 #include <SDL.h>
-#ifndef WIN32
-#include <strings.h>
-#define _strcmpi strcasecmp
-#endif
+
 #include "Common/ErrorMsg.h"
 #include "Common/Globals.h"
 #include "Core/ModeMgr.h"
@@ -20,7 +15,7 @@
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 768
 
-Game::~Game() {
+GameClient::~GameClient() {
   g_RagConnection->Disconnect();
   CConnection::Cleanup();
   // g_ResMgr->Reset();
@@ -28,7 +23,7 @@ Game::~Game() {
   g_3dDevice->DestroyObjects();
 }
 
-bool Game::Initialize() {
+bool GameClient::Initialize() {
   if (!g_FileMgr->AddPak("data.grf")) {
     ErrorMsg("Cannot open data.grf.");
     return false;
@@ -70,7 +65,7 @@ bool Game::Initialize() {
   return true;
 }
 
-void Game::Run() {
+void GameClient::Run() {
   g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
   // g_ModeMgr->Run(ModeType::kGame, "izlu2dun.rsw");
 }

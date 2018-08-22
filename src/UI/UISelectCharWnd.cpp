@@ -40,7 +40,9 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
       const_strings::kResourceSubfolder + "login_interface/";
   const std::string box_select = path_name + "box_select.bmp";
 
-  g_selected_char_num = m_cur_slot + m_cur_page * SLOTS_PER_PAGE;
+  g_ModeMgr->GetCurMode()->SendMsg(
+      LMM_SELECT_CHARACTER,
+      reinterpret_cast<void *>(m_cur_slot + m_cur_page * SLOTS_PER_PAGE));
 
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
     m_slots[i] = new CUISlotBitmap(i);
@@ -76,13 +78,13 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
   InitTextControls();
 
   for (int i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++) {
-    CHARACTER_INFO *char_info;
+    CharacterInfo *char_info;
     char buffer[256];
     VIEW_SPRITE *vs;
     uint16_t job;
     int sex;
 
-    char_info = static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
+    char_info = static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
         MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(i)));
     if (!char_info) {
       continue;
@@ -199,10 +201,10 @@ void CUISelectCharWnd::OnDraw() {
 }
 
 void CUISelectCharWnd::InitTextControls() {
-  CHARACTER_INFO *char_info;
+  CharacterInfo *char_info;
   char buffer[256];
 
-  char_info = static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
+  char_info = static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
       MM_QUERYCHARICTORINFO,
       reinterpret_cast<void *>(m_cur_slot + SLOTS_PER_PAGE * m_cur_page)));
   if (m_change_name_btn) {
@@ -251,7 +253,7 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
     case 6: {
       size_t btn_id = reinterpret_cast<size_t>(val1);
       size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
-      CHARACTER_INFO *char_info;
+      CharacterInfo *char_info;
 
       if (btn_id == 118) {
         if (!m_ok_button) {
@@ -260,7 +262,7 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
         m_dontmove = true;
         char_info =
-            static_cast<CHARACTER_INFO *>(g_ModeMgr->GetCurMode()->SendMsg(
+            static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
                 MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(slot_id)));
         if (char_info == nullptr) {
           return result;
@@ -286,7 +288,6 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
           }
         }
         InitTextControls();
-        g_selected_char_num = static_cast<uint8_t>(slot_id);
       }
     } break;
     case 13:

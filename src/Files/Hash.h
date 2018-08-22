@@ -6,8 +6,9 @@ class CHash {
   CHash();
   CHash(const char*);
   ~CHash();
+
   void SetString(const char*);
-  const char* GetString();
+  const char* GetString() const;
 
   friend bool operator==(const CHash& lhs, const CHash& rhs) {
     return lhs.m_HashCode == rhs.m_HashCode;

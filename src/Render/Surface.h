@@ -10,7 +10,6 @@
 #include "Render/GlTexture.h"
 #include "Render/Motion.h"
 #include "Render/pixel_format.h"
-#include "Render/tag_rect.h"
 
 class CSurface : public CGlTexture {
  public:

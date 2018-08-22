@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "Files/RsmRes.h"
+#include "Render/3dNode.h"
 
 class C3dActor {
  public:
@@ -16,7 +17,7 @@ class C3dActor {
   glm::vec3 m_scale;
   glm::mat4 m_modelview_matrix;
   SHADING_TYPE m_shading_type;
-  //  /* this+0x28 */ class C3dNode * m_node
+  C3dNode *m_node;
   std::string m_name;
   int m_cur_motion;
   int m_anim_type;

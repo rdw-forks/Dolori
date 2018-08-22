@@ -5,14 +5,14 @@
 #include "Common/Globals.h"
 #include "Common/debug.h"
 
-CFile::CFile() : m_buf() { m_fileStream.clear(); }
+CFile::CFile() : m_fileStream(), m_buf(), m_size(), m_cursor(), m_fileName() {}
 
 CFile::~CFile() { Close(); }
 
 bool CFile::IsFileExist(const char* fName) {
-  char full_name[256];
+  std::string full_name;
 
-  MakeFileName(full_name, fName, sizeof(full_name));
+  MakeFileName(fName, full_name);
   return g_FileMgr->IsDataExist(full_name);
 }
 
@@ -21,7 +21,7 @@ bool CFile::Open(const std::string& file_name, int nOpenFlags) {
 
   if (nOpenFlags) {
     if (nOpenFlags & 1) {
-      strncpy(m_fileName, file_name.c_str(), sizeof(m_fileName));
+      m_fileName = file_name;
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
         LOG(error, "Failed to open file: {}", m_fileName);
@@ -41,7 +41,7 @@ bool CFile::Open(const std::string& file_name, int nOpenFlags) {
     }
   } else {
     m_cursor = 0;
-    MakeFileName(m_fileName, file_name.c_str(), sizeof(m_fileName));
+    MakeFileName(file_name, m_fileName);
     if (g_readFolderFirst) {
       if (OpenFromFolder(m_fileName)) {
         return true;
@@ -65,8 +65,8 @@ bool CFile::Open(const std::string& file_name, int nOpenFlags) {
   return result;
 }
 
-bool CFile::OpenFromFolder(const char* filename) {
-  m_fileStream.open(m_fileName, std::ios::in | std::ios::binary);
+bool CFile::OpenFromFolder(const std::string& filename) {
+  m_fileStream.open(filename, std::ios::in | std::ios::binary);
   if (m_fileStream.is_open()) {
     std::streampos file_size = 0;
 
@@ -76,7 +76,7 @@ bool CFile::OpenFromFolder(const char* filename) {
     m_size = file_size;
     m_fileStream.seekg(0, std::ios::beg);
 
-    if (m_size) {
+    if (m_size != 0) {
       m_buf = new uint8_t[m_size];
       if (m_buf) {
         m_fileStream.read(reinterpret_cast<char*>(m_buf), m_size);
@@ -168,22 +168,21 @@ void CFile::Close() {
   }
 }
 
-char* CFile::GetFileName() { return m_fileName; }
+const std::string& CFile::GetFileName() const { return m_fileName; }
 
-size_t CFile::GetLength() { return m_size; }
+size_t CFile::GetLength() const { return m_size; }
 
-const unsigned char* CFile::GetBuf() { return m_buf; }
+const unsigned char* CFile::GetBuf() const { return m_buf; }
 
-void CFile::MakeFileName(char* output, const char* input,
-                         unsigned long output_size) {
-  char* delim_pos;
-  unsigned long sep_pos;
+void CFile::MakeFileName(const std::string& input, std::string& output) {
+  // TODO: Rewrite this method
+  output = "data/" + input;
+  NormalizeFileName(output, output);
+
+  // char* delim_pos;
+  // unsigned long sep_pos;
   // char temp[1024];
 
-  strncpy(output, "data/", output_size);
-  strncat(output, input, output_size);
-  NormalizeFileName(output, output);
-  // TODO: Rewrite this method
   /*delim_pos = strstr(output, ":");
   if (delim_pos) {
     memcpy(temp, delim_pos - 1, output + strlen(output) + 2 - delim_pos);
@@ -197,12 +196,8 @@ void CFile::MakeFileName(char* output, const char* input,
   }*/
 }
 
-char* CFile::NormalizeFileName(const char* input, char* output) {
-  char* orig = output;
+void CFile::NormalizeFileName(const std::string& input, std::string& output) {
+  output = input;
 
-  for (; *input != '\0'; output++, input++) {
-    *output = (*input == '\\') ? '/' : *input;
-  }
-
-  return orig;
+  std::replace(output.begin(), output.end(), '\\', '/');
 }

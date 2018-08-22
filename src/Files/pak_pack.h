@@ -6,10 +6,10 @@
 
 #include "Files/Hash.h"
 
-typedef struct PAK_PACK {
-  size_t m_dataSize;
-  size_t m_compressSize;
-  size_t m_size;
+typedef struct _PAK_PACK {
+  uint32_t m_dataSize;
+  uint32_t m_compressSize;
+  uint32_t m_size;
   uint32_t m_Offset;
   uint8_t m_type;
   CHash m_fName;

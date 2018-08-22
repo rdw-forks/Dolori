@@ -54,7 +54,7 @@ void *CFileMgr::GetPak(const std::string &file_name, size_t *size) {
     if (elem.second->GetInfo(&fName, &pakPack)) {
       result = new uint8_t[pakPack.m_size];
       if (!elem.second->GetData(&pakPack, result)) {
-        free(result);
+        delete[] result;
         return nullptr;
       }
 

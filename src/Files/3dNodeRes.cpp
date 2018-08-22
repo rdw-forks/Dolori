@@ -50,7 +50,7 @@ void C3dNodeRes::Load(uint16_t version, CFile& file) {
     }
   }
 
-  // PosKeyFrame
+  // Position keys
   if (version >= 0x105) {
     int32_t poskeyframe_count;
     file.Read(&poskeyframe_count, sizeof(poskeyframe_count));
@@ -61,7 +61,7 @@ void C3dNodeRes::Load(uint16_t version, CFile& file) {
     }
   }
 
-  // RotKeyFrame
+  // Rotation keys
   int32_t rotkeyframe_count;
   file.Read(&rotkeyframe_count, sizeof(rotkeyframe_count));
 

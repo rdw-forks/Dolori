@@ -1417,7 +1417,7 @@ struct PACKET_HC_ACCEPT_ENTER {
   unsigned char premium_slots_end;
 #endif
   unsigned char unknown[20];
-  struct CHARACTER_INFO charinfo[];
+  CharacterInfo charinfo[];
 };
 
 struct PACKET_HC_REFUSE_ENTER {
@@ -1427,7 +1427,7 @@ struct PACKET_HC_REFUSE_ENTER {
 
 struct PACKET_HC_ACCEPT_MAKECHAR {
   unsigned short header;
-  struct CHARACTER_INFO charinfo;
+  CharacterInfo charinfo;
 };
 
 struct PACKET_HC_REFUSE_MAKECHAR {
