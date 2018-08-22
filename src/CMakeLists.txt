@@ -30,6 +30,7 @@ target_link_libraries(${PROJECT_NAME} grflib)
 target_link_libraries(${PROJECT_NAME} glad)
 target_link_libraries(${PROJECT_NAME} spdlog)
 target_link_libraries(${PROJECT_NAME} zlibstatic)
+target_link_libraries(${PROJECT_NAME} nlohmann_json)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})

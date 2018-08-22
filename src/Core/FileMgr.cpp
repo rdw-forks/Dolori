@@ -40,7 +40,7 @@ bool CFileMgr::AddPak(const std::string &pak_name) {
 }
 
 void *CFileMgr::GetPak(const std::string &file_name, size_t *size) {
-  void *result = nullptr;
+  uint8_t *result = nullptr;
   CHash fName;
 
   if (m_pakList.empty()) {

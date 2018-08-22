@@ -15,6 +15,7 @@ class CResMgr {
   CResMgr();
   ~CResMgr();
 
+  void Reset();
   void ReadResNameTable(const std::string &);
   void RegisterType(const std::string &, const std::string &, CRes *);
   const char *GetRealResName(const char *);

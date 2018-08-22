@@ -39,6 +39,8 @@ CResMgr::CResMgr()
 
 CResMgr::~CResMgr() {}
 
+void CResMgr::Reset() {}
+
 void CResMgr::ReadResNameTable(const std::string& resNameTable) {
   CFile file;
 
