@@ -190,7 +190,7 @@ void CUISelectCharWnd::OnDraw() {
             surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
           }
 
-          m_surfaces->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
+          m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
                                   img->width, img->height, 0, 1, 1);
         }
       }

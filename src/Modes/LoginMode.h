@@ -106,6 +106,7 @@ class CLoginMode : public CMode {
   int m_nSelectedAccountNo;
   int m_nSelectedAccountNo2;
   std::string m_strErrorInfo;
+  std::string m_current_map;
 };
 
 // class CLoginMode {

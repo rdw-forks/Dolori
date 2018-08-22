@@ -10,7 +10,7 @@ CUIWindow::CUIWindow()
       m_w(),
       m_h(),
       m_isDirty(true),
-      m_surfaces(nullptr),
+      m_surface(nullptr),
       m_id(117),
       m_state(),
       m_state_cnt(),
@@ -19,7 +19,13 @@ CUIWindow::CUIWindow()
       m_transTarget(255),
       m_transTime(GetTick()) {}
 
-CUIWindow::~CUIWindow() {}
+CUIWindow::~CUIWindow() {
+  for (auto child : m_children) {
+    delete child;
+  }
+
+  m_children.clear();
+}
 
 void CUIWindow::Create(int cx, int cy) {
   OnCreate(cx, cy);
@@ -35,23 +41,23 @@ void CUIWindow::Move(int x, int y) {
 void CUIWindow::Resize(int cx, int cy) {
   m_w = cx;
   m_h = cy;
-  m_surfaces = std::make_unique<CSurface>(m_w, m_h);
+  m_surface = std::make_unique<CSurface>(m_w, m_h);
   Invalidate();
 }
 
-int CUIWindow::GetX() { return m_x; }
+int CUIWindow::GetX() const { return m_x; }
 
-int CUIWindow::GetY() { return m_y; }
+int CUIWindow::GetY() const { return m_y; }
 
-int CUIWindow::GetHeight() { return m_h; }
+int CUIWindow::GetHeight() const { return m_h; }
 
-int CUIWindow::GetWidth() { return m_w; }
+int CUIWindow::GetWidth() const { return m_w; }
 
 void CUIWindow::SetId(size_t id) { m_id = id; }
 
-size_t CUIWindow::GetId() { return m_id; }
+size_t CUIWindow::GetId() const { return m_id; }
 
-CUIWindow* CUIWindow::GetParent() { return m_parent; }
+CUIWindow* CUIWindow::GetParent() const { return m_parent; }
 
 void CUIWindow::OnDraw() {}
 
@@ -59,9 +65,9 @@ void CUIWindow::OnCreate(int, int) {}
 
 void CUIWindow::OnSize(int, int) {}
 
-bool CUIWindow::IsUpdateNeeded() { return true; }
+bool CUIWindow::IsUpdateNeeded() const { return true; }
 
-bool CUIWindow::IsShow() { return m_show; }
+bool CUIWindow::IsShow() const { return m_show; }
 
 void CUIWindow::SetShow(bool show) { m_show = show; }
 
@@ -82,24 +88,20 @@ void CUIWindow::RemoveChild(CUIWindow* window) {
   }
 }
 
-bool CUIWindow::IsChildOf(CUIWindow* wnd) {
-  CUIWindow* parent;
-  bool result;
-
-  if (m_parent) {
-    parent = m_parent;
-    while (parent != wnd) {
-      parent = parent->GetParent();
-      if (!parent) {
-        return false;
-      }
-    }
-    result = true;
-  } else {
-    result = false;
+bool CUIWindow::IsChildOf(CUIWindow* wnd) const {
+  if (!m_parent) {
+    return false;
   }
 
-  return result;
+  CUIWindow* parent = m_parent;
+  while (parent != wnd) {
+    parent = parent->GetParent();
+    if (!parent) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 CUIWindow* CUIWindow::HitTest(int x, int y) {
@@ -108,19 +110,19 @@ CUIWindow* CUIWindow::HitTest(int x, int y) {
   if (m_show && x >= m_x && x < m_x + m_w && y >= m_y && y < m_y + m_h) {
     if (m_children.empty()) {
       return this;
-    } else {
-      for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
-        result = (*it)->HitTest(x - m_x, y - m_y);
-        if (result && result->IsShow()) {
-          return result;
-        }
-      }
-      result = this;
     }
-  } else
-    result = nullptr;
 
-  return result;
+    for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
+      result = (*it)->HitTest(x - m_x, y - m_y);
+      if (result && result->IsShow()) {
+        return result;
+      }
+    }
+
+    return this;
+  }
+
+  return nullptr;
 }
 
 bool CUIWindow::ShouldDoHitTest() { return true; }
@@ -128,6 +130,7 @@ bool CUIWindow::ShouldDoHitTest() { return true; }
 void CUIWindow::GetGlobalCoor(int* x, int* y) {
   *x = m_x;
   *y = m_y;
+
   for (CUIWindow* wnd = m_parent; wnd != nullptr; wnd = wnd->m_parent) {
     *x += wnd->m_x;
     *y += wnd->m_y;
@@ -165,21 +168,21 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
     blit_to_parent = true;
   }
 
-  for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-    (*it)->DoDraw(blit_to_parent);
+  for (auto child : m_children) {
+    child->DoDraw(blit_to_parent);
   }
 
   if (blit_to_parent && m_parent) {
-    m_parent->m_surfaces->CopyRect(m_x, m_y, m_w, m_h,
-                                   m_surfaces->GetSDLSurface());
+    m_parent->m_surface->CopyRect(m_x, m_y, m_w, m_h,
+                                  m_surface->GetSDLSurface());
   }
 }
 
 void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
-  if (m_surfaces && bitmap) {
-    m_surfaces->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
-                           bitmap->GetData());
+  if (m_surface && bitmap) {
+    m_surface->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
+                          bitmap->GetData());
   }
 }
 
@@ -199,26 +202,27 @@ void CUIWindow::DrawBox(int x, int y, int cx, int cy, uint32_t color) {
     r.h = cy;
   }
 
-  m_surfaces->ClearSurface(&r, color);
+  m_surface->ClearSurface(&r, color);
 }
 
 void CUIWindow::ClearDC(uint32_t color) {
-  if (m_surfaces) {
-    m_surfaces->ClearSurface(nullptr, color);
+  if (m_surface) {
+    m_surface->ClearSurface(nullptr, color);
   }
 }
 
 void CUIWindow::DrawSurface() {
-  if (m_surfaces) {
-    m_surfaces->DrawSurface(m_x, m_y, m_w, m_h, 0xFFFFFFFF);
+  if (m_surface) {
+    m_surface->DrawSurface(m_x, m_y, m_w, m_h, 0xFFFFFFFF);
   }
 }
 
 void CUIWindow::InvalidateChildren() {
   Invalidate();
-  for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-    if ((*it)->IsUpdateNeeded()) {
-      (*it)->InvalidateChildren();
+
+  for (auto child : m_children) {
+    if (child->IsUpdateNeeded()) {
+      child->InvalidateChildren();
     }
   }
 }
@@ -237,10 +241,10 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
                            static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
   if (sdl_surface) {
-    if (m_surfaces) {
-      m_surfaces->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+    if (m_surface) {
+      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     } else {
-      m_surfaces = std::make_unique<CSurface>(sdl_surface);
+      m_surface = std::make_unique<CSurface>(sdl_surface);
     }
   }
 }
@@ -258,10 +262,10 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
                            static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
   if (sdl_surface) {
-    if (m_surfaces) {
-      m_surfaces->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+    if (m_surface) {
+      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     } else {
-      m_surfaces = std::make_unique<CSurface>(sdl_surface);
+      m_surface = std::make_unique<CSurface>(sdl_surface);
     }
   }
 }
@@ -290,10 +294,10 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
   SDL_BlitSurface(fg_surface, nullptr, bg_surface, &rect);
   SDL_FreeSurface(fg_surface);
 
-  if (m_surfaces) {
-    m_surfaces->CopyRect(x, y, 40, 20, bg_surface);
+  if (m_surface) {
+    m_surface->CopyRect(x, y, 40, 20, bg_surface);
   } else {
-    m_surfaces = std::make_unique<CSurface>(bg_surface);
+    m_surface = std::make_unique<CSurface>(bg_surface);
   }
 }
 

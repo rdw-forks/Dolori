@@ -22,3 +22,21 @@ Current supported settings
 * Packet version: 20080910
 * Packet obfuscation: Disabled
 * Client version: 23
+
+Configuration file
+------------------
+Dolori uses a JSON file to store its configuration (graphics, sound, fonts, etc.).  
+Here's what its content might look like:
+
+```json
+{
+  "graphics": {
+    "fullscreen": false,
+    "window_width": 800,
+    "window_height": 600
+  },
+  "fonts": {
+    "font_folder": "/usr/share/fonts/truetype/msttcorefonts/"
+  }
+}
+```

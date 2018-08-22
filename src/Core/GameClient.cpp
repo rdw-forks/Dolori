@@ -14,6 +14,9 @@
 #include "Modes/modetype.h"
 #include "Render/3dDevice.h"
 
+GameClient::GameClient()
+    : full_screen_(), window_width_(), window_height_(), font_folder_() {}
+
 GameClient::~GameClient() {
   g_RagConnection->Disconnect();
   CConnection::Cleanup();
@@ -38,6 +41,8 @@ bool GameClient::Initialize() {
     ErrorMsg("Cannot load dolori.json");
     return false;
   }
+
+  g_FontMgr->SetFontFolder(font_folder_);
 
   g_Session->Init();
   if (!g_Session->Create()) {
@@ -91,10 +96,15 @@ bool GameClient::LoadConfiguration(const std::string& file_name) {
   json_file.close();
 
   try {
-    auto graphics_config = json_config.at("graphics");
+    // Graphics settings
+    const auto graphics_config = json_config.at("graphics");
     full_screen_ = graphics_config.value("fullscreen", false);
     window_width_ = graphics_config.value("window_width", 640);
     window_height_ = graphics_config.value("window_height", 480);
+
+    // Fonts settings
+    const auto settings_config = json_config.at("fonts");
+    font_folder_ = settings_config.at("font_folder");
   } catch (const std::exception& ex) {
     LOG(error, "Failed to parse {} ({})", file_name, ex.what());
     return false;
@@ -102,6 +112,7 @@ bool GameClient::LoadConfiguration(const std::string& file_name) {
 
   LOG(debug, "Fullscreen: {}", full_screen_);
   LOG(debug, "Resolution: {}x{}", window_width_, window_height_);
+  LOG(debug, "Font folder: {}", font_folder_);
 
   return true;
 }

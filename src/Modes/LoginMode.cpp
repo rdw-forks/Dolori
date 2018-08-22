@@ -202,7 +202,8 @@ void CLoginMode::OnChangeState(int state) {
       wnd = static_cast<CUINoticeConfirmWnd *>(
           g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND));
       if (wnd) {
-        wnd->SendMsg(nullptr, 80, (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
+        wnd->SendMsg(nullptr, WM_SET_ACTION_BUTTON_OK,
+                     (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
       }
     } break;
     case 1:
@@ -228,11 +229,12 @@ void CLoginMode::OnChangeState(int state) {
       wnd = static_cast<CUISelectServerWnd *>(
           g_WindowMgr->MakeWindow(WID_SELECTSERVERWND));
       if (wnd) {
-        wnd->SendMsg(0, 80, (void *)LMM_SELECTSVR, nullptr, 0, 0);
+        wnd->SendMsg(nullptr, WM_SET_ACTION_BUTTON_OK, (void *)LMM_SELECTSVR,
+                     nullptr, 0, 0);
       }
 
       if (m_numServer < 0) {
-        wnd->SendMsg(0, 40, 0, 0, 0, 0);
+        wnd->SendMsg(nullptr, 40, 0, 0, 0, 0);
         return;
       }
 
@@ -278,7 +280,7 @@ void CLoginMode::MakeLoginWindow() {
   g_WindowMgr->SetWallpaper(res);
   login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
   if (!g_hideAccountList && login_wnd) {
-    login_wnd->SendMsg(0, 88, 0, 0, 0, 0);
+    login_wnd->SendMsg(nullptr, 88, 0, 0, 0, 0);
   }
 }
 
@@ -693,8 +695,8 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
       (packet->PosDir[2] >> 4) | 16 * (packet->PosDir[1] & 0x3F),
       packet->PosDir[2] & 0xF);
 
-  LOG(info, "Entered zone server. The current map is {}", g_current_map);
-  g_ModeMgr->Switch(ModeType::kGame, g_current_map);
+  LOG(info, "Entering zone server. The current map is {}", m_current_map);
+  g_ModeMgr->Switch(ModeType::kGame, m_current_map);
   g_RagConnection->SetBlock(false);
   // wnd = (UIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
   // str = MsgStr(MSI_PLEASE_BE_PATIENT);
@@ -713,7 +715,7 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
   struct in_addr ip;
 
   m_char_id = packet->char_id;
-  g_current_map = std::string((char *)packet->map_name);
+  m_current_map = reinterpret_cast<char *>(packet->map_name);
   ip.s_addr = packet->addr.ip;
   inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;

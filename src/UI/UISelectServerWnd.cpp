@@ -92,11 +92,11 @@ void *CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
   void *result = NULL;
 
   switch (message) {
-    case 80:
+    case WM_SET_ACTION_BUTTON_OK:
       m_target = (size_t)val1;
       // TODO: Save selected item num
       break;
-    case 6: {
+    case WM_BUTTON_PRESSED: {
       size_t btn_id = (size_t)val1;
 
       if (btn_id == 118) {

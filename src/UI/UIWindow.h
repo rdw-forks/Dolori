@@ -9,6 +9,11 @@
 #include "Files/BitmapRes.h"
 #include "Render/Surface.h"
 
+typedef enum _WINDOW_MESSAGE {
+  WM_BUTTON_PRESSED = 6,
+  WM_SET_ACTION_BUTTON_OK = 80
+} WINDOW_MESSAGE;
+
 class CUIWindow {
  public:
   CUIWindow();
@@ -16,27 +21,27 @@ class CUIWindow {
 
   void Create(int, int);
 
-  int GetX();
-  int GetY();
-  int GetHeight();
-  int GetWidth();
+  int GetX() const;
+  int GetY() const;
+  int GetHeight() const;
+  int GetWidth() const;
   virtual void Move(int, int);
   virtual void Resize(int, int);
   virtual void DoDraw(bool);
   virtual void OnDraw();
   virtual void OnCreate(int, int);
-  virtual bool IsUpdateNeeded();
+  virtual bool IsUpdateNeeded() const;
   virtual void OnBeginEdit();
   virtual void OnFinishEdit();
   virtual void *SendMsg(CUIWindow *, int, void *val1 = nullptr,
                         void *val2 = nullptr, void *val3 = nullptr,
                         void *val4 = nullptr);
   void OnSize(int, int);
-  bool IsShow();
+  bool IsShow() const;
   void SetShow(bool);
   void AddChild(CUIWindow *);
   void RemoveChild(CUIWindow *window);
-  bool IsChildOf(CUIWindow *);
+  bool IsChildOf(CUIWindow *) const;
   void DrawBitmap(int, int, CBitmapRes *, int);
   void DrawBox(int x, int y, int cx, int cy, uint32_t color);
   void ClearDC(uint32_t color);
@@ -54,8 +59,8 @@ class CUIWindow {
   static const char *InterpretColor(const char *color_text,
                                     unsigned int *colorRef);
   void SetId(size_t);
-  size_t GetId();
-  CUIWindow *GetParent();
+  size_t GetId() const;
+  CUIWindow *GetParent() const;
   CUIWindow *HitTest(int, int);
   void GetGlobalCoor(int *, int *);
   virtual void OnLBtnDown(int, int);
@@ -81,7 +86,7 @@ class CUIWindow {
   int m_w;
   int m_h;
   bool m_isDirty;
-  std::unique_ptr<CSurface> m_surfaces;
+  std::unique_ptr<CSurface> m_surface;
   size_t m_id;
   size_t m_state;
   int m_state_cnt;

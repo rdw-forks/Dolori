@@ -32,7 +32,6 @@ char g_accountPort[64];
 SERVER_ADDRESS g_charServerAddr;
 SERVER_ADDRESS g_zoneServerAddr;
 bool g_sys_quit = false;
-std::string g_current_map;
 bool g_bUseCommand;
 bool g_mustPumpOutReceiveQueue;
 bool g_NameBalloonShorten;

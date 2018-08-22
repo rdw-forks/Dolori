@@ -8,21 +8,19 @@ CUIFrameWnd::CUIFrameWnd() : m_startGlobalX(), m_startGlobalY() {}
 CUIFrameWnd::~CUIFrameWnd() {}
 
 void CUIFrameWnd::OnLBtnDown(int x, int y) {
-  if (this) {
-    int gx, gy;
+  int gx, gy;
 
-    g_WindowMgr->SetCapture(this);
-    GetGlobalCoor(&gx, &gy);
-    gx += x;
-    gy += y;
-    m_startGlobalX = gx;
-    m_startGlobalY = gy;
-    m_orgX = m_x;
-    m_orgY = m_y;
-    m_transTarget = 128;
-    m_transTime = GetTick();
-    // g_SnapMgr->BeginMove(this);
-  }
+  g_WindowMgr->SetCapture(this);
+  GetGlobalCoor(&gx, &gy);
+  gx += x;
+  gy += y;
+  m_startGlobalX = gx;
+  m_startGlobalY = gy;
+  m_orgX = m_x;
+  m_orgY = m_y;
+  m_transTarget = 128;
+  m_transTime = GetTick();
+  // g_SnapMgr->BeginMove(this);
 }
 
 void CUIFrameWnd::OnLBtnUp(int x, int y) {

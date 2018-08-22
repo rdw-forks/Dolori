@@ -8,7 +8,8 @@ CUIBitmapButton::CUIBitmapButton() : m_bitmapWidth(), m_bitmapHeight() {}
 
 CUIBitmapButton::~CUIBitmapButton() {}
 
-void CUIBitmapButton::SetBitmapName(const char* bitmapName, int buttonState) {
+void CUIBitmapButton::SetBitmapName(const std::string& bitmapName,
+                                    int buttonState) {
   const char* resource_name;
   CBitmapRes* resource;
 
