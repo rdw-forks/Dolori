@@ -323,8 +323,12 @@ void C3dGround::Render(glm::mat4 *wtm, RECT *area, bool need_clip) {
   location_id = m_program.GetUniformLocation("uModelViewMat");
   glUniformMatrix4fv(location_id, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
-  GLuint position_attrib = m_program.GetAttributeLocation("aPosition");
-  GLuint tex_coord_attrib = m_program.GetAttributeLocation("aTextureCoord");
+  // Bind our vertex attributes buffer
+  m_vbo.Bind();
+
+  const GLuint position_attrib = m_program.GetAttributeLocation("aPosition");
+  const GLuint tex_coord_attrib =
+      m_program.GetAttributeLocation("aTextureCoord");
 
   glEnableVertexAttribArray(position_attrib);
   glEnableVertexAttribArray(tex_coord_attrib);
@@ -332,8 +336,6 @@ void C3dGround::Render(glm::mat4 *wtm, RECT *area, bool need_clip) {
   glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 5 * 4, 0);
   glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 5 * 4,
                         reinterpret_cast<void *>(3 * 4));
-  // Bind our vertex attributes buffer
-  m_vbo.Bind();
 
   // Bind the texture
   glActiveTexture(GL_TEXTURE0);

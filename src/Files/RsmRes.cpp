@@ -67,16 +67,25 @@ bool CRsmRes::Load(const std::string& file_name) {
   }
 
   // Nodes
-  char node_name[0x28];
+  char main_node_name[0x28];
   int32_t nodes_count;
 
-  fp.Read(&node_name, sizeof(node_name));
+  fp.Read(&main_node_name, sizeof(main_node_name));
   fp.Read(&nodes_count, sizeof(nodes_count));
   for (int32_t i = 0; i < nodes_count; i++) {
     auto node = std::make_shared<C3dNodeRes>();
     node->Load(m_version, fp);
-    m_object_list.push_back(std::move(node));
+    m_nodes[node->name] = std::move(node);
   }
+
+  if (m_nodes.find(main_node_name) != std::cend(m_nodes)) {
+    m_root_node = m_nodes[main_node_name];
+  } else {
+    m_root_node = m_nodes.begin()->second;
+  }
+
+  m_root_node->parent = nullptr;
+  m_root_node->FetchChildren(m_nodes);
 
   // PosKeyFrame
   if (m_version >= 0x105) {
@@ -86,3 +95,5 @@ bool CRsmRes::Load(const std::string& file_name) {
 
   return true;
 }
+
+std::shared_ptr<C3dNodeRes> CRsmRes::GetRootNode() { return m_root_node; }

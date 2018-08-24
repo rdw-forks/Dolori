@@ -8,11 +8,11 @@
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct GND_HEADER {
+typedef struct _GndHeader {
   uint32_t magic;
   uint8_t version_major;
   uint8_t version_minor;
-} GND_HEADER;
+} GndHeader;
 
 #pragma pack(pop)
 
@@ -28,7 +28,7 @@ CRes* CGndRes::Clone() { return new CGndRes(); }
 
 bool CGndRes::Load(const std::string& filename) {
   uint32_t name_length;
-  GND_HEADER header;
+  GndHeader header;
   char* buffer;
   CFile fp;
 

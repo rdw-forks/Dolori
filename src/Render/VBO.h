@@ -3,10 +3,10 @@
 
 #include <glad/glad.h>
 
-class GlVBO {
+class CGlVBO {
  public:
-  GlVBO();
-  ~GlVBO();
+  CGlVBO();
+  ~CGlVBO();
 
   int size() const;
 

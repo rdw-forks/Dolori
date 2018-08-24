@@ -55,12 +55,9 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
   }
 
   m_change_name_btn = new CUIBitmapButton();
-  m_change_name_btn->SetBitmapName((path_name + "btn_change_name.bmp").c_str(),
-                                   0);
-  m_change_name_btn->SetBitmapName(
-      (path_name + "btn_change_name_a.bmp").c_str(), 1);
-  m_change_name_btn->SetBitmapName(
-      (path_name + "btn_change_name_b.bmp").c_str(), 2);
+  m_change_name_btn->SetBitmapName(path_name + "btn_change_name.bmp", 0);
+  m_change_name_btn->SetBitmapName(path_name + "btn_change_name_a.bmp", 1);
+  m_change_name_btn->SetBitmapName(path_name + "btn_change_name_b.bmp", 2);
 
   m_change_name_btn->Create(m_change_name_btn->GetBitmapWidth(),
                             m_change_name_btn->GetBitmapHeight());
@@ -111,6 +108,7 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     MakeButton(118);
     MakeButton(145);
   }
+
   MakeButton(218);
   m_defPushId = 118;
 }
@@ -133,9 +131,9 @@ void CUISelectCharWnd::OnLBtnDown(int x, int y) {
 void CUISelectCharWnd::OnDraw() {
   const std::string filename =
       const_strings::kResourceSubfolder + "login_interface/win_select.bmp";
-  CBitmapRes *bitmap;
 
-  bitmap = static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(filename), false));
+  auto bitmap =
+      static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(filename), false));
   DrawBitmap(0, 0, bitmap, 0);
 
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
@@ -145,6 +143,7 @@ void CUISelectCharWnd::OnDraw() {
       TextOutA(163 * char_id + 82, 107, "Not available", 0, 1, 18, 0);
       continue;
     }
+
     if (!m_isEmpty[char_id]) {
       // TEST CODE ==============
       for (int layer = 0; layer < 5; layer++) {
@@ -191,7 +190,7 @@ void CUISelectCharWnd::OnDraw() {
           }
 
           m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
-                                  img->width, img->height, 0, 1, 1);
+                                 img->width, img->height, 0, 1, 1);
         }
       }
       // g_ResMgr->Get(m_viewChar[char_id].imf_name.c_str(), false);
@@ -201,12 +200,10 @@ void CUISelectCharWnd::OnDraw() {
 }
 
 void CUISelectCharWnd::InitTextControls() {
-  CharacterInfo *char_info;
-  char buffer[256];
-
-  char_info = static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
-      MM_QUERYCHARICTORINFO,
-      reinterpret_cast<void *>(m_cur_slot + SLOTS_PER_PAGE * m_cur_page)));
+  const auto char_info =
+      static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
+          MM_QUERYCHARICTORINFO,
+          reinterpret_cast<void *>(m_cur_slot + SLOTS_PER_PAGE * m_cur_page)));
   if (m_change_name_btn) {
     m_change_name_btn->Move(-100, -100);
   }
@@ -216,28 +213,23 @@ void CUISelectCharWnd::InitTextControls() {
       m_change_name_btn->Move(360, 318);
     }
 
+    const auto hp_str = std::to_string(char_info->hp) + " / " +
+                        std::to_string(char_info->max_hp);
+    const auto sp_str = std::to_string(char_info->sp) + " / " +
+                        std::to_string(char_info->max_sp);
+
     m_text[0]->SetText(char_info->name, false);
     m_text[1]->SetText(g_Session->GetJobName(char_info->job), false);
-    sprintf(buffer, "%d", char_info->base_level);
-    m_text[2]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->base_exp);
-    m_text[3]->SetText(buffer, false);
-    sprintf(buffer, "%d / %d", char_info->hp, char_info->max_hp);
-    m_text[4]->SetText(buffer, false);
-    sprintf(buffer, "%d / %d", char_info->sp, char_info->max_sp);
-    m_text[5]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->str);
-    m_text[6]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->agi);
-    m_text[7]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->vit);
-    m_text[8]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->int_);
-    m_text[9]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->dex);
-    m_text[10]->SetText(buffer, false);
-    sprintf(buffer, "%d", char_info->luk);
-    m_text[11]->SetText(buffer, false);
+    m_text[2]->SetText(std::to_string(char_info->base_level), false);
+    m_text[3]->SetText(std::to_string(char_info->base_exp), false);
+    m_text[4]->SetText(hp_str, false);
+    m_text[5]->SetText(sp_str, false);
+    m_text[6]->SetText(std::to_string(char_info->str), false);
+    m_text[7]->SetText(std::to_string(char_info->agi), false);
+    m_text[8]->SetText(std::to_string(char_info->vit), false);
+    m_text[9]->SetText(std::to_string(char_info->int_), false);
+    m_text[10]->SetText(std::to_string(char_info->dex), false);
+    m_text[11]->SetText(std::to_string(char_info->luk), false);
   } else {
     for (int i = 0; i < NB_OF_SLOTS; i++) {
       m_text[i]->SetText("", false);
@@ -250,10 +242,9 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
   void *result = nullptr;
 
   switch (message) {
-    case 6: {
+    case WM_BUTTON_PRESSED: {
       size_t btn_id = reinterpret_cast<size_t>(val1);
       size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
-      CharacterInfo *char_info;
 
       if (btn_id == 118) {
         if (!m_ok_button) {
@@ -261,7 +252,7 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         }
 
         m_dontmove = true;
-        char_info =
+        const auto char_info =
             static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
                 MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(slot_id)));
         if (char_info == nullptr) {
@@ -361,7 +352,7 @@ void CUISelectCharWnd::MakeButton(int id) {
 
   CUIBitmapButton *new_button = new CUIBitmapButton();
   const std::string path_name = const_strings::kResourceSubfolder;
-  const char *button_name[6];
+  std::string button_name[6];
   int x_offset = 0;
   int ids[6];
 
@@ -378,12 +369,9 @@ void CUISelectCharWnd::MakeButton(int id) {
   ids[4] = 218;
   ids[5] = 220;
 
-  new_button->SetBitmapName((path_name + button_name[index] + ".bmp").c_str(),
-                            0);
-  new_button->SetBitmapName((path_name + button_name[index] + "_a.bmp").c_str(),
-                            1);
-  new_button->SetBitmapName((path_name + button_name[index] + "_b.bmp").c_str(),
-                            2);
+  new_button->SetBitmapName(path_name + button_name[index] + ".bmp", 0);
+  new_button->SetBitmapName(path_name + button_name[index] + "_a.bmp", 1);
+  new_button->SetBitmapName(path_name + button_name[index] + "_b.bmp", 2);
   new_button->Create(new_button->GetBitmapWidth(),
                      new_button->GetBitmapWidth());
 
@@ -412,7 +400,8 @@ void CUISelectCharWnd::MakeButton(int id) {
       x_offset = 402;
       m_notice_button = new_button;
       break;
-  };
+  }
+
   new_button->Move(x_offset, 318);
   new_button->SetId(ids[index]);
   AddChild(new_button);

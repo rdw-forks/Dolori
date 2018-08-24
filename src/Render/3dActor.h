@@ -1,15 +1,21 @@
 #ifndef DOLORI_RENDER_3DACTOR_H_
 #define DOLORI_RENDER_3DACTOR_H_
 
+#include <memory>
+
 #include <glm/glm.hpp>
 
 #include "Files/RsmRes.h"
-#include "Render/3dNode.h"
 
 class C3dActor {
  public:
-  void AssignModel(CRsmRes *p_rsm_res);
-  void Render(const glm::mat4 *, unsigned char, int);
+  C3dActor();
+
+  void AssignModel(CRsmRes* p_rsm_res);
+  void Render(const glm::mat4&, unsigned char, int);
+  void SetPos(const glm::vec3&);
+  void SetRot(const glm::vec3&);
+  void SetScale(const glm::vec3&);
 
  private:
   glm::vec3 m_pos;
@@ -17,13 +23,19 @@ class C3dActor {
   glm::vec3 m_scale;
   glm::mat4 m_modelview_matrix;
   SHADING_TYPE m_shading_type;
-  C3dNode *m_node;
+  std::shared_ptr<C3dNodeRes> m_root_node;
   std::string m_name;
   int m_cur_motion;
   int m_anim_type;
   float m_anim_speed;
   int m_anim_len;
-  int m_matrix_needs_update;
+  bool m_matrix_needs_update;
+  glm::vec3 m_realbbmin;
+  glm::vec3 m_realbbmax;
+  glm::vec3 m_realbbrange;
+  glm::vec3 m_bbmin;
+  glm::vec3 m_bbmax;
+  glm::vec3 m_bbrange;
 };
 
 // class C3dActor {

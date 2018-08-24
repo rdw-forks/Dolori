@@ -178,7 +178,7 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
   }
 }
 
-void CUIWindow::DrawBitmap(int x, int y, CBitmapRes* bitmap,
+void CUIWindow::DrawBitmap(int x, int y, const CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
   if (m_surface && bitmap) {
     m_surface->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),

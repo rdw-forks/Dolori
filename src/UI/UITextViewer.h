@@ -8,9 +8,9 @@ class CUITextViewer : public CUIListBox {
   CUITextViewer();
   ~CUITextViewer();
 
-  void OnCreate(int cx, int cy);
+  void OnCreate(int cx, int cy) override;
   void Create2(int x, int y, int cx, int cy, bool trans);
-  void OnDraw();
+  void OnDraw() override;
 
  private:
   int m_bgR;

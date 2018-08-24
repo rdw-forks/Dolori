@@ -7,28 +7,16 @@
 #include "Files/Res.h"
 #include "Render/Action.h"
 
-#pragma pack(push)
-#pragma pack(1)
-
-typedef struct ACT_HEADER {
-  uint16_t magic;
-  uint16_t version;
-  uint16_t action_count;
-  uint8_t reserved[10];
-} ACT_HEADER;
-
-#pragma pack(pop)
-
 class CActRes : public CRes {
  public:
   CActRes();
   ~CActRes();
 
-  CRes* Clone();
-  void Reset();
-  bool Load(const std::string& filename);
+  CRes* Clone() override;
+  void Reset() override;
+  bool Load(const std::string& filename) override;
   CMotion* GetMotion(unsigned int act_index, unsigned int mot_index);
-  double GetDelay(unsigned int actIndex);
+  double GetDelay(unsigned int actIndex) const;
 
  private:
   std::vector<CAction> m_actions;

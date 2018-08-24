@@ -24,12 +24,10 @@ class CRsmRes : public CRes {
 
   bool Load(const std::string& file_name) override;
   CRes* Clone() override;
+  std::shared_ptr<C3dNodeRes> GetRootNode();
 
  protected:
   void Reset() override;
-
- private:
-  void LoadNode(CFile& file, std::shared_ptr<C3dNodeRes> node);
 
  private:
   uint16_t m_version;
@@ -39,9 +37,11 @@ class CRsmRes : public CRes {
   uint8_t m_alpha;
   std::vector<std::string> m_textures;
   //  struct MaterialInfo * m_material;
-  std::list<std::shared_ptr<C3dNodeRes>> m_object_list;
-  std::list<std::string> m_root_obj_list;
-  std::map<std::string, C3dMesh*> m_mesh_list;
+  // std::list<std::shared_ptr<C3dNodeRes>> m_object_list;
+  // std::list<std::string> m_root_obj_list;
+  // std::map<std::string, C3dMesh*> m_meshes;
+  std::shared_ptr<C3dNodeRes> m_root_node;
+  std::map<std::string, std::shared_ptr<C3dNodeRes>> m_nodes;
 };
 
 // class C3dModelRes {

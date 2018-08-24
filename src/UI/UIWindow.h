@@ -17,7 +17,7 @@ typedef enum _WINDOW_MESSAGE {
 class CUIWindow {
  public:
   CUIWindow();
-  ~CUIWindow();
+  virtual ~CUIWindow();
 
   void Create(int, int);
 
@@ -42,7 +42,7 @@ class CUIWindow {
   void AddChild(CUIWindow *);
   void RemoveChild(CUIWindow *window);
   bool IsChildOf(CUIWindow *) const;
-  void DrawBitmap(int, int, CBitmapRes *, int);
+  void DrawBitmap(int, int, const CBitmapRes *, int);
   void DrawBox(int x, int y, int cx, int cy, uint32_t color);
   void ClearDC(uint32_t color);
   void DrawSurface();

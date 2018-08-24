@@ -10,8 +10,8 @@ class CUIStaticText : public CUIWindow {
   CUIStaticText();
   ~CUIStaticText();
 
-  void OnDraw();
-  void SetText(const char* txt, int drawBold);
+  void OnDraw() override;
+  void SetText(const std::string& text, int drawBold);
 
  private:
   int m_drawBackGround;

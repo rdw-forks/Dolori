@@ -175,5 +175,5 @@ void ClientInfo::SetLoginStartMode() {
     case ServiceType::kBrazil:
     case ServiceType::kRussia:
       g_loginStartMode = 1;
-  };
+  }
 }

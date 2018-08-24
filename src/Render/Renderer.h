@@ -3,12 +3,14 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include <glm/glm.hpp>
 
 #include "Files/SprRes.h"
 #include "Render/GlProgram.h"
+#include "Render/GlTexture.h"
 #include "Render/RPFace.h"
 #include "Render/RPQuadFace.h"
 #include "Render/RPTriFace.h"
@@ -16,16 +18,23 @@
 #include "Render/cache_surface.h"
 #include "Render/pixel_format.h"
 
+typedef struct _RenderBlock3d {
+  const glm::mat4 *modelview_matrix;
+  const glm::mat4 *nodeview_matrix;
+  std::shared_ptr<CGlVBO> vbo;
+  std::shared_ptr<CGlTexture> texture;
+} RenderBlock3d;
+
 class CRenderer {
  public:
   CRenderer();
 
   bool Init();
   void SetSize(int, int);
-  int GetWidth();
-  int GetHeight();
-  float GetHorizontalRatio();
-  float GetVerticalRatio();
+  int GetWidth() const;
+  int GetHeight() const;
+  float GetHorizontalRatio() const;
+  float GetVerticalRatio() const;
   void SetPixelFormat(PIXEL_FORMAT);
   void DestroyAllRPList();
   void Clear(bool clearScreen);
@@ -34,6 +43,7 @@ class CRenderer {
   void Flip();
   void FlushRenderList();
   void AddSurface(CSurface *surface, const RECT &position);
+  void AddWorldRenderBlock(std::shared_ptr<RenderBlock3d> render_block);
   void AddRP(CRPFace *, int);
   void DrawBoxScreen(int, int, int, int, unsigned int);
   CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
@@ -49,6 +59,7 @@ class CRenderer {
   void FlushFaceList();
   void FlushAlphaList();
   void FlushSurfacesList();
+  void FlushWorldRenderList();
 
   //		private void CRenderer::FlushFaceList()
   //		private void CRenderer::FlushLMGroundList()
@@ -68,9 +79,11 @@ class CRenderer {
 
  private:
   glm::mat4 m_projection_matrix;
+  glm::mat4 m_2d_projection_matrix;
   glm::mat4 m_view_matrix;
   CGlProgram m_surface_program;
-  GlVBO m_surface_vbo;
+  CGlProgram m_world_program;
+  CGlVBO m_surface_vbo;
   float m_hpc;
   float m_vpc;
   float m_hratio;
@@ -106,6 +119,7 @@ class CRenderer {
   void *m_lpSurfacePtr;
   long m_lPitch;
   std::vector<std::pair<CSurface *, RECT>> m_surfaces_list;
+  std::list<std::shared_ptr<RenderBlock3d>> m_world_render_list;
   std::vector<CRPFace *> m_rpFaceList;
   std::vector<CRPFace *> m_rpLMGroundList;
   std::vector<CRPFace *> m_rpLMLightList;

@@ -1,22 +1,29 @@
 #ifndef DOLORI_MODES_LOGINMODE_H_
 #define DOLORI_MODES_LOGINMODE_H_
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 #include <vector>
 
 #include "Common/AccountInfo.h"
 #include "Common/character_info.h"
-#include "Common/server_addr.h"
 #include "Modes/Mode.h"
 
-typedef struct _BILLING_INFO {
+typedef struct _ServerAddr {
+  unsigned int ip;
+  unsigned short port;
+  unsigned char name[0x14];
+  unsigned short usercount;
+  unsigned short state;
+  unsigned short property;
+} ServerAddr;
+
+typedef struct _BillingInfo {
   char dummy1;
   unsigned long code;
   unsigned long time1;
   unsigned long time2;
   char dummy2[0x7];
-} BILLING_INFO;
+} BillingInfo;
 
 typedef enum _LOGINMODE_MSG {
   LMM_CONNECT_TO_ACSVR = 0x2710,
@@ -94,10 +101,10 @@ class CLoginMode : public CMode {
   int m_num_char;
   uint32_t m_char_id;
   unsigned int m_subModeStartTime;
-  struct SERVER_ADDR m_serverInfo[0x64];
+  ServerAddr m_serverInfo[0x64];
   CharacterInfo m_charInfo[0xc];
   std::string m_wallPaperBmpName;
-  BILLING_INFO m_billingInfo;
+  BillingInfo m_billingInfo;
   unsigned int m_syncRequestTime;
   // UIWaitWnd *m_wndWait;
   std::vector<CAccountInfo> m_accountInfo;

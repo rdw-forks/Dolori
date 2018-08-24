@@ -100,7 +100,6 @@ bool CRswRes::Load(const std::string& filename) {
 
   int32_t objects_count;
   fp.Read(&objects_count, sizeof(objects_count));
-  LOG(debug, "Number of game objects: {}", objects_count);
 
   for (size_t i = 0; i < objects_count; i++) {
     int32_t object_type;
@@ -130,12 +129,66 @@ bool CRswRes::Load(const std::string& filename) {
 
         m_models.push_back(std::move(model_info));
       } break;
-      case WORLD_OBJECT_TYPE_LIGHT:
-        break;
-      case WORLD_OBJECT_TYPE_SOUND:
-        break;
-      case WORLD_OBJECT_TYPE_EFFECT:
-        break;
+      case WORLD_OBJECT_TYPE_LIGHT: {
+        // TODO
+        char name[80];
+        fp.Read(&name, sizeof(name));
+
+        float pos[3];
+        fp.Read(&pos, sizeof(pos));
+
+        uint32_t color[3];
+        fp.Read(&color, sizeof(color));
+
+        float range;
+        fp.Read(&range, sizeof(range));
+      } break;
+      case WORLD_OBJECT_TYPE_SOUND: {
+        // TODO
+        char name[80];
+        fp.Read(&name, sizeof(name));
+
+        char file[80];
+        fp.Read(&file, sizeof(file));
+
+        float pos[3];
+        fp.Read(&pos, sizeof(pos));
+
+        float vol;
+        fp.Read(&vol, sizeof(vol));
+
+        uint32_t width, height;
+        fp.Read(&width, sizeof(width));
+        fp.Read(&height, sizeof(height));
+
+        float range;
+        fp.Read(&range, sizeof(range));
+
+        float cycle;
+        if (version >= 0x200) {
+          fp.Read(&cycle, sizeof(cycle));
+        } else {
+          cycle = 0.f;
+        }
+
+      } break;
+      case WORLD_OBJECT_TYPE_EFFECT: {
+        // TODO
+        char name[80];
+        fp.Read(&name, sizeof(name));
+
+        float pos[3];
+        fp.Read(&pos, sizeof(pos));
+
+        uint32_t id;
+        fp.Read(&id, sizeof(id));
+
+        float delay;
+        fp.Read(&delay, sizeof(delay));
+
+        float param[4];
+        fp.Read(&param, sizeof(param));
+      } break;
       default:
         LOG(error, "Unknown object type ({})", object_type);
         return false;

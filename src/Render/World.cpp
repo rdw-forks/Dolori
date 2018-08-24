@@ -64,12 +64,21 @@ void CWorld::OnEnterFrame() {
     auto rsm_res = static_cast<CRsmRes*>(g_ResMgr->Get(rsm_filename, false));
     if (rsm_res == nullptr) {
       LOG(error, "Cannot get resource: {}", rsm_filename);
+      return;
     }
 
     auto actor = std::make_unique<C3dActor>();
     actor->AssignModel(rsm_res);
+    actor->SetPos(glm::vec3(model_info->position[0], model_info->position[1],
+                            model_info->position[2]));
+    actor->SetRot(glm::vec3(model_info->rotation[0], model_info->rotation[1],
+                            model_info->rotation[2]));
+    actor->SetScale(glm::vec3(model_info->scale[0], model_info->scale[1],
+                              model_info->scale[2]));
     m_bg_obj_list.push_back(std::move(actor));
   }
+
+  g_ResMgr->Unload(rsw_res);
 }
 
 void CWorld::Render() {
@@ -77,8 +86,9 @@ void CWorld::Render() {
   m_ground.Render(nullptr, &test, false);
 
   // Render 3D map models
+  const auto matrix = glm::mat4();
   for (auto& actor : m_bg_obj_list) {
-    actor->Render(nullptr, 0, 0);
+    actor->Render(matrix, 0, 0);
   }
 }
 

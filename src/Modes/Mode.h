@@ -5,6 +5,8 @@
 
 #include <glm/vec2.hpp>
 
+enum class ModeType { kLogin = 0, kGame = 1 };
+
 typedef enum MODE_MSG {
   MM_COMMAND = 0x0,
   MM_SOCKETERROR = 0x1,

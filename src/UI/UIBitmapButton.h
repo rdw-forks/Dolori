@@ -11,8 +11,8 @@ class CUIBitmapButton : public CUIButton {
   ~CUIBitmapButton();
 
   void SetBitmapName(const std::string&, int);
-  int GetBitmapWidth();
-  int GetBitmapHeight();
+  int GetBitmapWidth() const;
+  int GetBitmapHeight() const;
   void OnDraw() override;
 
  private:

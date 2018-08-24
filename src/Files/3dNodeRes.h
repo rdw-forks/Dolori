@@ -2,9 +2,15 @@
 #define DOLORI_FILES_3DNODERES_H_
 
 #include <list>
+#include <map>
+#include <memory>
+#include <string>
+
+#include <glm/glm.hpp>
 
 #include "Files/File.h"
 #include "Render/Texture.h"
+#include "Render/VBO.h"
 
 #pragma pack(push)
 #pragma pack(1)
@@ -46,22 +52,43 @@ typedef struct _RotKeyFrame {
 
 #pragma pack(pop)
 
-class C3dNodeRes {
+// Forward declaration
+class C3dActor;
+
+class C3dNodeRes : public std::enable_shared_from_this<C3dNodeRes> {
  public:
   void Load(uint16_t version, CFile &file);
+  void FetchChildren(
+      const std::map<std::string, std::shared_ptr<C3dNodeRes>> &nodes);
+  void ComputeModelViewMatrix();
+  void ComputeBoundingBox(glm::vec3 &bbmin_out, glm::vec3 &bbmax_out);
+  void ComputeRealBoundingBox(glm::mat4 &matrix_out, glm::vec3 &bbmin_out,
+                              glm::vec3 &bbmax_out);
+  void Render(const glm::mat4 &, int, unsigned char);
 
- private:
-  char name[0x28];
-  char parentname[0x28];
-  class C3dModelRes *scene;
-  C3dNodeRes *parent;
-  std::list<C3dNodeRes *> children;
-  // C3dMesh *mesh;
-  std::vector<CTexture *> textures;
+  std::string name;
+  std::string parentname;
   NodeInfo info;
+  std::vector<int32_t> textures;
+  std::vector<ModelVertex> vertices;
+  std::vector<TextureVertex> tex_vertices;
+  std::vector<FaceInfo> faces;
+  std::vector<PosKeyFrame> poskeyframes;
+  std::vector<RotKeyFrame> rotkeyframes;
+  glm::mat4 offset_matrix;
+  glm::vec3 offset_vector;
+  glm::vec3 position;
+  glm::mat4 modelview_matrix;
+  C3dNodeRes *parent;
+  std::list<std::shared_ptr<C3dNodeRes>> children;
+  std::shared_ptr<CGlVBO> vbo;
+  C3dActor *model;
   unsigned char alpha;
   // class C3dPosAnim posanim;
   // class C3dRotAnim rotanim;
+  glm::vec3 bbmin;
+  glm::vec3 bbmax;
+  glm::vec3 bbrange;
 };
 
 //    struct C3dNodeRes {

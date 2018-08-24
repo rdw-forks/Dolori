@@ -1,7 +1,23 @@
 #include "Files/ActRes.h"
 
-#include "Common/ErrorMsg.h"
+#include <string.h>
+
+#include "Common/debug.h"
 #include "Files/File.h"
+
+#define ACT_RES_HEADER "AC"
+
+#pragma pack(push)
+#pragma pack(1)
+
+typedef struct _ActHeader {
+  uint16_t magic;
+  uint16_t version;
+  uint16_t action_count;
+  uint8_t reserved[10];
+} ActHeader;
+
+#pragma pack(pop)
 
 CActRes::CActRes()
     : m_actions(), m_numMaxClipPerMotion(), m_events(), m_delay() {}
@@ -11,80 +27,57 @@ CActRes::~CActRes() {
   Reset();
 }
 
-CRes* CActRes::Clone() {
-  CRes* res;
-
-  res = new CActRes();
-  if (res) {
-    return res;
-  }
-
-  return nullptr;
-}
+CRes* CActRes::Clone() { return new CActRes(); }
 
 void CActRes::Reset() {
-  for (auto& event : m_events) {
-    event.clear();
-  }
   m_events.clear();
-
-  // Wtf is this ?
-  for (auto& action : m_actions) {
-    delete &action;
-  }
   m_actions.clear();
 }
 
 bool CActRes::Load(const std::string& filename) {
-  ACT_HEADER header;
+  ActHeader header;
   CFile fp;
 
   if (!fp.Open(filename, false)) {
-    std::string error = "Cannot find ";
-    error += filename;
-    ErrorMsg(error.c_str());
+    LOG(error, "Failed to find file: {}", filename);
     return false;
   }
 
   fp.Read(&header, sizeof(header));
-  if (header.magic != 'CA') {
-    std::string error = "Illegal file format: ";
-    error += filename;
-    ErrorMsg(error.c_str());
-    fp.Close();
+  if (memcmp(&header.magic, ACT_RES_HEADER, sizeof(header.magic)) != 0) {
+    LOG(error, "Failed to parse file: {}", filename);
     return false;
   }
 
+  LOG(debug, "ACT file version: {:x}", header.version);
   if (header.version > 0x205) {
-    ErrorMsg("Unsupported version. Content may be corrupted");
-    fp.Close();
+    LOG(error, "Unsupported version. Content may be corrupted");
     return false;
   }
+
   Reset();
   m_actions.resize(header.action_count);
 
-  // printf("Act version: %X\n", header.version);
-  // printf("%d actions\n", header.action_count);
   for (int i = 0; i < header.action_count; i++) {
     CAction* cur_action = &m_actions[i];
     uint32_t motion_count;
 
     fp.Read(&motion_count, sizeof(motion_count));
     cur_action->Create(motion_count);
-    // printf("%d motions\n", motion_count);
+
     for (int j = 0; j < motion_count; j++) {
       CMotion* cur_motion = cur_action->GetMotion(j);
       uint32_t sprite_count;
 
-      fp.Read(&cur_motion->range1, sizeof(RECT));
-      fp.Read(&cur_motion->range2, sizeof(RECT));
-      fp.Read(&sprite_count, 4);
+      fp.Read(&cur_motion->range1, sizeof(cur_motion->range1));
+      fp.Read(&cur_motion->range2, sizeof(cur_motion->range2));
+      fp.Read(&sprite_count, sizeof(sprite_count));
 
       if (sprite_count > m_numMaxClipPerMotion)
         m_numMaxClipPerMotion = sprite_count;
 
       cur_motion->spr_clips.resize(sprite_count);
-      // printf("%d sprites\n", sprite_count);
+
       for (int k = 0; k < sprite_count; k++) {
         SPR_CLIP* cur_clip = &cur_motion->spr_clips[k];
 
@@ -99,10 +92,11 @@ bool CActRes::Load(const std::string& filename) {
           fp.Read(&cur_clip->b, 1);
           fp.Read(&cur_clip->a, 1);
           fp.Read(&cur_clip->zoomx, 4);
-          if (header.version <= 0x203)
+          if (header.version <= 0x203) {
             cur_clip->zoomy = cur_clip->zoomx;
-          else
+          } else {
             fp.Read(&cur_clip->zoomy, 4);
+          }
           fp.Read(&cur_clip->angle, 4);
           fp.Read(&cur_clip->clip_type, 4);
           if (header.version >= 0x205) {
@@ -125,28 +119,22 @@ bool CActRes::Load(const std::string& filename) {
           cur_clip->h = 0;
         }
       }
-      // printf("Clip #0\nPos: %d, %d\n", cur_motion->spr_clips[0].x,
-      //       cur_motion->spr_clips[0].y);
-      // printf("Sprite index: %d\n", cur_motion->spr_clips[0].spr_index);
-      // printf("Type: %d\n", cur_motion->spr_clips[0].clip_type);
 
       if (header.version >= 0x200) {
         fp.Read(&cur_motion->event_id, 4);
       } else {
         cur_motion->event_id = -1;
       }
-      // printf("Event id: %d\n", cur_motion->event_id);
 
       if (header.version >= 0x203) {
         fp.Read(&cur_motion->attach_count, 4);
         cur_motion->attach_info.resize(cur_motion->attach_count);
-        // printf("%d attach points\n", cur_motion->attach_count);
+
         for (int k = 0; k < cur_motion->attach_count; k++) {
           ATTACH_POINT_INFO* cur_attach = &cur_motion->attach_info[k];
 
           fp.Seek(4, SEEK_CUR);  // ?
-          fp.Read(cur_attach, sizeof(ATTACH_POINT_INFO));
-          // printf("x: %d, y: %d\n", cur_attach->x, cur_attach->y);
+          fp.Read(cur_attach, sizeof(*cur_attach));
         }
       }
     }
@@ -174,7 +162,8 @@ bool CActRes::Load(const std::string& filename) {
   return true;
 }
 
-CMotion* CActRes::GetMotion(unsigned int act_index, unsigned int mot_index) {
+CMotion* CActRes::GetMotion(unsigned int act_index,
+                            unsigned int mot_index) {
   if (act_index < m_actions.size()) {
     return m_actions[act_index].GetMotion(mot_index);
   }
@@ -182,7 +171,7 @@ CMotion* CActRes::GetMotion(unsigned int act_index, unsigned int mot_index) {
   return nullptr;
 }
 
-double CActRes::GetDelay(unsigned int act_index) {
+double CActRes::GetDelay(unsigned int act_index) const {
   double result;
 
   if (m_delay.size() && act_index < m_delay.size()) {

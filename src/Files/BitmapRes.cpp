@@ -12,11 +12,11 @@ CBitmapRes::CBitmapRes() : m_isAlpha(), m_width(), m_height(), m_data() {}
 
 CBitmapRes::~CBitmapRes() { Reset(); }
 
-uint32_t CBitmapRes::GetWidth() { return m_width; }
+uint32_t CBitmapRes::GetWidth() const { return m_width; }
 
-uint32_t CBitmapRes::GetHeight() { return m_height; }
+uint32_t CBitmapRes::GetHeight() const { return m_height; }
 
-const ILubyte* CBitmapRes::GetData() { return m_data.data(); }
+const ILubyte* CBitmapRes::GetData() const { return m_data.data(); }
 
 CRes* CBitmapRes::Clone() { return new CBitmapRes(); }
 
@@ -26,7 +26,7 @@ void CBitmapRes::Reset() {
   m_height = 0;
 }
 
-unsigned int CBitmapRes::GetColor(int x, int y) {
+unsigned int CBitmapRes::GetColor(int x, int y) const {
   unsigned int result;
 
   if (x < 0 || x >= m_width || y < 0 || y >= m_height) {

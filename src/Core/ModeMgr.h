@@ -7,7 +7,6 @@
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 #include "Modes/Mode.h"
-#include "Modes/modetype.h"
 
 class CModeMgr {
  public:

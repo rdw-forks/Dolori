@@ -14,7 +14,6 @@
 #include "Common/debug.h"
 #include "Common/service_type.h"
 #include "Input/SDLEvents.h"
-#include "Modes/modetype.h"
 #include "Network/Packets.h"
 #include "UI/UIBmp.h"
 #include "UI/UINoticeConfirmWnd.h"

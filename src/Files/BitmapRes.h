@@ -18,10 +18,10 @@ class CBitmapRes : public CRes {
   bool Load(const std::string &) override;
   CRes *Clone() override;
 
-  uint32_t GetWidth();
-  uint32_t GetHeight();
-  const ILubyte *GetData();
-  unsigned int GetColor(int x, int y);
+  uint32_t GetWidth() const;
+  uint32_t GetHeight() const;
+  const ILubyte *GetData() const;
+  unsigned int GetColor(int x, int y) const;
   bool LoadFromBuffer(const std::string &, const uint8_t *, size_t);
   bool LoadBMPData(const uint8_t *, size_t);
   bool LoadTGAData(const uint8_t *, size_t);

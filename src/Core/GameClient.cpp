@@ -11,7 +11,6 @@
 #include "Core/Session.h"
 #include "Files/ClientInfo.h"
 #include "Files/File.h"
-#include "Modes/modetype.h"
 #include "Render/3dDevice.h"
 
 GameClient::GameClient()
@@ -77,8 +76,8 @@ bool GameClient::Initialize() {
 }
 
 void GameClient::Run() {
-  g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-  // g_ModeMgr->Run(ModeType::kGame, "izlu2dun.rsw");
+  // g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
+  g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
 }
 
 bool GameClient::LoadConfiguration(const std::string& file_name) {

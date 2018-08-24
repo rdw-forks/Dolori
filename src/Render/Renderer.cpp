@@ -41,6 +41,37 @@ struct SurfaceVertex {
   float texture_coord[2];
 };
 
+const std::string kWorldVertexShader =
+    "#version 140\n"
+
+    "attribute vec3 aPosition;"
+    // "attribute vec2 aTextureCoord;"
+
+    "uniform mat4 uModelViewMat;"
+    "uniform mat4 uNodeViewMat;"
+    "uniform mat4 uViewMat;"
+    "uniform mat4 uProjectionMat;"
+
+    //"varying vec2 vTextureCoord;"
+
+    "void main() {"
+    "  gl_Position = uProjectionMat * uViewMat * uModelViewMat * uNodeViewMat "
+    "* vec4(aPosition, 1.0);"
+    // "  vTextureCoord = aTextureCoord;"
+    "}";
+
+const std::string kWorldFragmentShader =
+    "#version 140\n"
+
+    //"varying vec2 vTextureCoord;"
+
+    "uniform sampler2D uTexture;"
+
+    "void main() {"
+    //"  gl_FragColor= texture2D(uTexture, vTextureCoord.st);"
+    "  gl_FragColor= vec4(0.0, 1.0, 1.0, 1.0);"
+    "}";
+
 CRenderer::CRenderer()
     : m_view_matrix(),
       m_surface_program(),
@@ -49,21 +80,42 @@ CRenderer::CRenderer()
       m_fpsFrameCount() {}
 
 bool CRenderer::Init() {
-  CGlShader vertex_shader;
-  CGlShader fragment_shader;
+  CGlShader surface_vertex_shader;
+  CGlShader surface_fragment_shader;
 
   // Setup the VBO to store GndVertex objects
   m_surface_vbo.SetVertexFormat<SurfaceVertex>();
 
-  if (!vertex_shader.Init(kSurfaceVertexShader, GL_VERTEX_SHADER)) {
+  if (!surface_vertex_shader.Init(kSurfaceVertexShader, GL_VERTEX_SHADER)) {
     return false;
   }
 
-  if (!fragment_shader.Init(kSurfaceFragmentShader, GL_FRAGMENT_SHADER)) {
+  if (!surface_fragment_shader.Init(kSurfaceFragmentShader,
+                                    GL_FRAGMENT_SHADER)) {
     return false;
   }
 
-  return m_surface_program.Init({vertex_shader, fragment_shader});
+  if (!m_surface_program.Init(
+          {surface_vertex_shader, surface_fragment_shader})) {
+    return false;
+  }
+
+  CGlShader world_vertex_shader;
+  CGlShader world_fragment_shader;
+
+  if (!world_vertex_shader.Init(kWorldVertexShader, GL_VERTEX_SHADER)) {
+    return false;
+  }
+
+  if (!world_fragment_shader.Init(kWorldFragmentShader, GL_FRAGMENT_SHADER)) {
+    return false;
+  }
+
+  if (!m_world_program.Init({world_vertex_shader, world_fragment_shader})) {
+    return false;
+  }
+
+  return true;
 }
 
 void CRenderer::SetSize(int cx, int cy) {
@@ -86,17 +138,19 @@ void CRenderer::SetSize(int cx, int cy) {
   // g_slope = g_gradient / m_screenYFactor;
   // g_shadowSlope = g_gradient / m_screenYFactor;
   m_nClearColor = 0xFF000000;
-  m_projection_matrix =
-      glm::perspective(70.f, cx / static_cast<float>(cy), 1.f, 2000.f);
+  m_projection_matrix = glm::perspective(
+      70.f, m_width / static_cast<float>(m_height), 1.f, 2000.f);
+  m_2d_projection_matrix =
+      glm::ortho<float>(0.f, m_width, m_height, 0.f, -1.f, 1.f);
 }
 
-int CRenderer::GetWidth() { return m_width; }
+int CRenderer::GetWidth() const { return m_width; }
 
-int CRenderer::GetHeight() { return m_height; }
+int CRenderer::GetHeight() const { return m_height; }
 
-float CRenderer::GetHorizontalRatio() { return m_hratio; }
+float CRenderer::GetHorizontalRatio() const { return m_hratio; }
 
-float CRenderer::GetVerticalRatio() { return m_vratio; }
+float CRenderer::GetVerticalRatio() const { return m_vratio; }
 
 void CRenderer::SetPixelFormat(PIXEL_FORMAT pf) { m_pf = pf; }
 
@@ -116,6 +170,7 @@ void CRenderer::DestroyAllRPList() {
   // m_rpBumpFaceList.clear();
   m_rpQuadFacePoolIter = m_rpQuadFacePool.begin();
   m_surfaces_list.clear();
+  m_world_render_list.clear();
 }
 
 void CRenderer::Clear(bool clearScreen) {
@@ -149,10 +204,7 @@ void CRenderer::Flip() {
 }
 
 void CRenderer::FlushRenderList() {
-  FlushFaceList();
-  FlushAlphaNoDepthList();
-  FlushEmissiveNoDepthList();
-  FlushAlphaList();
+  FlushWorldRenderList();
 
   // Render 2D surfaces
   glDisable(GL_DEPTH_TEST);
@@ -167,6 +219,11 @@ void CRenderer::FlushRenderList() {
 
 void CRenderer::AddSurface(CSurface* surface, const RECT& position) {
   m_surfaces_list.push_back(std::make_pair(surface, position));
+}
+
+void CRenderer::AddWorldRenderBlock(
+    std::shared_ptr<RenderBlock3d> render_block) {
+  m_world_render_list.push_back(render_block);
 }
 
 // 0x2 : Emissive
@@ -475,9 +532,54 @@ void CRenderer::FlushAlphaList() {
   }
 }
 
+void CRenderer::FlushWorldRenderList() {
+  if (m_world_render_list.empty()) {
+    return;
+  }
+
+  m_world_program.Bind();
+
+  GLuint uniform_id = m_world_program.GetUniformLocation("uProjectionMat");
+  glUniformMatrix4fv(uniform_id, 1, GL_FALSE,
+                     glm::value_ptr(m_projection_matrix));
+
+  uniform_id = m_world_program.GetUniformLocation("uViewMat");
+  glUniformMatrix4fv(uniform_id, 1, GL_FALSE, glm::value_ptr(m_view_matrix));
+
+  const GLuint modelview_id =
+      m_world_program.GetUniformLocation("uModelViewMat");
+
+  const GLuint nodeview_id = m_world_program.GetUniformLocation("uNodeViewMat");
+
+  for (const auto& render_block : m_world_render_list) {
+    render_block->vbo->Bind();
+
+    glUniformMatrix4fv(modelview_id, 1, GL_FALSE,
+                       glm::value_ptr(*render_block->modelview_matrix));
+
+    glUniformMatrix4fv(nodeview_id, 1, GL_FALSE,
+                       glm::value_ptr(*render_block->nodeview_matrix));
+
+    const GLuint position_attrib =
+        m_world_program.GetAttributeLocation("aPosition");
+    glEnableVertexAttribArray(position_attrib);
+
+    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 3 * 4, 0);
+
+    if (render_block->texture != nullptr) {
+      render_block->texture->Bind(GL_TEXTURE_2D);
+    }
+
+    glDrawArrays(GL_TRIANGLES, 0, render_block->vbo->size());
+  }
+
+  m_world_program.Unbind();
+}
+
 void CRenderer::FlushSurfacesList() {
-  const auto projection_matrix =
-      glm::ortho<float>(0.f, m_width, m_height, 0.f, -1.f, 1.f);
+  if (m_surfaces_list.empty()) {
+    return;
+  }
 
   m_surface_program.Bind();
 
@@ -494,7 +596,7 @@ void CRenderer::FlushSurfacesList() {
 
   GLuint uniform_id = m_surface_program.GetUniformLocation("uProjectionMat");
   glUniformMatrix4fv(uniform_id, 1, GL_FALSE,
-                     glm::value_ptr(projection_matrix));
+                     glm::value_ptr(m_2d_projection_matrix));
 
   uniform_id = m_surface_program.GetUniformLocation("uTexture");
   glUniform1i(uniform_id, 0);

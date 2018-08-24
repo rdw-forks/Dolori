@@ -48,7 +48,7 @@ class C3dGround {
 
  private:
   CGlProgram m_program;
-  GlVBO m_vbo;
+  CGlVBO m_vbo;
   std::unique_ptr<CTextureAtlas> m_texture_atlas;
   CGatRes* m_attr;
   int32_t m_width;
