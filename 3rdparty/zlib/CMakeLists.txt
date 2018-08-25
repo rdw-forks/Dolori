@@ -6,5 +6,5 @@ target_include_directories(zlibstatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/zlib)
 target_compile_definitions(zlibstatic PUBLIC Z_PREFIX)
 
 if (WIN32)
-target_compile_options(zlibstatic PRIVATE /MT$<$<CONFIG:Debug>:d>)
+  target_compile_options(zlibstatic PRIVATE /MT$<$<CONFIG:Debug>:d>)
 endif ()

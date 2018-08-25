@@ -43,4 +43,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
 
 if (WIN32)
 	target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)
+	target_compile_options(${PROJECT_NAME} PRIVATE /MT$<$<CONFIG:Debug>:d>)
 endif ()
