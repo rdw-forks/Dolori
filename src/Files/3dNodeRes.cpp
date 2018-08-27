@@ -8,6 +8,8 @@
 #include "Common/debug.h"
 #include "Render/Renderer.h"
 
+C3dNodeRes::C3dNodeRes() : vbo(nullptr) {}
+
 void C3dNodeRes::Load(uint16_t version, CFile& file) {
   char buffer[0x28];
 
@@ -115,20 +117,19 @@ void C3dNodeRes::FetchChildren(
   }
 }
 
-void C3dNodeRes::ComputeModelViewMatrix() {
+void C3dNodeRes::ComputeModelViewMatrix(const C3dActor* model) {
   modelview_matrix = glm::mat4();
 
   if (parent == nullptr) {
     if (children.size() > 0) {
-      //      modelview_matrix = glm::translate(
-      //          modelview_matrix,
-      //          glm::vec3(-model->bbrange.x, -model->bbmax.y,
-      //          -model->bbrange.z));
+      modelview_matrix =
+          glm::translate(modelview_matrix,
+                         glm::vec3(-model->GetBbRange().x, -model->GetBbMax().y,
+                                   -model->GetBbRange().z));
     } else {
-      //      modelview_matrix =
-      //          glm::translate(modelview_matrix,
-      //                         glm::vec3(0, -model->bbmax.y +
-      //                         model->bbrange.y, 0));
+      modelview_matrix = glm::translate(
+          modelview_matrix,
+          glm::vec3(0, -model->GetBbMax().y + model->GetBbRange().y, 0));
     }
   } else {
     modelview_matrix = glm::translate(modelview_matrix, position);
@@ -136,34 +137,36 @@ void C3dNodeRes::ComputeModelViewMatrix() {
 
   if (rotkeyframes.size() == 0) {
     if (fabs(info.rot_angle) > 0.01) {
-      const auto rot_axis =
-          glm::vec3(info.rot_axis[0], info.rot_axis[1], info.rot_axis[2]);
       modelview_matrix = glm::rotate(
           modelview_matrix, glm::radians(info.rot_angle * 180.0f / 3.14159f),
-          glm::vec3(rot_axis));
+          glm::make_vec3(info.rot_axis));
     }
   } else {
     // TODO: Animation
-    const auto quaternion =
-        glm::quat(rotkeyframes[0].quaternion[0], rotkeyframes[0].quaternion[1],
-                  rotkeyframes[0].quaternion[2], rotkeyframes[0].quaternion[3]);
+    const auto quaternion = glm::make_quat(rotkeyframes[0].quaternion);
     modelview_matrix *= glm::mat4_cast(glm::normalize(quaternion));
   }
 
-  const auto scale = glm::vec3(info.scale[0], info.scale[1], info.scale[2]);
-  modelview_matrix = glm::scale(modelview_matrix, scale);
-
-  if (parent == nullptr && children.size() == 0) {
-    // modelview_matrix = glm::translate(modelview_matrix, -1.0f *
-    // model->bbrange);
-  } else {
-    modelview_matrix = glm::translate(modelview_matrix, offset_vector);
-  }
-
-  modelview_matrix *= offset_matrix;
+  modelview_matrix = glm::scale(modelview_matrix, glm::make_vec3(info.scale));
 
   for (auto child : children) {
-    child->ComputeModelViewMatrix();
+    child->ComputeModelViewMatrix(model);
+  }
+}
+void C3dNodeRes::ComputeNodeViewMatrix(const C3dActor* model) {
+  nodeview_matrix = glm::mat4();
+
+  if (parent == nullptr && children.size() == 0) {
+    nodeview_matrix =
+        glm::translate(nodeview_matrix, -1.0f * model->GetBbRange());
+  } else {
+    nodeview_matrix = glm::translate(nodeview_matrix, offset_vector);
+  }
+
+  nodeview_matrix *= offset_matrix;
+
+  for (auto child : children) {
+    child->ComputeNodeViewMatrix(model);
   }
 }
 
@@ -173,16 +176,15 @@ void C3dNodeRes::ComputeBoundingBox(glm::vec3& bbmin_out,
     bbmin = glm::vec3(0, 0, 0);
     bbmax = glm::vec3(0, 0, 0);
   } else {
-    bbmin = glm::vec3(9999999, 9999999, 9999999);
-    bbmax = glm::vec3(-9999999, -9999999, -9999999);
+    bbmin = glm::vec3(INT_MAX, INT_MAX, INT_MAX);
+    bbmax = glm::vec3(INT_MIN, INT_MIN, INT_MIN);
   }
 
-  glm::mat4 myMat = offset_matrix;
   for (unsigned int i = 0; i < faces.size(); i++) {
     for (int ii = 0; ii < 3; ii++) {
       auto v = glm::vec4(
           glm::make_vec3(vertices[faces[i].vertex_id[ii]].position), 1);
-      v = myMat * v;
+      v = offset_matrix * v;
       if (parent != nullptr || children.size() != 0) {
         v += glm::vec4(position + offset_vector, 1);
       }
@@ -197,10 +199,8 @@ void C3dNodeRes::ComputeBoundingBox(glm::vec3& bbmin_out,
   bbrange = (bbmin + bbmax) / 2.0f;
 
   for (int c = 0; c < 3; c++) {
-    for (unsigned int i = 0; i < 3; i++) {
-      bbmax_out[c] = glm::max(bbmax_out[c], bbmax[c]);
-      bbmin_out[c] = glm::min(bbmin_out[c], bbmin[c]);
-    }
+    bbmax_out[c] = glm::max(bbmax_out[c], bbmax[c]);
+    bbmin_out[c] = glm::min(bbmin_out[c], bbmin[c]);
   }
 
   for (auto child : children) {
@@ -208,15 +208,14 @@ void C3dNodeRes::ComputeBoundingBox(glm::vec3& bbmin_out,
   }
 }
 
-void C3dNodeRes::ComputeRealBoundingBox(glm::mat4& matrix_out,
+void C3dNodeRes::ComputeRealBoundingBox(const glm::mat4& matrix,
                                         glm::vec3& bbmin_out,
                                         glm::vec3& bbmax_out) {
-  glm::mat4 mat1 = matrix_out * modelview_matrix;
-
+  const glm::mat4 mat2 = matrix * modelview_matrix * nodeview_matrix;
   for (unsigned int i = 0; i < faces.size(); i++) {
     for (int ii = 0; ii < 3; ii++) {
       const glm::vec4 v =
-          mat1 *
+          mat2 *
           glm::vec4(glm::make_vec3(vertices[faces[i].vertex_id[ii]].position),
                     1);
       bbmin_out.x = glm::min(bbmin_out.x, v.x);
@@ -229,34 +228,56 @@ void C3dNodeRes::ComputeRealBoundingBox(glm::mat4& matrix_out,
     }
   }
 
+  const glm::mat4 mat1 = matrix * modelview_matrix;
   for (auto child : children) {
     child->ComputeRealBoundingBox(mat1, bbmin_out, bbmax_out);
   }
 }
 
-void C3dNodeRes::Render(const glm::mat4& matrix, int, unsigned char) {
+void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
   if (vbo == nullptr) {
-    std::vector<ModelVertex> mod_vertices;
+    // Generate the vbo
     vbo = std::make_shared<CGlVBO>();
-    vbo->SetVertexFormat<ModelVertex>();
+    vbo->SetVertexFormat<VertexP3T2N3>();
 
+    // Sort vertices by texture
+    std::unordered_map<uint16_t, std::vector<VertexP3T2N3>> verts_by_texid;
     for (size_t i = 0; i < faces.size(); i++) {
       for (size_t v = 0; v < 3; v++) {
-        mod_vertices.push_back(vertices[faces[i].vertex_id[v]]);
+        verts_by_texid[faces[i].tex_id].push_back(VertexP3T2N3(
+            glm::make_vec3(vertices[faces[i].vertex_id[v]].position),
+            glm::make_vec2(tex_vertices[faces[i].tex_vertex_id[v]].position),
+            glm::vec3()));
       }
     }
 
-    vbo->SetData(mod_vertices.data(), mod_vertices.size());
+    std::vector<VertexP3T2N3> sorted_vertices;
+    for (const auto& pair : verts_by_texid) {
+      vbo_indices.push_back(
+          {pair.first, sorted_vertices.size(), pair.second.size()});
+      sorted_vertices.insert(std::end(sorted_vertices), std::begin(pair.second),
+                             std::end(pair.second));
+    }
+
+    vbo->SetData(sorted_vertices.data(), sorted_vertices.size());
+
+    cached_matrix = matrix * modelview_matrix * nodeview_matrix;
+    matrix_sub = matrix * modelview_matrix;
   }
 
-  auto render_block = std::make_shared<RenderBlock3d>();
-  render_block->modelview_matrix = &matrix;
-  render_block->nodeview_matrix = &modelview_matrix;
-  render_block->vbo = vbo;
-  render_block->texture = nullptr;
-  g_Renderer->AddWorldRenderBlock(std::move(render_block));
+  for (const auto& vbo_index : vbo_indices) {
+    auto render_block = std::make_shared<RenderBlock3d>();
+    render_block->modelview_matrix =
+        glm::value_ptr(model->GetModelViewMatrix());
+    render_block->nodeview_matrix = glm::value_ptr(cached_matrix);
+    render_block->vbo = vbo;
+    render_block->vbo_first_item = vbo_index.first;
+    render_block->vbo_item_count = vbo_index.count;
+    render_block->texture = model->GetTexture(vbo_index.texture_id);
+    g_Renderer->AddWorldRenderBlock(std::move(render_block));
+  }
 
   for (auto child : children) {
-    child->Render(modelview_matrix, 0, 0);
+    child->Render(model, matrix_sub);
   }
 }

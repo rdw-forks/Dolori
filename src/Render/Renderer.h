@@ -11,18 +11,36 @@
 #include "Files/SprRes.h"
 #include "Render/GlProgram.h"
 #include "Render/GlTexture.h"
-#include "Render/RPFace.h"
-#include "Render/RPQuadFace.h"
-#include "Render/RPTriFace.h"
 #include "Render/VBO.h"
 #include "Render/cache_surface.h"
 #include "Render/pixel_format.h"
 
+typedef struct _VertexP3T2N3 {
+  _VertexP3T2N3(const glm::vec3 &pos, const glm::vec2 &tex,
+                const glm::vec3 &norm) {
+    position[0] = pos.x;
+    position[1] = pos.y;
+    position[2] = pos.z;
+
+    tex_coords[0] = tex.x;
+    tex_coords[1] = tex.y;
+
+    normal[0] = norm.x;
+    normal[1] = norm.y;
+    normal[2] = norm.z;
+  }
+  float position[3];
+  float tex_coords[2];
+  float normal[3];
+} VertexP3T2N3;
+
 typedef struct _RenderBlock3d {
-  const glm::mat4 *modelview_matrix;
-  const glm::mat4 *nodeview_matrix;
-  std::shared_ptr<CGlVBO> vbo;
+  const float *modelview_matrix;
+  const float *nodeview_matrix;
   std::shared_ptr<CGlTexture> texture;
+  std::shared_ptr<CGlVBO> vbo;
+  size_t vbo_first_item;
+  size_t vbo_item_count;
 } RenderBlock3d;
 
 class CRenderer {
@@ -44,38 +62,16 @@ class CRenderer {
   void FlushRenderList();
   void AddSurface(CSurface *surface, const RECT &position);
   void AddWorldRenderBlock(std::shared_ptr<RenderBlock3d> render_block);
-  void AddRP(CRPFace *, int);
   void DrawBoxScreen(int, int, int, int, unsigned int);
   CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
   CSurface *GetSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
-  CRPQuadFace *BorrowQuadRP();
   const glm::mat4 &projection_matrix() const;
   const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);
 
  private:
-  void FlushAlphaNoDepthList();
-  void FlushEmissiveNoDepthList();
-  void FlushFaceList();
-  void FlushAlphaList();
   void FlushSurfacesList();
   void FlushWorldRenderList();
-
-  //		private void CRenderer::FlushFaceList()
-  //		private void CRenderer::FlushLMGroundList()
-  //		private void CRenderer::FlushLMLightList()
-  //		private void CRenderer::FlushAlphaDepthList()
-  //		private void CRenderer::FlushAlphaList()
-  //		private void CRenderer::FlushAlphaNoDepthList()
-  //		private void CRenderer::FlushEmissiveDepthList()
-  //		private void CRenderer::FlushEmissiveList()
-  //		private void CRenderer::FlushEmissiveNoDepthList()
-  //		private void CRenderer::FlushRawList()
-  //		private void CRenderer::FlushAlphaRawList()
-  //		private void CRenderer::FlushEmissiveRawList()
-  //		private void CRenderer::FlushEffectList()
-  //		private void CRenderer::FlushBumpList()
-  //		private void CRenderer::FlushLmList()
 
  private:
   glm::mat4 m_projection_matrix;
@@ -120,48 +116,9 @@ class CRenderer {
   long m_lPitch;
   std::vector<std::pair<CSurface *, RECT>> m_surfaces_list;
   std::list<std::shared_ptr<RenderBlock3d>> m_world_render_list;
-  std::vector<CRPFace *> m_rpFaceList;
-  std::vector<CRPFace *> m_rpLMGroundList;
-  std::vector<CRPFace *> m_rpLMLightList;
-  std::vector<std::pair<float, CRPFace *>> m_rpAlphaDepthList;
-  std::vector<std::pair<float, CRPFace *>> m_rpAlphaList;
-  std::vector<std::pair<float, CRPFace *>> m_rpAlphaNoDepthList;
-  std::vector<std::pair<float, CRPFace *>> m_rpEmissiveDepthList;
-  std::vector<std::pair<float, CRPFace *>> m_rpEmissiveList;
-  std::vector<std::pair<float, CRPFace *>> m_rpEmissiveNoDepthList;
-  //
-  //		 class std::vector<RPRaw *, std::allocator<RPRaw *> >
-  // m_rpRawList
-  //
-  //		 class std::vector<RPRaw *, std::allocator<RPRaw *> >
-  // m_rpRawAlphaList
-  //
-  //		 class std::vector<RPRaw *, std::allocator<RPRaw *> >
-  // m_rpRawEmissiveList
-  //
-  std::vector<CRPFace *> m_rpAlphaOPList;
-  //
-  //		 class std::vector<RPLmFace *, std::allocator<RPLmFace *> >
-  // m_rpLmList
-  //
-  //		 class std::vector<RPLmFace *, std::allocator<RPLmFace *> >
-  // m_rpBumpFaceList
-  //
+
   std::list<CACHE_SURFACE> m_cache_surfaces[0x10];
   std::list<CTexture *> m_unused_cache_surfaces;
-  std::list<CRPFace *> m_rpNullFaceList;
-  std::list<CRPFace>::iterator m_rpNullFaceListIter;
-  std::list<CRPQuadFace *> m_rpQuadFacePool;
-  std::list<CRPQuadFace *>::iterator m_rpQuadFacePoolIter;
-
-  //		 class std::list<RPLmQuadFace,
-  // std::allocator<RPLmQuadFace> >
-  // m_rpLmQuadFaceList
-  //
-  //		 class std::list<RPLmQuadFace,
-  // std::allocator<RPLmQuadFace>
-  //>::iterator m_rpLmQuadFaceListIter
-  //
 };
 
 // class CRenderer {

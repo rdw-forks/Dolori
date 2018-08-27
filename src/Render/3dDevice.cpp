@@ -76,15 +76,17 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
     return -1;
   }
 
-  glEnable(GL_CULL_FACE);
-  if (glGetError() != GL_NO_ERROR) {
-    return -1;
-  }
-
   glEnable(GL_DEPTH_TEST);
   if (glGetError() != GL_NO_ERROR) {
     return -1;
   }
+
+  glEnable(GL_BLEND);
+  if (glGetError() != GL_NO_ERROR) {
+    return -1;
+  }
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Bind a dummy vao to comply with core profile's specifications
   GLuint dummy_vao;
@@ -188,11 +190,13 @@ int C3dDevice::GetWidth() { return m_dwRenderWidth; }
 
 int C3dDevice::GetHeight() { return m_dwRenderHeight; }
 
-CSurface* C3dDevice::CreateWallPaper(unsigned int w, unsigned int h) {
-  CSurface* result;
+std::shared_ptr<CSurface> C3dDevice::CreateWallPaper(unsigned int w,
+                                                     unsigned int h) {
+  std::shared_ptr<CSurface> result;
 
   if (w > m_dwMaxTextureWidth || h > m_dwMaxTextureHeight) {
-    result = new CSurfaceWallpaper(m_dwRenderWidth, m_dwRenderHeight);
+    result =
+        std::make_shared<CSurfaceWallpaper>(m_dwRenderWidth, m_dwRenderHeight);
   } else {
     result = g_TexMgr->CreateTexture(w, h, PF_A8R8G8B8);
   }

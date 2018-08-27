@@ -28,8 +28,8 @@ void CTextureAtlas::Create(size_t texture_size,
     textures_positions_[texture_names[i]] =
         glm::vec2(x / (float)texture_width, y / (float)texture_height);
 
-    BlitSurface(x, y, texture, 0, 0, texture->GetWidth(), texture->GetHeight(),
-                0, 1, 1);
+    BlitSurface(x, y, texture.get(), 0, 0, texture->GetWidth(),
+                texture->GetHeight(), 0, 1, 1);
   }
 
   texture_size_ = texture_size;

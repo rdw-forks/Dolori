@@ -17,8 +17,8 @@
 struct GND_SURFACE {
   TlVertex3d vertex[0x4];
   int offset;
-  CTexture* tex;
-  CTexture* lmtex;
+  std::shared_ptr<CTexture> tex;
+  std::shared_ptr<CTexture> lmtex;
   struct CLightmap* lightmap;
   struct COLOR argb;
   unsigned long alpha;

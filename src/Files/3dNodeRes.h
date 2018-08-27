@@ -24,7 +24,9 @@ typedef struct _NodeInfo {
   float scale[3];
 } NodeInfo;
 
-typedef struct _ModelVertex { float position[3]; } ModelVertex;
+typedef struct _ModelVertex {
+  float position[3];
+} ModelVertex;
 
 typedef struct _TextureVertex {
   uint32_t color;
@@ -52,19 +54,28 @@ typedef struct _RotKeyFrame {
 
 #pragma pack(pop)
 
+typedef struct _VboIndex {
+  uint16_t texture_id;
+  size_t first;
+  size_t count;
+} VboIndex;
+
 // Forward declaration
 class C3dActor;
 
 class C3dNodeRes : public std::enable_shared_from_this<C3dNodeRes> {
  public:
+  C3dNodeRes();
+
   void Load(uint16_t version, CFile &file);
   void FetchChildren(
       const std::map<std::string, std::shared_ptr<C3dNodeRes>> &nodes);
-  void ComputeModelViewMatrix();
+  void ComputeModelViewMatrix(const C3dActor *model);
+  void ComputeNodeViewMatrix(const C3dActor *model);
   void ComputeBoundingBox(glm::vec3 &bbmin_out, glm::vec3 &bbmax_out);
-  void ComputeRealBoundingBox(glm::mat4 &matrix_out, glm::vec3 &bbmin_out,
+  void ComputeRealBoundingBox(const glm::mat4 &matrix, glm::vec3 &bbmin_out,
                               glm::vec3 &bbmax_out);
-  void Render(const glm::mat4 &, int, unsigned char);
+  void Render(const C3dActor *, const glm::mat4 &);
 
   std::string name;
   std::string parentname;
@@ -78,11 +89,14 @@ class C3dNodeRes : public std::enable_shared_from_this<C3dNodeRes> {
   glm::mat4 offset_matrix;
   glm::vec3 offset_vector;
   glm::vec3 position;
+  glm::mat4 cached_matrix;
+  glm::mat4 matrix_sub;
   glm::mat4 modelview_matrix;
+  glm::mat4 nodeview_matrix;
   C3dNodeRes *parent;
   std::list<std::shared_ptr<C3dNodeRes>> children;
   std::shared_ptr<CGlVBO> vbo;
-  C3dActor *model;
+  std::list<VboIndex> vbo_indices;
   unsigned char alpha;
   // class C3dPosAnim posanim;
   // class C3dRotAnim rotanim;

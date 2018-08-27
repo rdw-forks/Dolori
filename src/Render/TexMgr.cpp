@@ -6,21 +6,25 @@ CTexMgr::CTexMgr() {}
 
 CTexMgr::~CTexMgr() {}
 
-CTexture* CTexMgr::CreateTexture(unsigned long w, unsigned long h,
-                                 PIXEL_FORMAT pf) {
-  return new CTexture(w, h, pf);
+std::shared_ptr<CTexture> CTexMgr::CreateTexture(unsigned long w,
+                                                 unsigned long h,
+                                                 PIXEL_FORMAT pf) {
+  return std::make_shared<CTexture>(w, h, pf);
 }
 
-CTexture* CTexMgr::CreateTexture(unsigned long w, unsigned long h,
-                                 PIXEL_FORMAT pf, SDL_Surface* surface) {
+std::shared_ptr<CTexture> CTexMgr::CreateTexture(unsigned long w,
+                                                 unsigned long h,
+                                                 PIXEL_FORMAT pf,
+                                                 SDL_Surface* surface) {
   if (surface) {
-    return new CTexture(w, h, pf, surface);
+    return std::make_shared<CTexture>(w, h, pf, surface);
   }
 
-  return new CTexture(w, h, pf);
+  return std::make_shared<CTexture>(w, h, pf);
 }
 
-CTexture* CTexMgr::GetTexture(const std::string& filename, bool blackkey) {
+std::shared_ptr<CTexture> CTexMgr::GetTexture(const std::string& filename,
+                                              bool blackkey) {
   auto it = m_tex_table.find(filename);
   if (it != std::end(m_tex_table)) {
     it->second->UpdateTimestamp();
@@ -34,7 +38,8 @@ CTexture* CTexMgr::GetTexture(const std::string& filename, bool blackkey) {
     return nullptr;
   }
 
-  auto tex = new CTexture(bitmap->GetWidth(), bitmap->GetHeight(), PF_A8R8G8B8);
+  auto tex = std::make_shared<CTexture>(bitmap->GetWidth(), bitmap->GetHeight(),
+                                        PF_A8R8G8B8);
 
   tex->Update(0, 0, bitmap->GetWidth(), bitmap->GetHeight(), bitmap->GetData(),
               0);

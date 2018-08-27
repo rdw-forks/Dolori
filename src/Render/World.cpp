@@ -86,9 +86,8 @@ void CWorld::Render() {
   m_ground.Render(nullptr, &test, false);
 
   // Render 3D map models
-  const auto matrix = glm::mat4();
   for (auto& actor : m_bg_obj_list) {
-    actor->Render(matrix, 0, 0);
+    actor->Render();
   }
 }
 

@@ -97,3 +97,7 @@ bool CRsmRes::Load(const std::string& file_name) {
 }
 
 std::shared_ptr<C3dNodeRes> CRsmRes::GetRootNode() { return m_root_node; }
+
+const std::vector<std::string>& CRsmRes::GetTextures() const {
+  return m_textures;
+}

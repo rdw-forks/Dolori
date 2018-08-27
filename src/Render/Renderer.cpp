@@ -45,31 +45,31 @@ const std::string kWorldVertexShader =
     "#version 140\n"
 
     "attribute vec3 aPosition;"
-    // "attribute vec2 aTextureCoord;"
+    "attribute vec2 aTextureCoord;"
+    "attribute vec3 aNormal;"
 
     "uniform mat4 uModelViewMat;"
-    "uniform mat4 uNodeViewMat;"
+	"uniform mat4 uNodeViewMat;"
     "uniform mat4 uViewMat;"
     "uniform mat4 uProjectionMat;"
 
-    //"varying vec2 vTextureCoord;"
+    "varying vec2 vTextureCoord;"
 
     "void main() {"
-    "  gl_Position = uProjectionMat * uViewMat * uModelViewMat * uNodeViewMat "
-    "* vec4(aPosition, 1.0);"
-    // "  vTextureCoord = aTextureCoord;"
+    "  gl_Position = uProjectionMat * uViewMat * uModelViewMat * "
+    "uNodeViewMat * vec4(aPosition, 1.0);"
+    "  vTextureCoord = aTextureCoord;"
     "}";
 
 const std::string kWorldFragmentShader =
     "#version 140\n"
 
-    //"varying vec2 vTextureCoord;"
+    "varying vec2 vTextureCoord;"
 
     "uniform sampler2D uTexture;"
 
     "void main() {"
-    //"  gl_FragColor= texture2D(uTexture, vTextureCoord.st);"
-    "  gl_FragColor= vec4(0.0, 1.0, 1.0, 1.0);"
+    "  gl_FragColor= texture2D(uTexture, vTextureCoord.st);"
     "}";
 
 CRenderer::CRenderer()
@@ -155,20 +155,6 @@ float CRenderer::GetVerticalRatio() const { return m_vratio; }
 void CRenderer::SetPixelFormat(PIXEL_FORMAT pf) { m_pf = pf; }
 
 void CRenderer::DestroyAllRPList() {
-  m_rpFaceList.clear();
-  m_rpLMGroundList.clear();
-  m_rpLMLightList.clear();
-  m_rpAlphaDepthList.clear();
-  m_rpAlphaList.clear();
-  m_rpAlphaNoDepthList.clear();
-  m_rpEmissiveDepthList.clear();
-  m_rpEmissiveNoDepthList.clear();
-  // m_rpRawAlphaList.clear();
-  // m_rpRawEmissiveList.clear();
-  m_rpAlphaOPList.clear();
-  // m_rpLmList.clear();
-  // m_rpBumpFaceList.clear();
-  m_rpQuadFacePoolIter = m_rpQuadFacePool.begin();
   m_surfaces_list.clear();
   m_world_render_list.clear();
 }
@@ -204,16 +190,15 @@ void CRenderer::Flip() {
 }
 
 void CRenderer::FlushRenderList() {
+  // TODO: Separate render of opaque and transparent faces to fix blending /
+  // depth issue
   FlushWorldRenderList();
 
   // Render 2D surfaces
   glDisable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   FlushSurfacesList();
 
-  glDisable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -223,44 +208,7 @@ void CRenderer::AddSurface(CSurface* surface, const RECT& position) {
 
 void CRenderer::AddWorldRenderBlock(
     std::shared_ptr<RenderBlock3d> render_block) {
-  m_world_render_list.push_back(render_block);
-}
-
-// 0x2 : Emissive
-// 0x200 : NO_DEPTH
-void CRenderer::AddRP(CRPFace* face, int renderFlags) {
-  if (m_isVertexFog) {
-  }
-
-  if (renderFlags & 0x1) {
-    float v0 = face->GetWCoord(0);
-    float v1 = face->GetWCoord(1);
-    float index = (v0 - v1) * 0.5 + v1;
-
-    if (renderFlags & 0x4) {
-      m_rpAlphaOPList.push_back(face);
-    } else if (renderFlags & 0x2) {
-      if (renderFlags & 0x100) {
-        m_rpEmissiveDepthList.push_back(std::make_pair(index, face));
-      } else if (renderFlags & 0x200) {
-        m_rpEmissiveNoDepthList.push_back(std::make_pair(index, face));
-      } else {
-        m_rpEmissiveList.push_back(std::make_pair(index, face));
-      }
-    } else if (renderFlags & 0x100) {
-      m_rpAlphaDepthList.push_back(std::make_pair(index, face));
-    } else if (renderFlags & 0x200) {
-      m_rpAlphaNoDepthList.push_back(std::make_pair(index, face));
-    } else {
-      m_rpAlphaList.push_back(std::make_pair(index, face));
-    }
-  } else if (renderFlags & 0x800) {
-    m_rpLMGroundList.push_back(face);
-  } else if (renderFlags & 0x10) {
-    m_rpLMLightList.push_back(face);
-  } else {
-    m_rpFaceList.push_back(face);
-  }
+  m_world_render_list.push_back(std::move(render_block));
 }
 
 void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
@@ -487,17 +435,6 @@ CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
   return nullptr;
 }
 
-CRPQuadFace* CRenderer::BorrowQuadRP() {
-  if (m_rpQuadFacePoolIter == m_rpQuadFacePool.end()) {
-    CRPQuadFace* rp = new CRPQuadFace();
-    m_rpQuadFacePool.push_back(rp);
-    m_rpQuadFacePoolIter = m_rpQuadFacePool.end();
-    return rp;
-  } else {
-    return *m_rpQuadFacePoolIter++;
-  }
-}
-
 const glm::mat4& CRenderer::projection_matrix() const {
   return m_projection_matrix;
 }
@@ -506,30 +443,6 @@ const glm::mat4& CRenderer::view_matrix() const { return m_view_matrix; }
 
 void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
   m_view_matrix = matrix;
-}
-
-void CRenderer::FlushAlphaNoDepthList() {
-  for (const auto& pair : m_rpAlphaNoDepthList) {
-    pair.second->Draw();
-  }
-}
-
-void CRenderer::FlushEmissiveNoDepthList() {
-  for (const auto& pair : m_rpEmissiveNoDepthList) {
-    pair.second->Draw();
-  }
-}
-
-void CRenderer::FlushFaceList() {
-  for (const auto& rpface : m_rpFaceList) {
-    rpface->Draw();
-  }
-}
-
-void CRenderer::FlushAlphaList() {
-  for (const auto& pair : m_rpAlphaList) {
-    pair.second->Draw();
-  }
 }
 
 void CRenderer::FlushWorldRenderList() {
@@ -555,22 +468,33 @@ void CRenderer::FlushWorldRenderList() {
     render_block->vbo->Bind();
 
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE,
-                       glm::value_ptr(*render_block->modelview_matrix));
+                       render_block->modelview_matrix);
 
-    glUniformMatrix4fv(nodeview_id, 1, GL_FALSE,
-                       glm::value_ptr(*render_block->nodeview_matrix));
+    glUniformMatrix4fv(nodeview_id, 1, GL_FALSE, render_block->nodeview_matrix);
 
     const GLuint position_attrib =
         m_world_program.GetAttributeLocation("aPosition");
-    glEnableVertexAttribArray(position_attrib);
+    const GLuint tex_coords_attrib =
+        m_world_program.GetAttributeLocation("aTextureCoord");
+    const GLuint normal_attrib =
+        m_world_program.GetAttributeLocation("aNormal");
 
-    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 3 * 4, 0);
+    glEnableVertexAttribArray(position_attrib);
+    glEnableVertexAttribArray(tex_coords_attrib);
+    glEnableVertexAttribArray(normal_attrib);
+
+    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4, 0);
+    glVertexAttribPointer(tex_coords_attrib, 2, GL_FLOAT, GL_FALSE, 8 * 4,
+                          reinterpret_cast<void*>(3 * 4));
+    glVertexAttribPointer(normal_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4,
+                          reinterpret_cast<void*>(5 * 4));
 
     if (render_block->texture != nullptr) {
       render_block->texture->Bind(GL_TEXTURE_2D);
     }
 
-    glDrawArrays(GL_TRIANGLES, 0, render_block->vbo->size());
+    glDrawArrays(GL_TRIANGLES, render_block->vbo_first_item,
+                 render_block->vbo_item_count);
   }
 
   m_world_program.Unbind();

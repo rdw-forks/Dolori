@@ -28,19 +28,20 @@ void CUIWindowMgr::SetSize(int cx, int cy) {
 }
 
 void CUIWindowMgr::SetWallpaper(CBitmapRes *bitmap) {
-  if (bitmap) {
-    if (!m_wallpaperSurface) {
-      m_wallpaperSurface =
-          g_3dDevice->CreateWallPaper(bitmap->GetWidth(), bitmap->GetHeight());
-    }
-    if (m_wallpaperSurface)
-      m_wallpaperSurface->Update(0, 0, bitmap->GetWidth(), bitmap->GetHeight(),
-                                 bitmap->GetData(), 0);
-  } else {
-    if (m_wallpaperSurface) {
-      delete m_wallpaperSurface;
-      m_wallpaperSurface = nullptr;
-    }
+  if (bitmap == nullptr) {
+    // Destroy previously set wallpaper
+    m_wallpaperSurface = nullptr;
+    return;
+  }
+
+  if (m_wallpaperSurface == nullptr) {
+    m_wallpaperSurface =
+        g_3dDevice->CreateWallPaper(bitmap->GetWidth(), bitmap->GetHeight());
+  }
+
+  if (m_wallpaperSurface != nullptr) {
+    m_wallpaperSurface->Update(0, 0, bitmap->GetWidth(), bitmap->GetHeight(),
+                               bitmap->GetData(), 0);
   }
 }
 

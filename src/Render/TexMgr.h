@@ -2,6 +2,7 @@
 #define DOLORI_RENDER_TEXMGR_H_
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include "Core/ResMgr.h"
@@ -13,13 +14,14 @@ class CTexMgr {
   CTexMgr();
   ~CTexMgr();
 
-  CTexture *CreateTexture(unsigned long, unsigned long, PIXEL_FORMAT);
-  CTexture *CreateTexture(unsigned long, unsigned long, PIXEL_FORMAT,
-                          SDL_Surface *);
-  CTexture *GetTexture(const std::string &, bool);
+  std::shared_ptr<CTexture> CreateTexture(unsigned long, unsigned long,
+                                          PIXEL_FORMAT);
+  std::shared_ptr<CTexture> CreateTexture(unsigned long, unsigned long,
+                                          PIXEL_FORMAT, SDL_Surface *);
+  std::shared_ptr<CTexture> GetTexture(const std::string &, bool);
 
  private:
-  std::map<std::string, CTexture *> m_tex_table;
+  std::map<std::string, std::shared_ptr<CTexture>> m_tex_table;
   static CTexture s_dummy_texture;
 };
 

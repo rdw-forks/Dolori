@@ -29,6 +29,8 @@ CResMgr::CResMgr()
       m_ResModAmount(),
       m_ResWavAmount() {
   RegisterType("bmp", "texture/", new CBitmapRes());
+  RegisterType("tga", "texture/", new CBitmapRes());
+  RegisterType("jpg", "texture/", new CBitmapRes());
   RegisterType("spr", "sprite/", new CSprRes());
   RegisterType("act", "sprite/", new CActRes());
   RegisterType("rsw", "", new CRswRes());

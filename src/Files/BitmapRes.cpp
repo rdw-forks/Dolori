@@ -107,18 +107,54 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
     return false;
   }
 
-  ILint Bpp = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL);
+  const ILint Bpp = ilGetInteger(IL_IMAGE_BYTES_PER_PIXEL);
   m_width = ilGetInteger(IL_IMAGE_WIDTH);
   m_height = ilGetInteger(IL_IMAGE_HEIGHT);
   m_data.resize(Bpp * m_width * m_height);
   memcpy(m_data.data(), ilGetData(), Bpp * m_width * m_height);
 
-  // If the image was a BMP, replace purple pixels with transparent ones
-  if (type == IL_BMP && Bpp == 4) {
-    size_t data_size = m_width * m_height * 4;
-    for (int i = 0; i < data_size - 3; i += 4) {
-      if (m_data[i] == 0xFF && m_data[i + 1] == 0x00 && m_data[i + 2] == 0xFF) {
-        m_data[i + 3] = 0x00;
+  // Replace purple pixels with transparent ones, as well as adjacent faded
+  // pixels
+  if (Bpp == 4) {
+    const size_t data_size = m_width * m_height * 4;
+    for (size_t i = 0; i < data_size - 3; i += 4) {
+      if (m_data[i] > 250 && m_data[i + 1] < 5 && m_data[i + 2] > 250) {
+        int totalr = 0;
+        int totalg = 0;
+        int totalb = 0;
+        int total = 0;
+
+        for (int delta_y = -1; delta_y <= 1; delta_y++) {
+          for (int delta_x = -1; delta_x <= 1; delta_x++) {
+            const size_t neighbour_i =
+                i + (delta_x * 4) + (delta_y * m_width * 4);
+
+            if (neighbour_i < 0 || neighbour_i >= data_size) {
+              // Out of the image, continue
+              continue;
+            }
+
+            if ((m_data[neighbour_i] > 250 && m_data[neighbour_i + 1] < 5 &&
+                 m_data[neighbour_i + 2] > 250) ||
+                m_data[neighbour_i + 3] == 0) {
+              // Already taken care of
+              continue;
+            }
+
+            totalr += m_data[neighbour_i];
+            totalg += m_data[neighbour_i + 1];
+            totalb += m_data[neighbour_i + 2];
+            total++;
+          }
+        }
+
+        if (total > 0) {
+          m_data[i] = totalr / total;
+          m_data[i + 1] = totalg / total;
+          m_data[i + 2] = totalb / total;
+        }
+
+        m_data[i + 3] = 0;
       }
     }
   }

@@ -19,7 +19,7 @@ class C3dDevice {
   long ShowFrame();
   int GetWidth();
   int GetHeight();
-  CSurface* CreateWallPaper(unsigned int, unsigned int);
+  std::shared_ptr<CSurface> CreateWallPaper(unsigned int, unsigned int);
   void ConvertPalette(uint32_t* dest, PALETTE_ENTRY* srcPal, int palCnt);
   void EnableVsync(bool enable);
 

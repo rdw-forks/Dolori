@@ -335,7 +335,7 @@ class CUIWindowMgr {
   int m_last_mouse_x;
   int m_last_mouse_y;
   int m_modalResult;
-  CSurface *m_wallpaperSurface;
+  std::shared_ptr<CSurface> m_wallpaperSurface;
   int m_w;
   int m_h;
   std::string m_wallPaperBmpName;

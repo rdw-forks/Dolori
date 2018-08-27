@@ -6,30 +6,37 @@
 #include <glm/glm.hpp>
 
 #include "Files/RsmRes.h"
+#include "Render/GlTexture.h"
 
 class C3dActor {
  public:
   C3dActor();
 
   void AssignModel(CRsmRes* p_rsm_res);
-  void Render(const glm::mat4&, unsigned char, int);
+  void Render();
   void SetPos(const glm::vec3&);
   void SetRot(const glm::vec3&);
   void SetScale(const glm::vec3&);
+  std::shared_ptr<CTexture> GetTexture(size_t id) const;
+  const glm::mat4& GetModelViewMatrix() const;
+  const glm::vec3& GetBbRange() const;
+  const glm::vec3& GetBbMax() const;
+  const glm::vec3& GetBbMin() const;
 
  private:
+  std::shared_ptr<C3dNodeRes> m_root_node;
   glm::vec3 m_pos;
   glm::vec3 m_rot;
   glm::vec3 m_scale;
+  bool m_matrix_needs_update;
   glm::mat4 m_modelview_matrix;
   SHADING_TYPE m_shading_type;
-  std::shared_ptr<C3dNodeRes> m_root_node;
+  std::vector<std::shared_ptr<CTexture>> m_textures;
   std::string m_name;
   int m_cur_motion;
   int m_anim_type;
   float m_anim_speed;
   int m_anim_len;
-  bool m_matrix_needs_update;
   glm::vec3 m_realbbmin;
   glm::vec3 m_realbbmax;
   glm::vec3 m_realbbrange;
