@@ -10,7 +10,8 @@
 class C3dDevice {
  public:
   C3dDevice();
-  long Init(uint32_t width, uint32_t height, uint32_t flags);
+  long Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
+            uint32_t flags);
   long DestroyObjects();
   CRenderer* CreateRenderer(int);
   void DestroyRenderer(CRenderer*);

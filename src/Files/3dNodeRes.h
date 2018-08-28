@@ -25,12 +25,12 @@ typedef struct _NodeInfo {
 } NodeInfo;
 
 typedef struct _ModelVertex {
-  float position[3];
+  glm::vec3 position;
 } ModelVertex;
 
 typedef struct _TextureVertex {
   uint32_t color;
-  float position[2];
+  glm::vec2 position;
 } TextureVertex;
 
 typedef struct _FaceInfo {

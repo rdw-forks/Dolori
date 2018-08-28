@@ -13,7 +13,8 @@
 
 C3dDevice::C3dDevice() {}
 
-long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
+long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
+                     uint32_t dwFlags) {
   unsigned int flags;
 
   m_bIsFullscreen = dwFlags & 1;
@@ -37,6 +38,14 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t dwFlags) {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+  // Multi-sampling anti-aliasing
+  if (msaa_samples > 0) {
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa_samples);
+  }
+
+  // OpenGL version
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);

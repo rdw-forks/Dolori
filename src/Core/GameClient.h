@@ -18,6 +18,8 @@ class GameClient {
   bool full_screen_;
   int window_width_;
   int window_height_;
+  bool vsync_;
+  unsigned int msaa_;
   std::string font_folder_;
 };
 

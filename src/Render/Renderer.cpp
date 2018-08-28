@@ -49,7 +49,7 @@ const std::string kWorldVertexShader =
     "attribute vec3 aNormal;"
 
     "uniform mat4 uModelViewMat;"
-	"uniform mat4 uNodeViewMat;"
+    "uniform mat4 uNodeViewMat;"
     "uniform mat4 uViewMat;"
     "uniform mat4 uProjectionMat;"
 
@@ -77,7 +77,11 @@ CRenderer::CRenderer()
       m_surface_program(),
       m_surface_vbo(),
       m_surfaces_list(),
-      m_fpsFrameCount() {}
+      m_fpsFrameCount(),
+      m_render_blocks_pool(),
+      m_world_render_list() {
+  m_render_blocks_cursor = std::begin(m_render_blocks_pool);
+}
 
 bool CRenderer::Init() {
   CGlShader surface_vertex_shader;
@@ -157,6 +161,8 @@ void CRenderer::SetPixelFormat(PIXEL_FORMAT pf) { m_pf = pf; }
 void CRenderer::DestroyAllRPList() {
   m_surfaces_list.clear();
   m_world_render_list.clear();
+
+  m_render_blocks_cursor = std::begin(m_render_blocks_pool);
 }
 
 void CRenderer::Clear(bool clearScreen) {
@@ -206,9 +212,8 @@ void CRenderer::AddSurface(CSurface* surface, const RECT& position) {
   m_surfaces_list.push_back(std::make_pair(surface, position));
 }
 
-void CRenderer::AddWorldRenderBlock(
-    std::shared_ptr<RenderBlock3d> render_block) {
-  m_world_render_list.push_back(std::move(render_block));
+void CRenderer::AddWorldRenderBlock(RenderBlock3d* render_block) {
+  m_world_render_list.push_back(render_block);
 }
 
 void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
@@ -445,6 +450,20 @@ void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
   m_view_matrix = matrix;
 }
 
+RenderBlock3d* CRenderer::BorrowRenderBlock() {
+  if (m_render_blocks_cursor != std::cend(m_render_blocks_pool)) {
+    auto result = m_render_blocks_cursor->get();
+    m_render_blocks_cursor++;
+    return result;
+  }
+
+  auto new_block = std::make_unique<RenderBlock3d>();
+  auto result = new_block.get();
+  m_render_blocks_pool.push_back(std::move(new_block));
+  m_render_blocks_cursor = std::end(m_render_blocks_pool);
+  return result;
+}
+
 void CRenderer::FlushWorldRenderList() {
   if (m_world_render_list.empty()) {
     return;
@@ -459,10 +478,24 @@ void CRenderer::FlushWorldRenderList() {
   uniform_id = m_world_program.GetUniformLocation("uViewMat");
   glUniformMatrix4fv(uniform_id, 1, GL_FALSE, glm::value_ptr(m_view_matrix));
 
+  // Uniform IDs
   const GLuint modelview_id =
       m_world_program.GetUniformLocation("uModelViewMat");
-
   const GLuint nodeview_id = m_world_program.GetUniformLocation("uNodeViewMat");
+
+  // Attributes IDs
+  const GLuint position_attrib =
+      m_world_program.GetAttributeLocation("aPosition");
+  const GLuint tex_coords_attrib =
+      m_world_program.GetAttributeLocation("aTextureCoord");
+  const GLuint normal_attrib = m_world_program.GetAttributeLocation("aNormal");
+
+  // Setup the VAO
+  glEnableVertexAttribArray(position_attrib);
+  glEnableVertexAttribArray(tex_coords_attrib);
+  glEnableVertexAttribArray(normal_attrib);
+
+  glActiveTexture(GL_TEXTURE0);
 
   for (const auto& render_block : m_world_render_list) {
     render_block->vbo->Bind();
@@ -472,17 +505,6 @@ void CRenderer::FlushWorldRenderList() {
 
     glUniformMatrix4fv(nodeview_id, 1, GL_FALSE, render_block->nodeview_matrix);
 
-    const GLuint position_attrib =
-        m_world_program.GetAttributeLocation("aPosition");
-    const GLuint tex_coords_attrib =
-        m_world_program.GetAttributeLocation("aTextureCoord");
-    const GLuint normal_attrib =
-        m_world_program.GetAttributeLocation("aNormal");
-
-    glEnableVertexAttribArray(position_attrib);
-    glEnableVertexAttribArray(tex_coords_attrib);
-    glEnableVertexAttribArray(normal_attrib);
-
     glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4, 0);
     glVertexAttribPointer(tex_coords_attrib, 2, GL_FLOAT, GL_FALSE, 8 * 4,
                           reinterpret_cast<void*>(3 * 4));
@@ -491,6 +513,8 @@ void CRenderer::FlushWorldRenderList() {
 
     if (render_block->texture != nullptr) {
       render_block->texture->Bind(GL_TEXTURE_2D);
+    } else {
+      glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     glDrawArrays(GL_TRIANGLES, render_block->vbo_first_item,

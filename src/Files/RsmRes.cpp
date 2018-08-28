@@ -60,10 +60,10 @@ bool CRsmRes::Load(const std::string& file_name) {
   int32_t textures_count;
 
   fp.Read(&textures_count, sizeof(textures_count));
-  m_textures.reserve(textures_count);
+  m_textures.resize(textures_count);
   for (int32_t i = 0; i < textures_count; i++) {
     fp.Read(&texture_name, sizeof(texture_name));
-    m_textures.push_back(texture_name);
+    m_textures[i] = texture_name;
   }
 
   // Nodes
@@ -81,7 +81,7 @@ bool CRsmRes::Load(const std::string& file_name) {
   if (m_nodes.find(main_node_name) != std::cend(m_nodes)) {
     m_root_node = m_nodes[main_node_name];
   } else {
-    m_root_node = m_nodes.begin()->second;
+    m_root_node = std::begin(m_nodes)->second;
   }
 
   m_root_node->parent = nullptr;

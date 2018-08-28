@@ -16,22 +16,9 @@
 #include "Render/pixel_format.h"
 
 typedef struct _VertexP3T2N3 {
-  _VertexP3T2N3(const glm::vec3 &pos, const glm::vec2 &tex,
-                const glm::vec3 &norm) {
-    position[0] = pos.x;
-    position[1] = pos.y;
-    position[2] = pos.z;
-
-    tex_coords[0] = tex.x;
-    tex_coords[1] = tex.y;
-
-    normal[0] = norm.x;
-    normal[1] = norm.y;
-    normal[2] = norm.z;
-  }
-  float position[3];
-  float tex_coords[2];
-  float normal[3];
+  glm::vec3 position;
+  glm::vec2 tex_coords;
+  glm::vec3 normal;
 } VertexP3T2N3;
 
 typedef struct _RenderBlock3d {
@@ -61,13 +48,14 @@ class CRenderer {
   void Flip();
   void FlushRenderList();
   void AddSurface(CSurface *surface, const RECT &position);
-  void AddWorldRenderBlock(std::shared_ptr<RenderBlock3d> render_block);
+  void AddWorldRenderBlock(RenderBlock3d *render_block);
   void DrawBoxScreen(int, int, int, int, unsigned int);
   CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
   CSurface *GetSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
   const glm::mat4 &projection_matrix() const;
   const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);
+  RenderBlock3d *BorrowRenderBlock();
 
  private:
   void FlushSurfacesList();
@@ -115,7 +103,9 @@ class CRenderer {
   void *m_lpSurfacePtr;
   long m_lPitch;
   std::vector<std::pair<CSurface *, RECT>> m_surfaces_list;
-  std::list<std::shared_ptr<RenderBlock3d>> m_world_render_list;
+  std::list<std::unique_ptr<RenderBlock3d>>::iterator m_render_blocks_cursor;
+  std::list<std::unique_ptr<RenderBlock3d>> m_render_blocks_pool;
+  std::list<RenderBlock3d *> m_world_render_list;
 
   std::list<CACHE_SURFACE> m_cache_surfaces[0x10];
   std::list<CTexture *> m_unused_cache_surfaces;

@@ -14,7 +14,12 @@
 #include "Render/3dDevice.h"
 
 GameClient::GameClient()
-    : full_screen_(), window_width_(), window_height_(), font_folder_() {}
+    : full_screen_(),
+      window_width_(),
+      window_height_(),
+      vsync_(),
+      msaa_(),
+      font_folder_() {}
 
 GameClient::~GameClient() {
   g_RagConnection->Disconnect();
@@ -52,7 +57,7 @@ bool GameClient::Initialize() {
   g_ResMgr->ReadResNameTable("resNameTable.txt");
 
   const uint32_t flags = full_screen_ ? 1 : 0;
-  if (g_3dDevice->Init(window_width_, window_height_, flags) < 0) {
+  if (g_3dDevice->Init(window_width_, window_height_, msaa_, flags) < 0) {
     ErrorMsg("Cannot init SDL or OpenGL.");
     return false;
   }
@@ -100,6 +105,8 @@ bool GameClient::LoadConfiguration(const std::string& file_name) {
     full_screen_ = graphics_config.value("fullscreen", false);
     window_width_ = graphics_config.value("window_width", 640);
     window_height_ = graphics_config.value("window_height", 480);
+    vsync_ = graphics_config.value("vsync", false);
+    msaa_ = graphics_config.value("msaa", 0);
 
     // Fonts settings
     const auto settings_config = json_config.at("fonts");
@@ -107,6 +114,11 @@ bool GameClient::LoadConfiguration(const std::string& file_name) {
   } catch (const std::exception& ex) {
     LOG(error, "Failed to parse {} ({})", file_name, ex.what());
     return false;
+  }
+
+  // Sanatize values
+  if (msaa_ > 32) {
+    msaa_ = 32;
   }
 
   LOG(debug, "Fullscreen: {}", full_screen_);

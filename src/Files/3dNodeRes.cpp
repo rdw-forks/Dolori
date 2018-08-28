@@ -1,5 +1,6 @@
 #include "Files/3dNodeRes.h"
 
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -182,8 +183,7 @@ void C3dNodeRes::ComputeBoundingBox(glm::vec3& bbmin_out,
 
   for (unsigned int i = 0; i < faces.size(); i++) {
     for (int ii = 0; ii < 3; ii++) {
-      auto v = glm::vec4(
-          glm::make_vec3(vertices[faces[i].vertex_id[ii]].position), 1);
+      auto v = glm::vec4(vertices[faces[i].vertex_id[ii]].position, 1);
       v = offset_matrix * v;
       if (parent != nullptr || children.size() != 0) {
         v += glm::vec4(position + offset_vector, 1);
@@ -215,9 +215,7 @@ void C3dNodeRes::ComputeRealBoundingBox(const glm::mat4& matrix,
   for (unsigned int i = 0; i < faces.size(); i++) {
     for (int ii = 0; ii < 3; ii++) {
       const glm::vec4 v =
-          mat2 *
-          glm::vec4(glm::make_vec3(vertices[faces[i].vertex_id[ii]].position),
-                    1);
+          mat2 * glm::vec4(vertices[faces[i].vertex_id[ii]].position, 1);
       bbmin_out.x = glm::min(bbmin_out.x, v.x);
       bbmin_out.y = glm::min(bbmin_out.y, v.y);
       bbmin_out.z = glm::min(bbmin_out.z, v.z);
@@ -244,10 +242,15 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
     std::unordered_map<uint16_t, std::vector<VertexP3T2N3>> verts_by_texid;
     for (size_t i = 0; i < faces.size(); i++) {
       for (size_t v = 0; v < 3; v++) {
-        verts_by_texid[faces[i].tex_id].push_back(VertexP3T2N3(
-            glm::make_vec3(vertices[faces[i].vertex_id[v]].position),
-            glm::make_vec2(tex_vertices[faces[i].tex_vertex_id[v]].position),
-            glm::vec3()));
+        const glm::vec3 normal = glm::normalize(
+            glm::cross(vertices[faces[i].vertex_id[1]].position -
+                           vertices[faces[i].vertex_id[0]].position,
+                       vertices[faces[i].vertex_id[2]].position -
+                           vertices[faces[i].vertex_id[0]].position));
+        verts_by_texid[faces[i].tex_id].push_back(
+            {vertices[faces[i].vertex_id[v]].position,
+             tex_vertices[faces[i].tex_vertex_id[v]].position,
+             normal});
       }
     }
 
@@ -266,7 +269,7 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
   }
 
   for (const auto& vbo_index : vbo_indices) {
-    auto render_block = std::make_shared<RenderBlock3d>();
+    auto render_block = g_Renderer->BorrowRenderBlock();
     render_block->modelview_matrix =
         glm::value_ptr(model->GetModelViewMatrix());
     render_block->nodeview_matrix = glm::value_ptr(cached_matrix);
@@ -274,7 +277,7 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
     render_block->vbo_first_item = vbo_index.first;
     render_block->vbo_item_count = vbo_index.count;
     render_block->texture = model->GetTexture(vbo_index.texture_id);
-    g_Renderer->AddWorldRenderBlock(std::move(render_block));
+    g_Renderer->AddWorldRenderBlock(render_block);
   }
 
   for (auto child : children) {
