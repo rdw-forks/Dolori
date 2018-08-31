@@ -39,6 +39,10 @@ class CWorld {
   bool m_isEventPVPMode;
   CSceneGraphNode m_root_node;
   CSceneGraphNode* m_calculated;
+  float m_light_opacity;
+  glm::vec3 m_light_dir;
+  glm::vec3 m_diffuse_col;
+  glm::vec3 m_ambient_col;
 };
 
 // class CWorld {

@@ -23,7 +23,7 @@ typedef enum _WORLD_OBJECT_TYPE {
   WORLD_OBJECT_TYPE_EFFECT
 } WORLD_OBJECT_TYPE;
 
-CRswRes::CRswRes() : m_calculated_node() {}
+CRswRes::CRswRes() : m_calculated_node(), m_light_opacity(0.5f) {}
 
 CRswRes::~CRswRes() {}
 
@@ -78,14 +78,8 @@ bool CRswRes::Load(const std::string& filename) {
   if (version >= 0x105) {
     fp.Read(&m_light_longitude, sizeof(m_light_longitude));
     fp.Read(&m_light_latitude, sizeof(m_light_latitude));
-    fp.Read(&x, sizeof(x));
-    fp.Read(&y, sizeof(y));
-    fp.Read(&z, sizeof(z));
-    m_diffuse_col = glm::vec3(x, y, z);
-    fp.Read(&x, sizeof(x));
-    fp.Read(&y, sizeof(y));
-    fp.Read(&z, sizeof(z));
-    m_ambient_col = glm::vec3(x, y, z);
+    fp.Read(&m_diffuse_col, sizeof(m_diffuse_col));
+    fp.Read(&m_ambient_col, sizeof(m_ambient_col));
     if (version >= 0x107) {
       fp.Read(&m_light_opacity, sizeof(m_light_opacity));
     }
@@ -209,3 +203,13 @@ const std::string& CRswRes::GetAttr() const { return m_attr_file; }
 const std::list<std::shared_ptr<ModelInfo>>& CRswRes::GetModels() const {
   return m_models;
 }
+
+const glm::vec3& CRswRes::GetDiffuseColor() const { return m_diffuse_col; }
+
+const glm::vec3& CRswRes::GetAmbientColor() const { return m_ambient_col; }
+
+int32_t CRswRes::GetLightLongitude() const { return m_light_longitude; }
+
+int32_t CRswRes::GetLightLatitude() const { return m_light_latitude; }
+
+float CRswRes::GetLightOpacity() const { return m_light_opacity; }

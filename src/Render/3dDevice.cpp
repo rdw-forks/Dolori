@@ -17,7 +17,8 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
                      uint32_t dwFlags) {
   unsigned int flags;
 
-  m_bIsFullscreen = dwFlags & 1;
+  m_bIsFullscreen = (dwFlags & DEVICE_FLAG_FULLSCREEN) != 0;
+  const bool vsync = (dwFlags & DEVICE_FLAG_VSYNC) != 0;
   m_dwRenderWidth = width;
   m_dwRenderHeight = height;
 
@@ -69,7 +70,7 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
   }
 
   // Disable vsync
-  EnableVsync(false);
+  EnableVsync(vsync);
 
   // Load extensions
   if (gladLoadGLLoader(SDL_GL_GetProcAddress) == 0) {

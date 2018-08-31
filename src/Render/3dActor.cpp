@@ -9,6 +9,7 @@ C3dActor::C3dActor()
     : m_pos(), m_matrix_needs_update(true), m_realbbmin(), m_realbbrange() {}
 
 void C3dActor::AssignModel(CRsmRes *p_rsm_res) {
+  m_shading_type = p_rsm_res->GetShadingType();
   const auto textures = p_rsm_res->GetTextures();
 
   m_textures.reserve(textures.size());

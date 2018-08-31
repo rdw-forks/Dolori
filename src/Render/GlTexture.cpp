@@ -18,3 +18,5 @@ void CGlTexture::Unbind() {
     binded_target_ = 0;
   }
 }
+
+GLuint CGlTexture::texture_id() const { return texture_id_; }

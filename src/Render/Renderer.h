@@ -24,11 +24,18 @@ typedef struct _VertexP3T2N3 {
 typedef struct _RenderBlock3d {
   const float *modelview_matrix;
   const float *nodeview_matrix;
-  std::shared_ptr<CGlTexture> texture;
+  GLuint gl_texture_id;
   std::shared_ptr<CGlVBO> vbo;
   size_t vbo_first_item;
   size_t vbo_item_count;
 } RenderBlock3d;
+
+typedef struct _WorldLightInfo {
+  glm::vec3 light_dir;
+  glm::vec3 diffuse_col;
+  glm::vec3 ambient_col;
+  float light_opacity;
+} WorldLightInfo;
 
 class CRenderer {
  public:
@@ -56,6 +63,7 @@ class CRenderer {
   const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);
   RenderBlock3d *BorrowRenderBlock();
+  void SetLightInfo(const WorldLightInfo &);
 
  private:
   void FlushSurfacesList();
@@ -68,6 +76,7 @@ class CRenderer {
   CGlProgram m_surface_program;
   CGlProgram m_world_program;
   CGlVBO m_surface_vbo;
+  WorldLightInfo m_world_light_info;
   float m_hpc;
   float m_vpc;
   float m_hratio;

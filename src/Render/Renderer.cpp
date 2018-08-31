@@ -52,12 +52,21 @@ const std::string kWorldVertexShader =
     "uniform mat4 uNodeViewMat;"
     "uniform mat4 uViewMat;"
     "uniform mat4 uProjectionMat;"
+    "uniform vec3 uLightDirection;"
 
     "varying vec2 vTextureCoord;"
+    "varying vec3 normal;"
+    "varying float vLightWeighting;"
 
     "void main() {"
-    "  gl_Position = uProjectionMat * uViewMat * uModelViewMat * "
-    "uNodeViewMat * vec4(aPosition, 1.0);"
+    "mat4 modelViewMat = uModelViewMat * uNodeViewMat;"
+    "  gl_Position = uProjectionMat * uViewMat * modelViewMat * "
+    "    vec4(aPosition, 1.0);"
+    "  mat3 normalMatrix = transpose(inverse(mat3(modelViewMat)));"
+    "  vec4 lDirection = modelViewMat * vec4(uLightDirection, 0.0);"
+    "  normal = normalize(normalMatrix * aNormal);"
+    "  float dotLight = dot(normal, normalize(lDirection.xyz));"
+    "  vLightWeighting  = max(dotLight, 0.5);"
     "  vTextureCoord = aTextureCoord;"
     "}";
 
@@ -67,9 +76,21 @@ const std::string kWorldFragmentShader =
     "varying vec2 vTextureCoord;"
 
     "uniform sampler2D uTexture;"
+    "uniform vec3 uLightDiffuse;"
+    "uniform vec3 uLightAmbient;"
+    "uniform float uLightIntensity;"
+
+    "varying vec3 normal;"
+    "varying float vLightWeighting;"
 
     "void main() {"
-    "  gl_FragColor= texture2D(uTexture, vTextureCoord.st);"
+    "  vec4 color = texture2D(uTexture, vTextureCoord);"
+    "  if(color.a == 0.0)"
+    "    discard;"
+    "  vec3 Ambient = uLightAmbient * uLightIntensity;"
+    "  vec3 Diffuse = uLightDiffuse * vLightWeighting;"
+    "  vec4 LightColor = vec4(Ambient + Diffuse, 1.0);"
+    "  gl_FragColor = color * clamp(LightColor, 0.0, 1.0);"
     "}";
 
 CRenderer::CRenderer()
@@ -464,6 +485,10 @@ RenderBlock3d* CRenderer::BorrowRenderBlock() {
   return result;
 }
 
+void CRenderer::SetLightInfo(const WorldLightInfo& world_light_info) {
+  m_world_light_info = world_light_info;
+}
+
 void CRenderer::FlushWorldRenderList() {
   if (m_world_render_list.empty()) {
     return;
@@ -477,6 +502,19 @@ void CRenderer::FlushWorldRenderList() {
 
   uniform_id = m_world_program.GetUniformLocation("uViewMat");
   glUniformMatrix4fv(uniform_id, 1, GL_FALSE, glm::value_ptr(m_view_matrix));
+
+  uniform_id = m_world_program.GetUniformLocation("uLightDiffuse");
+  glUniform3fv(uniform_id, 1, glm::value_ptr(m_world_light_info.diffuse_col));
+
+  uniform_id = m_world_program.GetUniformLocation("uLightAmbient");
+  glUniform3fv(uniform_id, 1, glm::value_ptr(m_world_light_info.ambient_col));
+
+  uniform_id = m_world_program.GetUniformLocation("uLightDirection");
+  glUniform3fv(uniform_id, 1, glm::value_ptr(m_world_light_info.light_dir));
+
+  uniform_id = m_world_program.GetUniformLocation("uLightIntensity");
+  glUniform1fv(uniform_id, 1,
+               static_cast<GLfloat*>(&m_world_light_info.light_opacity));
 
   // Uniform IDs
   const GLuint modelview_id =
@@ -511,12 +549,7 @@ void CRenderer::FlushWorldRenderList() {
     glVertexAttribPointer(normal_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4,
                           reinterpret_cast<void*>(5 * 4));
 
-    if (render_block->texture != nullptr) {
-      render_block->texture->Bind(GL_TEXTURE_2D);
-    } else {
-      glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
+    glBindTexture(GL_TEXTURE_2D, render_block->gl_texture_id);
     glDrawArrays(GL_TRIANGLES, render_block->vbo_first_item,
                  render_block->vbo_item_count);
   }

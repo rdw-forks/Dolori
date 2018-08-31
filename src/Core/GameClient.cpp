@@ -56,7 +56,9 @@ bool GameClient::Initialize() {
 
   g_ResMgr->ReadResNameTable("resNameTable.txt");
 
-  const uint32_t flags = full_screen_ ? 1 : 0;
+  const uint32_t flags = (full_screen_ ? DEVICE_FLAG_FULLSCREEN : 0) &
+                         (vsync_ ? DEVICE_FLAG_VSYNC : 0);
+
   if (g_3dDevice->Init(window_width_, window_height_, msaa_, flags) < 0) {
     ErrorMsg("Cannot init SDL or OpenGL.");
     return false;
@@ -82,7 +84,7 @@ bool GameClient::Initialize() {
 
 void GameClient::Run() {
   // g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-  g_ModeMgr->Run(ModeType::kGame, "rachel.rsw");
+  g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
 }
 
 bool GameClient::LoadConfiguration(const std::string& file_name) {

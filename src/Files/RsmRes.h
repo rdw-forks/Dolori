@@ -26,6 +26,7 @@ class CRsmRes : public CRes {
   CRes* Clone() override;
   std::shared_ptr<C3dNodeRes> GetRootNode();
   const std::vector<std::string>& GetTextures() const;
+  SHADING_TYPE GetShadingType() const;
 
  protected:
   void Reset() override;

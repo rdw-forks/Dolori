@@ -249,8 +249,7 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
                            vertices[faces[i].vertex_id[0]].position));
         verts_by_texid[faces[i].tex_id].push_back(
             {vertices[faces[i].vertex_id[v]].position,
-             tex_vertices[faces[i].tex_vertex_id[v]].position,
-             normal});
+             tex_vertices[faces[i].tex_vertex_id[v]].position, normal});
       }
     }
 
@@ -276,7 +275,8 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
     render_block->vbo = vbo;
     render_block->vbo_first_item = vbo_index.first;
     render_block->vbo_item_count = vbo_index.count;
-    render_block->texture = model->GetTexture(vbo_index.texture_id);
+    render_block->gl_texture_id =
+        model->GetTexture(vbo_index.texture_id)->texture_id();
     g_Renderer->AddWorldRenderBlock(render_block);
   }
 

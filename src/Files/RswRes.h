@@ -39,6 +39,11 @@ class CRswRes : public CRes {
   const std::string& GetGnd() const;
   const std::string& GetAttr() const;
   const std::list<std::shared_ptr<ModelInfo>>& GetModels() const;
+  const glm::vec3& GetDiffuseColor() const;
+  const glm::vec3& GetAmbientColor() const;
+  int32_t GetLightLongitude() const;
+  int32_t GetLightLatitude() const;
+  float GetLightOpacity() const;
 
  protected:
   void Reset() override;
@@ -61,7 +66,6 @@ class CRswRes : public CRes {
   int32_t m_light_longitude;
   int32_t m_light_latitude;
   float m_light_opacity;
-  glm::vec3 m_light_dir;
   glm::vec3 m_diffuse_col;
   glm::vec3 m_ambient_col;
   int32_t m_ground_top;

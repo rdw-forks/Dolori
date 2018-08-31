@@ -101,3 +101,7 @@ std::shared_ptr<C3dNodeRes> CRsmRes::GetRootNode() { return m_root_node; }
 const std::vector<std::string>& CRsmRes::GetTextures() const {
   return m_textures;
 }
+
+SHADING_TYPE CRsmRes::GetShadingType() const {
+  return static_cast<SHADING_TYPE>(m_shading_type);
+}

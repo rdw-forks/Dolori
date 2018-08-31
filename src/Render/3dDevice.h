@@ -7,6 +7,11 @@
 #include "Render/Surface.h"
 #include "Render/palette_entry.h"
 
+typedef enum _DEVICE_FLAG {
+  DEVICE_FLAG_FULLSCREEN = 0x1,
+  DEVICE_FLAG_VSYNC = 0x2
+} DEVICE_FLAG;
+
 class C3dDevice {
  public:
   C3dDevice();

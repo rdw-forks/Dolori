@@ -37,6 +37,19 @@ void CWorld::OnEnterFrame() {
     return;
   }
 
+  m_diffuse_col = rsw_res->GetDiffuseColor();
+  m_ambient_col = rsw_res->GetAmbientColor();
+  m_light_opacity = rsw_res->GetLightOpacity();
+  const auto light_longitude = rsw_res->GetLightLongitude();
+  const auto light_latitude = rsw_res->GetLightLatitude();
+  m_light_dir[0] = -glm::cos(glm::radians((float)light_longitude)) *
+                   glm::sin(glm::radians((float)light_latitude));
+  m_light_dir[1] = glm::cos(glm::radians((float)light_latitude));
+  m_light_dir[2] = glm::sin(glm::radians((float)light_longitude)) *
+                   glm::sin(glm::radians((float)light_latitude));
+  g_Renderer->SetLightInfo(
+      {m_light_dir, m_diffuse_col, m_ambient_col, m_light_opacity});
+
   // Load GND file
   const auto gnd_filename = rsw_res->GetGnd();
   auto gnd_res = static_cast<CGndRes*>(g_ResMgr->Get(gnd_filename, false));
