@@ -15,6 +15,11 @@
 #include "Render/cache_surface.h"
 #include "Render/pixel_format.h"
 
+typedef struct _VertexP2T2 {
+  float position[2];
+  float texture_coord[2];
+} VertexP2T2;
+
 typedef struct _VertexP3T2N3 {
   glm::vec3 position;
   glm::vec2 tex_coords;

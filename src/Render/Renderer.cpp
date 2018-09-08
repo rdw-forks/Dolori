@@ -11,87 +11,83 @@
 #include "Common/debug.h"
 
 const std::string kSurfaceVertexShader =
-    "#version 140\n"
+    R"(#version 140
 
-    "attribute vec2 aPosition;"
-    "attribute vec2 aTextureCoord;"
+    attribute vec2 aPosition;
+    attribute vec2 aTextureCoord;
 
-    "uniform mat4 uProjectionMat;"
+    uniform mat4 uProjectionMat;
 
-    "varying vec2 vTextureCoord;"
+    varying vec2 vTextureCoord;
 
-    "void main() {"
-    "  gl_Position = uProjectionMat * vec4(aPosition, 0.0, 1.0);"
-    "  vTextureCoord = aTextureCoord;"
-    "}";
+    void main() {
+      gl_Position = uProjectionMat * vec4(aPosition, 0.0, 1.0);
+      vTextureCoord = aTextureCoord;
+    })";
 
 const std::string kSurfaceFragmentShader =
-    "#version 140\n"
+    R"(#version 140
 
-    "varying vec2 vTextureCoord;"
+    varying vec2 vTextureCoord;
 
-    "uniform sampler2D uTexture;"
+    uniform sampler2D uTexture;
 
-    "void main() {"
-    "  gl_FragColor = texture2D(uTexture,vTextureCoord.st);"
-    "}";
-
-struct SurfaceVertex {
-  float position[2];
-  float texture_coord[2];
-};
+    void main() {
+      gl_FragColor = texture2D(uTexture,vTextureCoord.st);
+    })";
 
 const std::string kWorldVertexShader =
-    "#version 140\n"
+    R"(#version 140
 
-    "attribute vec3 aPosition;"
-    "attribute vec2 aTextureCoord;"
-    "attribute vec3 aNormal;"
+    attribute vec3 aPosition;
+    attribute vec2 aTextureCoord;
+    attribute vec3 aNormal;
 
-    "uniform mat4 uModelViewMat;"
-    "uniform mat4 uNodeViewMat;"
-    "uniform mat4 uViewMat;"
-    "uniform mat4 uProjectionMat;"
-    "uniform vec3 uLightDirection;"
+    uniform mat4 uModelViewMat;
+    uniform mat4 uNodeViewMat;
+    uniform mat4 uViewMat;
+    uniform mat4 uProjectionMat;
+    uniform vec3 uLightDirection;
 
-    "varying vec2 vTextureCoord;"
-    "varying vec3 normal;"
-    "varying float vLightWeighting;"
+    varying vec2 vTextureCoord;
+    varying vec3 normal;
+    varying float vLightWeighting;
 
-    "void main() {"
-    "mat4 modelViewMat = uModelViewMat * uNodeViewMat;"
-    "  gl_Position = uProjectionMat * uViewMat * modelViewMat * "
-    "    vec4(aPosition, 1.0);"
-    "  mat3 normalMatrix = transpose(inverse(mat3(modelViewMat)));"
-    "  vec4 lDirection = modelViewMat * vec4(uLightDirection, 0.0);"
-    "  normal = normalize(normalMatrix * aNormal);"
-    "  float dotLight = dot(normal, normalize(lDirection.xyz));"
-    "  vLightWeighting  = max(dotLight, 0.5);"
-    "  vTextureCoord = aTextureCoord;"
-    "}";
+    void main() {
+      mat4 modelViewMat = uModelViewMat * uNodeViewMat;
+      gl_Position = uProjectionMat * uViewMat * modelViewMat * vec4(aPosition, 1.0);
+
+      mat3 normalMatrix = transpose(inverse(mat3(modelViewMat)));
+	  normal = normalize(normalMatrix * aNormal);
+
+   
+      float dotLight = dot(normal, uLightDirection);
+      vLightWeighting = max(dotLight, 0.3);
+      vTextureCoord = aTextureCoord;
+    })";
 
 const std::string kWorldFragmentShader =
-    "#version 140\n"
+    R"(#version 140
 
-    "varying vec2 vTextureCoord;"
+    varying vec2 vTextureCoord;
 
-    "uniform sampler2D uTexture;"
-    "uniform vec3 uLightDiffuse;"
-    "uniform vec3 uLightAmbient;"
-    "uniform float uLightIntensity;"
+    uniform sampler2D uTexture;
+    uniform vec3 uLightDiffuse;
+    uniform vec3 uLightAmbient;
+    uniform float uLightIntensity;
 
-    "varying vec3 normal;"
-    "varying float vLightWeighting;"
+    varying vec3 normal;
+    varying float vLightWeighting;
 
-    "void main() {"
-    "  vec4 color = texture2D(uTexture, vTextureCoord);"
-    "  if(color.a == 0.0)"
-    "    discard;"
-    "  vec3 Ambient = uLightAmbient * uLightIntensity;"
-    "  vec3 Diffuse = uLightDiffuse * vLightWeighting;"
-    "  vec4 LightColor = vec4(Ambient + Diffuse, 1.0);"
-    "  gl_FragColor = color * clamp(LightColor, 0.0, 1.0);"
-    "}";
+    void main() {
+      vec4 color = texture2D(uTexture, vTextureCoord);
+      if(color.a == 0.0) {
+        discard;
+      }
+
+      color.rgb *= uLightIntensity * vLightWeighting * uLightDiffuse + uLightAmbient;
+      gl_FragColor = color;
+    })";
 
 CRenderer::CRenderer()
     : m_view_matrix(),
@@ -99,6 +95,7 @@ CRenderer::CRenderer()
       m_surface_vbo(),
       m_surfaces_list(),
       m_fpsFrameCount(),
+      m_fpsStartTick(),
       m_render_blocks_pool(),
       m_world_render_list() {
   m_render_blocks_cursor = std::begin(m_render_blocks_pool);
@@ -109,7 +106,7 @@ bool CRenderer::Init() {
   CGlShader surface_fragment_shader;
 
   // Setup the VBO to store GndVertex objects
-  m_surface_vbo.SetVertexFormat<SurfaceVertex>();
+  m_surface_vbo.SetVertexFormat<VertexP2T2>();
 
   if (!surface_vertex_shader.Init(kSurfaceVertexShader, GL_VERTEX_SHADER)) {
     return false;
@@ -207,13 +204,13 @@ bool CRenderer::DrawScene() {
 
 void CRenderer::Flip() {
   g_3dDevice->ShowFrame();
-  m_fpsFrameCount++;
-  auto current_ticks = SDL_GetTicks();
-  if (current_ticks > m_fpsStartTick + 1000) {
-    // LOG(debug, "FPS: {}", m_fpsFrameCount);
-    m_fpsFrameCount = 0;
-    m_fpsStartTick = SDL_GetTicks();
-  }
+  //  m_fpsFrameCount++;
+  //  auto current_ticks = SDL_GetTicks();
+  //  if (current_ticks > m_fpsStartTick + 1000) {
+  //    LOG(debug, "FPS: {}", m_fpsFrameCount);
+  //    m_fpsFrameCount = 0;
+  //    m_fpsStartTick = SDL_GetTicks();
+  //  }
 }
 
 void CRenderer::FlushRenderList() {
@@ -471,17 +468,23 @@ void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
   m_view_matrix = matrix;
 }
 
+// Returns a non owning pointer to a 3d render block that's in the pool. This
+// avoids repeated memory allocations when rendering
 RenderBlock3d* CRenderer::BorrowRenderBlock() {
   if (m_render_blocks_cursor != std::cend(m_render_blocks_pool)) {
     auto result = m_render_blocks_cursor->get();
     m_render_blocks_cursor++;
+
     return result;
   }
 
+  // No render blocks left in the pool. Allocate a new one, add it to the pool
+  // and return a pointer to it
   auto new_block = std::make_unique<RenderBlock3d>();
   auto result = new_block.get();
   m_render_blocks_pool.push_back(std::move(new_block));
   m_render_blocks_cursor = std::end(m_render_blocks_pool);
+
   return result;
 }
 
@@ -588,7 +591,7 @@ void CRenderer::FlushSurfacesList() {
     const auto surface = pair.first;
     const auto position = pair.second;
 
-    const SurfaceVertex vertices[6] = {
+    const VertexP2T2 vertices[6] = {
         {position.left + position.right, position.top + position.bottom, 1.f,
          1.f},
         {position.left + position.right, position.top, 1.f, 0.f},
