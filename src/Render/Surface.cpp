@@ -57,8 +57,8 @@ void CSurface::Update(int x, int y, int width, int height, const ILubyte *image,
   UpdateGlTexture();
 }
 
-void CSurface::UpdateSprite(int x, int y, int width, int height, SPR_IMG *img,
-                            const uint32_t *pal) {
+void CSurface::UpdateSprite(int x, int y, int width, int height,
+                            const SPR_IMG *img, const uint32_t *pal) {
   if (m_sdl_surface != nullptr &&
       (m_sdl_surface->w != width || m_sdl_surface->h != height)) {
     SDL_FreeSurface(m_sdl_surface);
@@ -215,7 +215,6 @@ void CSurface::UpdateGlTexture() {
 
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  // TODO: Re-include anisotropy extension ?
   float largest_supported_anisotropy;
   glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest_supported_anisotropy);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,

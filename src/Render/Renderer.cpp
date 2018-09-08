@@ -62,7 +62,7 @@ const std::string kWorldVertexShader =
 
    
       float dotLight = dot(normal, uLightDirection);
-      vLightWeighting = max(dotLight, 0.3);
+      vLightWeighting = clamp(dotLight, 0.0, 1.0);
       vTextureCoord = aTextureCoord;
     })";
 
@@ -204,13 +204,13 @@ bool CRenderer::DrawScene() {
 
 void CRenderer::Flip() {
   g_3dDevice->ShowFrame();
-  //  m_fpsFrameCount++;
-  //  auto current_ticks = SDL_GetTicks();
-  //  if (current_ticks > m_fpsStartTick + 1000) {
-  //    LOG(debug, "FPS: {}", m_fpsFrameCount);
-  //    m_fpsFrameCount = 0;
-  //    m_fpsStartTick = SDL_GetTicks();
-  //  }
+  m_fpsFrameCount++;
+  auto current_ticks = SDL_GetTicks();
+  if (current_ticks > m_fpsStartTick + 1000) {
+    LOG(debug, "FPS: {}", m_fpsFrameCount);
+    m_fpsFrameCount = 0;
+    m_fpsStartTick = SDL_GetTicks();
+  }
 }
 
 void CRenderer::FlushRenderList() {
@@ -219,11 +219,7 @@ void CRenderer::FlushRenderList() {
   FlushWorldRenderList();
 
   // Render 2D surfaces
-  glDisable(GL_DEPTH_TEST);
-
   FlushSurfacesList();
-
-  glEnable(GL_DEPTH_TEST);
 }
 
 void CRenderer::AddSurface(CSurface* surface, const RECT& position) {
@@ -294,7 +290,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //      }
 //    }
 //  }
-//  CACHE_SURFACE new_surface;
+//  SurfaceCache new_surface;
 //  if (!m_unused_cache_surfaces.empty()) {
 //    new_surface.tex = m_unused_cache_surfaces.back();
 //    m_unused_cache_surfaces.pop_back();
@@ -316,9 +312,9 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 
 // CTexture* CRenderer::GetSpriteIndex(SPR_IMG* img, uint32_t* pal_id,
 //                                    CACHE_INFO* info) {
-//  std::list<CACHE_SURFACE>* surface_list = NULL;
+//  std::list<SurfaceCache>* surface_list = NULL;
 //  std::vector<CACHE_INFO>* info_list = NULL;
-//  CACHE_SURFACE* cache_surface = NULL;
+//  SurfaceCache* cache_surface = NULL;
 //  CACHE_INFO* cache_info = NULL;
 //  int id1, id2;
 //
@@ -369,9 +365,8 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //  return cache_surface->tex;
 //}
 
-CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
-  std::list<CACHE_SURFACE>* surface_list = nullptr;
-  unsigned long cur_time = GetTick();
+CSurface* CRenderer::AddSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
+  uint32_t cur_time = GetTick();
   int id1, id2;
 
   if (img->width > 128) {
@@ -394,19 +389,19 @@ CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
     id2 = 0;
   }
 
-  surface_list = &m_cache_surfaces[id1 + id2];
   // Try to find a recyclable surface
-  for (auto it = surface_list->begin(); it != surface_list->end(); ++it) {
-    if (it->last_time + 3750 < cur_time) {
-      it->id = (size_t)img;
-      it->pal_id = (size_t)pal;
-      it->tex->UpdateSprite(0, 0, img->width, img->height, img, pal);
-      it->last_time = GetTick();
-      return it->tex;
+  for (auto& surface_cache : m_cache_surfaces[id1 + id2]) {
+    if (surface_cache.last_time + 3750 < cur_time) {
+      surface_cache.id = img;
+      surface_cache.pal_id = pal;
+      surface_cache.tex->UpdateSprite(0, 0, img->width, img->height, img, pal);
+      surface_cache.last_time = GetTick();
+
+      return surface_cache.tex;
     }
   }
 
-  CACHE_SURFACE new_surface;
+  SurfaceCache new_surface;
   if (!m_unused_cache_surfaces.empty()) {
     new_surface.tex = m_unused_cache_surfaces.back();
     m_unused_cache_surfaces.pop_back();
@@ -414,17 +409,16 @@ CSurface* CRenderer::AddSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
     new_surface.tex = new CSurface(img->width, img->height);
   }
 
-  new_surface.id = (size_t)img;
-  new_surface.pal_id = (size_t)pal;
+  new_surface.id = img;
+  new_surface.pal_id = pal;
   new_surface.tex->UpdateSprite(0, 0, img->width, img->height, img, pal);
   new_surface.last_time = GetTick();
-  surface_list->push_back(new_surface);
+  m_cache_surfaces[id1 + id2].push_back(new_surface);
 
   return new_surface.tex;
 }
 
-CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
-  std::list<CACHE_SURFACE>* surface_list = nullptr;
+CSurface* CRenderer::GetSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
   int id1, id2;
 
   if (img->width > 128) {
@@ -447,11 +441,10 @@ CSurface* CRenderer::GetSpriteIndex(SPR_IMG* img, const uint32_t* pal) {
     id2 = 0;
   }
 
-  surface_list = &m_cache_surfaces[id1 + id2];
-  for (auto it = surface_list->begin(); it != surface_list->end(); ++it) {
-    if (it->id == (size_t)img && it->pal_id == (size_t)pal) {
-      it->last_time = GetTick();
-      return it->tex;
+  for (auto& surface_cache : m_cache_surfaces[id1 + id2]) {
+    if (surface_cache.id == img && surface_cache.pal_id == pal) {
+      surface_cache.last_time = GetTick();
+      return surface_cache.tex;
     }
   }
 
@@ -565,6 +558,8 @@ void CRenderer::FlushSurfacesList() {
     return;
   }
 
+  glDisable(GL_DEPTH_TEST);
+
   m_surface_program.Bind();
 
   const GLuint position_attrib =
@@ -610,4 +605,6 @@ void CRenderer::FlushSurfacesList() {
   }
 
   m_surface_program.Unbind();
+
+  glEnable(GL_DEPTH_TEST);
 }

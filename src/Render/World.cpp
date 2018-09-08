@@ -42,11 +42,11 @@ void CWorld::OnEnterFrame() {
   m_light_opacity = rsw_res->GetLightOpacity();
   const auto light_longitude = rsw_res->GetLightLongitude();
   const auto light_latitude = rsw_res->GetLightLatitude();
-  m_light_dir[0] = -glm::cos(glm::radians((float)light_longitude)) *
-                   glm::sin(glm::radians((float)light_latitude));
-  m_light_dir[1] = glm::cos(glm::radians((float)light_latitude));
-  m_light_dir[2] = glm::sin(glm::radians((float)light_longitude)) *
-                   glm::sin(glm::radians((float)light_latitude));
+  m_light_dir.x = -glm::cos(glm::radians((float)light_longitude)) *
+                  glm::sin(glm::radians((float)light_latitude));
+  m_light_dir.y = glm::cos(glm::radians((float)light_latitude));
+  m_light_dir.z = glm::sin(glm::radians((float)light_longitude)) *
+                  glm::sin(glm::radians((float)light_latitude));
   g_Renderer->SetLightInfo(
       {m_light_dir, m_diffuse_col, m_ambient_col, m_light_opacity});
 

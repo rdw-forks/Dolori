@@ -5,37 +5,36 @@
 #include <vector>
 
 #include "Files/Res.h"
-#include "Render/color.h"
 
 #pragma pack(push)
 #pragma pack(1)
 
-struct LM_INFO {
+typedef struct _LightmapInfo {
   uint8_t idata[0x8][0x8];
-  uint8_t sdata[0x3][0x8][0x8];
-};
+  uint8_t sdata[0x8][0x8][0x3];
+} LightmapInfo;
 
-struct LM_INDEX {
-  uint32_t a;
-  uint32_t r;
-  uint32_t g;
-  uint32_t b;
-};
+typedef struct _TileColor {
+  uint8_t b;
+  uint8_t g;
+  uint8_t r;
+  uint8_t a;
+} TileColor;
 
-struct GND_SURFACE_FMT {
+typedef struct _GndSurfaceFmt {
   float u[0x4];
   float v[0x4];
   uint16_t texture_id;
   uint16_t lightmap_id;
-  COLOR argb;
-};
+  TileColor bgra;
+} GndSurfaceFmt;
 
-struct GND_CELL_FMT {
+typedef struct _GndCellFmt {
   float height[4];
   int32_t top_surface_id;
   int32_t front_surface_id;
   int32_t right_surface_id;
-};
+} GndCellFmt;
 
 struct COLOR_CHANNEL {
   uint8_t m_buffer[0x28];
@@ -55,34 +54,24 @@ class CGndRes : public CRes {
   int32_t GetWidth() const;
   int32_t GetHeight() const;
   uint32_t GetSurfaceCount() const;
-  const GND_SURFACE_FMT &GetSurface(unsigned int index);
-  const GND_CELL_FMT &GetCell(unsigned int x, unsigned int y);
-  const char *GetTextureName(int texture_id);
-  const std::vector<char const *> &GetTextureNameTable() const;
-
-  static GND_SURFACE_FMT s_empty_surface;
-  static GND_CELL_FMT s_empty_cell;
+  const std::vector<LightmapInfo> &GetLightmaps() const;
+  const GndSurfaceFmt &GetSurface(size_t index);
+  const GndCellFmt &GetCell(unsigned int x, unsigned int y);
+  const std::string &GetTextureName(size_t texture_id);
+  const std::vector<std::string> &GetTextureNameTable() const;
 
  protected:
   void Reset() override;
 
  private:
-  // int m_new_ver;
-  // unsigned char m_ver_major;
-  // unsigned char m_ver_minor;
   int32_t m_width;
   int32_t m_height;
   float m_zoom;
-  uint32_t m_num_textures;
-  uint32_t m_num_lightmaps;
-  uint32_t m_num_surfaces;
-  uint32_t m_num_cells;
-  std::vector<char const *> m_tex_name_table;
-  struct LM_INFO *m_lminfo;
-  struct LM_INDEX *m_lmindex;
-  struct COLOR_CHANNEL *m_colorchannel;
-  struct GND_SURFACE_FMT *m_surfaces;
-  struct GND_CELL_FMT *m_cells;
+  std::vector<std::string> m_tex_name_table;
+  std::vector<LightmapInfo> m_lightmaps;
+  std::vector<GndSurfaceFmt> m_surfaces;
+  std::vector<GndCellFmt> m_cells;
+  COLOR_CHANNEL *m_colorchannel;
 };
 
 // class CGndRes {

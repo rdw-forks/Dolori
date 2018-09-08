@@ -11,29 +11,25 @@
 #include "Render/Texture.h"
 #include "Render/TextureAtlas.h"
 #include "Render/VBO.h"
-#include "Render/color.h"
-#include "Render/tlvertex3d.h"
 
-struct GND_SURFACE {
-  TlVertex3d vertex[0x4];
+typedef struct _GndSurface {
   int offset;
   std::shared_ptr<CTexture> tex;
   std::shared_ptr<CTexture> lmtex;
-  struct CLightmap* lightmap;
-  struct COLOR argb;
+  TileColor bgra;
   unsigned long alpha;
   int mtl_id;
-};
+} GndSurface;
 
-struct GND_CELL {
+typedef struct _GndCell {
   float h[0x4];
   glm::vec3 water_vert[0x4];
-  GND_SURFACE* top;
-  GND_SURFACE* right;
-  GND_SURFACE* front;
+  GndSurface* top;
+  GndSurface* right;
+  GndSurface* front;
   int render_signature;
   unsigned char cell_color[0x3];
-};
+} GndCell;
 
 class C3dGround {
  public:
@@ -43,33 +39,32 @@ class C3dGround {
   bool Init();
   void AssignGnd(CGndRes* gnd, glm::vec3* light, glm::vec3* diffuse_col,
                  glm::vec3* ambient_col);
-  void UpdateTextureAtlas(const std::vector<char const*>& texture_names);
+  void UpdateTextureAtlas(const std::vector<std::string>& texture_names);
+  void UpdateLightmap(const std::vector<LightmapInfo>& lightmaps);
   void Render(glm::mat4* wtm, RECT* area, bool need_clip);
 
  private:
   CGlProgram m_program;
   CGlVBO m_vbo;
   std::unique_ptr<CTextureAtlas> m_texture_atlas;
+  std::unique_ptr<CTexture> m_lightmap;
   CGatRes* m_attr;
   int32_t m_width;
   int32_t m_height;
   float m_zoom;
-  // class CLightmapMgr m_lightmapMgr;
-  int m_num_surfaces;
   float m_water_level;
   int m_tex_anim_cycle;
   int m_wave_pitch;
   int m_wave_speed;
   int m_water_set;
   float m_wave_height;
-  class CTexture* m_water_tex;
-  class CTexture* m_p_bump_map;
+  CTexture* m_water_tex;
+  CTexture* m_p_bump_map;
   int m_water_cnt;
   int m_water_offset;
   int m_is_new_ver;
-  std::vector<GND_SURFACE> m_surfaces;
-  // std::vector<LightmapRGBIntensity> m_lm_RGB_intensities;
-  std::vector<GND_CELL> m_cells;
+  std::vector<GndSurface> m_surfaces;
+  std::vector<GndCell> m_cells;
 };
 
 // class C3dGround {

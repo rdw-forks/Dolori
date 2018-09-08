@@ -22,6 +22,6 @@ typedef struct CACHE_SURFACE {
   size_t pal_id;
   CSurface* tex;
   unsigned long last_time;
-} CACHE_SURFACE;
+} SurfaceCache;
 
 #endif  // DOLORI_RENDER_CACHE_SURFACE_H_

@@ -24,7 +24,7 @@ class CSurface : public CGlTexture {
 
   void Create(unsigned long, unsigned long);
   virtual void Update(int, int, int, int, const ILubyte*, int);
-  void UpdateSprite(int x, int y, int width, int height, SPR_IMG* img,
+  void UpdateSprite(int x, int y, int width, int height, const SPR_IMG* img,
                     const uint32_t* pal);
   void CopyRect(int, int, int, int, SDL_Surface*);
   void BlitBitmap(int x, int y, int w, int h, const ILubyte* bitmap);

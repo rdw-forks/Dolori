@@ -13,7 +13,7 @@ class CTextureAtlas : public CSurface {
   CTextureAtlas();
 
   void Create(size_t texture_size,
-              const std::vector<char const *> &texture_names);
+              const std::vector<std::string> &texture_names);
   glm::vec2 GetTexturePosition(const std::string &texture_name) const;
   size_t texture_size() const;
 

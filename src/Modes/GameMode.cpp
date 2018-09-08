@@ -147,6 +147,8 @@ void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
       return m_rsw_name;
       break;
   };
+
+  return nullptr;
 }
 
 void CGameMode::ProcessInput() {

@@ -11,8 +11,9 @@
 #include "Files/SprRes.h"
 #include "Render/GlProgram.h"
 #include "Render/GlTexture.h"
+#include "Render/Surface.h"
+#include "Render/Texture.h"
 #include "Render/VBO.h"
-#include "Render/cache_surface.h"
 #include "Render/pixel_format.h"
 
 typedef struct _VertexP2T2 {
@@ -42,6 +43,13 @@ typedef struct _WorldLightInfo {
   float light_opacity;
 } WorldLightInfo;
 
+typedef struct _SurfaceCache {
+  const SPR_IMG *id;
+  const uint32_t *pal_id;
+  CSurface *tex;
+  uint32_t last_time;
+} SurfaceCache;
+
 class CRenderer {
  public:
   CRenderer();
@@ -62,8 +70,8 @@ class CRenderer {
   void AddSurface(CSurface *surface, const RECT &position);
   void AddWorldRenderBlock(RenderBlock3d *render_block);
   void DrawBoxScreen(int, int, int, int, unsigned int);
-  CSurface *AddSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
-  CSurface *GetSpriteIndex(SPR_IMG *img, const uint32_t *pal_id);
+  CSurface *AddSpriteIndex(const SPR_IMG *img, const uint32_t *pal_id);
+  CSurface *GetSpriteIndex(const SPR_IMG *img, const uint32_t *pal_id);
   const glm::mat4 &projection_matrix() const;
   const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);
@@ -121,7 +129,7 @@ class CRenderer {
   std::list<std::unique_ptr<RenderBlock3d>> m_render_blocks_pool;
   std::list<RenderBlock3d *> m_world_render_list;
 
-  std::list<CACHE_SURFACE> m_cache_surfaces[0x10];
+  std::list<SurfaceCache> m_cache_surfaces[0x10];
   std::list<CTexture *> m_unused_cache_surfaces;
 };
 

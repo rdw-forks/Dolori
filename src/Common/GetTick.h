@@ -1,6 +1,8 @@
 #ifndef DOLORI_COMMON_GETTICK_H_
 #define DOLORI_COMMON_GETTICK_H_
 
-unsigned int GetTick();
+#include <stdint.h>
+
+uint32_t GetTick();
 
 #endif  // DOLORI_COMMON_GETTICK_H_

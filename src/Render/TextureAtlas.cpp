@@ -8,7 +8,7 @@ CTextureAtlas::CTextureAtlas()
     : CSurface(), texture_size_(), textures_positions_() {}
 
 void CTextureAtlas::Create(size_t texture_size,
-                           const std::vector<char const *> &texture_names) {
+                           const std::vector<std::string> &texture_names) {
   const size_t number_of_textures = texture_names.size();
   const size_t num_of_columns = glm::round(glm::sqrt(number_of_textures));
   const size_t texture_width =
