@@ -55,7 +55,7 @@ typedef struct _RotKeyFrame {
 #pragma pack(pop)
 
 typedef struct _VboIndex {
-  uint16_t texture_id;
+  int32_t texture_id;
   size_t first;
   size_t count;
 } VboIndex;
@@ -63,7 +63,7 @@ typedef struct _VboIndex {
 // Forward declaration
 class C3dActor;
 
-class C3dNodeRes : public std::enable_shared_from_this<C3dNodeRes> {
+class C3dNodeRes {
  public:
   C3dNodeRes();
 

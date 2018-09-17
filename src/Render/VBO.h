@@ -15,7 +15,7 @@ class CGlVBO {
     element_size_ = sizeof(T);
   }
 
-  void SetData(const void* data, int size);
+  void SetData(const void* data, size_t size);
   void SetSubData(int offset, const void* data, int size);
   void Bind();
   void Unbind();

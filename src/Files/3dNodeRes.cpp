@@ -107,7 +107,7 @@ void C3dNodeRes::Load(uint16_t version, CFile& file) {
 void C3dNodeRes::FetchChildren(
     const std::map<std::string, std::shared_ptr<C3dNodeRes>>& nodes) {
   for (auto node : nodes) {
-    if (node.second != shared_from_this() && node.second->parentname == name) {
+    if (node.second.get() != this && node.second->parentname == name) {
       node.second->parent = this;
       children.push_back(node.second);
     }
@@ -239,15 +239,16 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
     vbo->SetVertexFormat<VertexP3T2N3>();
 
     // Sort vertices by texture
-    std::unordered_map<uint16_t, std::vector<VertexP3T2N3>> verts_by_texid;
+    std::unordered_map<int32_t, std::vector<VertexP3T2N3>> verts_by_texid;
     for (size_t i = 0; i < faces.size(); i++) {
+      const auto tex_id = textures[faces[i].tex_id];
       for (size_t v = 0; v < 3; v++) {
         const glm::vec3 normal = glm::normalize(
             glm::cross(vertices[faces[i].vertex_id[1]].position -
                            vertices[faces[i].vertex_id[0]].position,
                        vertices[faces[i].vertex_id[2]].position -
                            vertices[faces[i].vertex_id[0]].position));
-        verts_by_texid[faces[i].tex_id].push_back(
+        verts_by_texid[tex_id].push_back(
             {vertices[faces[i].vertex_id[v]].position,
              tex_vertices[faces[i].tex_vertex_id[v]].position, normal});
       }
@@ -275,8 +276,14 @@ void C3dNodeRes::Render(const C3dActor* model, const glm::mat4& matrix) {
     render_block->vbo = vbo;
     render_block->vbo_first_item = vbo_index.first;
     render_block->vbo_item_count = vbo_index.count;
-    render_block->gl_texture_id =
-        model->GetTexture(vbo_index.texture_id)->texture_id();
+
+    const auto texture = model->GetTexture(vbo_index.texture_id);
+    if (texture != nullptr) {
+      render_block->gl_texture_id = texture->texture_id();
+    } else {
+      render_block->gl_texture_id = 0;
+    }
+
     g_Renderer->AddWorldRenderBlock(render_block);
   }
 

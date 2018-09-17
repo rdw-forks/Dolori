@@ -65,7 +65,7 @@ bool CActRes::Load(const std::string& filename) {
     fp.Read(&motion_count, sizeof(motion_count));
     cur_action->Create(motion_count);
 
-    for (int j = 0; j < motion_count; j++) {
+    for (uint32_t j = 0; j < motion_count; j++) {
       CMotion* cur_motion = cur_action->GetMotion(j);
       uint32_t sprite_count;
 
@@ -78,7 +78,7 @@ bool CActRes::Load(const std::string& filename) {
 
       cur_motion->spr_clips.resize(sprite_count);
 
-      for (int k = 0; k < sprite_count; k++) {
+      for (uint32_t k = 0; k < sprite_count; k++) {
         SPR_CLIP* cur_clip = &cur_motion->spr_clips[k];
 
         fp.Read(&cur_clip->x, 4);
@@ -162,8 +162,7 @@ bool CActRes::Load(const std::string& filename) {
   return true;
 }
 
-CMotion* CActRes::GetMotion(unsigned int act_index,
-                            unsigned int mot_index) {
+CMotion* CActRes::GetMotion(unsigned int act_index, unsigned int mot_index) {
   if (act_index < m_actions.size()) {
     return m_actions[act_index].GetMotion(mot_index);
   }

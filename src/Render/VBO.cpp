@@ -11,7 +11,7 @@ CGlVBO::~CGlVBO() {
 
 int CGlVBO::size() const { return size_; }
 
-void CGlVBO::SetData(const void* data, int size) {
+void CGlVBO::SetData(const void* data, size_t size) {
   size_ = size;
   Bind();
   glBufferData(GL_ARRAY_BUFFER, element_size_ * size, data, GL_DYNAMIC_DRAW);
