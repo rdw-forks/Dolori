@@ -190,6 +190,7 @@ class CUIWindowMgr {
   int ProcessInput();
   int ErrorMsg(const std::string &msg, int type, int isDefYes, int changeMsg,
                unsigned int autoReturnTime);
+  void SetCurScreen(int cur_screen);
 
  private:
   int m_chatWndX;

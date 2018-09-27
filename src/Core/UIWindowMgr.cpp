@@ -2,6 +2,7 @@
 
 #include "Common/Globals.h"
 #include "Common/debug.h"
+#include "UI/UIMakeCharWnd.h"
 #include "UI/UINoticeConfirmWnd.h"
 #include "UI/UISelectServerWnd.h"
 
@@ -83,7 +84,6 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
       break;
     case WID_SELECTSERVERWND: {
       CUISelectServerWnd *wnd = new CUISelectServerWnd();
-      // wnd->Create(280, 200);
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300) - 80);
       AddWindow(wnd);
@@ -95,6 +95,13 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
       m_selectCharWnd->Move(UIX(33), UICY(1) + 65);
       AddWindow(m_selectCharWnd);
       result = m_selectCharWnd;
+    } break;
+    case WID_MAKECHARWND: {
+      auto makeCharWnd = new CUIMakeCharWnd();
+      makeCharWnd->Create(576, 342);
+      makeCharWnd->Move(UIX(33), UICY(1) + 65);
+      AddWindow(makeCharWnd);
+      result = makeCharWnd;
     } break;
   };
 
@@ -302,4 +309,18 @@ int CUIWindowMgr::ErrorMsg(const std::string &msg, int type, int isDefYes,
   LOG(error, "{}", msg);
 
   return 0;
+}
+
+void CUIWindowMgr::SetCurScreen(int cur_screen) {
+  switch (cur_screen) {
+    case 110:
+      // MakeSaveFileName(0);
+      break;
+    case 111:
+      MakeWindow(WID_MAKECHARWND);
+      break;
+    case 120:
+      // MakeSaveFileName(1);
+      break;
+  }
 }

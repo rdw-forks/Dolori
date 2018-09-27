@@ -86,7 +86,9 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
           m_next_sub_mode = 9;
           break;
         case 10006:
-          if (m_sub_mode != 7) break;
+          if (m_sub_mode != 7) {
+            break;
+          }
           // g_WindowMgr->RemoveAllWindows();
           g_RagConnection->Disconnect();
           m_next_sub_mode = 6;
@@ -100,6 +102,9 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
     case LMM_CONNECT_TO_ACSVR:
       // TODO: Multiple acc servers
       m_next_sub_mode = 4;
+      break;
+    case LMM_SENDCHARINFO:
+      m_next_sub_mode = 10;
       break;
     case LMM_PASSWORD:
       if (val1) {
@@ -207,9 +212,9 @@ void CLoginMode::OnChangeState(int state) {
     } break;
     case 1:
       break;
-    // Account server selection window
     case 2:
       // TODO
+      // Account server selection window
       // if (!InitAccountInfo())
       // SendMsg(30, 0, 0, 0);
       m_next_sub_mode = 3;
@@ -246,19 +251,47 @@ void CLoginMode::OnChangeState(int state) {
       }
     } break;
     case 7:
+      // Select char
       g_WindowMgr->MakeWindow(WID_SELECTCHARWND);
       break;
+    case 8:
+      // Create char
+      g_WindowMgr->MakeWindow(WID_MAKECHARWND);
+      break;
     case 9: {
-      PACKET_CH_SELECT_CHAR packet;
-      int packet_size;
+      PACKET_CH_SELECT_CHAR packet = {};
 
       packet.header = HEADER_CH_SELECT_CHAR;
       packet.char_num = m_selected_char;
-      packet_size = g_RagConnection->GetPacketSize(HEADER_CH_SELECT_CHAR);
-      g_RagConnection->SendPacket(packet_size, (char *)&packet);
+      const int packet_size =
+          g_RagConnection->GetPacketSize(HEADER_CH_SELECT_CHAR);
+      g_RagConnection->SendPacket(packet_size,
+                                  reinterpret_cast<char *>(&packet));
       // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
       // v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
       // UIWaitWnd::SetMsg(v127, v128, 16, 1);
+    } break;
+    case 10: {
+      // Send create char request
+      PACKET_CH_MAKE_CHAR packet = {};
+
+      packet.header = HEADER_CH_MAKE_CHAR;
+      packet.char_slot = m_selected_char;
+      strncpy(packet.name, g_Session->GetCharName(), sizeof(packet.name));
+      // TODO: replace with actual values
+      packet.head_color = 1;
+      packet.head_style = 1;
+      packet.str = 5;
+      packet.agi = 5;
+      packet.vit = 5;
+      packet.int_ = 5;
+      packet.dex = 5;
+      packet.luk = 5;
+
+      const int packet_size =
+          g_RagConnection->GetPacketSize(HEADER_CH_MAKE_CHAR);
+      g_RagConnection->SendPacket(packet_size,
+                                  reinterpret_cast<char *>(&packet));
     } break;
     case 12:
       return ConnectToZoneServer();

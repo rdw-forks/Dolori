@@ -99,10 +99,14 @@ void CUIEditCtrl::OnFinishEdit() {
 
 void CUIEditCtrl::RefreshText() { m_text = g_Language->GetLanguageText(); }
 
-const char* CUIEditCtrl::GetText() {
+const std::string& CUIEditCtrl::GetText() {
   if (g_WindowMgr->GetFocusEdit() == this) {
     RefreshText();
   }
 
-  return m_text.c_str();
+  return m_text;
 }
+
+size_t CUIEditCtrl::GetTextSize() const { return m_text.length(); }
+
+void CUIEditCtrl::SetTextLimit(size_t max) { m_maxchar = max; }

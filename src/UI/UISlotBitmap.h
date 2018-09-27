@@ -5,8 +5,7 @@
 
 class CUISlotBitmap : public CUIStaticBitmap {
  public:
-  CUISlotBitmap(int slot_id);
-  ~CUISlotBitmap();
+  CUISlotBitmap(size_t slot_id);
 
   void OnLBtnDown(int x, int y);
   void* SendMsg(CUIWindow* sender, int message, void* val1 = nullptr,
@@ -14,7 +13,7 @@ class CUISlotBitmap : public CUIStaticBitmap {
                 void* val4 = nullptr);
 
  private:
-  int m_slot_id;
+  size_t m_slot_id;
 };
 
 // class UISlotBitmap {

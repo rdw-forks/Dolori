@@ -107,8 +107,8 @@ void CSession::InvalidateBasicWnd() {
 
 void CSession::InitPcNameTable() {
   // Jobs
-  m_newPcJobNameTable[0] = "초보자";     // Novice
-  m_newPcJobNameTable[1] = "검사";       // Swordman
+  m_newPcJobNameTable[0] = "초보자";  // Novice
+  m_newPcJobNameTable[1] = "검사";    // Swordman
   // m_newPcJobNameTable[2] = "";           // Mage
   m_newPcJobNameTable[3] = "마법사";     // Magician
   m_newPcJobNameTable[4] = "궁수";       // Archer
@@ -184,6 +184,8 @@ void CSession::InitJobNameTable() {
   // TODO: Babies
   m_jobNameTable[4218] = "Summoner";
 }
+
+const char *CSession::GetCharName() const { return m_char_name.c_str(); }
 
 const char *CSession::GetJobName(int job) { return m_jobNameTable[job]; }
 

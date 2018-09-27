@@ -1363,7 +1363,7 @@ struct PACKET_CH_SELECT_CHAR {
 
 struct PACKET_CH_MAKE_CHAR {
   unsigned short header;
-  unsigned char name[24];
+  char name[24];
   unsigned char str;
   unsigned char agi;
   unsigned char vit;

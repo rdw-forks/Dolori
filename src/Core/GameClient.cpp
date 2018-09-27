@@ -83,8 +83,8 @@ bool GameClient::Initialize() {
 }
 
 void GameClient::Run() {
-  // g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-  g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
+  g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
+  // g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
 }
 
 bool GameClient::LoadConfiguration(const std::string& file_name) {

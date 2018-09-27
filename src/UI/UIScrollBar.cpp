@@ -214,8 +214,8 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
           return;
         button_drag =
             (m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end - m_deltaDrag;
-        m_deltaDrag +=
-            (size_t)m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0);
+        m_deltaDrag += reinterpret_cast<int>(
+            m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0));
         return;
       } else {
         pos_scroll_end = m_h - 3 * m_scrollBtnSize;
@@ -223,8 +223,8 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
             m_deltaDrag) {
           button_drag = (m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end -
                         m_deltaDrag;
-          m_deltaDrag +=
-              (size_t)m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0);
+          m_deltaDrag += reinterpret_cast<int>(
+              m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0));
           return;
         }
       }
@@ -240,20 +240,35 @@ int CUIScrollBar::HitTest(int x, int y) {
   if (y >= m_h) return -1;
 
   if (m_isVert) {
-    if (y < m_scrollBtnSize) return 0;
-    if (y < m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
-      return 1;
+    if (y < m_scrollBtnSize) {
+      return 0;
+    }
+
     if (y <
-        2 * m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
-      return 2;
-    return (y >= m_h - m_scrollBtnSize) + 3;
-  } else {
-    if (x < m_scrollBtnSize) return 0;
-    if (x < m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
+        m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
       return 1;
-    if (x <
-        2 * m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
+    }
+
+    if (y < 2 * m_scrollBtnSize +
+                (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
       return 2;
-    return (x >= m_w - m_scrollBtnSize) + 3;
+    }
+
+    return (y >= m_h - m_scrollBtnSize) + 3;
   }
+
+  if (x < m_scrollBtnSize) {
+    return 0;
+  }
+
+  if (x < m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
+    return 1;
+  }
+
+  if (x <
+      2 * m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
+    return 2;
+  }
+
+  return (x >= m_w - m_scrollBtnSize) + 3;
 }

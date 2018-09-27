@@ -26,6 +26,7 @@ class CSession {
   void InvalidateBasicWnd();
   void InitPcNameTable();
   void InitJobNameTable();
+  const char *GetCharName() const;
   const char *GetJobName(int job);
   char *GetJobActName(int job, int sex, char *buf);
   char *GetJobSprName(int job, int sex, char *buf);

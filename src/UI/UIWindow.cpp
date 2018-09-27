@@ -1,7 +1,10 @@
 #include "UI/UIWindow.h"
 
+#include <algorithm>
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 
 CUIWindow::CUIWindow()
     : m_parent(),
@@ -77,15 +80,15 @@ void CUIWindow::AddChild(CUIWindow* wnd) {
 }
 
 void CUIWindow::RemoveChild(CUIWindow* window) {
-  for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-    if (*it == window) {
-      m_children.erase(it);
-    }
+  if (window == nullptr) {
+    return;
   }
 
-  if (window) {
-    delete window;
-  }
+  m_children.erase(
+      std::remove_if(std::begin(m_children), std::end(m_children),
+                     [window](CUIWindow* child) { return child == window; }));
+
+  delete window;
 }
 
 bool CUIWindow::IsChildOf(CUIWindow* wnd) const {
@@ -235,7 +238,13 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
     return;
   }
 
-  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
+  const std::string font_name = "arial.ttf";
+  TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
+  if (font == nullptr) {
+    LOG(error, "Cannot get font '{}'", font_name);
+    return;
+  }
+
   const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
@@ -256,7 +265,13 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
     return;
   }
 
-  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
+  const std::string font_name = "arial.ttf";
+  TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
+  if (font == nullptr) {
+    LOG(error, "Cannot get font '{}'", font_name);
+    return;
+  }
+
   const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
@@ -274,14 +289,24 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
                                    size_t textLen, uint32_t colorText,
                                    uint32_t colorOutline, int fontType,
                                    int fontHeight, bool bold) {
+  if (!text) {
+    return;
+  }
+
+  const std::string font_name = "arial.ttf";
+  TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
+  if (font == nullptr) {
+    LOG(error, "Cannot get font '{}'", font_name);
+    return;
+  }
+
+  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
+                           static_cast<Uint8>((colorText >> 8) & 0xFF),
+                           static_cast<Uint8>(colorText & 0xFF)};
   const SDL_Color color_outline = {
       static_cast<Uint8>((colorOutline >> 16) & 0xFF),
       static_cast<Uint8>((colorOutline >> 8) & 0xFF),
       static_cast<Uint8>(colorOutline & 0xFF)};
-  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
-                           static_cast<Uint8>((colorText >> 8) & 0xFF),
-                           static_cast<Uint8>(colorText & 0xFF)};
-  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
 
   TTF_SetFontOutline(font, 1);
   SDL_Surface* bg_surface = TTF_RenderText_Blended(font, text, color_outline);
