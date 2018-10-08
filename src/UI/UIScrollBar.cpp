@@ -214,7 +214,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
           return;
         button_drag =
             (m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end - m_deltaDrag;
-        m_deltaDrag += reinterpret_cast<ssize_t>(
+        m_deltaDrag += reinterpret_cast<int>(
             m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0));
         return;
       } else {
@@ -223,7 +223,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
             m_deltaDrag) {
           button_drag = (m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end -
                         m_deltaDrag;
-          m_deltaDrag += reinterpret_cast<ssize_t>(
+          m_deltaDrag += reinterpret_cast<int>(
               m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0));
           return;
         }

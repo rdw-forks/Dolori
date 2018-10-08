@@ -1,6 +1,8 @@
 #ifndef DOLORI_UI_UISCROLLBAR_H_
 #define DOLORI_UI_UISCROLLBAR_H_
 
+#include <cstdint>
+
 #include "UI/UIWindow.h"
 
 class CUIScrollBar : public CUIWindow {
@@ -31,7 +33,7 @@ class CUIScrollBar : public CUIWindow {
   bool m_isVert;
   int m_startDragX;
   int m_startDragY;
-  ssize_t m_deltaDrag;
+  int m_deltaDrag;
   size_t m_parentNumItem;
   size_t m_parentnumCanDisplayItem;
   int m_scrollBtnSize;

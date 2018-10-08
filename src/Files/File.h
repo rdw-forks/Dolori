@@ -1,6 +1,7 @@
 #ifndef DOLORI_FILES_FILE_H_
 #define DOLORI_FILES_FILE_H_
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -13,7 +14,7 @@ class CFile {
   static bool IsFileExist(const char *fName);
   bool Open(const std::string &, int);
   bool Read(void *buffer, size_t nCount);
-  bool Seek(long lOff, size_t nFrom);
+  bool Seek(intmax_t lOff, size_t nFrom);
   bool Write(const void *, size_t);
   void Close();
   const std::string &GetFileName() const;

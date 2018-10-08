@@ -106,7 +106,7 @@ bool CFile::Read(void* buffer, size_t nCount) {
   return false;
 }
 
-bool CFile::Seek(ssize_t lOff, size_t nFrom) {
+bool CFile::Seek(intmax_t lOff, size_t nFrom) {
   if (m_fileStream.is_open()) {
     switch (nFrom) {
       case SEEK_SET:
