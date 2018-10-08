@@ -78,7 +78,7 @@ class CLoginMode : public CMode {
   void Zc_Accept_Enter(const char *);
   void Zc_Accept_Enter2(const char *buffer);
   void Hc_Notify_Zonesvr(const char *);
-  void Zc_Refuse_Enter(const char *buf);
+  void Zc_Refuse_Enter(const char *buffer);
 
  private:
   void MakeLoginWindow();

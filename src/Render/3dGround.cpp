@@ -67,6 +67,8 @@ C3dGround::C3dGround()
       m_wave_height(1.0f),
       m_water_tex(),
       m_p_bump_map(),
+      m_water_cnt(),
+      m_water_offset(),
       m_is_new_ver() {}
 
 C3dGround::~C3dGround() {}
@@ -409,7 +411,7 @@ void C3dGround::Render(glm::mat4 *wtm, RECT *area, bool need_clip) {
   glEnableVertexAttribArray(tex_coord_attrib);
   glEnableVertexAttribArray(lm_coord_attrib);
 
-  glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 7 * 4, 0);
+  glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 7 * 4, nullptr);
   glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 7 * 4,
                         reinterpret_cast<void *>(3 * 4));
   glVertexAttribPointer(lm_coord_attrib, 2, GL_FLOAT, GL_FALSE, 7 * 4,

@@ -1,6 +1,6 @@
 #include "Render/VBO.h"
 
-CGlVBO::CGlVBO() : size_() { glGenBuffers(1, &id_); }
+CGlVBO::CGlVBO() : element_size_(), size_() { glGenBuffers(1, &id_); }
 
 CGlVBO::~CGlVBO() {
   if (id_ != 0) {

@@ -93,9 +93,42 @@ CRenderer::CRenderer()
     : m_view_matrix(),
       m_surface_program(),
       m_surface_vbo(),
-      m_surfaces_list(),
+      m_world_light_info(),
+      m_hpc(),
+      m_vpc(),
+      m_hratio(),
+      m_vratio(),
+      m_aspectRatio(),
+      m_screenXFactor(),
+      m_screenYFactor(),
+      m_xoffset(),
+      m_yoffset(),
+      m_width(),
+      m_height(),
+      m_halfWidth(),
+      m_halfHeight(),
+      m_curFrame(),
+      m_bRGBBitCount(),
       m_fpsFrameCount(),
       m_fpsStartTick(),
+      m_isFoggy(),
+      m_fogChanged(),
+      m_isVertexFog(),
+      m_oldTexture(),
+      m_oldLmapTexture(),
+      m_guardBandLeft(),
+      m_guardBandRight(),
+      m_guardBandTop(),
+      m_guardBandBottom(),
+      m_isShowInfo(),
+      m_eyeVector(),
+      m_nClearColor(),
+      m_dwScreenWidth(),
+      m_dwScreenHeight(),
+      m_pf(),
+      m_lpSurfacePtr(),
+      m_lPitch(),
+      m_surfaces_list(),
       m_render_blocks_pool(),
       m_world_render_list() {
   m_render_blocks_cursor = std::begin(m_render_blocks_pool);
@@ -214,16 +247,16 @@ void CRenderer::Flip() {
 }
 
 void CRenderer::FlushRenderList() {
-  // TODO: Separate render of opaque and transparent faces to fix blending /
-  // depth issue
+  // TODO(LinkZ): Separate render of opaque and transparent faces to fix
+  // blending / depth issue
   FlushWorldRenderList();
 
   // Render 2D surfaces
   FlushSurfacesList();
 }
 
-void CRenderer::AddSurface(CSurface* surface, const RECT& position) {
-  m_surfaces_list.push_back(std::make_pair(surface, position));
+void CRenderer::AddSurface(const RenderBlock2d& render_block) {
+  m_surfaces_list.push_back(render_block);
 }
 
 void CRenderer::AddWorldRenderBlock(RenderBlock3d* render_block) {
@@ -232,11 +265,11 @@ void CRenderer::AddWorldRenderBlock(RenderBlock3d* render_block) {
 
 void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
                               unsigned int color) {
-  if (!(color & 0xFF000000)) {
+  if ((color & 0xFF000000) == 0u) {
     return;
   }
 
-  // TODO: Render unicolor surface
+  // TODO(LinkZ): Render unicolor surface
 }
 
 // CTexture* CRenderer::AddSpriteIndex(SPR_IMG* img, uint32_t* pal,
@@ -466,7 +499,7 @@ void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
 RenderBlock3d* CRenderer::BorrowRenderBlock() {
   if (m_render_blocks_cursor != std::cend(m_render_blocks_pool)) {
     auto result = m_render_blocks_cursor->get();
-    m_render_blocks_cursor++;
+    m_render_blocks_cursor = std::next(m_render_blocks_cursor);
 
     return result;
   }
@@ -539,7 +572,8 @@ void CRenderer::FlushWorldRenderList() {
 
     glUniformMatrix4fv(nodeview_id, 1, GL_FALSE, render_block->nodeview_matrix);
 
-    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4, 0);
+    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4,
+                          nullptr);
     glVertexAttribPointer(tex_coords_attrib, 2, GL_FLOAT, GL_FALSE, 8 * 4,
                           reinterpret_cast<void*>(3 * 4));
     glVertexAttribPointer(normal_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4,
@@ -569,7 +603,7 @@ void CRenderer::FlushSurfacesList() {
   glEnableVertexAttribArray(position_attrib);
   glEnableVertexAttribArray(tex_coord_attrib);
 
-  glVertexAttribPointer(position_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4, 0);
+  glVertexAttribPointer(position_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4, nullptr);
   glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4,
                         reinterpret_cast<void*>(2 * 4));
 
@@ -582,24 +616,21 @@ void CRenderer::FlushSurfacesList() {
 
   glActiveTexture(GL_TEXTURE0);
 
-  for (const auto& pair : m_surfaces_list) {
-    const auto surface = pair.first;
-    const auto position = pair.second;
-
+  for (const auto& render_block : m_surfaces_list) {
+    const float x = render_block.position.x;
+    const float y = render_block.position.y;
     const VertexP2T2 vertices[6] = {
-        {position.left + position.right, position.top + position.bottom, 1.f,
-         1.f},
-        {position.left + position.right, position.top, 1.f, 0.f},
-        {position.left, position.top, 0.f, 0.f},
-        {position.left, position.top, 0.f, 0.f},
-        {position.left, position.top + position.bottom, 0.f, 1.f},
-        {position.left + position.right, position.top + position.bottom, 1.f,
-         1.f}};
+        {x + render_block.width, y + render_block.height, 1.f, 1.f},
+        {x + render_block.width, y, 1.f, 0.f},
+        {x, y, 0.f, 0.f},
+        {x, y, 0.f, 0.f},
+        {x, y + render_block.height, 0.f, 1.f},
+        {x + render_block.width, y + render_block.height, 1.f, 1.f}};
 
     m_surface_vbo.SetData(vertices, 6);
     m_surface_vbo.Bind();
 
-    surface->Bind(GL_TEXTURE_2D);
+    render_block.surface->Bind(GL_TEXTURE_2D);
 
     glDrawArrays(GL_TRIANGLES, 0, m_surface_vbo.size());
   }

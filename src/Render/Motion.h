@@ -32,10 +32,9 @@ typedef struct SPR_CLIP {
 class CMotion {
  public:
   CMotion();
-  ~CMotion();
 
-  int NumberOfClips();
-  SPR_CLIP* GetClip(unsigned int clip_number);
+  int NumberOfClips() const;
+  const SPR_CLIP* GetClip(unsigned int clip_number) const;
 
  public:
   RECT range1;

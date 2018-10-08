@@ -13,7 +13,6 @@
 class CUISelectCharWnd : public CUIFrameWnd {
  public:
   CUISelectCharWnd();
-  ~CUISelectCharWnd();
 
   void OnCreate(int cx, int cy) override;
   void OnLBtnDown(int x, int y) override;

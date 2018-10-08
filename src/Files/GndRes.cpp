@@ -108,7 +108,8 @@ const GndSurfaceFmt& CGndRes::GetSurface(size_t index) {
     return m_surfaces[index];
   }
 
-  return {};
+  static const GndSurfaceFmt empty_surface = {};
+  return empty_surface;
 }
 
 const GndCellFmt& CGndRes::GetCell(unsigned int x, unsigned int y) {
@@ -117,7 +118,8 @@ const GndCellFmt& CGndRes::GetCell(unsigned int x, unsigned int y) {
     return m_cells[index];
   }
 
-  return {};
+  static const GndCellFmt empty_cell = {};
+  return empty_cell;
 }
 
 const std::string& CGndRes::GetTextureName(size_t texture_id) {
@@ -125,7 +127,8 @@ const std::string& CGndRes::GetTextureName(size_t texture_id) {
     return m_tex_name_table[texture_id];
   }
 
-  return {};
+  static const std::string empty_texture_name = {};
+  return empty_texture_name;
 }
 
 const std::vector<std::string>& CGndRes::GetTextureNameTable() const {

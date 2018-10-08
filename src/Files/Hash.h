@@ -4,8 +4,7 @@
 class CHash {
  public:
   CHash();
-  CHash(const char*);
-  ~CHash();
+  explicit CHash(const char*);
 
   void SetString(const char*);
   const char* GetString() const;

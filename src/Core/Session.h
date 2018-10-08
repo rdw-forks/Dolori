@@ -1,7 +1,6 @@
 #ifndef DOLORI_CORE_SESSION_H_
 #define DOLORI_CORE_SESSION_H_
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <list>
 #include <map>
 #include <string>
@@ -10,7 +9,7 @@
 class CSession {
  public:
   CSession();
-  ~CSession();
+
   void Init();
   bool Create();
 
@@ -27,12 +26,12 @@ class CSession {
   void InitPcNameTable();
   void InitJobNameTable();
   const char *GetCharName() const;
-  const char *GetJobName(int job);
-  char *GetJobActName(int job, int sex, char *buf);
-  char *GetJobSprName(int job, int sex, char *buf);
-  char *GetHeadActName(int job, unsigned short head, int sex, char *buf);
-  char *GetHeadSprName(int job, unsigned short head, int sex, char *buf);
-  char *GetImfName(int job, int head, int sex, char *buf);
+  const char *GetJobName(unsigned int job) const;
+  std::string GetJobActName(int job, int sex) const;
+  std::string GetJobSprName(int job, int sex);
+  char *GetHeadActName(uint16_t head, int sex, char *buf);
+  char *GetHeadSprName(uint16_t head, int sex, char *buf);
+  std::string GetImfName(int job, int sex);
   bool IsMasterAid(uint32_t);
 
  private:

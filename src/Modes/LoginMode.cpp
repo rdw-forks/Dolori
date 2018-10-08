@@ -46,7 +46,7 @@ void CLoginMode::OnInit(const char *mode_name) {
 }
 
 int CLoginMode::OnRun() {
-  while (m_loop_cond && !g_sys_quit) {
+  while (GetLoopCond() && !g_sys_quit) {
     if (true /*!dword_7687C8*/) {
       if (m_next_sub_mode != -1) {
         m_sub_mode = m_next_sub_mode;
@@ -70,7 +70,7 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
 
   switch (messageId) {
     case MM_COMMAND: {
-      size_t command_id = reinterpret_cast<size_t>(val1);
+      const size_t command_id = reinterpret_cast<size_t>(val1);
 
       switch (command_id) {
         case 10004:
@@ -100,32 +100,34 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
       m_next_sub_mode = 3;
       break;
     case LMM_CONNECT_TO_ACSVR:
-      // TODO: Multiple acc servers
+      // TODO(LinkZ): Multiple acc servers
       m_next_sub_mode = 4;
       break;
     case LMM_SENDCHARINFO:
       m_next_sub_mode = 10;
       break;
     case LMM_PASSWORD:
-      if (val1) {
-        strncpy(m_userPassword, (char *)val1, sizeof(m_userPassword));
+      if (val1 != nullptr) {
+        strncpy(m_userPassword, reinterpret_cast<const char *>(val1),
+                sizeof(m_userPassword));
       }
       break;
     case LMM_ID:
-      if (val1) {
-        strncpy(m_userId, (char *)val1, sizeof(m_userId));
+      if (val1 != nullptr) {
+        strncpy(m_userId, reinterpret_cast<const char *>(val1),
+                sizeof(m_userId));
       }
       break;
     case LMM_GOTOSELECTACCOUNT: {
-      size_t val = (size_t)val2;
+      const size_t val = reinterpret_cast<size_t>(val2);
       if (val == 135) {
-        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT, 0, 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT);
       } else {
         m_next_sub_mode = 2;
       }
     } break;
     case LMM_SELECTSVR: {
-      m_serverSelected = (size_t)val1;
+      m_serverSelected = reinterpret_cast<size_t>(val1);
       if (m_serverSelected == -1) {
         break;
       }
@@ -137,7 +139,7 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
       m_next_sub_mode = 5;
     } break;
     case MM_QUERYCHARICTORINFO: {
-      size_t char_num = (size_t)val1;
+      const size_t char_num = reinterpret_cast<size_t>(val1);
       if (m_num_char <= 0 || char_num >= m_num_char) {
         return nullptr;
       }
@@ -207,7 +209,7 @@ void CLoginMode::OnChangeState(int state) {
           g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND));
       if (wnd) {
         wnd->SendMsg(nullptr, WM_SET_ACTION_BUTTON_OK,
-                     (void *)LMM_GOTOSELECTACCOUNT, 0, 0, 0);
+                     (void *)LMM_GOTOSELECTACCOUNT);
       }
     } break;
     case 1:
@@ -232,10 +234,13 @@ void CLoginMode::OnChangeState(int state) {
 
       wnd = static_cast<CUISelectServerWnd *>(
           g_WindowMgr->MakeWindow(WID_SELECTSERVERWND));
-      if (wnd) {
-        wnd->SendMsg(nullptr, WM_SET_ACTION_BUTTON_OK, (void *)LMM_SELECTSVR,
-                     nullptr, 0, 0);
+      if (wnd == nullptr) {
+        LOG(error, "Cannot create server selection window");
+        return;
       }
+
+      wnd->SendMsg(nullptr, WM_SET_ACTION_BUTTON_OK, (void *)LMM_SELECTSVR,
+                   nullptr, 0, 0);
 
       if (m_numServer < 0) {
         wnd->SendMsg(nullptr, 40, 0, 0, 0, 0);
@@ -474,7 +479,7 @@ void CLoginMode::PollNetworkStatus() {
 
   int size_of_buffer;
   while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
-    const short packet_type = g_RagConnection->GetPacketType(buffer);
+    const int16_t packet_type = g_RagConnection->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_AC_ACCEPT_LOGIN:
         Ac_Accept_Login(buffer);
@@ -551,8 +556,7 @@ void CLoginMode::PollNetworkStatus() {
 }
 
 void CLoginMode::Ac_Accept_Login(const char *buffer) {
-  struct PACKET_AC_ACCEPT_LOGIN *packet =
-      (struct PACKET_AC_ACCEPT_LOGIN *)buffer;
+  auto packet = reinterpret_cast<const PACKET_AC_ACCEPT_LOGIN *>(buffer);
   char sex;
 
   m_authCode = packet->auth_code;
@@ -577,8 +581,7 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
 }
 
 void CLoginMode::Ac_Refuse_Login(const char *buffer) {
-  struct PACKET_AC_REFUSE_LOGIN *packet =
-      (struct PACKET_AC_REFUSE_LOGIN *)buffer;
+  auto packet = reinterpret_cast<const PACKET_AC_REFUSE_LOGIN *>(buffer);
   std::string msg;
 
   if (packet->error_code != 18) {
@@ -597,7 +600,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
       break;
     case 5:
       msg = g_MsgStrMgr->GetMsgStr(MSI_INVALID_VERSION);
-      SendMsg(MM_QUIT, 0, 0, 0);
+      SendMsg(MM_QUIT);
       break;
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
@@ -608,8 +611,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
 void CLoginMode::CheckExeHashFromAccServer() {}
 
 void CLoginMode::Hc_Accept_Enter(const char *buffer) {
-  struct PACKET_HC_ACCEPT_ENTER *packet =
-      (struct PACKET_HC_ACCEPT_ENTER *)buffer;
+  auto packet = reinterpret_cast<const PACKET_HC_ACCEPT_ENTER *>(buffer);
 
   /*memcpy(&m_billingInfo, 0, sizeof(m_billingInfo));
   m_billingInfo.code = ntohl(m_billingInfo.code);
@@ -622,8 +624,7 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
 }
 
 void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
-  struct PACKET_HC_REFUSE_ENTER *packet =
-      (struct PACKET_HC_REFUSE_ENTER *)buffer;
+  auto packet = reinterpret_cast<const PACKET_HC_REFUSE_ENTER *>(buffer);
   std::string msg;
   int change_msg;
 
@@ -639,8 +640,7 @@ void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
 }
 
 void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
-  struct PACKET_HC_ACCEPT_MAKECHAR *packet =
-      (struct PACKET_HC_ACCEPT_MAKECHAR *)buffer;
+  auto packet = reinterpret_cast<const PACKET_HC_ACCEPT_MAKECHAR *>(buffer);
 
   memcpy(&m_charInfo[m_num_char], &packet->charinfo,
          sizeof(m_charInfo[m_num_char]));
@@ -649,8 +649,7 @@ void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
 }
 
 void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
-  struct PACKET_HC_REFUSE_MAKECHAR *packet =
-      (struct PACKET_HC_REFUSE_MAKECHAR *)buffer;
+  auto packet = reinterpret_cast<const PACKET_HC_REFUSE_MAKECHAR *>(buffer);
   std::string msg;
 
   switch (packet->error_code) {
@@ -698,8 +697,7 @@ void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
 }
 
 void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
-  struct PACKET_HC_REFUSE_DELETECHAR *packet =
-      (struct PACKET_HC_REFUSE_DELETECHAR *)buffer;
+  auto packet = reinterpret_cast<const PACKET_HC_REFUSE_DELETECHAR *>(buffer);
   std::string msg;
 
   if (packet->error_code) {
@@ -719,8 +717,7 @@ void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
 }
 
 void CLoginMode::Zc_Accept_Enter(const char *buffer) {
-  struct PACKET_ZC_ACCEPT_ENTER *packet =
-      (struct PACKET_ZC_ACCEPT_ENTER *)buffer;
+  auto packet = reinterpret_cast<const PACKET_ZC_ACCEPT_ENTER *>(buffer);
   g_Session->SetServerTime(packet->startTime);
   g_Session->SetPlayerPosDir(
       (packet->PosDir[1] >> 6) | 4 * packet->PosDir[0],
@@ -736,18 +733,16 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
 }
 
 void CLoginMode::Zc_Accept_Enter2(const char *buffer) {
-  struct PACKET_ZC_ACCEPT_ENTER2 *packet =
-      (struct PACKET_ZC_ACCEPT_ENTER2 *)buffer;
+  // auto packet = reinterpret_cast<const PACKET_ZC_ACCEPT_ENTER2 *>(buffer);
   Zc_Accept_Enter(buffer);
 }
 
 void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
-  struct PACKET_HC_NOTIFY_ZONESVR *packet =
-      (struct PACKET_HC_NOTIFY_ZONESVR *)buffer;
+  auto packet = reinterpret_cast<const PACKET_HC_NOTIFY_ZONESVR *>(buffer);
   struct in_addr ip;
 
   m_char_id = packet->char_id;
-  m_current_map = reinterpret_cast<char *>(packet->map_name);
+  m_current_map = reinterpret_cast<const char *>(packet->map_name);
   ip.s_addr = packet->addr.ip;
   inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
@@ -756,7 +751,7 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
 }
 
 void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
-  PACKET_ZC_REFUSE_ENTER *packet = (PACKET_ZC_REFUSE_ENTER *)buffer;
+  auto packet = reinterpret_cast<const PACKET_ZC_REFUSE_ENTER *>(buffer);
   std::string msg;
 
   switch (packet->error) {
@@ -769,6 +764,7 @@ void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
+
   g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
   g_RagConnection->Disconnect();
   m_next_sub_mode = 3;

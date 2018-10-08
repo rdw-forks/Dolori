@@ -19,8 +19,8 @@ bool CFile::IsFileExist(const char* fName) {
 bool CFile::Open(const std::string& file_name, int nOpenFlags) {
   bool result;
 
-  if (nOpenFlags) {
-    if (nOpenFlags & 1) {
+  if (nOpenFlags != 0) {
+    if ((nOpenFlags & 1) != 0) {
       m_fileName = file_name;
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
@@ -52,7 +52,7 @@ bool CFile::Open(const std::string& file_name, int nOpenFlags) {
     } else {
       m_buf =
           static_cast<unsigned char*>(g_FileMgr->GetPak(m_fileName, &m_size));
-      if (!m_buf) {
+      if (m_buf == nullptr) {
         if (OpenFromFolder(m_fileName)) {
           return true;
         }
@@ -78,7 +78,7 @@ bool CFile::OpenFromFolder(const std::string& filename) {
 
     if (m_size != 0) {
       m_buf = new uint8_t[m_size];
-      if (m_buf) {
+      if (m_buf != nullptr) {
         m_fileStream.read(reinterpret_cast<char*>(m_buf), m_size);
         m_fileStream.close();
         return true;
@@ -97,7 +97,7 @@ bool CFile::Read(void* buffer, size_t nCount) {
     return (m_fileStream.gcount() == nCount);
   }
 
-  if (m_buf && m_cursor + nCount <= m_size) {
+  if (m_buf != nullptr && m_cursor + nCount <= m_size) {
     memcpy(buffer, &m_buf[m_cursor], nCount);
     m_cursor += nCount;
     return true;
@@ -106,7 +106,7 @@ bool CFile::Read(void* buffer, size_t nCount) {
   return false;
 }
 
-bool CFile::Seek(long lOff, size_t nFrom) {
+bool CFile::Seek(ssize_t lOff, size_t nFrom) {
   if (m_fileStream.is_open()) {
     switch (nFrom) {
       case SEEK_SET:
@@ -124,7 +124,7 @@ bool CFile::Seek(long lOff, size_t nFrom) {
     return true;
   }
 
-  if (m_buf) {
+  if (m_buf != nullptr) {
     switch (nFrom) {
       case SEEK_SET:
         m_cursor = lOff;
@@ -151,6 +151,7 @@ bool CFile::Write(const void* buffer, size_t nCount) {
 
   if (m_fileStream.is_open()) {
     m_fileStream.write(static_cast<const char*>(buffer), nCount);
+    result = true;
   } else {
     result = false;
   }
@@ -162,7 +163,7 @@ void CFile::Close() {
   if (m_fileStream.is_open()) {
     m_fileStream.close();
     m_fileStream.clear();
-  } else if (m_buf) {
+  } else if (m_buf != nullptr) {
     delete[] m_buf;
     m_buf = nullptr;
   }
@@ -175,7 +176,7 @@ size_t CFile::GetLength() const { return m_size; }
 const unsigned char* CFile::GetBuf() const { return m_buf; }
 
 void CFile::MakeFileName(const std::string& input, std::string& output) {
-  // TODO: Rewrite this method
+  // TODO(LinkZ): Rewrite this method
   output = "data/" + input;
   NormalizeFileName(output, output);
 

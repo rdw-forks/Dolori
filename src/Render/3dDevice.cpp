@@ -11,7 +11,38 @@
 #include "Common/debug.h"
 #include "Render/SurfaceWallpaper.h"
 
-C3dDevice::C3dDevice() {}
+C3dDevice::C3dDevice()
+    : m_sdlWnd(),
+      m_glCtx(),
+      m_dwRenderWidth(),
+      m_dwRenderHeight(),
+      m_bIsFullscreen(),
+      m_pfRShiftR(),
+      m_pfRShiftL(),
+      m_pfGShiftR(),
+      m_pfGShiftL(),
+      m_pfBShiftR(),
+      m_pfBShiftL(),
+      m_pfAShiftR(),
+      m_pfAShiftL(),
+      m_pfBitCount(),
+      m_pfRBitMask(),
+      m_pfGBitMask(),
+      m_pfBBitMask(),
+      m_pfABitMask(),
+      m_dwMinTextureWidth(),
+      m_dwMinTextureHeight(),
+      m_dwMaxTextureWidth(),
+      m_dwMaxTextureHeight(),
+      m_dwMaxTextureAspectRatio(),
+      m_bSupportBltStretch(),
+      m_bSupportTextureSurface(),
+      m_fMaterialDiffuseR(),
+      m_fMaterialDiffuseG(),
+      m_fMaterialDiffuseB(),
+      m_fMaterialAmbientR(),
+      m_fMaterialAmbientG(),
+      m_fMaterialAmbientB() {}
 
 long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
                      uint32_t dwFlags) {
@@ -217,18 +248,13 @@ std::shared_ptr<CSurface> C3dDevice::CreateWallPaper(unsigned int w,
 
 void C3dDevice::ConvertPalette(uint32_t* dest, PALETTE_ENTRY* palette,
                                int pal_count) {
-  PALETTE_ENTRY* current_entry;
-
   for (int i = 0; i < pal_count; i++) {
-    current_entry = &palette[i];
+    PALETTE_ENTRY* const current_entry = &palette[i];
     if (current_entry->peRed == 0xFF && current_entry->peBlue == 0xFF) {
       dest[i] = 0x0;
     } else {
       dest[i] = (0xFF << 24) | (current_entry->peRed) |
                 (current_entry->peGreen << 8) | (current_entry->peBlue << 16);
-      // dest[i] = (current_entry->peBlue >> 3) +
-      //          4 * ((current_entry->peGreen & 0xF8) +
-      //               32 * ((current_entry->peRed & 0xF8) + 256));
     }
   }
 }

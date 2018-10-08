@@ -126,7 +126,7 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
 
         for (int delta_y = -1; delta_y <= 1; delta_y++) {
           for (int delta_x = -1; delta_x <= 1; delta_x++) {
-            const size_t neighbour_i =
+            const int neighbour_i =
                 i + (delta_x * 4) + (delta_y * m_width * 4);
 
             if (neighbour_i < 0 || neighbour_i >= data_size) {

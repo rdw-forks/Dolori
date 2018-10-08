@@ -13,14 +13,14 @@ class CModeMgr {
   CModeMgr();
 
   void Run(ModeType, const char*);
-  void Switch(ModeType modeType, const std::string& modeName);
+  void Switch(ModeType mode_type, const std::string& mode_name);
   void Quit();
-  CMode* GetCurMode();
-  CGameMode* GetGameMode();
-  CLoginMode* GetLoginMode();
+  CMode* GetCurMode() const;
+  CGameMode* GetGameMode() const;
+  CLoginMode* GetLoginMode() const;
 
  private:
-  int m_loop_cond;
+  bool m_loop_cond;
   CMode* m_cur_mode;
   std::string m_cur_mode_name;
   std::string m_next_mode_name;

@@ -26,11 +26,11 @@ CSurface::~CSurface() {
   }
 }
 
-unsigned long CSurface::GetWidth() { return m_w; }
+unsigned long CSurface::GetWidth() const { return m_w; }
 
-unsigned long CSurface::GetHeight() { return m_h; }
+unsigned long CSurface::GetHeight() const { return m_h; }
 
-SDL_Surface *CSurface::GetSDLSurface() { return m_sdl_surface; }
+SDL_Surface *CSurface::GetSDLSurface() const { return m_sdl_surface; }
 
 void CSurface::Create(unsigned long w, unsigned long h) {
   m_w = w;
@@ -142,11 +142,9 @@ void CSurface::BlitSprite(int x, int y, CSprRes *spr_res, CMotion *cur_motion,
   int nb_of_clips = cur_motion->NumberOfClips();
 
   for (int clip_id = 0; clip_id < nb_of_clips; clip_id++) {
-    SPR_CLIP *clip;
-    SPR_IMG *spr_img;
-
-    clip = cur_motion->GetClip(clip_id);
-    spr_img = spr_res->GetSprImg(clip->clip_type, clip->spr_index);
+    const SPR_CLIP *clip = cur_motion->GetClip(clip_id);
+    const SPR_IMG *spr_img =
+        spr_res->GetSprImg(clip->clip_type, clip->spr_index);
     // if (clip_id)
     //{
     //  v9 = clip->x + x - ox;
@@ -170,42 +168,29 @@ void CSurface::ClearSurface(SDL_Rect *rect, uint32_t color) {
 
 void CSurface::DrawSurface(int x, int y, int width, int height,
                            unsigned int color) {
-  int s_width, left, top, s_height;
-  int s_x;
-  int s_y;
-
-  s_x = x;
-  s_width = width;
-  left = 0;
-  top = 0;
-  s_height = height;
-
   if (x + width > g_3dDevice->GetWidth()) {
-    s_width = g_3dDevice->GetWidth() - x;
+    width = g_3dDevice->GetWidth() - x;
   }
 
-  s_y = y;
   if (y + height > g_3dDevice->GetHeight()) {
-    s_height = g_3dDevice->GetHeight() - y;
+    height = g_3dDevice->GetHeight() - y;
   }
 
   if (x < 0) {
-    left = -x;
-    s_x = 0;
+    x = 0;
   }
 
   if (y < 0) {
-    top = -y;
-    s_y = 0;
+    y = 0;
   }
 
-  if (s_width > left && s_height > top) {
-    DrawSurfaceStretch(s_x, s_y, s_width, s_height);
+  if (width > 0 && height > 0) {
+    DrawSurfaceStretch(x, y, width, height);
   }
 }
 
 void CSurface::DrawSurfaceStretch(int x, int y, int width, int height) {
-  g_Renderer->AddSurface(this, {x, y, width, height});
+  g_Renderer->AddSurface({this, {x, y}, width, height});
 }
 
 void CSurface::UpdateGlTexture() {

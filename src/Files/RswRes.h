@@ -33,8 +33,8 @@ class CRswRes : public CRes {
   CRswRes();
   ~CRswRes();
 
-  CRes* Clone();
-  bool Load(const std::string&);
+  CRes* Clone() override;
+  bool Load(const std::string&) override;
 
   const std::string& GetGnd() const;
   const std::string& GetAttr() const;

@@ -33,9 +33,7 @@ CUISelectCharWnd::CUISelectCharWnd()
   }
 }
 
-CUISelectCharWnd::~CUISelectCharWnd() {}
-
-void CUISelectCharWnd::OnCreate(int cx, int cy) {
+void CUISelectCharWnd::OnCreate(int /*cx*/, int /*cy*/) {
   const std::string path_name =
       const_strings::kResourceSubfolder + "login_interface/";
   const std::string box_select = path_name + "box_select.bmp";
@@ -93,12 +91,12 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     m_isEmpty[char_info->char_slot] = false;
     vs->x = 163 * (i % SLOTS_PER_PAGE) + 124;
     vs->y = 157;
-    vs->act_name[0] = g_Session->GetJobActName(job, sex, buffer);
-    vs->spr_name[0] = g_Session->GetJobSprName(job, sex, buffer);
+    vs->act_name[0] = std::move(g_Session->GetJobActName(job, sex));
+    vs->spr_name[0] = std::move(g_Session->GetJobSprName(job, sex));
     vs->act_name[1] =
-        g_Session->GetHeadActName(job, char_info->head_style, sex, buffer);
+        g_Session->GetHeadActName(char_info->head_style, sex, buffer);
     vs->spr_name[1] =
-        g_Session->GetHeadSprName(job, char_info->head_style, sex, buffer);
+        g_Session->GetHeadSprName(char_info->head_style, sex, buffer);
   }
 
   MakeButton(119);
@@ -149,9 +147,8 @@ void CUISelectCharWnd::OnDraw() {
     }
 
     for (int layer = 0; layer < VIEW_SPRITE_LAYERS_COUNT; layer++) {
+      const SPR_CLIP *clip;
       VIEW_SPRITE *vs;
-      CMotion *motion;
-      SPR_CLIP *clip;
       int off_x = 0;
       int off_y = 0;
       SPR_IMG *img;
@@ -165,15 +162,15 @@ void CUISelectCharWnd::OnDraw() {
         continue;
       }
 
-      motion = act->GetMotion(vs->cur_action, vs->cur_motion);
-      if (motion) {
+      const CMotion *motion = act->GetMotion(vs->cur_action, vs->cur_motion);
+      if (motion != nullptr) {
         if (layer == 1) {  // Head
           clip = motion->GetClip(1);
         } else {
           clip = motion->GetClip(0);
         }
 
-        if (!clip || clip->spr_index == -1) {
+        if (clip == nullptr || clip->spr_index == -1) {
           continue;
         }
 
@@ -186,7 +183,7 @@ void CUISelectCharWnd::OnDraw() {
         //}
 
         CSurface *surface = g_Renderer->GetSpriteIndex(img, spr->GetPalette());
-        if (!surface) {
+        if (surface == nullptr) {
           surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
         }
 

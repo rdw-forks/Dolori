@@ -8,10 +8,10 @@
 class CAction {
  public:
   CAction();
-  ~CAction();
 
   void Create(unsigned int motion_count);
-  CMotion* GetMotion(unsigned int motion_number);
+  void SetMotion(size_t motion_id, CMotion motion);
+  const CMotion* GetMotion(size_t motion_id) const;
 
  private:
   std::vector<CMotion> m_motions;

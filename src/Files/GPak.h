@@ -10,7 +10,6 @@
 class CGPak {
  public:
   CGPak();
-  virtual ~CGPak();
 
   bool Open(std::shared_ptr<CMemFile> memfile);
   void Init();

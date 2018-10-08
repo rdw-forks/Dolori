@@ -50,6 +50,13 @@ typedef struct _SurfaceCache {
   uint32_t last_time;
 } SurfaceCache;
 
+typedef struct _RenderBlock2d {
+  CSurface *surface;
+  glm::vec2 position;
+  int width;
+  int height;
+} RenderBlock2d;
+
 class CRenderer {
  public:
   CRenderer();
@@ -67,11 +74,11 @@ class CRenderer {
   bool DrawScene();
   void Flip();
   void FlushRenderList();
-  void AddSurface(CSurface *surface, const RECT &position);
+  void AddSurface(const RenderBlock2d &render_block);
   void AddWorldRenderBlock(RenderBlock3d *render_block);
   void DrawBoxScreen(int, int, int, int, unsigned int);
-  CSurface *AddSpriteIndex(const SPR_IMG *img, const uint32_t *pal_id);
-  CSurface *GetSpriteIndex(const SPR_IMG *img, const uint32_t *pal_id);
+  CSurface *AddSpriteIndex(const SPR_IMG *img, const uint32_t *pal);
+  CSurface *GetSpriteIndex(const SPR_IMG *img, const uint32_t *pal);
   const glm::mat4 &projection_matrix() const;
   const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);
@@ -124,7 +131,7 @@ class CRenderer {
   PIXEL_FORMAT m_pf;
   void *m_lpSurfacePtr;
   long m_lPitch;
-  std::vector<std::pair<CSurface *, RECT>> m_surfaces_list;
+  std::vector<RenderBlock2d> m_surfaces_list;
   std::list<std::unique_ptr<RenderBlock3d>>::iterator m_render_blocks_cursor;
   std::list<std::unique_ptr<RenderBlock3d>> m_render_blocks_pool;
   std::list<RenderBlock3d *> m_world_render_list;

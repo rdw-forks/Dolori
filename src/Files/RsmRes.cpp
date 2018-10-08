@@ -27,7 +27,7 @@ bool CRsmRes::Load(const std::string& file_name) {
   char* buffer;
   CFile fp;
 
-  if (!fp.Open(file_name, false)) {
+  if (!fp.Open(file_name, 0)) {
     LOG(error, "Failed to find file: {}", file_name);
     return false;
   }

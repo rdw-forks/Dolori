@@ -31,7 +31,7 @@ class CUIScrollBar : public CUIWindow {
   bool m_isVert;
   int m_startDragX;
   int m_startDragY;
-  int m_deltaDrag;
+  ssize_t m_deltaDrag;
   size_t m_parentNumItem;
   size_t m_parentnumCanDisplayItem;
   int m_scrollBtnSize;

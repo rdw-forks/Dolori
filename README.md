@@ -34,7 +34,7 @@ Here's what its content might look like:
     "fullscreen": false,
     "window_width": 800,
     "window_height": 600,
-	"vsync": false,
+    "vsync": false,
     "msaa": 4
   },
   "fonts": {

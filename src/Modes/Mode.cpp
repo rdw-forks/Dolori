@@ -10,12 +10,9 @@ CMode::CMode()
       m_loop_cond(true),
       m_isConnected() {}
 
-bool CMode::GetLoopCond() { return m_loop_cond; }
-
-void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }
-
-void* CMode::SendMsg(size_t msg, const void* val1, const void* val2, const void* val3) {
-  void* result = nullptr;
+void* CMode::SendMsg(size_t msg, const void* val1, const void* val2,
+                     const void* val3) {
+  void* result;
 
   switch (msg) {
     case MM_QUIT:
@@ -24,7 +21,13 @@ void* CMode::SendMsg(size_t msg, const void* val1, const void* val2, const void*
     case MM_SCREENSHOT:
       m_screenShotNow = true;
       break;
+    default:
+      result = nullptr;
   };
 
   return result;
 }
+
+bool CMode::GetLoopCond() const { return m_loop_cond; }
+
+void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }

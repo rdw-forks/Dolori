@@ -12,12 +12,12 @@ class CUIEditCtrl : public CUIWindow {
 
   void OnLBtnDown(int x, int y) override;
   void OnDraw() override;
+  void OnBeginEdit() override;
+  void OnFinishEdit() override;
 
   void HideChars(bool);
   void SetFrameColor(int r, int g, int b);
   void DrawEditText();
-  void OnBeginEdit();
-  void OnFinishEdit();
   void RefreshText();
   const std::string& GetText();
   size_t GetTextSize() const;

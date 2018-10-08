@@ -8,21 +8,20 @@
 
 struct ViewInfo3d {
   glm::vec3 at;
-  double latitude;
-  double longitude;
-  double distance;
+  float latitude;
+  float longitude;
+  float distance;
 };
 
 class CView {
  public:
   CView();
-  ~CView();
 
-  void AddLongitude(double delta);
-  void AddLatitude(double delta);
-  void AddDistance(double delta);
+  void AddLongitude(float delta);
+  void AddLatitude(float delta);
+  void AddDistance(float delta);
 
-  const glm::mat4& GetViewMatrix();
+  const glm::mat4& GetViewMatrix() const;
 
   void OnEnterFrame();
   void OnCalcViewInfo(const glm::vec3& player_pos);

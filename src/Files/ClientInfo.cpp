@@ -11,19 +11,20 @@
 #include "Common/service_type.h"
 #include "File.h"
 
-ClientInfo::ClientInfo(const std::string& file_path) : file_path_(file_path) {}
+ClientInfo::ClientInfo(std::string file_path)
+    : file_path_(std::move(file_path)) {}
 
 bool ClientInfo::Load() {
-  using namespace tinyxml2;
+  namespace xml = tinyxml2;
 
   CFile fp;
   if (!fp.Open(file_path_, 0)) {
     return false;
   }
 
-  tinyxml2::XMLDocument document;
+  xml::XMLDocument document;
   if (document.Parse(reinterpret_cast<const char*>(fp.GetBuf()),
-                     fp.GetLength()) != XML_SUCCESS) {
+                     fp.GetLength()) != xml::XML_SUCCESS) {
     fp.Close();
     return false;
   }
@@ -35,16 +36,17 @@ bool ClientInfo::Load() {
 }
 
 void ClientInfo::SetOption(const tinyxml2::XMLDocument& document) {
-  using namespace tinyxml2;
-  XMLError error;
+  namespace xml = tinyxml2;
+  xml::XMLError error;
 
-  const XMLElement* clientinfo = document.FirstChildElement("clientinfo");
-  if (!clientinfo) {
+  const xml::XMLElement* clientinfo = document.FirstChildElement("clientinfo");
+  if (clientinfo == nullptr) {
     return;
   }
 
-  const XMLElement* servicetype = clientinfo->FirstChildElement("servicetype");
-  if (servicetype) {
+  const xml::XMLElement* servicetype =
+      clientinfo->FirstChildElement("servicetype");
+  if (servicetype != nullptr) {
     const char* servicetype_str = servicetype->GetText();
     if (!_strcmpi(servicetype_str, "korea")) {
       g_serviceType = ServiceType::kKorea;
@@ -89,8 +91,9 @@ void ClientInfo::SetOption(const tinyxml2::XMLDocument& document) {
     SetLoginStartMode();
   }
 
-  const XMLElement* servertype = clientinfo->FirstChildElement("servertype");
-  if (servertype) {
+  const xml::XMLElement* servertype =
+      clientinfo->FirstChildElement("servertype");
+  if (servertype != nullptr) {
     const char* servertype_str = servertype->GetText();
     if (!_strcmpi(servertype_str, "primary")) {
       g_serverType = ServerType::kPrimary;
@@ -105,53 +108,56 @@ void ClientInfo::SetOption(const tinyxml2::XMLDocument& document) {
     }
   }
 
-  if (clientinfo->FirstChildElement("hideaccountlist")) {
+  if (clientinfo->FirstChildElement("hideaccountlist") != nullptr) {
     g_hideAccountList = true;
   }
 
-  if (clientinfo->FirstChildElement("passwordencrypt")) {
+  if (clientinfo->FirstChildElement("passwordencrypt") != nullptr) {
     g_passwordEncrypt = true;
   }
 
-  if (clientinfo->FirstChildElement("passwordencrypt2")) {
+  if (clientinfo->FirstChildElement("passwordencrypt2") != nullptr) {
     g_passwordEncrypt = true;
     g_passwordEncrypt2 = true;
   }
 
-  if (clientinfo->FirstChildElement("extendedslot")) {
+  if (clientinfo->FirstChildElement("extendedslot") != nullptr) {
     g_extendedSlot = true;
   }
 
-  if (clientinfo->FirstChildElement("readfolder")) {
+  if (clientinfo->FirstChildElement("readfolder") != nullptr) {
     g_readFolderFirst = true;
   }
 
   // Loading screens
-  const XMLElement* loading = clientinfo->FirstChildElement("loading");
-  if (loading) {
-    for (const XMLElement* e = loading->FirstChildElement("image");
+  const xml::XMLElement* loading = clientinfo->FirstChildElement("loading");
+  if (loading != nullptr) {
+    for (const xml::XMLElement* e = loading->FirstChildElement("image");
          e != nullptr; e = e->NextSiblingElement("image")) {
       std::string name = e->GetText();
       s_loadingScreenList.push_back(name);
     }
   }
 
-  // TODO: Iterate through connections
-  const XMLElement* connection = clientinfo->FirstChildElement("connection");
-  if (connection) {
-    const XMLElement* address = connection->FirstChildElement("address");
-    if (address) {
-      strncpy(g_accountAddr, address->GetText(), sizeof(g_accountAddr));
+  // TODO(LinkZ): Iterate through connections
+  const xml::XMLElement* connection =
+      clientinfo->FirstChildElement("connection");
+  if (connection != nullptr) {
+    const xml::XMLElement* address = connection->FirstChildElement("address");
+    if (address != nullptr) {
+      strncpy(static_cast<char*>(g_accountAddr), address->GetText(),
+              sizeof(g_accountAddr));
     }
 
-    const XMLElement* port = connection->FirstChildElement("port");
-    if (port) {
-      strncpy(g_accountPort, port->GetText(), sizeof(g_accountPort));
+    const xml::XMLElement* port = connection->FirstChildElement("port");
+    if (port != nullptr) {
+      strncpy(static_cast<char*>(g_accountPort), port->GetText(),
+              sizeof(g_accountPort));
     }
 
-    const XMLElement* version = connection->FirstChildElement("version");
+    const xml::XMLElement* version = connection->FirstChildElement("version");
     error = version->QueryUnsignedText(&g_version);
-    if (error != XML_SUCCESS) {
+    if (error != xml::XML_SUCCESS) {
       g_version = kDefaultClientVersion;
     }
   }
@@ -175,5 +181,7 @@ void ClientInfo::SetLoginStartMode() {
     case ServiceType::kBrazil:
     case ServiceType::kRussia:
       g_loginStartMode = 1;
+    default:
+      g_loginStartMode = 0;
   }
 }

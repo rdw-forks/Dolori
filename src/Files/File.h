@@ -12,7 +12,7 @@ class CFile {
 
   static bool IsFileExist(const char *fName);
   bool Open(const std::string &, int);
-  bool Read(void *lpBuf, size_t nCount);
+  bool Read(void *buffer, size_t nCount);
   bool Seek(long lOff, size_t nFrom);
   bool Write(const void *, size_t);
   void Close();

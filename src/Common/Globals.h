@@ -45,7 +45,7 @@ extern bool g_readFolderFirst;
 extern bool g_extendedSlot;
 extern std::vector<std::string> s_loadingScreenList;
 extern bool g_isGravityID;
-extern unsigned short g_loginStartMode;
+extern uint16_t g_loginStartMode;
 extern char g_accountAddr[64];
 extern char g_accountPort[64];
 extern SERVER_ADDRESS g_charServerAddr;
@@ -56,6 +56,6 @@ extern bool g_mustPumpOutReceiveQueue;
 extern bool g_NameBalloonShorten;
 extern bool g_NameBalloonfontBold;
 extern bool g_passwordWrong;
-extern std::vector<unsigned long> s_dwAdminAID;
+extern std::vector<uint32_t> s_dwAdminAID;
 
 #endif  // DOLORI_COMMON_GLOBALS_H_

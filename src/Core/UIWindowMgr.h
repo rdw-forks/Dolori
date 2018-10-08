@@ -170,7 +170,6 @@ typedef enum WINDOWID {
 class CUIWindowMgr {
  public:
   CUIWindowMgr();
-  ~CUIWindowMgr();
 
   void SetSize(int, int);
   void SetWallpaper(CBitmapRes *);

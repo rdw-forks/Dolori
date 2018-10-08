@@ -5,8 +5,6 @@
 
 CUIFrameWnd::CUIFrameWnd() : m_startGlobalX(), m_startGlobalY() {}
 
-CUIFrameWnd::~CUIFrameWnd() {}
-
 void CUIFrameWnd::OnLBtnDown(int x, int y) {
   int gx, gy;
 

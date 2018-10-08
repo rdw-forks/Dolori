@@ -19,8 +19,6 @@ CUIWindowMgr::CUIWindowMgr()
   m_children.clear();
 }
 
-CUIWindowMgr::~CUIWindowMgr() {}
-
 void CUIWindowMgr::SetSize(int cx, int cy) {
   m_w = cx;
   m_h = cy;
@@ -65,11 +63,11 @@ void CUIWindowMgr::Render(CMode *mode) {
 }
 
 CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
-  CUIFrameWnd *result = nullptr;
+  CUIFrameWnd *result;
 
   switch (windowId) {
     case WID_NOTICECONFIRMWND: {
-      CUINoticeConfirmWnd *wnd = new CUINoticeConfirmWnd();
+      auto wnd = new CUINoticeConfirmWnd();
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300));
       AddWindow(wnd);
@@ -83,7 +81,7 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
       result = m_loginWnd;
       break;
     case WID_SELECTSERVERWND: {
-      CUISelectServerWnd *wnd = new CUISelectServerWnd();
+      auto wnd = new CUISelectServerWnd();
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300) - 80);
       AddWindow(wnd);
@@ -103,14 +101,17 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
       AddWindow(makeCharWnd);
       result = makeCharWnd;
     } break;
+    default:
+      result = nullptr;
   };
 
   return result;
 }
 
 void CUIWindowMgr::PostQuit(CUIWindow *wnd) {
-  // if (wnd == m_selectCharWnd)
-  //  m_selectCharWnd = NULL;
+  if (wnd == m_selectCharWnd) {
+    m_selectCharWnd = nullptr;
+  }
   // if (wnd == m_selCharForUServerWnd)
   //  m_selCharForUServerWnd = NULL;
   // if (wnd == m_changeNameWnd)
@@ -129,12 +130,14 @@ void CUIWindowMgr::RemoveWindow(CUIWindow *window) {
 void CUIWindowMgr::RemoveAllWindows() { m_children.clear(); }
 
 void CUIWindowMgr::InvalidateUpdateNeededUI() {
-  if (!m_isInvalidatedByForce) {
-    m_isInvalidatedByForce = true;
-    for (auto child : m_children) {
-      if (child->IsUpdateNeeded()) {
-        child->InvalidateChildren();
-      }
+  if (m_isInvalidatedByForce) {
+    return;
+  }
+
+  m_isInvalidatedByForce = true;
+  for (auto child : m_children) {
+    if (child->IsUpdateNeeded()) {
+      child->InvalidateChildren();
     }
   }
 }
@@ -146,13 +149,13 @@ void CUIWindowMgr::SetCapture(CUIWindow *window) { m_captureWindow = window; }
 void CUIWindowMgr::ReleaseCapture() { m_captureWindow = nullptr; }
 
 void CUIWindowMgr::SetFocusEdit(CUIWindow *window) {
-  if (m_editWindow) {
+  if (m_editWindow != nullptr) {
     m_editWindow->OnFinishEdit();
   }
 
   if (true /*window != m_chatWnd->m_commonChat*/) {
     m_editWindow = window;
-    if (m_editWindow) {
+    if (m_editWindow != nullptr) {
       m_editWindow->OnBeginEdit();
     }
   }
@@ -164,25 +167,27 @@ int CUIWindowMgr::ProcessInput() {
   const int x = g_Mouse->GetXPos();
   const int y = g_Mouse->GetYPos();
 
-  if (!m_modalWindow) {
+  if (m_modalWindow == nullptr) {
     for (auto quit_wnd : m_quit_window) {
-      if (m_captureWindow && (m_captureWindow == quit_wnd ||
-                              m_captureWindow->IsChildOf(quit_wnd))) {
+      if (m_captureWindow != nullptr &&
+          (m_captureWindow == quit_wnd ||
+           m_captureWindow->IsChildOf(quit_wnd))) {
         m_captureWindow = nullptr;
       }
 
-      if (m_editWindow &&
+      if (m_editWindow != nullptr &&
           (m_editWindow == quit_wnd || m_editWindow->IsChildOf(quit_wnd))) {
         m_editWindow = nullptr;
       }
 
-      if (m_modalWindow &&
+      if (m_modalWindow != nullptr &&
           (m_modalWindow == quit_wnd || m_modalWindow->IsChildOf(quit_wnd))) {
         m_modalWindow = nullptr;
       }
 
-      if (m_last_hit_window && (m_last_hit_window == quit_wnd ||
-                                m_last_hit_window->IsChildOf(quit_wnd))) {
+      if (m_last_hit_window != nullptr &&
+          (m_last_hit_window == quit_wnd ||
+           m_last_hit_window->IsChildOf(quit_wnd))) {
         m_last_hit_window = nullptr;
       }
 
@@ -192,7 +197,7 @@ int CUIWindowMgr::ProcessInput() {
     m_quit_window.clear();
   }
 
-  if (!m_captureWindow) {
+  if (m_captureWindow == nullptr) {
     CUIWindow *hit_window = nullptr;
 
     if (m_children.empty()) {
@@ -200,18 +205,18 @@ int CUIWindowMgr::ProcessInput() {
     } else {
       for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
         hit_window = (*it)->HitTest(x, y);
-        if (hit_window && hit_window->IsShow()) {
+        if (hit_window != nullptr && hit_window->IsShow()) {
           break;
         }
       }
     }
 
-    if (m_modalWindow) {
-      if (!hit_window) {
+    if (m_modalWindow != nullptr) {
+      if (hit_window == nullptr) {
       }
     }
 
-    if (hit_window) {
+    if (hit_window != nullptr) {
       int x_global, y_global;
       int x_local, y_local;
 
@@ -252,7 +257,7 @@ int CUIWindowMgr::ProcessInput() {
         hit_window->OnLBtnUp(x_local, y_local);
       }
 
-      if (m_last_hit_window && hit_window != m_last_hit_window) {
+      if (m_last_hit_window != nullptr && hit_window != m_last_hit_window) {
         m_last_hit_window->GetGlobalCoor(&x_global, &y_global);
         x_local = x - x_global;
         y_local = y - y_global;
@@ -290,7 +295,7 @@ int CUIWindowMgr::ProcessInput() {
     }
   }
 
-  if (m_editWindow) {
+  if (m_editWindow != nullptr) {
     m_editWindow->Invalidate();
   }
   // g_mouseMoved = false;
@@ -308,7 +313,8 @@ int CUIWindowMgr::ErrorMsg(const std::string &msg, int type, int isDefYes,
                            int changeMsg, unsigned int autoReturnTime) {
   LOG(error, "{}", msg);
 
-  return 0;
+  // Return 121 for now, to simulate a button push on "OK"
+  return 121;
 }
 
 void CUIWindowMgr::SetCurScreen(int cur_screen) {

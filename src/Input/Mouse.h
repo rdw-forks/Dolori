@@ -3,7 +3,7 @@
 
 class CMouse {
  public:
-  enum ButtonState {
+  enum class ButtonState {
     kNone = 0,
     kDown = 1,
     kPressed = 2,
@@ -11,26 +11,25 @@ class CMouse {
     kDbClick = 4
   };
 
-  enum Button { kLeft = 0, kRight = 1, kWheel = 2 };
+  enum Button { kLeft = 0, kRight = 1, kWheel = 2, kButtonsCount };
 
   CMouse();
-  ~CMouse();
 
   void Init();
   void ResetState();
   void ResetButtonState();
   void SetXPos(int);
-  int GetXPos();
+  int GetXPos() const;
   void SetYPos(int);
-  int GetYPos();
+  int GetYPos() const;
   void SetWheel(int wheel);
-  int GetWheel();
+  int GetWheel() const;
   void SetLBtn(ButtonState);
-  ButtonState GetLBtn();
+  ButtonState GetLBtn() const;
   void SetRBtn(ButtonState);
-  ButtonState GetRBtn();
+  ButtonState GetRBtn() const;
   void SetWBtn(ButtonState);
-  ButtonState GetWBtn();
+  ButtonState GetWBtn() const;
   void SetButtonPressed(Button);
   void ReadState();
 
@@ -41,9 +40,9 @@ class CMouse {
   int m_xPos;
   int m_yPos;
   int m_wheel;
-  ButtonState m_oldBtnState[0x3];
-  ButtonState m_btnState[0x3];
-  int m_dblclkCnt[0x3];
+  ButtonState m_oldBtnState[Button::kButtonsCount];
+  ButtonState m_btnState[Button::kButtonsCount];
+  int m_dblclkCnt[Button::kButtonsCount];
   int m_dblclkTime;
   int m_bSwapButton;
 };

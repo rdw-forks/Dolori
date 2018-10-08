@@ -4,6 +4,9 @@
 #include "GameObject/Pc.h"
 
 class CPlayer : public CPc {
+ public:
+  CPlayer();
+
  private:
   int m_destCellX;
   int m_destCellZ;

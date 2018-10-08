@@ -25,21 +25,23 @@ CSprRes::~CSprRes() { Reset(); }
 CRes* CSprRes::Clone() { return new CSprRes(); }
 
 void CSprRes::Reset() {
-  for (size_t i = 0; i < SPR_TYPE_COUNT; i++) {
-    for (auto img : m_sprites[i]) {
+  for (auto& sprite : m_sprites) {
+    for (auto img : sprite) {
       if (img->image_8bit != nullptr) {
         delete[] img->image_8bit;
       }
       delete img;
     }
 
-    m_sprites[i].clear();
+    sprite.clear();
   }
 
   m_count = 0;
 }
 
-const uint32_t* CSprRes::GetPalette() { return m_palette; }
+const uint32_t* CSprRes::GetPalette() const {
+  return static_cast<const uint32_t*>(m_palette);
+}
 
 bool CSprRes::Load(const std::string& filename) {
   uint8_t palette[0x400];
@@ -47,7 +49,7 @@ bool CSprRes::Load(const std::string& filename) {
   SprHeader header;
   CFile fp;
 
-  if (!fp.Open(filename, false)) {
+  if (!fp.Open(filename, 0)) {
     LOG(error, "Failed to find file: {}", filename);
     return false;
   }
@@ -72,7 +74,7 @@ bool CSprRes::Load(const std::string& filename) {
   }
 
   for (uint16_t i = 0; i < m_count; i++) {
-    SPR_IMG* img = new SPR_IMG();
+    auto img = new SPR_IMG();
 
     fp.Read(&img->width, sizeof(img->width));
     fp.Read(&img->height, sizeof(img->height));
@@ -100,8 +102,8 @@ bool CSprRes::Load(const std::string& filename) {
     m_sprites[SPR_TYPE_PAL].push_back(img);
   }
 
-  if (version >= 0x200 && rgba_count) {
-    // TODO: Read RGBA images
+  if (version >= 0x200 && rgba_count != 0u) {
+    // TODO(LinkZ): Read RGBA images
   }
 
   // Palettes
@@ -119,7 +121,7 @@ bool CSprRes::Load(const std::string& filename) {
   return true;
 }
 
-SPR_IMG* CSprRes::GetSprImg(SPR_TYPE clip_type, unsigned long spr_index) {
+SPR_IMG* CSprRes::GetSprImg(SPR_TYPE clip_type, size_t spr_index) const {
   if (clip_type > SPR_TYPE_COUNT) {
     return nullptr;
   }
@@ -131,24 +133,23 @@ SPR_IMG* CSprRes::GetSprImg(SPR_TYPE clip_type, unsigned long spr_index) {
   return m_sprites[clip_type][spr_index];
 }
 
-uint8_t* CSprRes::DecodeRLE(uint8_t* image, int w, int h,
-                            unsigned short* size) {
+uint8_t* CSprRes::DecodeRLE(uint8_t* image, int w, int h, uint16_t* size) {
   if (*size < 1) {
     return image;
   }
 
-  uint8_t* output = new uint8_t[w * h];
+  auto output = new uint8_t[w * h];
   size_t output_index = 0;
   size_t input_index = 0;
   uint8_t count;
 
   while (input_index < *size) {
-    uint8_t c = image[input_index++];
+    const uint8_t c = image[input_index++];
     output[output_index++] = c;
 
-    if (!c) {
+    if (c != 0u) {
       count = image[input_index++];
-      if (!count) {
+      if (count != 0u) {
         output[output_index++] = count;
       } else {
         for (int i = 1; i < count; i++) {

@@ -7,14 +7,14 @@
 class CUINoticeConfirmWnd : public CUIFrameWnd {
  public:
   CUINoticeConfirmWnd();
-  ~CUINoticeConfirmWnd();
 
   void OnCreate(int cx, int cy) override;
   void OnDraw() override;
-  void* SendMsg(CUIWindow*, int, void*, void*, void*, void*) override;
+  void *SendMsg(CUIWindow *, int, void *val1 = nullptr, void *val2 = nullptr,
+                void *val3 = nullptr, void *val4 = nullptr) override;
 
  private:
-  CUITextViewer* m_textViewer;
+  CUITextViewer *m_textViewer;
   size_t m_target;
 };
 

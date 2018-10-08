@@ -7,8 +7,6 @@ CHash::CHash() {}
 
 CHash::CHash(const char* str) { SetString(str); }
 
-CHash::~CHash() {}
-
 void CHash::SetString(const char* str) {
   size_t str_len;
 

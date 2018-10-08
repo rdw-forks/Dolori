@@ -9,8 +9,6 @@
 
 CFileMgr::CFileMgr() : m_pakList() {}
 
-CFileMgr::~CFileMgr() {}
-
 bool CFileMgr::AddPak(const std::string &pak_name) {
   LOG(debug, "Opening file {}", pak_name);
 
@@ -39,7 +37,7 @@ bool CFileMgr::AddPak(const std::string &pak_name) {
   return gpak->Open(memfile);
 }
 
-void *CFileMgr::GetPak(const std::string &file_name, size_t *size) {
+void *CFileMgr::GetPak(const std::string &file_name, size_t *file_size) {
   uint8_t *result = nullptr;
   CHash fName;
 
@@ -54,11 +52,12 @@ void *CFileMgr::GetPak(const std::string &file_name, size_t *size) {
     if (elem.second->GetInfo(&fName, &pakPack)) {
       result = new uint8_t[pakPack.m_size];
       if (!elem.second->GetData(&pakPack, result)) {
+        LOG(error, "Failed to fecth file {}", file_name);
         delete[] result;
         return nullptr;
       }
 
-      *size = pakPack.m_size;
+      *file_size = pakPack.m_size;
       LOG(debug, "Fetched file {} from pak file", file_name);
       break;
     }
@@ -67,10 +66,10 @@ void *CFileMgr::GetPak(const std::string &file_name, size_t *size) {
   return result;
 }
 
-bool CFileMgr::IsDataExist(const std::string &name) {
+bool CFileMgr::IsDataExist(const std::string &file_name) {
   if (!m_pakList.empty()) {
     for (const auto elem : m_pakList) {
-      CHash hash(name.c_str());
+      CHash hash(file_name.c_str());
       if (elem.second->GetInfo(&hash, nullptr)) {
         return true;
       }
@@ -78,7 +77,7 @@ bool CFileMgr::IsDataExist(const std::string &name) {
   }
 
   std::ifstream file_stream;
-  file_stream.open(name, std::ios::binary);
+  file_stream.open(file_name, std::ios::binary);
   if (!file_stream.is_open()) {
     return false;
   }

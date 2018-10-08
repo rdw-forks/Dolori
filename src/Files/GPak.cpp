@@ -28,8 +28,6 @@ typedef struct _GrfHeader {
 
 CGPak::CGPak() : m_memFile() { Init(); }
 
-CGPak::~CGPak() {}
-
 bool CGPak::Open(std::shared_ptr<CMemFile> memFile) {
   bool result = false;
 
@@ -127,15 +125,19 @@ bool CGPak::GetInfo(const CHash *fName, PAK_PACK *pakPack) {
   }
 
   for (auto &pak : m_PakPack) {
-    if (pak.m_fName == *fName) {
-      if (!strncmp(fName->GetString(), pak.m_fName.GetString(), 0x100)) {
-        if (pakPack) {
-          memcpy(pakPack, &pak, sizeof(PAK_PACK));
-        }
-
-        return true;
-      }
+    if (pak.m_fName != *fName) {
+      continue;
     }
+
+    if (strncmp(fName->GetString(), pak.m_fName.GetString(), 0x100) != 0) {
+      continue;
+    }
+
+    if (pakPack) {
+      memcpy(pakPack, &pak, sizeof(*pakPack));
+    }
+
+    return true;
   }
 
   return false;

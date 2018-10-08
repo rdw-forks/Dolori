@@ -5,8 +5,6 @@
 
 CMouse::CMouse() {}
 
-CMouse::~CMouse() {}
-
 void CMouse::Init() {
   m_xPos = 320;
   m_yPos = 240;
@@ -44,42 +42,48 @@ void CMouse::SetXPos(int x) {
   m_xPos = x;
 }
 
-int CMouse::GetXPos() { return m_xPos; }
+int CMouse::GetXPos() const { return m_xPos; }
 
 void CMouse::SetYPos(int y) {
   m_yDelta = m_yPos - y;
   m_yPos = y;
 }
 
-int CMouse::GetYPos() { return m_yPos; }
+int CMouse::GetYPos() const { return m_yPos; }
 
 void CMouse::SetWheel(int wheel) { m_wheel = wheel; }
 
-int CMouse::GetWheel() { return m_wheel; }
+int CMouse::GetWheel() const { return m_wheel; }
 
 void CMouse::SetLBtn(ButtonState state) {
   m_oldBtnState[Button::kLeft] = m_btnState[Button::kLeft];
   m_btnState[Button::kLeft] = state;
 }
 
-CMouse::ButtonState CMouse::GetLBtn() { return m_btnState[Button::kLeft]; }
+CMouse::ButtonState CMouse::GetLBtn() const {
+  return m_btnState[Button::kLeft];
+}
 
 void CMouse::SetRBtn(ButtonState state) {
   m_oldBtnState[Button::kRight] = m_btnState[Button::kRight];
   m_btnState[Button::kRight] = state;
 }
 
-CMouse::ButtonState CMouse::GetRBtn() { return m_btnState[Button::kRight]; }
+CMouse::ButtonState CMouse::GetRBtn() const {
+  return m_btnState[Button::kRight];
+}
 
 void CMouse::SetWBtn(ButtonState state) {
   m_oldBtnState[Button::kWheel] = m_btnState[Button::kWheel];
   m_btnState[Button::kWheel] = state;
 }
 
-CMouse::ButtonState CMouse::GetWBtn() { return m_btnState[Button::kWheel]; }
+CMouse::ButtonState CMouse::GetWBtn() const {
+  return m_btnState[Button::kWheel];
+}
 
 void CMouse::SetButtonPressed(Button id) {
-  if (id > 2) {
+  if (id > Button::kButtonsCount) {
     return;
   }
 
