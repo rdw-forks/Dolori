@@ -27,7 +27,7 @@ class CUIEditCtrl : public CUIWindow {
   size_t m_selectionOrigin;
   size_t m_selectionCursor;
   bool m_maskchar;
-  int m_maxchar;
+  size_t m_maxchar;
   int m_isSingColorFrame;
   int m_r;
   int m_g;

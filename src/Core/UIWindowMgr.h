@@ -175,6 +175,7 @@ class CUIWindowMgr {
   void SetWallpaper(CBitmapRes *);
   void RenderWallPaper();
   void Render(CMode *);
+  void OnProcess();
   CUIFrameWnd *MakeWindow(WINDOWID windowId);
   void PostQuit(CUIWindow *wnd);
   void AddWindow(CUIWindow *);

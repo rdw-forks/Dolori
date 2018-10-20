@@ -140,11 +140,11 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
     } break;
     case MM_QUERYCHARICTORINFO: {
       const size_t char_num = reinterpret_cast<size_t>(val1);
-      if (m_num_char <= 0 || char_num >= m_num_char) {
+      if (char_num >= m_num_char) {
         return nullptr;
       }
 
-      for (int i = 0; i < m_num_char; i++) {
+      for (size_t i = 0; i < m_num_char; i++) {
         if (m_charInfo[i].char_slot == char_num) {
           return &m_charInfo[i];
         }
@@ -181,6 +181,7 @@ void CLoginMode::OnUpdate() {
   g_WindowMgr->ProcessInput();
 
   g_Renderer->Clear(true);
+  g_WindowMgr->OnProcess();
   g_WindowMgr->RenderWallPaper();
   g_WindowMgr->Render(this);
   if (g_Renderer->DrawScene()) {
@@ -675,9 +676,13 @@ void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
   m_next_sub_mode = 7;
 }
 
-void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
-  CharacterInfo tmp_char_infos[0xC];
-  unsigned int char_index = m_num_char;
+void CLoginMode::Hc_Accept_Deletechar(const char * /*buffer*/) {
+  if (m_num_char == 0) {
+    return;
+  }
+
+  CharacterInfo tmp_char_infos[0xC] = {};
+  auto char_index = m_num_char;
   unsigned int i = 0;
   unsigned int j = 0;
 
@@ -691,8 +696,9 @@ void CLoginMode::Hc_Accept_Deletechar(const char *buffer) {
     char_index--;
   }
 
-  m_num_char--;
-  memcpy(&m_charInfo, tmp_char_infos, m_num_char * sizeof(m_charInfo[0]));
+  const auto data_size =
+      std::min(sizeof(m_charInfo), --m_num_char * sizeof(m_charInfo[0]));
+  memcpy(&m_charInfo, &tmp_char_infos, data_size);
   m_next_sub_mode = 7;
 }
 

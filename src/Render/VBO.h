@@ -23,7 +23,7 @@ class CGlVBO {
  private:
   size_t element_size_;
   GLuint id_;
-  int size_;
+  size_t size_;
 };
 
 #endif  // DOLORI_RENDER_GLVBO_H_

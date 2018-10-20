@@ -53,7 +53,7 @@ class CGndRes : public CRes {
   float GetZoom() const;
   int32_t GetWidth() const;
   int32_t GetHeight() const;
-  uint32_t GetSurfaceCount() const;
+  size_t GetSurfaceCount() const;
   const std::vector<LightmapInfo> &GetLightmaps() const;
   const GndSurfaceFmt &GetSurface(size_t index);
   const GndCellFmt &GetCell(unsigned int x, unsigned int y);

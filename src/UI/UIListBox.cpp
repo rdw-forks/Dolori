@@ -152,7 +152,7 @@ void CUIListBox::OnLBtnDown(int x, int y) {
 int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
                         int val3, int val4) {
   int prev_view_offset;
-  int nb_of_items;
+  size_t nb_of_items;
 
   switch (message) {
     case 7:

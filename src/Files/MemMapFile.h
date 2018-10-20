@@ -17,12 +17,13 @@
 class CMemMapFile : public CMemFile {
  public:
   CMemMapFile();
-  virtual ~CMemMapFile();
+  ~CMemMapFile();
+
+  size_t GetSize() override;
+  const unsigned char *Read(off_t offset, size_t size) override;
 
   bool Open(const char *);
   void Close();
-  unsigned long GetSize();
-  const unsigned char *Read(unsigned long, unsigned long);
   void Init();
 
  private:
@@ -32,11 +33,11 @@ class CMemMapFile : public CMemFile {
 #else
   int m_fd;
 #endif
-  unsigned long m_dwFileSize;
-  unsigned long m_dwOpenOffset;
-  unsigned long m_dwOpenSize;
-  unsigned long m_dwFileMappingSize;
-  unsigned long m_dwAllocationGranuarity;
+  size_t m_dwFileSize;
+  uint32_t m_dwOpenOffset;
+  size_t m_dwOpenSize;
+  size_t m_dwFileMappingSize;
+  uint32_t m_dwAllocationGranuarity;
   unsigned char *m_pFile;
   std::vector<unsigned char> m_pFileBuf;
 };

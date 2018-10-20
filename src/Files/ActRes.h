@@ -16,8 +16,8 @@ class CActRes : public CRes {
   void Reset() override;
   bool Load(const std::string& filename) override;
 
-  const CMotion* GetMotion(unsigned int act_index, unsigned int mot_index) const;
-  float GetDelay(unsigned int act_index) const;
+  const CMotion* GetMotion(size_t action_id, size_t motion_id) const;
+  float GetDelay(size_t action_id) const;
 
  private:
   std::vector<CAction> m_actions;

@@ -12,8 +12,6 @@ CMode::CMode()
 
 void* CMode::SendMsg(size_t msg, const void* val1, const void* val2,
                      const void* val3) {
-  void* result;
-
   switch (msg) {
     case MM_QUIT:
       g_ModeMgr->Quit();
@@ -21,11 +19,9 @@ void* CMode::SendMsg(size_t msg, const void* val1, const void* val2,
     case MM_SCREENSHOT:
       m_screenShotNow = true;
       break;
-    default:
-      result = nullptr;
   };
 
-  return result;
+  return nullptr;
 }
 
 bool CMode::GetLoopCond() const { return m_loop_cond; }

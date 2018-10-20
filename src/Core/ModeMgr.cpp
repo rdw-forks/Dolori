@@ -4,7 +4,7 @@
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 
-CModeMgr::CModeMgr() : m_loop_cond(true) {}
+CModeMgr::CModeMgr() : m_cur_mode(), m_loop_cond(true) {}
 
 void CModeMgr::Run(ModeType mode_type, const char* world_name) {
   m_cur_mode_type = mode_type;

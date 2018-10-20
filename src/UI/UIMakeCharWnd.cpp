@@ -3,12 +3,16 @@
 #include "Common/Globals.h"
 #include "Common/MsgStrMgr.h"
 #include "Common/const_strings.h"
+#include "Common/debug.h"
+#include "Files/ActRes.h"
+#include "Files/ImfRes.h"
+#include "Files/SprRes.h"
 #include "UI/UIBmp.h"
 
 CUIMakeCharWnd::CUIMakeCharWnd()
     : m_charInfo(), m_charInfo2(), m_viewChar(), m_viewChar2(), m_text() {
   m_charInfo.head_style = 1;
-  m_charInfo.job = 4;
+  m_charInfo.job = 0;
   m_charInfo.base_level = 1;
   m_charInfo.status_points = 1;
   m_charInfo.max_hp = 100;
@@ -21,6 +25,23 @@ CUIMakeCharWnd::CUIMakeCharWnd()
   m_charInfo.int_ = 5;
   m_charInfo.dex = 5;
   m_charInfo.luk = 5;
+
+  m_viewChar.x = 95;
+  m_viewChar.y = 213;
+  m_viewChar.base_action = 0;
+  m_viewChar.cur_action = 0;
+  m_viewChar.cur_motion = 0;
+  const auto sex = g_Session->GetSex();
+  m_viewChar.act_name[0] =
+      std::move(g_Session->GetJobActName(m_charInfo.job, sex));
+  m_viewChar.spr_name[0] =
+      std::move(g_Session->GetJobSprName(m_charInfo.job, sex));
+  m_viewChar.act_name[1] =
+      std::move(g_Session->GetHeadActName(m_charInfo.head_style, sex));
+  m_viewChar.spr_name[1] =
+      std::move(g_Session->GetHeadSprName(m_charInfo.head_style, sex));
+  m_viewChar.imf_name =
+      std::move(g_Session->GetImfName(m_charInfo.job, m_charInfo.head_style));
 }
 
 void CUIMakeCharWnd::OnCreate(int x, int y) {
@@ -57,6 +78,79 @@ void CUIMakeCharWnd::OnDraw() {
   auto bitmap =
       static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(filename), false));
   DrawBitmap(0, 0, bitmap, 0);
+
+  const auto imf_res =
+      static_cast<CImfRes *>(g_ResMgr->Get(m_viewChar.imf_name, false));
+  if (imf_res == nullptr) {
+    return;
+  }
+
+  for (size_t layer = 0; layer < VIEW_SPRITE_LAYERS_COUNT; layer++) {
+    int off_x = 0;
+    int off_y = 0;
+
+    const auto act_res = static_cast<CActRes *>(
+        g_ResMgr->Get(m_viewChar.act_name[layer], false));
+    const auto spr_res = static_cast<CSprRes *>(
+        g_ResMgr->Get(m_viewChar.spr_name[layer], false));
+    if (act_res == nullptr || spr_res == nullptr) {
+      continue;
+    }
+
+    const CMotion *motion =
+        act_res->GetMotion(m_viewChar.cur_action, m_viewChar.cur_motion);
+
+    const auto point = std::move(
+        imf_res->GetPoint(layer, m_viewChar.cur_action, m_viewChar.cur_motion));
+
+    off_x = point.x;
+    off_y = point.y;
+
+    const SprClip *clip = nullptr;
+    if (layer == 1) {  // Head
+      const auto base_act_res =
+          static_cast<CActRes *>(g_ResMgr->Get(m_viewChar.act_name[0], false));
+      const CMotion *base_motion =
+          base_act_res->GetMotion(m_viewChar.cur_action, m_viewChar.cur_motion);
+      if (motion->attach_count > 0 && base_motion->attach_count > 0 &&
+          base_motion->attach_info[0].m_attr == motion->attach_info[0].m_attr) {
+        off_x += base_motion->attach_info[0].x - motion->attach_info[0].x;
+        off_y += base_motion->attach_info[0].y - motion->attach_info[0].y;
+      }
+    }
+
+    clip = motion->GetClip(layer);
+    if (clip == nullptr || clip->spr_index == -1) {
+      continue;
+    }
+
+    const SprImg *img = spr_res->GetSprImg(clip->clip_type, clip->spr_index);
+    off_x += clip->x - img->width / 2;
+    off_y += clip->y - img->height / 2;
+
+    CSurface *surface = g_Renderer->GetSpriteIndex(img, spr_res->GetPalette());
+    if (surface == nullptr) {
+      surface = g_Renderer->AddSpriteIndex(img, spr_res->GetPalette());
+    }
+
+    m_surface->BlitSurface(off_x + m_viewChar.x, off_y + m_viewChar.y, surface,
+                           0, 0, img->width, img->height, clip->is_mirror,
+                           clip->zoomx, clip->zoomy);
+  }
+}
+
+void CUIMakeCharWnd::OnProcess() {
+  if (m_state_cnt % 34 == 0) {
+    Invalidate();
+
+    m_viewChar.cur_action++;
+    if (m_viewChar.cur_action >= m_viewChar.base_action + 8) {
+      m_viewChar.cur_action = m_viewChar.base_action;
+    }
+  }
+
+  m_state_cnt++;
+  m_viewChar.cur_motion = 0;
 }
 
 void CUIMakeCharWnd::InitTextControls() {
@@ -113,8 +207,12 @@ void *CUIMakeCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
   switch (message) {
     case 0: {
       const auto &name = m_nameEditCtrl->GetText();
-      name.copy(m_charInfo.name, sizeof(m_charInfo.name), 0);
-      m_charInfo.name[name.length()] = '\0';
+      if (name.length() > sizeof(m_charInfo.name) - 1) {
+        LOG(error, "Character's name is too long");
+        return nullptr;
+      }
+
+      strncpy(m_charInfo.name, name.c_str(), sizeof(m_charInfo.name));
     } break;
 
     case WM_BUTTON_PRESSED: {

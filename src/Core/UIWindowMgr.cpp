@@ -11,7 +11,8 @@ int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }
 int UICY(int y) { return y * g_Renderer->GetHeight() / 480; }
 
 CUIWindowMgr::CUIWindowMgr()
-    : m_captureWindow(),
+    : m_conversionMode(),
+      m_captureWindow(),
       m_editWindow(),
       m_modalWindow(),
       m_last_hit_window(),
@@ -60,6 +61,11 @@ void CUIWindowMgr::Render(CMode *mode) {
       child->DrawSurface();
     }
   }
+}
+
+void CUIWindowMgr::OnProcess() {
+  std::for_each(std::begin(m_children), std::end(m_children),
+                [](CUIWindow *window) { window->OnProcess(); });
 }
 
 CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {

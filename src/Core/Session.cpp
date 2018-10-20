@@ -8,7 +8,7 @@
 #include "Common/debug.h"
 #include "Common/service_type.h"
 
-CSession::CSession() : m_char_name() {}
+CSession::CSession() : m_char_name(), m_haircolor() {}
 
 void CSession::Init() {}
 
@@ -120,6 +120,13 @@ void CSession::InitPcNameTable() {
 
   m_newPcJobNameTable[268] = "프로페서";  // Doram place-holder
 
+  // Imf
+  m_newPcJobImfNameTable[0] = "초보자";
+  m_newPcJobImfNameTable[1] = "검사";
+  m_newPcJobImfNameTable[2] = "마법사";
+  m_newPcJobImfNameTable[3] = "궁수";
+  m_newPcJobImfNameTable[4] = "성직자";
+
   // Sex
   m_newPcSexNameTable[0] = "여";
   m_newPcSexNameTable[1] = "남";
@@ -213,14 +220,19 @@ std::string CSession::GetJobActName(int job, int sex) const {
     job_name = std::next(job_elem, -3950)->second;
   }
 
-  const auto sex_elem = m_newPcSexNameTable.find(sex);
-  if (sex_elem == std::cend(m_newPcSexNameTable)) {
+  const auto new_sex_elem = m_newPcSexNameTable.find(sex);
+  if (new_sex_elem == std::cend(m_newPcSexNameTable)) {
+    return {};
+  }
+
+  const auto sex_elem = m_pcSexNameTable.find(sex);
+  if (sex_elem == std::cend(m_pcSexNameTable)) {
     return {};
   }
 
   // "인간족/몸통/%s/%s%s.act"
   tmp_buffer << const_strings::kCharactersFolderName
-             << const_strings::kBodyFolderName << sex_elem->second << '/'
+             << const_strings::kBodyFolderName << new_sex_elem->second << '/'
              << job_name << sex_elem->second << ".act";
 
   return tmp_buffer.str();
@@ -228,13 +240,13 @@ std::string CSession::GetJobActName(int job, int sex) const {
 
 // TODO(LinkZ): Reduce code duplication
 std::string CSession::GetJobSprName(int job, int sex) {
-  const char *job_name = nullptr;
   std::ostringstream tmp_buffer;
+  std::string job_name;
 
   const auto job_elem = m_newPcJobNameTable.find(job);
   if (job_elem == std::cend(m_newPcJobNameTable)) {
     LOG(error, "Cannot find .spr name for job #{}", job);
-    return nullptr;
+    return {};
   }
 
   if (job <= 3950) {
@@ -243,20 +255,26 @@ std::string CSession::GetJobSprName(int job, int sex) {
     job_name = std::next(job_elem, -3950)->second;
   }
 
-  const auto sex_elem = m_newPcSexNameTable.find(sex);
-  if (sex_elem == std::cend(m_newPcSexNameTable)) {
+  const auto new_sex_elem = m_newPcSexNameTable.find(sex);
+  if (new_sex_elem == std::cend(m_newPcSexNameTable)) {
+    return {};
+  }
+
+  const auto sex_elem = m_pcSexNameTable.find(sex);
+  if (sex_elem == std::cend(m_pcSexNameTable)) {
     return {};
   }
 
   // "인간족/몸통/%s/%s%s.spr"
   tmp_buffer << const_strings::kCharactersFolderName
-             << const_strings::kBodyFolderName << sex_elem->second << '/'
+             << const_strings::kBodyFolderName << new_sex_elem->second << '/'
              << job_name << sex_elem->second << ".spr";
 
   return tmp_buffer.str();
 }
 
-char *CSession::GetHeadActName(uint16_t head, int sex, char *buf) {
+std::string CSession::GetHeadActName(uint16_t head, int sex) {
+  std::ostringstream tmp_buffer;
   const char *sex_folder_name;
   const char *head_name;
   const char *sex_suffix;
@@ -275,13 +293,16 @@ char *CSession::GetHeadActName(uint16_t head, int sex, char *buf) {
     sex_folder_name = m_newPcSexNameTable[0];
   }
 
-  sprintf(buf, "인간족/머리통/%s/%s%s.act", sex_folder_name, head_name,
-          sex_suffix);
+  //"인간족/머리통/%s/%s%s.act"
+  tmp_buffer << const_strings::kCharactersFolderName
+             << const_strings::kHeadFolderName << sex_folder_name << '/'
+             << head_name << sex_suffix << ".act";
 
-  return buf;
+  return tmp_buffer.str();
 }
 
-char *CSession::GetHeadSprName(uint16_t head, int sex, char *buf) {
+std::string CSession::GetHeadSprName(uint16_t head, int sex) {
+  std::ostringstream tmp_buffer;
   const char *sex_folder_name;
   const char *head_name;
   const char *sex_suffix;
@@ -300,10 +321,12 @@ char *CSession::GetHeadSprName(uint16_t head, int sex, char *buf) {
     sex_folder_name = m_newPcSexNameTable[0];
   }
 
-  sprintf(buf, "인간족/머리통/%s/%s%s.spr", sex_folder_name, head_name,
-          sex_suffix);
+  //"인간족/머리통/%s/%s%s.spr"
+  tmp_buffer << const_strings::kCharactersFolderName
+             << const_strings::kHeadFolderName << sex_folder_name << '/'
+             << head_name << sex_suffix << ".spr";
 
-  return buf;
+  return tmp_buffer.str();
 }
 
 std::string CSession::GetImfName(int job, int sex) {

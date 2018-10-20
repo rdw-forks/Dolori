@@ -15,6 +15,7 @@
 #define GRF_RES_HEADER "Master of Magic"
 
 #pragma pack(push, 1)
+
 typedef struct _GrfHeader {
   char Magic[16];  // "Master of Magic" +\0
   char Key[14];    // 0x01 -&gt; 0x0E, or 0x00 -&gt; 0x00 (no encryption)
@@ -26,7 +27,7 @@ typedef struct _GrfHeader {
 
 #pragma pack(pop)
 
-CGPak::CGPak() : m_memFile() { Init(); }
+CGPak::CGPak() : m_PakInfoOffset(), m_memFile() { Init(); }
 
 bool CGPak::Open(std::shared_ptr<CMemFile> memFile) {
   bool result = false;
@@ -73,7 +74,7 @@ void CGPak::Init() {
 bool CGPak::OpenPak01() { return false; }
 
 bool CGPak::OpenPak02() {
-  char filename[0x100];
+  std::string filename;
   const uint8_t *z_buffer = nullptr;
   size_t z_table_size = 0;
   uLongf table_size = 0;
@@ -95,59 +96,56 @@ bool CGPak::OpenPak02() {
 
   const auto p_char_buffer = reinterpret_cast<char *>(buffer.data());
   for (uint32_t i = 0; i < m_FileCount; i++) {
-    size_t filename_size;
+    std::string tmp_filename;
     PAK_PACK pak;
 
-    filename_size = strlen(p_char_buffer + cursor);
-    if (filename_size >= sizeof(filename)) {
-      return 0;
-    }
+    tmp_filename = p_char_buffer + cursor;
+    NormalizeFileName(tmp_filename, filename);
+    pak.hash.SetString(filename);
+    cursor += tmp_filename.length() + 1;
 
-    NormalizeFileName(filename, p_char_buffer + cursor);
-    pak.m_fName.SetString(filename);
-    cursor += filename_size + 1;
-    pak.m_compressSize = *reinterpret_cast<uint32_t *>(p_char_buffer + cursor);
-    pak.m_dataSize =
-        *reinterpret_cast<uint32_t *>(p_char_buffer + cursor + 0x4);
-    pak.m_size = *reinterpret_cast<uint32_t *>(p_char_buffer + cursor + 0x8);
-    pak.m_type = *reinterpret_cast<uint8_t *>(p_char_buffer + cursor + 0xC);
-    pak.m_Offset = *reinterpret_cast<uint32_t *>(p_char_buffer + cursor + 0xD);
-    m_PakPack.push_back(pak);
-    cursor += 0x11;
+    const PAK_PACK *pak_buffer =
+        reinterpret_cast<const PAK_PACK *>(p_char_buffer + cursor);
+    pak.m_compressSize = pak_buffer->m_compressSize;
+    pak.m_dataSize = pak_buffer->m_dataSize;
+    pak.m_size = pak_buffer->m_size;
+    pak.m_type = pak_buffer->m_type;
+    pak.m_Offset = pak_buffer->m_Offset;
+    cursor += 4 * sizeof(uint32_t) + sizeof(uint8_t);
+
+    m_PakPack.push_front(std::move(pak));
   }
 
   return true;
 }
 
-bool CGPak::GetInfo(const CHash *fName, PAK_PACK *pakPack) {
+bool CGPak::GetInfo(const std::string &filename, PAK_PACK *pakPack) const {
   if (m_PakPack.empty()) {
     return false;
   }
 
-  for (auto &pak : m_PakPack) {
-    if (pak.m_fName != *fName) {
-      continue;
-    }
-
-    if (strncmp(fName->GetString(), pak.m_fName.GetString(), 0x100) != 0) {
-      continue;
-    }
-
-    if (pakPack) {
-      memcpy(pakPack, &pak, sizeof(*pakPack));
-    }
-
-    return true;
+  const CHash hash(filename);
+  const auto elem = std::find_if(
+      std::cbegin(m_PakPack), std::cend(m_PakPack),
+      [&hash](const PAK_PACK &pak) {
+        return pak.hash == hash && pak.hash.GetString() == hash.GetString();
+      });
+  if (elem == std::cend(m_PakPack)) {
+    return false;
   }
 
-  return false;
+  if (pakPack) {
+    std::copy_n(elem, 1, pakPack);
+  }
+
+  return true;
 }
 
 bool CGPak::GetData(const PAK_PACK *pakPack, void *buffer) {
   char keyschedule[0x80];
   char key[8];
 
-  if (!pakPack || !buffer) {
+  if (pakPack == nullptr || buffer == nullptr) {
     return false;
   }
 
@@ -178,14 +176,8 @@ bool CGPak::GetData(const PAK_PACK *pakPack, void *buffer) {
   return true;
 }
 
-char *CGPak::NormalizeFileName(char *output, const char *input) {
-  char *orig = output;
+void CGPak::NormalizeFileName(const std::string &input, std::string &output) {
+  output = input;
 
-  for (; *input != '\0'; output++, input++) {
-    *output = (*input == '\\') ? '/' : *input;
-  }
-
-  *output = '\0';
-
-  return orig;
+  std::replace(output.begin(), output.end(), '\\', '/');
 }

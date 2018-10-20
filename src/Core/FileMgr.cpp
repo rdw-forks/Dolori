@@ -39,17 +39,15 @@ bool CFileMgr::AddPak(const std::string &pak_name) {
 
 void *CFileMgr::GetPak(const std::string &file_name, size_t *file_size) {
   uint8_t *result = nullptr;
-  CHash fName;
 
   if (m_pakList.empty()) {
     return nullptr;
   }
 
-  fName.SetString(file_name.c_str());
   for (const auto elem : m_pakList) {
     PAK_PACK pakPack;
 
-    if (elem.second->GetInfo(&fName, &pakPack)) {
+    if (elem.second->GetInfo(file_name, &pakPack)) {
       result = new uint8_t[pakPack.m_size];
       if (!elem.second->GetData(&pakPack, result)) {
         LOG(error, "Failed to fecth file {}", file_name);
@@ -57,7 +55,9 @@ void *CFileMgr::GetPak(const std::string &file_name, size_t *file_size) {
         return nullptr;
       }
 
-      *file_size = pakPack.m_size;
+      if (file_size != nullptr) {
+        *file_size = pakPack.m_size;
+      }
       LOG(debug, "Fetched file {} from pak file", file_name);
       break;
     }
@@ -69,8 +69,7 @@ void *CFileMgr::GetPak(const std::string &file_name, size_t *file_size) {
 bool CFileMgr::IsDataExist(const std::string &file_name) {
   if (!m_pakList.empty()) {
     for (const auto elem : m_pakList) {
-      CHash hash(file_name.c_str());
-      if (elem.second->GetInfo(&hash, nullptr)) {
+      if (elem.second->GetInfo(file_name, nullptr)) {
         return true;
       }
     }

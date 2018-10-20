@@ -98,7 +98,7 @@ class CLoginMode : public CMode {
   int m_numServer;
   size_t m_serverSelected;
   size_t m_selected_char;
-  int m_num_char;
+  size_t m_num_char;
   uint32_t m_char_id;
   unsigned int m_subModeStartTime;
   ServerAddr m_serverInfo[0x64];

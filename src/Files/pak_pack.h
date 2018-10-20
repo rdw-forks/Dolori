@@ -6,13 +6,17 @@
 
 #include "Files/Hash.h"
 
+#pragma pack(push, 1)
+
 typedef struct _PAK_PACK {
-  uint32_t m_dataSize;
   uint32_t m_compressSize;
+  uint32_t m_dataSize;
   uint32_t m_size;
-  uint32_t m_Offset;
   uint8_t m_type;
-  CHash m_fName;
+  uint32_t m_Offset;
+  CHash hash;
 } PAK_PACK;
+
+#pragma pack(pop)
 
 #endif  // DOLORI_FILES_PAK_PACK_H_

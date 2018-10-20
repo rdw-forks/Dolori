@@ -26,8 +26,8 @@ void CBitmapRes::Reset() {
   m_height = 0;
 }
 
-unsigned int CBitmapRes::GetColor(int x, int y) const {
-  unsigned int result;
+uint32_t CBitmapRes::GetColor(uint32_t x, uint32_t y) const {
+  uint32_t result;
 
   if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
     result = 0x00FF0000;
@@ -56,25 +56,25 @@ bool CBitmapRes::Load(const std::string& filename) {
 
 bool CBitmapRes::LoadFromBuffer(const std::string& filename,
                                 const uint8_t* buffer, size_t size) {
-  const char* str_extension;
-
-  str_extension = strrchr(filename.c_str(), '.');
-  if (str_extension) {
-    if (!_strcmpi(str_extension, ".bmp")) {
-      return LoadBMPData(buffer, size);
-    }
-
-    if (!_strcmpi(str_extension, ".tga")) {
-      return LoadTGAData(buffer, size);
-    }
-
-    if (!_strcmpi(str_extension, ".jpg")) {
-      return LoadJPGData(buffer, size);
-    }
-
-    LOG(error, "Unsupported file format: {}", filename);
+  const size_t dot_pos = filename.rfind('.');
+  if (dot_pos == std::string::npos) {
+    LOG(error, "Missing extension: {}", filename);
+    return false;
   }
 
+  if (filename.compare(dot_pos, 4, ".bmp") == 0) {
+    return LoadBMPData(buffer, size);
+  }
+
+  if (filename.compare(dot_pos, 4, ".tga") == 0) {
+    return LoadTGAData(buffer, size);
+  }
+
+  if (filename.compare(dot_pos, 4, ".jpg") == 0) {
+    return LoadJPGData(buffer, size);
+  }
+
+  LOG(error, "Unsupported file format: {}", filename);
   return false;
 }
 
@@ -97,7 +97,7 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
   ilGenImages(1, &imgID);
   ilBindImage(imgID);
 
-  ILboolean success = ilLoadL(type, image, size);
+  ILboolean success = ilLoadL(type, image, static_cast<ILuint>(size));
   if (success != IL_TRUE) {
     return false;
   }
@@ -126,8 +126,7 @@ bool CBitmapRes::LoadImageData(const uint8_t* image, size_t size, ILenum type) {
 
         for (int delta_y = -1; delta_y <= 1; delta_y++) {
           for (int delta_x = -1; delta_x <= 1; delta_x++) {
-            const int neighbour_i =
-                i + (delta_x * 4) + (delta_y * m_width * 4);
+            const int neighbour_i = i + (delta_x * 4) + (delta_y * m_width * 4);
 
             if (neighbour_i < 0 || neighbour_i >= data_size) {
               // Out of the image, continue

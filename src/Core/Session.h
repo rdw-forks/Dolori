@@ -29,8 +29,8 @@ class CSession {
   const char *GetJobName(unsigned int job) const;
   std::string GetJobActName(int job, int sex) const;
   std::string GetJobSprName(int job, int sex);
-  char *GetHeadActName(uint16_t head, int sex, char *buf);
-  char *GetHeadSprName(uint16_t head, int sex, char *buf);
+  std::string GetHeadActName(uint16_t head, int sex);
+  std::string GetHeadSprName(uint16_t head, int sex);
   std::string GetImfName(int job, int sex);
   bool IsMasterAid(uint32_t);
 

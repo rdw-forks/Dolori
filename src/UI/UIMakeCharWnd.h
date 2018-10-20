@@ -13,6 +13,7 @@ class CUIMakeCharWnd : public CUIFrameWnd {
 
   void OnCreate(int x, int y) override;
   void OnDraw() override;
+  void OnProcess() override;
 
   void InitTextControls();
   void MakeButton();

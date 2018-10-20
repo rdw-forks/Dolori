@@ -74,7 +74,6 @@ void CUISelectCharWnd::OnCreate(int /*cx*/, int /*cy*/) {
 
   for (size_t i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++) {
     CharacterInfo *char_info;
-    char buffer[256];
     VIEW_SPRITE *vs;
     uint16_t job;
     int sex;
@@ -94,9 +93,9 @@ void CUISelectCharWnd::OnCreate(int /*cx*/, int /*cy*/) {
     vs->act_name[0] = std::move(g_Session->GetJobActName(job, sex));
     vs->spr_name[0] = std::move(g_Session->GetJobSprName(job, sex));
     vs->act_name[1] =
-        g_Session->GetHeadActName(char_info->head_style, sex, buffer);
+        std::move(g_Session->GetHeadActName(char_info->head_style, sex));
     vs->spr_name[1] =
-        g_Session->GetHeadSprName(char_info->head_style, sex, buffer);
+        std::move(g_Session->GetHeadSprName(char_info->head_style, sex));
   }
 
   MakeButton(119);
@@ -135,7 +134,7 @@ void CUISelectCharWnd::OnDraw() {
   DrawBitmap(0, 0, bitmap, 0);
 
   for (int i = 0; i < SLOTS_PER_PAGE; i++) {
-    int char_id = SLOTS_PER_PAGE * m_cur_page + i;
+    const size_t char_id = SLOTS_PER_PAGE * m_cur_page + i;
 
     if (!m_isAvailable[char_id]) {
       TextOutA(163 * char_id + 82, 107, "Not available", 0, 1, 18, 0);
@@ -147,49 +146,51 @@ void CUISelectCharWnd::OnDraw() {
     }
 
     for (int layer = 0; layer < VIEW_SPRITE_LAYERS_COUNT; layer++) {
-      const SPR_CLIP *clip;
+      const SprClip *clip;
       VIEW_SPRITE *vs;
       int off_x = 0;
       int off_y = 0;
-      SPR_IMG *img;
+      SprImg *img;
       CSprRes *spr;
       CActRes *act;
 
       vs = &m_viewChar[char_id];
       spr = static_cast<CSprRes *>(g_ResMgr->Get(vs->spr_name[layer], false));
       act = static_cast<CActRes *>(g_ResMgr->Get(vs->act_name[layer], false));
-      if (!spr || !act) {
+      if (spr == nullptr || act == nullptr) {
         continue;
       }
 
       const CMotion *motion = act->GetMotion(vs->cur_action, vs->cur_motion);
-      if (motion != nullptr) {
-        if (layer == 1) {  // Head
-          clip = motion->GetClip(1);
-        } else {
-          clip = motion->GetClip(0);
-        }
-
-        if (clip == nullptr || clip->spr_index == -1) {
-          continue;
-        }
-
-        img = spr->GetSprImg(clip->clip_type, clip->spr_index);
-        off_x = clip->x - img->width / 2;
-        off_y = clip->y - img->height / 2;
-        // if (motion->attach_count > 0) {
-        //  off_x += motion->attach_info[0].x;
-        //  off_y += motion->attach_info[0].y;
-        //}
-
-        CSurface *surface = g_Renderer->GetSpriteIndex(img, spr->GetPalette());
-        if (surface == nullptr) {
-          surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
-        }
-
-        m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
-                               img->width, img->height, 0, 1, 1);
+      if (motion == nullptr) {
+        continue;
       }
+
+      if (layer == 1) {  // Head
+        clip = motion->GetClip(1);
+      } else {
+        clip = motion->GetClip(0);
+      }
+
+      if (clip == nullptr || clip->spr_index == -1) {
+        continue;
+      }
+
+      img = spr->GetSprImg(clip->clip_type, clip->spr_index);
+      off_x = clip->x - img->width / 2;
+      off_y = clip->y - img->height / 2;
+      // if (motion->attach_count > 0) {
+      //  off_x += motion->attach_info[0].x;
+      //  off_y += motion->attach_info[0].y;
+      //}
+
+      CSurface *surface = g_Renderer->GetSpriteIndex(img, spr->GetPalette());
+      if (surface == nullptr) {
+        surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
+      }
+
+      m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
+                             img->width, img->height, 0, 1, 1);
     }
     // g_ResMgr->Get(m_viewChar[char_id].imf_name.c_str(), false);
   }
@@ -243,7 +244,7 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
       const size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
 
       if (btn_id == 118) {
-        if (!m_ok_button) {
+        if (m_ok_button == nullptr) {
           return nullptr;
         }
 
@@ -263,7 +264,7 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
                                          reinterpret_cast<void *>(slot_id));
         g_WindowMgr->PostQuit(this);
       } else if (btn_id == 137) {
-        if (!m_make_button) {
+        if (m_make_button == nullptr) {
           return nullptr;
         }
 
@@ -293,6 +294,12 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
     } break;
     case 13:
       m_cur_slot = reinterpret_cast<size_t>(val1);
+      if (m_isEmpty[m_cur_slot]) {
+        MakeButton(137);
+      } else {
+        MakeButton(118);
+        MakeButton(145);
+      }
       break;
   };
 

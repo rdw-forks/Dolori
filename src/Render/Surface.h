@@ -26,16 +26,17 @@ class CSurface : public CGlTexture {
   unsigned long GetWidth() const;
   unsigned long GetHeight() const;
   SDL_Surface* GetSDLSurface() const;
+  SDL_Surface* GetSDLSurfaceXFlipped();
 
   void Create(unsigned long, unsigned long);
-  void UpdateSprite(int x, int y, int width, int height, const SPR_IMG* img,
+  void UpdateSprite(int x, int y, int width, int height, const SprImg* img,
                     const uint32_t* pal);
   void CopyRect(int, int, int, int, SDL_Surface*);
   void BlitBitmap(int x, int y, int w, int h, const ILubyte* bitmap);
   void BlitSurface(int x, int y, CSurface* src, int srcx, int srcy, int width,
-                   int height, int xflip, int zoomx, int zoomy);
+                   int height, int xflip, float zoomx, float zoomy);
   void BlitSprite(int x, int y, CSprRes* sprRes, CMotion* curMotion,
-                  unsigned int* palette);
+                  uint32_t* palette);
 
  protected:
   void UpdateGlTexture();
@@ -44,6 +45,7 @@ class CSurface : public CGlTexture {
   unsigned long m_w;
   unsigned long m_h;
   SDL_Surface* m_sdl_surface;
+  SDL_Surface* m_sdl_surface_xflipped;
 };
 
 #endif  // DOLORI_RENDER_SURFACE_H_

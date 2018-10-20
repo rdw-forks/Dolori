@@ -17,7 +17,7 @@ typedef struct _GndHeader {
 #pragma pack(pop)
 
 CGndRes::CGndRes()
-    : m_width(), m_height(), m_lightmaps(), m_surfaces(), m_cells() {}
+    : m_width(), m_height(), m_zoom(), m_lightmaps(), m_surfaces(), m_cells() {}
 
 CGndRes::~CGndRes() {}
 
@@ -97,7 +97,7 @@ int32_t CGndRes::GetWidth() const { return m_width; }
 
 int32_t CGndRes::GetHeight() const { return m_height; }
 
-uint32_t CGndRes::GetSurfaceCount() const { return m_surfaces.size(); }
+size_t CGndRes::GetSurfaceCount() const { return m_surfaces.size(); }
 
 const std::vector<LightmapInfo>& CGndRes::GetLightmaps() const {
   return m_lightmaps;

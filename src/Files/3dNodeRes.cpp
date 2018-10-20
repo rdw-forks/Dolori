@@ -9,7 +9,7 @@
 #include "Common/debug.h"
 #include "Render/Renderer.h"
 
-C3dNodeRes::C3dNodeRes() : vbo(nullptr) {}
+C3dNodeRes::C3dNodeRes() : info(), vbo(nullptr) {}
 
 void C3dNodeRes::Load(uint16_t version, CFile& file) {
   char buffer[0x28];
@@ -17,8 +17,10 @@ void C3dNodeRes::Load(uint16_t version, CFile& file) {
   vbo = nullptr;
 
   file.Read(&buffer, sizeof(buffer));
+  buffer[sizeof(buffer) - 1] = '\0';
   name = buffer;
   file.Read(&buffer, sizeof(buffer));
+  buffer[sizeof(buffer) - 1] = '\0';
   parentname = buffer;
 
   // Textures

@@ -8,6 +8,7 @@
 #include "Files/File.h"
 #include "Files/GatRes.h"
 #include "Files/GndRes.h"
+#include "Files/ImfRes.h"
 #include "Files/RsmRes.h"
 #include "Files/RswRes.h"
 #include "Files/SprRes.h"
@@ -39,6 +40,7 @@ CResMgr::CResMgr()
   RegisterType("gnd", "", new CGndRes());
   RegisterType("gat", "", new CGatRes());
   RegisterType("rsm", "model/", new CRsmRes());
+  RegisterType("imf", "imf/", new CImfRes());
 }
 
 void CResMgr::Reset() {}

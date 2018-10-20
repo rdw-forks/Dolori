@@ -179,16 +179,18 @@ void CRenderer::SetSize(int cx, int cy) {
   m_halfWidth = cx / 2;
   m_halfHeight = cy / 2;
   m_aspectRatio = cy / static_cast<float>(cx);
-  m_hpc = static_cast<float>(cx / 2) / glm::tan(3.141592 * 15.0 * 0.0027777778);
-  m_vpc = static_cast<float>(cy / 2) / glm::tan(3.141592 * 15.0 * 0.0027777778);
-  m_hratio = glm::tan((90.0 - 15.0 * 0.5) * 3.141592 * 0.0055555557);
-  m_xoffset = cx / 2;
-  m_yoffset = cy / 2;
-  m_vratio = glm::tan((90.0 - 15.0 * 0.5) * 3.141592 * 0.0055555557);
+  m_hpc = (static_cast<float>(cx) / 2.f) /
+          glm::tan(3.141592f * 15.f * 0.0027777778f);
+  m_vpc = (static_cast<float>(cy) / 2.f) /
+          glm::tan(3.141592f * 15.f * 0.0027777778f);
+  m_hratio = glm::tan((90.f - 15.f * 0.5) * 3.141592f * 0.0055555557f);
+  m_xoffset = cx / 2.f;
+  m_yoffset = cy / 2.f;
+  m_vratio = glm::tan((90.f - 15.f * 0.5f) * 3.141592f * 0.0055555557f);
   m_hpc = m_aspectRatio * m_hpc;
   m_hratio = m_aspectRatio * m_hratio;
-  m_screenXFactor = cx * 0.0015625;
-  m_screenYFactor = cy * 0.0020833334;
+  m_screenXFactor = cx * 0.0015625f;
+  m_screenYFactor = cy * 0.0020833334f;
   // g_avgPixelRatio = cy * 0.0017447917;
   // g_slope = g_gradient / m_screenYFactor;
   // g_shadowSlope = g_gradient / m_screenYFactor;
@@ -196,7 +198,8 @@ void CRenderer::SetSize(int cx, int cy) {
   m_projection_matrix = glm::perspective(
       70.f, m_width / static_cast<float>(m_height), 1.f, 2000.f);
   m_2d_projection_matrix =
-      glm::ortho<float>(0.f, m_width, m_height, 0.f, -1.f, 1.f);
+      glm::ortho(0.f, static_cast<float>(m_width), static_cast<float>(m_height),
+                 0.f, -1.f, 1.f);
 }
 
 int CRenderer::GetWidth() const { return m_width; }
@@ -272,7 +275,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
   // TODO(LinkZ): Render unicolor surface
 }
 
-// CTexture* CRenderer::AddSpriteIndex(SPR_IMG* img, uint32_t* pal,
+// CTexture* CRenderer::AddSpriteIndex(SprImg* img, uint32_t* pal,
 //                                    CACHE_INFO* info) {
 //  int id1, id2;
 //
@@ -343,7 +346,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //  surface_list.push_back(new_surface);
 //}
 
-// CTexture* CRenderer::GetSpriteIndex(SPR_IMG* img, uint32_t* pal_id,
+// CTexture* CRenderer::GetSpriteIndex(SprImg* img, uint32_t* pal_id,
 //                                    CACHE_INFO* info) {
 //  std::list<SurfaceCache>* surface_list = NULL;
 //  std::vector<CACHE_INFO>* info_list = NULL;
@@ -398,7 +401,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //  return cache_surface->tex;
 //}
 
-CSurface* CRenderer::AddSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
+CSurface* CRenderer::AddSpriteIndex(const SprImg* img, const uint32_t* pal) {
   uint32_t cur_time = GetTick();
   int id1, id2;
 
@@ -451,7 +454,7 @@ CSurface* CRenderer::AddSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
   return new_surface.tex;
 }
 
-CSurface* CRenderer::GetSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
+CSurface* CRenderer::GetSpriteIndex(const SprImg* img, const uint32_t* pal) {
   int id1, id2;
 
   if (img->width > 128) {

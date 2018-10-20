@@ -62,12 +62,6 @@ size_t CUIWindow::GetId() const { return m_id; }
 
 CUIWindow* CUIWindow::GetParent() const { return m_parent; }
 
-void CUIWindow::OnDraw() {}
-
-void CUIWindow::OnCreate(int x, int y) {}
-
-void CUIWindow::OnSize(int width, int height) {}
-
 bool CUIWindow::IsUpdateNeeded() const { return true; }
 
 bool CUIWindow::IsShow() const { return m_show; }
@@ -140,29 +134,9 @@ void CUIWindow::GetGlobalCoor(int* x, int* y) {
   }
 }
 
-void CUIWindow::OnLBtnDown(int x, int y) {}
-
-void CUIWindow::OnLBtnDblClk(int x, int y) {}
-
-void CUIWindow::OnRBtnDown(int x, int y) {}
-
-void CUIWindow::OnRBtnDblClk(int x, int y) {}
-
-void CUIWindow::OnWBtnDown(int x, int y) {}
-
-void CUIWindow::OnLBtnUp(int x, int y) {}
-
-void CUIWindow::OnRBtnUp(int x, int y) {}
-
-void CUIWindow::OnWBtnUp(int x, int y) {}
-
 void CUIWindow::OnMouseShape(int x, int y) {
   // CMode::SetCursorAction(g_modeMgr.m_curMode, 0);
 }
-
-void CUIWindow::OnMouseHover(int x, int y) {}
-
-void CUIWindow::OnMouseMove(int x, int y) {}
 
 void CUIWindow::DoDraw(bool blit_to_parent) {
   if (m_isDirty) {

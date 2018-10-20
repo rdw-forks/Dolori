@@ -44,7 +44,7 @@ typedef struct _WorldLightInfo {
 } WorldLightInfo;
 
 typedef struct _SurfaceCache {
-  const SPR_IMG *id;
+  const SprImg *id;
   const uint32_t *pal_id;
   CSurface *tex;
   uint32_t last_time;
@@ -77,8 +77,8 @@ class CRenderer {
   void AddSurface(const RenderBlock2d &render_block);
   void AddWorldRenderBlock(RenderBlock3d *render_block);
   void DrawBoxScreen(int, int, int, int, unsigned int);
-  CSurface *AddSpriteIndex(const SPR_IMG *img, const uint32_t *pal);
-  CSurface *GetSpriteIndex(const SPR_IMG *img, const uint32_t *pal);
+  CSurface *AddSpriteIndex(const SprImg *img, const uint32_t *pal);
+  CSurface *GetSpriteIndex(const SprImg *img, const uint32_t *pal);
   const glm::mat4 &projection_matrix() const;
   const glm::mat4 &view_matrix() const;
   void SetViewMatrix(const glm::mat4 &matrix);

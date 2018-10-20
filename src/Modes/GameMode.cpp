@@ -157,7 +157,7 @@ void CGameMode::ProcessInput() {
   ProcessSDLEvents();
   g_Mouse->ReadState();
   int process_type = g_WindowMgr->ProcessInput();
-  // g_WindowMgr->OnProcess();
+  g_WindowMgr->OnProcess();
   // ProcessNameBalloon(v1);
   // ProcessHelpBalloon();
   ProcessRightButton();

@@ -4,14 +4,13 @@ CMotion::CMotion()
     : range1(),
       range2(),
       spr_clips(),
-      num_clips(),
       attach_info(),
       attach_count(),
       event_id() {}
 
-int CMotion::NumberOfClips() const { return num_clips; }
+size_t CMotion::NumberOfClips() const { return spr_clips.size(); }
 
-const SPR_CLIP *CMotion::GetClip(unsigned int clip_number) const {
+const SprClip *CMotion::GetClip(size_t clip_number) const {
   if (!spr_clips.empty() && clip_number < spr_clips.size()) {
     return &spr_clips[clip_number];
   }

@@ -1,9 +1,9 @@
 #ifndef DOLORI_RENDER_SPRRES_H_
 #define DOLORI_RENDER_SPRRES_H_
 
+#include <memory>
 #include <string>
 #include <vector>
-
 #include "Files/Res.h"
 
 #pragma pack(push)
@@ -14,8 +14,8 @@ typedef struct _SPR_IMG {
   uint16_t height;
   uint16_t isHalfW;
   uint16_t isHalfH;
-  uint8_t* image_8bit;
-} SPR_IMG;
+  std::vector<uint8_t> image_8bit;
+} SprImg;
 
 #pragma pack(pop)
 
@@ -35,15 +35,18 @@ class CSprRes : public CRes {
   CRes* Clone() override;
 
   const uint32_t* GetPalette() const;
-  SPR_IMG* GetSprImg(SPR_TYPE clip_type, size_t spr_index) const;
-  uint8_t* DecodeRLE(uint8_t* image, int w, int h, uint16_t* size);
+  SprImg* GetSprImg(SPR_TYPE clip_type, size_t spr_index) const;
 
  protected:
   void Reset() override;
 
  private:
+  static void DecodeRLE(const std::vector<uint8_t>& image, int w, int h,
+                        std::vector<uint8_t>& output);
+
+ private:
   uint32_t m_palette[0x100];
-  std::vector<SPR_IMG*> m_sprites[SPR_TYPE_COUNT];
+  std::vector<std::unique_ptr<SprImg>> m_sprites[SPR_TYPE_COUNT];
   uint16_t m_count;
 };
 

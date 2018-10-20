@@ -8,16 +8,15 @@
 class CUIBitmapButton : public CUIButton {
  public:
   CUIBitmapButton();
-  ~CUIBitmapButton();
 
-  void SetBitmapName(const std::string&, int);
+  void SetBitmapName(const std::string& bitmapName, int buttonState);
   int GetBitmapWidth() const;
   int GetBitmapHeight() const;
   void OnDraw() override;
 
  private:
-  int m_bitmapWidth;
-  int m_bitmapHeight;
+  uint32_t m_bitmapWidth;
+  uint32_t m_bitmapHeight;
   std::string m_normalBitmapName;
   std::string m_mouseonBitmapName;
   std::string m_pressedBitmapName;

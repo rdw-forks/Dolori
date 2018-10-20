@@ -24,7 +24,6 @@ bool CFile::Open(const std::string& file_name, int nOpenFlags) {
       m_fileName = file_name;
       m_fileStream.open(m_fileName, std::ios::binary);
       if (!m_fileStream.is_open()) {
-        LOG(error, "Failed to open file: {}", m_fileName);
         result = false;
       } else {
         std::streampos file_size = 0;
