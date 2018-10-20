@@ -103,9 +103,15 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
       // TODO(LinkZ): Multiple acc servers
       m_next_sub_mode = 4;
       break;
-    case LMM_SENDCHARINFO:
+    case LMM_SENDCHARINFO: {
+      const auto p_char_info = reinterpret_cast<const CharacterInfo *>(val1);
+      if (p_char_info == nullptr) {
+        return nullptr;
+      }
+
+      m_new_char_info = *p_char_info;
       m_next_sub_mode = 10;
-      break;
+    } break;
     case LMM_PASSWORD:
       if (val1 != nullptr) {
         strncpy(m_userPassword, reinterpret_cast<const char *>(val1),
@@ -268,7 +274,7 @@ void CLoginMode::OnChangeState(int state) {
       PACKET_CH_SELECT_CHAR packet = {};
 
       packet.header = HEADER_CH_SELECT_CHAR;
-      packet.char_num = m_selected_char;
+      packet.char_num = static_cast<uint8_t>(m_selected_char);
       const int packet_size =
           g_RagConnection->GetPacketSize(HEADER_CH_SELECT_CHAR);
       g_RagConnection->SendPacket(packet_size,
@@ -282,17 +288,17 @@ void CLoginMode::OnChangeState(int state) {
       PACKET_CH_MAKE_CHAR packet = {};
 
       packet.header = HEADER_CH_MAKE_CHAR;
-      packet.char_slot = m_selected_char;
+      packet.char_slot = static_cast<uint8_t>(m_selected_char);
       strncpy(packet.name, g_Session->GetCharName(), sizeof(packet.name));
       // TODO: replace with actual values
-      packet.head_color = 1;
-      packet.head_style = 1;
-      packet.str = 5;
-      packet.agi = 5;
-      packet.vit = 5;
-      packet.int_ = 5;
-      packet.dex = 5;
-      packet.luk = 5;
+      packet.head_color = m_new_char_info.head_color;
+      packet.head_style = m_new_char_info.head_style;
+      packet.str = m_new_char_info.str;
+      packet.agi = m_new_char_info.agi;
+      packet.vit = m_new_char_info.vit;
+      packet.int_ = m_new_char_info.int_;
+      packet.dex = m_new_char_info.dex;
+      packet.luk = m_new_char_info.luk;
 
       const int packet_size =
           g_RagConnection->GetPacketSize(HEADER_CH_MAKE_CHAR);

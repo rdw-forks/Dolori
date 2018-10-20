@@ -133,7 +133,7 @@ void CUISelectCharWnd::OnDraw() {
       static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(filename), false));
   DrawBitmap(0, 0, bitmap, 0);
 
-  for (int i = 0; i < SLOTS_PER_PAGE; i++) {
+  for (size_t i = 0; i < SLOTS_PER_PAGE; i++) {
     const size_t char_id = SLOTS_PER_PAGE * m_cur_page + i;
 
     if (!m_isAvailable[char_id]) {
@@ -190,7 +190,8 @@ void CUISelectCharWnd::OnDraw() {
       }
 
       m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
-                             img->width, img->height, 0, 1, 1);
+                             img->width, img->height, clip->is_mirror,
+                             clip->zoomx, clip->zoomy);
     }
     // g_ResMgr->Get(m_viewChar[char_id].imf_name.c_str(), false);
   }
@@ -274,6 +275,8 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
         g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND,
                                          reinterpret_cast<void *>(10001), 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_SELECT_CHARACTER,
+                                         reinterpret_cast<void *>(slot_id));
         g_WindowMgr->PostQuit(this);
 
         return nullptr;

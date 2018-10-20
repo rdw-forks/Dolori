@@ -228,7 +228,7 @@ void *CUIMakeCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
           }
 
           g_Session->SetCharName(m_nameEditCtrl->GetText());
-          g_ModeMgr->GetCurMode()->SendMsg(LMM_SENDCHARINFO);
+          g_ModeMgr->GetCurMode()->SendMsg(LMM_SENDCHARINFO, &m_charInfo);
           g_WindowMgr->PostQuit(this);
           g_WindowMgr->SetCurScreen(1);
           break;

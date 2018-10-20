@@ -63,8 +63,15 @@ class CLoginMode : public CMode {
                 const void *val3 = nullptr) override;
 
   void OnUpdate();
+
+ private:
   void OnChangeState(int);
   void PollNetworkStatus();
+
+  void MakeLoginWindow();
+  void ConnectToAccountServer();
+  void ConnectToCharServer();
+  void ConnectToZoneServer();
 
   void Ac_Accept_Login(const char *);
   void Ac_Refuse_Login(const char *);
@@ -79,12 +86,6 @@ class CLoginMode : public CMode {
   void Zc_Accept_Enter2(const char *buffer);
   void Hc_Notify_Zonesvr(const char *);
   void Zc_Refuse_Enter(const char *buffer);
-
- private:
-  void MakeLoginWindow();
-  void ConnectToAccountServer();
-  void ConnectToCharServer();
-  void ConnectToZoneServer();
 
  private:
   int m_authCode;
@@ -106,6 +107,7 @@ class CLoginMode : public CMode {
   std::string m_wallPaperBmpName;
   BillingInfo m_billingInfo;
   unsigned int m_syncRequestTime;
+  CharacterInfo m_new_char_info;
   // UIWaitWnd *m_wndWait;
   std::vector<CAccountInfo> m_accountInfo;
   std::vector<CAccountInfo> m_accountInfo2;
