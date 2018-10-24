@@ -4,3 +4,6 @@
 [submodule "3rdparty/glm/glm"]
 	path = 3rdparty/glm/glm
 	url = ../glm.git
+[submodule "3rdparty/spdlog/spdlog"]
+	path = 3rdparty/spdlog/spdlog
+	url = ../spdlog.git
