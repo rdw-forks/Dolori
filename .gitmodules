@@ -10,3 +10,6 @@
 [submodule "3rdparty/tinyxml2/tinyxml2"]
 	path = 3rdparty/tinyxml2/tinyxml2
 	url = ../tinyxml2.git
+[submodule "3rdparty/zlib/zlib"]
+	path = 3rdparty/zlib/zlib
+	url = ../zlib.git
