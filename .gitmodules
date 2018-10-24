@@ -7,3 +7,6 @@
 [submodule "3rdparty/spdlog/spdlog"]
 	path = 3rdparty/spdlog/spdlog
 	url = ../spdlog.git
+[submodule "3rdparty/tinyxml2/tinyxml2"]
+	path = 3rdparty/tinyxml2/tinyxml2
+	url = ../tinyxml2.git
