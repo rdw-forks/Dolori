@@ -4,7 +4,7 @@ variables:
 before_script:
   - apt-get update -qy
   - apt-get install -y build-essential
-  - apt-get install -y cmake
+  - pip install cmake
   - apt-get install -y clang
   - apt-get install -y libsdl2-ttf-dev
   - apt-get install -y libdevil-dev
