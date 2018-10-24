@@ -13,18 +13,13 @@
 class CResMgr {
  public:
   CResMgr();
-  ~CResMgr();
 
   void Reset();
   void ReadResNameTable(const std::string &);
   void RegisterType(const std::string &, const std::string &, CRes *);
-  const char *GetRealResName(const char *);
-  CRes *Get(const std::string &fNameInput, bool bRefresh);
+  std::string GetRealResName(std::string res_name) const;
+  CRes *Get(std::string filename, bool bRefresh);
   void Unload(CRes *);
-
- private:
-  char *ToLower(char *);
-  const char *StrChrBackward(const char *, char);
 
  private:
   std::map<std::string, size_t> m_resExt;

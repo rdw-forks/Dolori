@@ -1,30 +1,18 @@
 #include "Files/Hash.h"
 
-#include <ctype.h>
-#include <string.h>
+#include <algorithm>
+#include <functional>
 
-CHash::CHash() {}
+CHash::CHash() : m_HashCode(), m_String() {}
 
-CHash::CHash(const char* str) { SetString(str); }
+CHash::CHash(const std::string& str) : CHash() { SetString(str); }
 
-CHash::~CHash() {}
+void CHash::SetString(const std::string& str) {
+  m_String = str;
 
-void CHash::SetString(const char* str) {
-  size_t str_len;
-
-  strcpy(m_String, str);
-  for (char* p = m_String; *p != '\0'; p++) *p = tolower(*p);
-  str_len = strlen(m_String);
-  if (str_len == 0) {
-    m_HashCode = 5381;
-  } else {
-    int hash = 5381;
-    unsigned long i = 0;
-    do {
-      hash = 33 * hash + m_String[i++];
-    } while (i < str_len);
-    m_HashCode = hash;
-  }
+  std::transform(std::cbegin(m_String), std::cend(m_String),
+                 std::begin(m_String), ::tolower);
+  m_HashCode = std::hash<std::string>{}(m_String);
 }
 
-const char* CHash::GetString() const { return m_String; }
+const std::string& CHash::GetString() const { return m_String; }

@@ -1,14 +1,15 @@
 #ifndef DOLORI_FILES_HASH_H_
 #define DOLORI_FILES_HASH_H_
 
+#include <string>
+
 class CHash {
  public:
   CHash();
-  CHash(const char*);
-  ~CHash();
+  explicit CHash(const std::string& str);
 
-  void SetString(const char*);
-  const char* GetString() const;
+  void SetString(const std::string& str);
+  const std::string& GetString() const;
 
   friend bool operator==(const CHash& lhs, const CHash& rhs) {
     return lhs.m_HashCode == rhs.m_HashCode;
@@ -30,8 +31,8 @@ class CHash {
   };
 
  private:
-  unsigned long m_HashCode;
-  char m_String[0x100];
+  size_t m_HashCode;
+  std::string m_String;
 };
 
 // class CHash {

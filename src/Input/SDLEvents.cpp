@@ -9,7 +9,7 @@ void ProcessSDLEvents() {
 
   g_Mouse->SetWheel(0);
 
-  while (SDL_PollEvent(&ev)) {
+  while (SDL_PollEvent(&ev) != 0) {
     switch (ev.type) {
       case SDL_QUIT:
         g_sys_quit = true;

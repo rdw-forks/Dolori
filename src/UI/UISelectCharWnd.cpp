@@ -33,9 +33,7 @@ CUISelectCharWnd::CUISelectCharWnd()
   }
 }
 
-CUISelectCharWnd::~CUISelectCharWnd() {}
-
-void CUISelectCharWnd::OnCreate(int cx, int cy) {
+void CUISelectCharWnd::OnCreate(int /*cx*/, int /*cy*/) {
   const std::string path_name =
       const_strings::kResourceSubfolder + "login_interface/";
   const std::string box_select = path_name + "box_select.bmp";
@@ -74,9 +72,8 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
   }
   InitTextControls();
 
-  for (int i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++) {
+  for (size_t i = 0; i < SLOTS_PER_PAGE * m_pageCount; i++) {
     CharacterInfo *char_info;
-    char buffer[256];
     VIEW_SPRITE *vs;
     uint16_t job;
     int sex;
@@ -93,12 +90,12 @@ void CUISelectCharWnd::OnCreate(int cx, int cy) {
     m_isEmpty[char_info->char_slot] = false;
     vs->x = 163 * (i % SLOTS_PER_PAGE) + 124;
     vs->y = 157;
-    vs->act_name[0] = g_Session->GetJobActName(job, sex, buffer);
-    vs->spr_name[0] = g_Session->GetJobSprName(job, sex, buffer);
+    vs->act_name[0] = std::move(g_Session->GetJobActName(job, sex));
+    vs->spr_name[0] = std::move(g_Session->GetJobSprName(job, sex));
     vs->act_name[1] =
-        g_Session->GetHeadActName(job, char_info->head_style, sex, buffer);
+        std::move(g_Session->GetHeadActName(char_info->head_style, sex));
     vs->spr_name[1] =
-        g_Session->GetHeadSprName(job, char_info->head_style, sex, buffer);
+        std::move(g_Session->GetHeadSprName(char_info->head_style, sex));
   }
 
   MakeButton(119);
@@ -136,66 +133,67 @@ void CUISelectCharWnd::OnDraw() {
       static_cast<CBitmapRes *>(g_ResMgr->Get(UIBmp(filename), false));
   DrawBitmap(0, 0, bitmap, 0);
 
-  for (int i = 0; i < SLOTS_PER_PAGE; i++) {
-    int char_id = SLOTS_PER_PAGE * m_cur_page + i;
+  for (size_t i = 0; i < SLOTS_PER_PAGE; i++) {
+    const size_t char_id = SLOTS_PER_PAGE * m_cur_page + i;
 
     if (!m_isAvailable[char_id]) {
       TextOutA(163 * char_id + 82, 107, "Not available", 0, 1, 18, 0);
       continue;
     }
 
-    if (!m_isEmpty[char_id]) {
-      // TEST CODE ==============
-      for (int layer = 0; layer < 5; layer++) {
-        VIEW_SPRITE *vs;
-        CMotion *motion;
-        SPR_CLIP *clip;
-        int off_x = 0;
-        int off_y = 0;
-        SPR_IMG *img;
-        CSprRes *spr;
-        CActRes *act;
-
-        vs = &m_viewChar[char_id];
-        spr = static_cast<CSprRes *>(g_ResMgr->Get(vs->spr_name[layer], false));
-        act = static_cast<CActRes *>(g_ResMgr->Get(vs->act_name[layer], false));
-        if (!spr || !act) {
-          continue;
-        }
-
-        motion = act->GetMotion(vs->cur_action, vs->cur_motion);
-        if (motion) {
-          if (layer == 1) {  // Head
-            clip = motion->GetClip(1);
-          } else {
-            clip = motion->GetClip(0);
-          }
-
-          if (!clip || clip->spr_index == -1) {
-            continue;
-          }
-
-          img = spr->GetSprImg(clip->clip_type, clip->spr_index);
-          off_x = clip->x - img->width / 2;
-          off_y = clip->y - img->height / 2;
-          // if (motion->attach_count > 0) {
-          //  off_x += motion->attach_info[0].x;
-          //  off_y += motion->attach_info[0].y;
-          //}
-
-          CSurface *surface =
-              g_Renderer->GetSpriteIndex(img, spr->GetPalette());
-          if (!surface) {
-            surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
-          }
-
-          m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
-                                 img->width, img->height, 0, 1, 1);
-        }
-      }
-      // g_ResMgr->Get(m_viewChar[char_id].imf_name.c_str(), false);
-      // TEST CODE ==============
+    if (m_isEmpty[char_id]) {
+      continue;
     }
+
+    for (int layer = 0; layer < VIEW_SPRITE_LAYERS_COUNT; layer++) {
+      const SprClip *clip;
+      VIEW_SPRITE *vs;
+      int off_x = 0;
+      int off_y = 0;
+      SprImg *img;
+      CSprRes *spr;
+      CActRes *act;
+
+      vs = &m_viewChar[char_id];
+      spr = static_cast<CSprRes *>(g_ResMgr->Get(vs->spr_name[layer], false));
+      act = static_cast<CActRes *>(g_ResMgr->Get(vs->act_name[layer], false));
+      if (spr == nullptr || act == nullptr) {
+        continue;
+      }
+
+      const CMotion *motion = act->GetMotion(vs->cur_action, vs->cur_motion);
+      if (motion == nullptr) {
+        continue;
+      }
+
+      if (layer == 1) {  // Head
+        clip = motion->GetClip(1);
+      } else {
+        clip = motion->GetClip(0);
+      }
+
+      if (clip == nullptr || clip->spr_index == -1) {
+        continue;
+      }
+
+      img = spr->GetSprImg(clip->clip_type, clip->spr_index);
+      off_x = clip->x - img->width / 2;
+      off_y = clip->y - img->height / 2;
+      // if (motion->attach_count > 0) {
+      //  off_x += motion->attach_info[0].x;
+      //  off_y += motion->attach_info[0].y;
+      //}
+
+      CSurface *surface = g_Renderer->GetSpriteIndex(img, spr->GetPalette());
+      if (surface == nullptr) {
+        surface = g_Renderer->AddSpriteIndex(img, spr->GetPalette());
+      }
+
+      m_surface->BlitSurface(off_x + vs->x, off_y + vs->y, surface, 0, 0,
+                             img->width, img->height, clip->is_mirror,
+                             clip->zoomx, clip->zoomy);
+    }
+    // g_ResMgr->Get(m_viewChar[char_id].imf_name.c_str(), false);
   }
 }
 
@@ -243,12 +241,12 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
   switch (message) {
     case WM_BUTTON_PRESSED: {
-      size_t btn_id = reinterpret_cast<size_t>(val1);
-      size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
+      const size_t btn_id = reinterpret_cast<size_t>(val1);
+      const size_t slot_id = m_cur_slot + SLOTS_PER_PAGE * m_cur_page;
 
       if (btn_id == 118) {
-        if (!m_ok_button) {
-          return result;
+        if (m_ok_button == nullptr) {
+          return nullptr;
         }
 
         m_dontmove = true;
@@ -256,7 +254,7 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
             static_cast<CharacterInfo *>(g_ModeMgr->GetCurMode()->SendMsg(
                 MM_QUERYCHARICTORINFO, reinterpret_cast<void *>(slot_id)));
         if (char_info == nullptr) {
-          return result;
+          return nullptr;
         }
 
         g_Session->SetCharName(char_info->name);
@@ -266,6 +264,22 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         g_ModeMgr->GetCurMode()->SendMsg(LMM_SELECT_CHARACTER,
                                          reinterpret_cast<void *>(slot_id));
         g_WindowMgr->PostQuit(this);
+      } else if (btn_id == 137) {
+        if (m_make_button == nullptr) {
+          return nullptr;
+        }
+
+        if (!m_isAvailable[slot_id] || !m_isEmpty[slot_id]) {
+          return nullptr;
+        }
+
+        g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND,
+                                         reinterpret_cast<void *>(10001), 0, 0);
+        g_ModeMgr->GetCurMode()->SendMsg(LMM_SELECT_CHARACTER,
+                                         reinterpret_cast<void *>(slot_id));
+        g_WindowMgr->PostQuit(this);
+
+        return nullptr;
       } else if (btn_id == 138) {
         Invalidate();
         for (int i = 0; i < SLOTS_PER_PAGE; i++) {
@@ -283,6 +297,12 @@ void *CUISelectCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
     } break;
     case 13:
       m_cur_slot = reinterpret_cast<size_t>(val1);
+      if (m_isEmpty[m_cur_slot]) {
+        MakeButton(137);
+      } else {
+        MakeButton(118);
+        MakeButton(145);
+      }
       break;
   };
 
@@ -294,56 +314,65 @@ void CUISelectCharWnd::MakeButton(int id) {
 
   switch (id) {
     case 118:
-      if (!m_ok_button) {
-        if (m_make_button) {
-          m_make_button = nullptr;
-        }
-        index = 0;
-      } else {
+      if (m_ok_button) {
         return;
       }
+
+      if (m_make_button) {
+        RemoveChild(m_make_button);
+        m_make_button = nullptr;
+      }
+
+      index = 0;
       break;
     case 137:
-      if (!m_make_button) {
-        if (m_ok_button) {
-          m_ok_button = nullptr;
-        }
-        if (m_delete_button) {
-          RemoveChild(m_delete_button);
-          m_delete_button = nullptr;
-        }
-        index = 1;
-      } else {
+      if (m_make_button) {
         return;
       }
+
+      if (m_ok_button) {
+        RemoveChild(m_ok_button);
+        m_ok_button = nullptr;
+      }
+
+      if (m_delete_button) {
+        RemoveChild(m_delete_button);
+        m_delete_button = nullptr;
+      }
+
+      index = 1;
       break;
     case 119:
-      if (!m_cancel_button)
-        index = 2;
-      else {
+      if (m_cancel_button) {
         return;
       }
+
+      index = 2;
       break;
     case 145:
-      if (!m_delete_button) {
-        if (m_make_button) {
-          RemoveChild(m_make_button);
-          m_make_button = nullptr;
-        }
-        index = 3;
-      } else {
+      if (m_delete_button) {
         return;
       }
+
+      if (m_make_button) {
+        RemoveChild(m_make_button);
+        m_make_button = nullptr;
+      }
+
+      index = 3;
       break;
     case 218:
-      if (!m_charge_button) {
-        index = 4;
+      if (m_charge_button) {
+        return;
       }
+
+      index = 4;
       break;
     case 220:
       if (m_notice_button) {
         return;
       }
+
       index = 5;
       break;
     default:
@@ -352,22 +381,10 @@ void CUISelectCharWnd::MakeButton(int id) {
 
   CUIBitmapButton *new_button = new CUIBitmapButton();
   const std::string path_name = const_strings::kResourceSubfolder;
-  std::string button_name[6];
+  const std::string button_name[6] = {"btn_ok",  "btn_make",   "btn_cancel",
+                                      "btn_del", "btn_charge", "btn_charge"};
+  const int ids[6] = {118, 137, 119, 145, 218, 220};
   int x_offset = 0;
-  int ids[6];
-
-  button_name[0] = "btn_ok";
-  button_name[1] = "btn_make";
-  button_name[2] = "btn_cancel";
-  button_name[3] = "btn_del";
-  button_name[4] = "btn_charge";
-  button_name[5] = "btn_charge";
-  ids[0] = 118;
-  ids[1] = 137;
-  ids[2] = 119;
-  ids[3] = 145;
-  ids[4] = 218;
-  ids[5] = 220;
 
   new_button->SetBitmapName(path_name + button_name[index] + ".bmp", 0);
   new_button->SetBitmapName(path_name + button_name[index] + "_a.bmp", 1);

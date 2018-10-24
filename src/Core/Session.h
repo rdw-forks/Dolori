@@ -1,7 +1,6 @@
 #ifndef DOLORI_CORE_SESSION_H_
 #define DOLORI_CORE_SESSION_H_
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <list>
 #include <map>
 #include <string>
@@ -10,7 +9,7 @@
 class CSession {
  public:
   CSession();
-  ~CSession();
+
   void Init();
   bool Create();
 
@@ -26,12 +25,13 @@ class CSession {
   void InvalidateBasicWnd();
   void InitPcNameTable();
   void InitJobNameTable();
-  const char *GetJobName(int job);
-  char *GetJobActName(int job, int sex, char *buf);
-  char *GetJobSprName(int job, int sex, char *buf);
-  char *GetHeadActName(int job, unsigned short head, int sex, char *buf);
-  char *GetHeadSprName(int job, unsigned short head, int sex, char *buf);
-  char *GetImfName(int job, int head, int sex, char *buf);
+  const char *GetCharName() const;
+  const char *GetJobName(unsigned int job) const;
+  std::string GetJobActName(int job, int sex) const;
+  std::string GetJobSprName(int job, int sex);
+  std::string GetHeadActName(uint16_t head, int sex);
+  std::string GetHeadSprName(uint16_t head, int sex);
+  std::string GetImfName(int job, int sex);
   bool IsMasterAid(uint32_t);
 
  private:
@@ -97,8 +97,6 @@ class CSession {
   std::list<std::string> m_exNameList;
   std::map<unsigned int, char const *> m_newPcJobNameTable;
   std::map<unsigned int, char const *> m_newPcSexNameTable;
-  std::map<unsigned int, char const *> m_newPcHeadNameTable_M;
-  std::map<unsigned int, char const *> m_newPcHeadNameTable_F;
   std::map<unsigned int, char const *> m_newPcJobImfNameTable;
   std::map<unsigned int, char const *> m_newAccessoryNameTable;
   std::map<unsigned int, char const *> m_pcWeaponNameTable;

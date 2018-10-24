@@ -136,24 +136,29 @@ void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         if (g_isGravityID || g_serviceType != ServiceType::kKorea) {
           g_ModeMgr->Quit();
         } else {
-          // v12 = MsgStr(MSI_3DAY_FREE);
-          // if (UIWindowMgr::ErrorMsg(&g_windowMgr, v12, 2, 1, 0, 0) != 121)
-          //  return 0;
+          const auto error_msg = g_MsgStrMgr->GetMsgStr(MSI_3DAY_FREE);
+          if (g_WindowMgr->ErrorMsg(error_msg, 2, 1, 0, 0) != 121) {
+            return nullptr;
+          }
           g_ModeMgr->Quit();
         }
       } else if (btn_id == 155) {
         // UILoginWnd::WriteToReg(this);
-        // v19 = MsgStr(MSI_DO_YOU_REALLY_WANT_TO_QUIT);
-        // if (UIWindowMgr::ErrorMsg(&g_windowMgr, v19, 2, 1, 0, 0) != 121)
-        //  return 0;
+        const auto error_msg =
+            g_MsgStrMgr->GetMsgStr(MSI_DO_YOU_REALLY_WANT_TO_QUIT);
+        if (g_WindowMgr->ErrorMsg(error_msg, 2, 1, 0, 0) != 121) {
+          return nullptr;
+        }
+
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT);
         g_WindowMgr->PostQuit(this);
       } else if (btn_id == 120) {
         // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
         g_ModeMgr->GetCurMode()->SendMsg(
-            LMM_PASSWORD, static_cast<const void *>(m_password->GetText()));
+            LMM_PASSWORD,
+            static_cast<const void *>(m_password->GetText().c_str()));
         g_ModeMgr->GetCurMode()->SendMsg(
-            LMM_ID, static_cast<const void *>(m_login->GetText()));
+            LMM_ID, static_cast<const void *>(m_login->GetText().c_str()));
         g_ModeMgr->GetCurMode()->SendMsg(LMM_CONNECT_TO_ACSVR);
         g_WindowMgr->PostQuit(this);
       }

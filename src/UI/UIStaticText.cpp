@@ -5,16 +5,14 @@ CUIStaticText::CUIStaticText()
       m_backR(255),
       m_backG(255),
       m_backB(255),
-      m_textR(),
-      m_textG(),
-      m_textB(),
+      m_textR(0),
+      m_textG(0),
+      m_textB(0),
       m_drawTwice(false),
       m_drawBold(false),
       m_fontHeight(12),
       m_fontType(),
       m_isShorten() {}
-
-CUIStaticText::~CUIStaticText() {}
 
 void CUIStaticText::OnDraw() {
   const uint32_t color = (m_textR << 16) | (m_textG << 8) | m_textB;
@@ -34,7 +32,7 @@ void CUIStaticText::OnDraw() {
   TextOutA(0, 0, m_text.c_str(), 0, m_fontType, m_fontHeight, color);
 }
 
-void CUIStaticText::SetText(const std::string& text, int drawBold) {
+void CUIStaticText::SetText(const std::string& text, bool drawBold) {
   m_drawBold = drawBold;
   m_text = text;
   m_fullText = text;

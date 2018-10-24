@@ -5,7 +5,14 @@ CMemMapFile::CMemMapFile()
       m_dwOpenOffset(),
       m_dwOpenSize(),
       m_dwFileMappingSize(),
-      m_pFile() {}
+      m_pFile() {
+#ifdef WIN32
+  m_hFile = nullptr;
+  m_hFileMap = nullptr;
+#else
+  m_fd = 0;
+#endif
+}
 
 CMemMapFile::~CMemMapFile() { Close(); }
 
@@ -73,12 +80,11 @@ void CMemMapFile::Close() {
 #endif
 }
 
-unsigned long CMemMapFile::GetSize() { return m_dwFileSize; }
+size_t CMemMapFile::GetSize() { return m_dwFileSize; }
 
-const unsigned char *CMemMapFile::Read(unsigned long offset,
-                                       unsigned long size) {
+const unsigned char *CMemMapFile::Read(off_t offset, size_t size) {
   size_t bufferSize;
-  unsigned long dwRead;
+  DWORD dwRead;
 
   if (m_dwFileMappingSize) {
     if (offset >= m_dwOpenOffset &&
@@ -181,14 +187,14 @@ void CMemMapFile::Init() {
   _SYSTEM_INFO systemInfo;
   GetSystemInfo(&systemInfo);
   m_dwAllocationGranuarity = -systemInfo.dwAllocationGranularity;
-  m_hFile = NULL;
-  m_hFileMap = NULL;
+  m_hFile = nullptr;
+  m_hFileMap = nullptr;
 #else
   m_dwAllocationGranuarity = 0;
   m_fd = -1;
 #endif
   m_dwFileMappingSize = 0x20000000;
-  m_pFile = NULL;
+  m_pFile = nullptr;
   m_dwFileSize = 0;
   m_dwOpenOffset = 0;
   m_dwOpenSize = 0;

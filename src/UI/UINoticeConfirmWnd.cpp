@@ -10,8 +10,6 @@
 
 CUINoticeConfirmWnd::CUINoticeConfirmWnd() : m_textViewer(), m_target(30) {}
 
-CUINoticeConfirmWnd::~CUINoticeConfirmWnd() {}
-
 void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   const std::string resource_path = const_strings::kResourceSubfolder;
   std::string button_name[2][3];

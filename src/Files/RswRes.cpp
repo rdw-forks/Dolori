@@ -32,7 +32,6 @@ CRes* CRswRes::Clone() { return new CRswRes(); }
 bool CRswRes::Load(const std::string& filename) {
   RswHeader header;
   char buffer[40];
-  float x, y, z;
   CFile fp;
 
   LOG(debug, "Loading {}", filename);

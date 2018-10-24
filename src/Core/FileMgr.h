@@ -12,11 +12,10 @@
 class CFileMgr {
  public:
   CFileMgr();
-  ~CFileMgr();
 
   bool AddPak(const std::string &pak_name);
   // void *GetData(const char *, unsigned long *, bool);
-  void *GetPak(const std::string &pak_name, size_t *file_size);
+  void *GetPak(const std::string &file_name, size_t *file_size);
   bool IsDataExist(const std::string &file_name);
   // void *GetFile(const char *name, unsigned long *lpSize);
 

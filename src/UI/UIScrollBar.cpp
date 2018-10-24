@@ -165,8 +165,10 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
 }
 
 void CUIScrollBar::OnLBtnUp(int x, int y) {
-  if (m_maxPos) {
-    if (g_WindowMgr->GetCapture() == this) g_WindowMgr->ReleaseCapture();
+  if (m_maxPos != 0) {
+    if (g_WindowMgr->GetCapture() == this) {
+      g_WindowMgr->ReleaseCapture();
+    }
   } else {
     m_parent->OnLBtnUp(x + m_x, y + m_y);
   }
@@ -178,82 +180,106 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
   int scrollbar_length;
   size_t button_drag;
 
-  if (!m_maxPos) {
+  if (m_maxPos == 0) {
     m_parent->OnMouseMove(x + m_x, y + m_y);
     return;
   }
 
   scrollbar_length = m_h;
-  if (!m_isVert) scrollbar_length = m_w;
-  if (scrollbar_length != 3 * m_scrollBtnSize) {
-    previous_draw_mode = m_drawMode;
-    switch (HitTest(x, y) + 1) {
-      case 0:
-      case 2:
-      case 4:
-        m_drawMode = 0;
-        break;
-      case 1:
-        m_drawMode = 1;
-        break;
-      case 3:
-        m_drawMode = 3;
-        break;
-      case 5:
-        m_drawMode = 2;
-        break;
-      default:
-        break;
-    }
-    if (previous_draw_mode != m_drawMode) Invalidate();
+  if (!m_isVert) {
+    scrollbar_length = m_w;
+  }
 
-    if (g_WindowMgr->GetCapture() == this && m_parent) {
-      if (!m_isVert) {
-        pos_scroll_end = m_w - 3 * m_scrollBtnSize;
-        if ((m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end == m_deltaDrag)
-          return;
-        button_drag =
-            (m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end - m_deltaDrag;
-        m_deltaDrag +=
-            (size_t)m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0);
+  if (scrollbar_length == 3 * m_scrollBtnSize) {
+    return;
+  }
+
+  previous_draw_mode = m_drawMode;
+  switch (HitTest(x, y) + 1) {
+    case 0:
+    case 2:
+    case 4:
+      m_drawMode = 0;
+      break;
+    case 1:
+      m_drawMode = 1;
+      break;
+    case 3:
+      m_drawMode = 3;
+      break;
+    case 5:
+      m_drawMode = 2;
+      break;
+    default:
+      break;
+  }
+
+  if (previous_draw_mode != m_drawMode) {
+    Invalidate();
+  }
+
+  if (g_WindowMgr->GetCapture() == this && m_parent != nullptr) {
+    if (!m_isVert) {
+      pos_scroll_end = m_w - 3 * m_scrollBtnSize;
+      if ((m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end == m_deltaDrag) {
         return;
-      } else {
-        pos_scroll_end = m_h - 3 * m_scrollBtnSize;
-        if ((m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end !=
-            m_deltaDrag) {
-          button_drag = (m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end -
-                        m_deltaDrag;
-          m_deltaDrag +=
-              (size_t)m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0);
-          return;
-        }
       }
+
+      button_drag =
+          (m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end - m_deltaDrag;
+      m_deltaDrag += reinterpret_cast<int>(
+          m_parent->SendMsg(this, 8, (void *)button_drag, 0, 0, 0));
+      return;
+    }
+
+    pos_scroll_end = m_h - 3 * m_scrollBtnSize;
+    if ((m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end != m_deltaDrag) {
+      button_drag =
+          (m_maxPos + 1) * (y - m_startDragY) / pos_scroll_end - m_deltaDrag;
+      m_deltaDrag += reinterpret_cast<int>(
+          m_parent->SendMsg(this, 7, (void *)button_drag, 0, 0, 0));
+      return;
     }
   }
 }
 
 int CUIScrollBar::HitTest(int x, int y) {
-  if (!m_maxPos) return -1;
+  if (m_maxPos == 0) return -1;
   if (x < 0) return -1;
   if (x >= m_w) return -1;
   if (y < 0) return -1;
   if (y >= m_h) return -1;
 
   if (m_isVert) {
-    if (y < m_scrollBtnSize) return 0;
-    if (y < m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
-      return 1;
+    if (y < m_scrollBtnSize) {
+      return 0;
+    }
+
     if (y <
-        2 * m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
-      return 2;
-    return (y >= m_h - m_scrollBtnSize) + 3;
-  } else {
-    if (x < m_scrollBtnSize) return 0;
-    if (x < m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
+        m_scrollBtnSize + (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
       return 1;
-    if (x <
-        2 * m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos)
+    }
+
+    if (y < 2 * m_scrollBtnSize +
+                (m_h - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
       return 2;
-    return (x >= m_w - m_scrollBtnSize) + 3;
+    }
+
+    return (y >= m_h - m_scrollBtnSize) + 3;
   }
+
+  if (x < m_scrollBtnSize) {
+    return 0;
+  }
+
+  if (x < m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
+    return 1;
+  }
+
+  if (x <
+      2 * m_scrollBtnSize + (m_w - 3 * m_scrollBtnSize) * m_curPos / m_maxPos) {
+    return 2;
+  }
+
+  return (x >= m_w - m_scrollBtnSize) + 3;
 }

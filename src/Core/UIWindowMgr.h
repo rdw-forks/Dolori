@@ -170,12 +170,12 @@ typedef enum WINDOWID {
 class CUIWindowMgr {
  public:
   CUIWindowMgr();
-  ~CUIWindowMgr();
 
   void SetSize(int, int);
   void SetWallpaper(CBitmapRes *);
   void RenderWallPaper();
   void Render(CMode *);
+  void OnProcess();
   CUIFrameWnd *MakeWindow(WINDOWID windowId);
   void PostQuit(CUIWindow *wnd);
   void AddWindow(CUIWindow *);
@@ -190,6 +190,7 @@ class CUIWindowMgr {
   int ProcessInput();
   int ErrorMsg(const std::string &msg, int type, int isDefYes, int changeMsg,
                unsigned int autoReturnTime);
+  void SetCurScreen(int cur_screen);
 
  private:
   int m_chatWndX;

@@ -1,7 +1,10 @@
 #include "UI/UIWindow.h"
 
+#include <algorithm>
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/debug.h"
 
 CUIWindow::CUIWindow()
     : m_parent(),
@@ -59,12 +62,6 @@ size_t CUIWindow::GetId() const { return m_id; }
 
 CUIWindow* CUIWindow::GetParent() const { return m_parent; }
 
-void CUIWindow::OnDraw() {}
-
-void CUIWindow::OnCreate(int, int) {}
-
-void CUIWindow::OnSize(int, int) {}
-
 bool CUIWindow::IsUpdateNeeded() const { return true; }
 
 bool CUIWindow::IsShow() const { return m_show; }
@@ -77,26 +74,26 @@ void CUIWindow::AddChild(CUIWindow* wnd) {
 }
 
 void CUIWindow::RemoveChild(CUIWindow* window) {
-  for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-    if (*it == window) {
-      m_children.erase(it);
-    }
+  if (window == nullptr) {
+    return;
   }
 
-  if (window) {
-    delete window;
-  }
+  m_children.erase(
+      std::remove_if(std::begin(m_children), std::end(m_children),
+                     [window](CUIWindow* child) { return child == window; }));
+
+  delete window;
 }
 
 bool CUIWindow::IsChildOf(CUIWindow* wnd) const {
-  if (!m_parent) {
+  if (m_parent == nullptr) {
     return false;
   }
 
-  CUIWindow* parent = m_parent;
+  const CUIWindow* parent = m_parent;
   while (parent != wnd) {
     parent = parent->GetParent();
-    if (!parent) {
+    if (parent == nullptr) {
       return false;
     }
   }
@@ -112,9 +109,9 @@ CUIWindow* CUIWindow::HitTest(int x, int y) {
       return this;
     }
 
-    for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
+    for (auto it = std::rbegin(m_children); it != std::rend(m_children); ++it) {
       result = (*it)->HitTest(x - m_x, y - m_y);
-      if (result && result->IsShow()) {
+      if (result != nullptr && result->IsShow()) {
         return result;
       }
     }
@@ -137,29 +134,9 @@ void CUIWindow::GetGlobalCoor(int* x, int* y) {
   }
 }
 
-void CUIWindow::OnLBtnDown(int x, int y) {}
-
-void CUIWindow::OnLBtnDblClk(int x, int y) {}
-
-void CUIWindow::OnRBtnDown(int x, int y) {}
-
-void CUIWindow::OnRBtnDblClk(int x, int y) {}
-
-void CUIWindow::OnWBtnDown(int x, int y) {}
-
-void CUIWindow::OnLBtnUp(int x, int y) {}
-
-void CUIWindow::OnRBtnUp(int x, int y) {}
-
-void CUIWindow::OnWBtnUp(int x, int y) {}
-
 void CUIWindow::OnMouseShape(int x, int y) {
   // CMode::SetCursorAction(g_modeMgr.m_curMode, 0);
 }
-
-void CUIWindow::OnMouseHover(int x, int y) {}
-
-void CUIWindow::OnMouseMove(int x, int y) {}
 
 void CUIWindow::DoDraw(bool blit_to_parent) {
   if (m_isDirty) {
@@ -172,7 +149,7 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
     child->DoDraw(blit_to_parent);
   }
 
-  if (blit_to_parent && m_parent) {
+  if (blit_to_parent && m_parent != nullptr) {
     m_parent->m_surface->CopyRect(m_x, m_y, m_w, m_h,
                                   m_surface->GetSDLSurface());
   }
@@ -180,7 +157,7 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
 
 void CUIWindow::DrawBitmap(int x, int y, const CBitmapRes* bitmap,
                            int drawOnlyNoTrans) {
-  if (m_surface && bitmap) {
+  if (m_surface != nullptr && bitmap) {
     m_surface->BlitBitmap(x, y, bitmap->GetWidth(), bitmap->GetHeight(),
                           bitmap->GetData());
   }
@@ -206,15 +183,19 @@ void CUIWindow::DrawBox(int x, int y, int cx, int cy, uint32_t color) {
 }
 
 void CUIWindow::ClearDC(uint32_t color) {
-  if (m_surface) {
-    m_surface->ClearSurface(nullptr, color);
+  if (m_surface == nullptr) {
+    return;
   }
+
+  m_surface->ClearSurface(nullptr, color);
 }
 
 void CUIWindow::DrawSurface() {
-  if (m_surface) {
-    m_surface->DrawSurface(m_x, m_y, m_w, m_h, 0xFFFFFFFF);
+  if (m_surface == nullptr) {
+    return;
   }
+
+  m_surface->DrawSurface(m_x, m_y, m_w, m_h, 0xFFFFFFFF);
 }
 
 void CUIWindow::InvalidateChildren() {
@@ -231,38 +212,52 @@ void CUIWindow::Invalidate() { m_isDirty = true; }
 
 void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
                          int fontType, int fontHeight, unsigned int colorText) {
-  if (!text) {
+  if (text == nullptr) {
     return;
   }
 
-  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
+  const std::string font_name = "arial.ttf";
+  TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
+  if (font == nullptr) {
+    LOG(error, "Cannot get font '{}'", font_name);
+    return;
+  }
+
   const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
-  if (sdl_surface) {
-    if (m_surface) {
-      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
-    } else {
-      m_surface = std::make_unique<CSurface>(sdl_surface);
-    }
+  if (sdl_surface == nullptr) {
+    return;
+  }
+
+  if (m_surface != nullptr) {
+    m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+  } else {
+    m_surface = std::make_unique<CSurface>(sdl_surface);
   }
 }
 
 void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
                             int fontType, int fontHeight,
                             unsigned int colorText) {
-  if (!text) {
+  if (text == nullptr) {
     return;
   }
 
-  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
+  const std::string font_name = "arial.ttf";
+  TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
+  if (font == nullptr) {
+    LOG(error, "Cannot get font '{}'", font_name);
+    return;
+  }
+
   const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
-  if (sdl_surface) {
-    if (m_surface) {
+  if (sdl_surface != nullptr) {
+    if (m_surface != nullptr) {
       m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
     } else {
       m_surface = std::make_unique<CSurface>(sdl_surface);
@@ -274,14 +269,24 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
                                    size_t textLen, uint32_t colorText,
                                    uint32_t colorOutline, int fontType,
                                    int fontHeight, bool bold) {
+  if (text == nullptr) {
+    return;
+  }
+
+  const std::string font_name = "arial.ttf";
+  TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
+  if (font == nullptr) {
+    LOG(error, "Cannot get font '{}'", font_name);
+    return;
+  }
+
+  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
+                           static_cast<Uint8>((colorText >> 8) & 0xFF),
+                           static_cast<Uint8>(colorText & 0xFF)};
   const SDL_Color color_outline = {
       static_cast<Uint8>((colorOutline >> 16) & 0xFF),
       static_cast<Uint8>((colorOutline >> 8) & 0xFF),
       static_cast<Uint8>(colorOutline & 0xFF)};
-  const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
-                           static_cast<Uint8>((colorText >> 8) & 0xFF),
-                           static_cast<Uint8>(colorText & 0xFF)};
-  TTF_Font* font = g_FontMgr->GetFont("arial.ttf", fontHeight);
 
   TTF_SetFontOutline(font, 1);
   SDL_Surface* bg_surface = TTF_RenderText_Blended(font, text, color_outline);
@@ -308,12 +313,12 @@ void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,
 }
 
 const char* CUIWindow::InterpretColor(const char* color_text,
-                                      unsigned int* colorRef) {
+                                      unsigned int* /*colorRef*/) {
   const char* result;
   // unsigned short v3;
 
   result = color_text;
-  if (color_text) {
+  if (color_text != nullptr) {
     if (*color_text == '^') {
       // HIBYTE(v3) = LOBYTE((&hex_table)[color_text[6]]) +
       //             16 * LOBYTE((&hex_table)[color_text[5]]);
@@ -326,6 +331,7 @@ const char* CUIWindow::InterpretColor(const char* color_text,
       //            (v3 << 8);
     }
   }
+
   return result;
 }
 
@@ -333,21 +339,18 @@ void CUIWindow::OnBeginEdit() {}
 
 void CUIWindow::OnFinishEdit() {}
 
-void* CUIWindow::SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-                         void* val3, void* val4) {
-  void* result = nullptr;
-
-  if (message) {
-    if (message == 1) {
-      if (m_parent) {
-        m_parent->SendMsg(this, 1);
+void* CUIWindow::SendMsg(CUIWindow* /*sender*/, int message, void* /*val1*/,
+                         void* /*val2*/, void* /*val3*/, void* /*val4*/) {
+  switch (message) {
+    case 0:
+    case 1:
+      if (m_parent != nullptr) {
+        m_parent->SendMsg(this, message);
       }
-    }
-  } else {
-    if (m_parent) {
-      m_parent->SendMsg(this, 0);
-    }
+      break;
+    default:
+      return nullptr;
   }
 
-  return result;
+  return nullptr;
 }

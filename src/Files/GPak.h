@@ -2,32 +2,34 @@
 #define DOLORI_FILES_GPACK_H_
 
 #include <memory>
+#include <string>
+#include <list>
 #include <vector>
 
+#include "Files/Hash.h"
 #include "Files/MemFile.h"
 #include "Files/pak_pack.h"
 
 class CGPak {
  public:
   CGPak();
-  virtual ~CGPak();
 
   bool Open(std::shared_ptr<CMemFile> memfile);
   void Init();
-  bool GetInfo(const CHash *, PAK_PACK *);
+  bool GetInfo(const std::string &, PAK_PACK *) const;
   bool GetData(const PAK_PACK *pakPack, void *buffer);
 
  protected:
   bool OpenPak01();
   bool OpenPak02();
-  char *NormalizeFileName(char *, const char *);
+  void NormalizeFileName(const std::string &input, std::string &output);
 
  private:
   unsigned long m_FileVer;
   unsigned long m_FileCount;
   unsigned long m_PakInfoOffset;
   unsigned long m_PakInfoSize;
-  std::vector<PAK_PACK> m_PakPack;
+  std::list<PAK_PACK> m_PakPack;
   std::vector<unsigned char> m_pDecBuf;
   std::shared_ptr<CMemFile> m_memFile;
   // CRITICAL_SECTION m_csPak;

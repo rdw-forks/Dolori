@@ -56,7 +56,7 @@ bool GameClient::Initialize() {
 
   g_ResMgr->ReadResNameTable("resNameTable.txt");
 
-  const uint32_t flags = (full_screen_ ? DEVICE_FLAG_FULLSCREEN : 0) &
+  const uint32_t flags = (full_screen_ ? DEVICE_FLAG_FULLSCREEN : 0) |
                          (vsync_ ? DEVICE_FLAG_VSYNC : 0);
 
   if (g_3dDevice->Init(window_width_, window_height_, msaa_, flags) < 0) {
@@ -83,8 +83,8 @@ bool GameClient::Initialize() {
 }
 
 void GameClient::Run() {
-  // g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
-  g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
+  g_ModeMgr->Run(ModeType::kLogin, "login.rsw");
+  // g_ModeMgr->Run(ModeType::kGame, "prontera.rsw");
 }
 
 bool GameClient::LoadConfiguration(const std::string& file_name) {
@@ -126,6 +126,8 @@ bool GameClient::LoadConfiguration(const std::string& file_name) {
   LOG(debug, "Fullscreen: {}", full_screen_);
   LOG(debug, "Resolution: {}x{}", window_width_, window_height_);
   LOG(debug, "Font folder: {}", font_folder_);
+  LOG(debug, "Vsync: {}", vsync_ ? "On" : "Off");
+  LOG(debug, "Anti-aliasing: MSAA {}x", msaa_);
 
   return true;
 }

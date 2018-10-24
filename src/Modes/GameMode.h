@@ -16,13 +16,14 @@ class CGameMode : public CMode {
   void OnInit(const char *) override;
   int OnRun() override;
   void OnExit() override;
+  void *SendMsg(size_t msg, const void *val1 = nullptr,
+                const void *val2 = nullptr,
+                const void *val3 = nullptr) override;
 
   void Intialize();
   void OnChangeState(int);
   void OnUpdate();
   void ProcessTalkType(int, const std::string &);
-  void *SendMsg(size_t msg, const void *val1 = nullptr,
-                const void *val2 = nullptr, const void *val3 = nullptr);
   void ProcessInput();
   void ProcessRightButton();
   void ProcessMouseWheel(int process_type);

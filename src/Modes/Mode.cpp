@@ -10,13 +10,8 @@ CMode::CMode()
       m_loop_cond(true),
       m_isConnected() {}
 
-bool CMode::GetLoopCond() { return m_loop_cond; }
-
-void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }
-
-void* CMode::SendMsg(size_t msg, const void* val1, const void* val2, const void* val3) {
-  void* result = nullptr;
-
+void* CMode::SendMsg(size_t msg, const void* val1, const void* val2,
+                     const void* val3) {
   switch (msg) {
     case MM_QUIT:
       g_ModeMgr->Quit();
@@ -26,5 +21,9 @@ void* CMode::SendMsg(size_t msg, const void* val1, const void* val2, const void*
       break;
   };
 
-  return result;
+  return nullptr;
 }
+
+bool CMode::GetLoopCond() const { return m_loop_cond; }
+
+void CMode::SetLoopCond(bool loop_cond) { m_loop_cond = loop_cond; }

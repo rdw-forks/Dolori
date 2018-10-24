@@ -1,6 +1,14 @@
 #include "Render/Texture.h"
 
-CTexture::CTexture() : CSurface() {}
+CTexture::CTexture()
+    : CSurface(),
+      m_pf(),
+      m_blackkey(),
+      m_update_width(),
+      m_update_height(),
+      m_tex_name(),
+      m_lock_count(),
+      m_time_stamp() {}
 
 CTexture::CTexture(unsigned long w, unsigned long h, PIXEL_FORMAT pf) {
   m_lock_count = 0;

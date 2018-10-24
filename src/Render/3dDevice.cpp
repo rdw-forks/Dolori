@@ -11,7 +11,38 @@
 #include "Common/debug.h"
 #include "Render/SurfaceWallpaper.h"
 
-C3dDevice::C3dDevice() {}
+C3dDevice::C3dDevice()
+    : m_sdlWnd(),
+      m_glCtx(),
+      m_dwRenderWidth(),
+      m_dwRenderHeight(),
+      m_bIsFullscreen(),
+      m_pfRShiftR(),
+      m_pfRShiftL(),
+      m_pfGShiftR(),
+      m_pfGShiftL(),
+      m_pfBShiftR(),
+      m_pfBShiftL(),
+      m_pfAShiftR(),
+      m_pfAShiftL(),
+      m_pfBitCount(),
+      m_pfRBitMask(),
+      m_pfGBitMask(),
+      m_pfBBitMask(),
+      m_pfABitMask(),
+      m_dwMinTextureWidth(),
+      m_dwMinTextureHeight(),
+      m_dwMaxTextureWidth(),
+      m_dwMaxTextureHeight(),
+      m_dwMaxTextureAspectRatio(),
+      m_bSupportBltStretch(),
+      m_bSupportTextureSurface(),
+      m_fMaterialDiffuseR(),
+      m_fMaterialDiffuseG(),
+      m_fMaterialDiffuseB(),
+      m_fMaterialAmbientR(),
+      m_fMaterialAmbientG(),
+      m_fMaterialAmbientB() {}
 
 long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
                      uint32_t dwFlags) {
@@ -22,7 +53,6 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
   m_dwRenderWidth = width;
   m_dwRenderHeight = height;
 
-  // SDL_SetMainReady();
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     return -1;
   }
@@ -60,16 +90,17 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
   m_sdlWnd = SDL_CreateWindow("Dolori", SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED, m_dwRenderWidth,
                               m_dwRenderHeight, flags);
-  if (!m_sdlWnd) {
+  if (m_sdlWnd == nullptr) {
+    LOG(error, "Failed to create a window");
     return -1;
   }
 
   m_glCtx = SDL_GL_CreateContext(m_sdlWnd);
-  if (!m_glCtx) {
+  if (m_glCtx == nullptr) {
+    LOG(error, "Failed to create an OpenGL context");
     return -1;
   }
 
-  // Disable vsync
   EnableVsync(vsync);
 
   // Load extensions
@@ -120,7 +151,7 @@ long C3dDevice::Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
 }
 
 long C3dDevice::DestroyObjects() {
-  if (m_sdlWnd) {
+  if (m_sdlWnd != nullptr) {
     SDL_DestroyWindow(m_sdlWnd);
   }
 
@@ -197,38 +228,30 @@ long C3dDevice::ShowFrame() {
   return 0;
 }
 
-int C3dDevice::GetWidth() { return m_dwRenderWidth; }
+int C3dDevice::GetWidth() const { return m_dwRenderWidth; }
 
-int C3dDevice::GetHeight() { return m_dwRenderHeight; }
+int C3dDevice::GetHeight() const { return m_dwRenderHeight; }
 
 std::shared_ptr<CSurface> C3dDevice::CreateWallPaper(unsigned int w,
                                                      unsigned int h) {
-  std::shared_ptr<CSurface> result;
-
   if (w > m_dwMaxTextureWidth || h > m_dwMaxTextureHeight) {
-    result =
-        std::make_shared<CSurfaceWallpaper>(m_dwRenderWidth, m_dwRenderHeight);
-  } else {
-    result = g_TexMgr->CreateTexture(w, h, PF_A8R8G8B8);
+    return std::make_shared<CSurfaceWallpaper>(m_dwRenderWidth,
+                                               m_dwRenderHeight);
   }
 
-  return result;
+  return g_TexMgr->CreateTexture(w, h, PF_A8R8G8B8);
 }
 
 void C3dDevice::ConvertPalette(uint32_t* dest, PALETTE_ENTRY* palette,
-                               int pal_count) {
-  PALETTE_ENTRY* current_entry;
+                               size_t pal_count) {
+  for (size_t i = 0; i < pal_count; i++) {
+    const PALETTE_ENTRY& current_entry = palette[i];
 
-  for (int i = 0; i < pal_count; i++) {
-    current_entry = &palette[i];
-    if (current_entry->peRed == 0xFF && current_entry->peBlue == 0xFF) {
+    if (current_entry.peRed == 0xFF && current_entry.peBlue == 0xFF) {
       dest[i] = 0x0;
     } else {
-      dest[i] = (0xFF << 24) | (current_entry->peRed) |
-                (current_entry->peGreen << 8) | (current_entry->peBlue << 16);
-      // dest[i] = (current_entry->peBlue >> 3) +
-      //          4 * ((current_entry->peGreen & 0xF8) +
-      //               32 * ((current_entry->peRed & 0xF8) + 256));
+      dest[i] = (0xFF << 24) | (current_entry.peRed) |
+                (current_entry.peGreen << 8) | (current_entry.peBlue << 16);
     }
   }
 }

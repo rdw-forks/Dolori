@@ -21,13 +21,13 @@ void CGameMode::Intialize() {
   m_noMove = 0;
   m_isOnQuest = 0;
   m_isPlayerDead = 0;
-  m_nameBalloon = 0;
-  m_targetNameBalloon = 0;
-  m_broadcastBalloon = 0;
-  m_skillNameBalloon = 0;
-  m_skillMsgBalloon = 0;
-  m_skillUsedMsgBalloon = 0;
-  m_playerGage = 0;
+  m_nameBalloon = nullptr;
+  m_targetNameBalloon = nullptr;
+  m_broadcastBalloon = nullptr;
+  m_skillNameBalloon = nullptr;
+  m_skillMsgBalloon = nullptr;
+  m_skillUsedMsgBalloon = nullptr;
+  m_playerGage = nullptr;
   m_nameActorAid = 0;
   m_nameBalloonWidth = 0;
   m_nameBalloonHeight = 0;
@@ -95,7 +95,7 @@ void CGameMode::OnInit(const char *mode_name) {
 }
 
 int CGameMode::OnRun() {
-  while (m_loop_cond && !g_sys_quit) {
+  while (GetLoopCond() && !g_sys_quit) {
     if (m_next_sub_mode != -1) {
       m_sub_mode = m_next_sub_mode;
       m_sub_mode_cnt = 0;
@@ -118,7 +118,7 @@ void CGameMode::OnUpdate() {
 
   g_Renderer->Clear(false);
   g_Renderer->ClearBackground();
-  if (m_loop_cond) {
+  if (GetLoopCond()) {
     ProcessInput();
     // m_world->ProcessActors();
     m_view.OnCalcViewInfo(m_world.GetPlayer().GetPos());
@@ -146,6 +146,8 @@ void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
     case MM_QUERYRSWNAME:
       return m_rsw_name;
       break;
+    default:
+      return nullptr;
   };
 
   return nullptr;
@@ -155,7 +157,7 @@ void CGameMode::ProcessInput() {
   ProcessSDLEvents();
   g_Mouse->ReadState();
   int process_type = g_WindowMgr->ProcessInput();
-  // g_WindowMgr->OnProcess();
+  g_WindowMgr->OnProcess();
   // ProcessNameBalloon(v1);
   // ProcessHelpBalloon();
   ProcessRightButton();
@@ -169,7 +171,7 @@ void CGameMode::ProcessInput() {
 
 void CGameMode::ProcessRightButton() {
   CMouse::ButtonState button_state = g_Mouse->GetRBtn();
-  const double kSensitivity = 0.8;
+  const float kSensitivity = 0.8f;
 
   if (button_state == CMouse::ButtonState::kDown) {
     // m_rBtnClickX = g_Mouse->GetXPos();
@@ -181,25 +183,30 @@ void CGameMode::ProcessRightButton() {
 }
 
 void CGameMode::ProcessMouseWheel(int process_type) {
-  const double kSensitivity = 10.0;
+  const float kSensitivity = 10.f;
 
   m_view.AddDistance(g_Mouse->GetWheel() * kSensitivity);
 }
 void CGameMode::PollNetworkStatus() {
   char buffer[2048];
 
-  if (!g_RagConnection->Poll()) g_ModeMgr->GetCurMode()->SendMsg(1, 0, 0, 0);
+  if (!g_RagConnection->Poll()) {
+    g_ModeMgr->GetCurMode()->SendMsg(1);
+  }
 
   if (g_mustPumpOutReceiveQueue) {
-    unsigned int aid;
-    if (g_RagConnection->Recv((char *)&aid, 4, 1))
+    uint32_t aid;
+    if (g_RagConnection->Recv(reinterpret_cast<char *>(&aid), sizeof(aid), 1) >
+        0) {
       g_mustPumpOutReceiveQueue = false;
+    }
+
     return;
   }
 
   int size_of_buffer;
   while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
-    short packet_type = g_RagConnection->GetPacketType(buffer);
+    int16_t packet_type = g_RagConnection->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_ZC_NOTIFY_PLAYERCHAT:
         Zc_Notify_Playerchat(buffer);
@@ -221,7 +228,7 @@ void CGameMode::PollNetworkStatus() {
 }
 
 void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
-  PACKET_ZC_NOTIFY_PLAYERCHAT *packet = (PACKET_ZC_NOTIFY_PLAYERCHAT *)buffer;
+  auto packet = reinterpret_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
   // CGameMode *v2;      // ebx@1
 
   LOG(debug, "{}", packet->msg);
@@ -236,7 +243,7 @@ void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
 }
 
 void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
-  PACKET_ZC_NPCACK_MAPMOVE *packet = (PACKET_ZC_NPCACK_MAPMOVE *)buffer;
+  auto packet = reinterpret_cast<const PACKET_ZC_NPCACK_MAPMOVE *>(buffer);
 
   LOG(info, "Moved to map {}", packet->map_name);
 }

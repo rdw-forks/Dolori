@@ -7,7 +7,7 @@
 
 enum class ModeType { kLogin = 0, kGame = 1 };
 
-typedef enum MODE_MSG {
+typedef enum _MODE_MSG {
   MM_COMMAND = 0x0,
   MM_SOCKETERROR = 0x1,
   MM_QUIT = 0x2,
@@ -288,14 +288,14 @@ class CMode {
   CMode();
   virtual ~CMode() = default;
 
-  bool GetLoopCond();
-  void SetLoopCond(bool);
-
-  virtual void *SendMsg(size_t, const void *val1 = nullptr,
-                        const void *val2 = nullptr, const void *val3 = nullptr);
   virtual void OnInit(const char *) = 0;
   virtual int OnRun() = 0;
   virtual void OnExit() = 0;
+  virtual void *SendMsg(size_t, const void *val1 = nullptr,
+                        const void *val2 = nullptr, const void *val3 = nullptr);
+
+  bool GetLoopCond() const;
+  void SetLoopCond(bool);
 
  protected:
   int m_sub_mode;

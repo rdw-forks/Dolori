@@ -4,7 +4,7 @@
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 
-CModeMgr::CModeMgr() : m_loop_cond(true) {}
+CModeMgr::CModeMgr() : m_cur_mode(), m_loop_cond(true) {}
 
 void CModeMgr::Run(ModeType mode_type, const char* world_name) {
   m_cur_mode_type = mode_type;
@@ -26,7 +26,7 @@ void CModeMgr::Run(ModeType mode_type, const char* world_name) {
     m_cur_mode->OnRun();
     m_cur_mode->OnExit();
 
-    if (m_cur_mode) {
+    if (m_cur_mode != nullptr) {
       delete m_cur_mode;
       m_cur_mode = nullptr;
     }
@@ -44,19 +44,21 @@ void CModeMgr::Quit() {
   m_loop_cond = false;
 }
 
-CMode* CModeMgr::GetCurMode() { return m_cur_mode; }
+CMode* CModeMgr::GetCurMode() const { return m_cur_mode; }
 
-CGameMode* CModeMgr::GetGameMode() {
+CGameMode* CModeMgr::GetGameMode() const {
   if (m_cur_mode_type == ModeType::kGame) {
-    return reinterpret_cast<CGameMode*>(m_cur_mode);
+    // We can downcast safely with static_cast since cur_mode_type is set
+    return static_cast<CGameMode*>(m_cur_mode);
   }
 
   return nullptr;
 }
 
-CLoginMode* CModeMgr::GetLoginMode() {
+CLoginMode* CModeMgr::GetLoginMode() const {
   if (m_cur_mode_type == ModeType::kLogin) {
-    return reinterpret_cast<CLoginMode*>(m_cur_mode);
+    // We can downcast safely with static_cast since cur_mode_type is set
+    return static_cast<CLoginMode*>(m_cur_mode);
   }
 
   return nullptr;

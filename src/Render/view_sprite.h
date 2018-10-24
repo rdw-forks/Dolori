@@ -3,11 +3,13 @@
 
 #include <string>
 
+#define VIEW_SPRITE_LAYERS_COUNT 5
+
 struct VIEW_SPRITE {
   int x;
   int y;
-  std::string act_name[0x5];
-  std::string spr_name[0x5];
+  std::string act_name[VIEW_SPRITE_LAYERS_COUNT];
+  std::string spr_name[VIEW_SPRITE_LAYERS_COUNT];
   std::string imf_name;
   int head_palette;
   int body_palette;

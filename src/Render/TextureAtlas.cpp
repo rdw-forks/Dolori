@@ -10,11 +10,13 @@ CTextureAtlas::CTextureAtlas()
 void CTextureAtlas::Create(size_t texture_size,
                            const std::vector<std::string> &texture_names) {
   const size_t number_of_textures = texture_names.size();
-  const size_t num_of_columns = glm::round(glm::sqrt(number_of_textures));
+  const size_t num_of_columns =
+      static_cast<size_t>(glm::round(glm::sqrt(number_of_textures)));
   const size_t texture_width =
       glm::ceilPowerOfTwo(num_of_columns * texture_size);
   const size_t texture_height = glm::ceilPowerOfTwo(
-      (size_t)glm::ceil(glm::sqrt(number_of_textures)) * texture_size);
+      static_cast<size_t>(glm::ceil(glm::sqrt(number_of_textures))) *
+      texture_size);
 
   CSurface::Create(texture_width, texture_height);
   m_sdl_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, m_w, m_h, 32, 0xff,
@@ -22,8 +24,8 @@ void CTextureAtlas::Create(size_t texture_size,
 
   for (size_t i = 0; i < number_of_textures; i++) {
     const auto texture = g_TexMgr->GetTexture(texture_names[i], false);
-    const int x = (i % num_of_columns) * texture_size;
-    const int y = glm::floor(i / num_of_columns) * texture_size;
+    const size_t x = (i % num_of_columns) * texture_size;
+    const size_t y = i / num_of_columns * texture_size;
 
     textures_positions_[texture_names[i]] =
         glm::vec2(x / (float)texture_width, y / (float)texture_height);

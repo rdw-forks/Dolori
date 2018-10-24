@@ -93,9 +93,42 @@ CRenderer::CRenderer()
     : m_view_matrix(),
       m_surface_program(),
       m_surface_vbo(),
-      m_surfaces_list(),
+      m_world_light_info(),
+      m_hpc(),
+      m_vpc(),
+      m_hratio(),
+      m_vratio(),
+      m_aspectRatio(),
+      m_screenXFactor(),
+      m_screenYFactor(),
+      m_xoffset(),
+      m_yoffset(),
+      m_width(),
+      m_height(),
+      m_halfWidth(),
+      m_halfHeight(),
+      m_curFrame(),
+      m_bRGBBitCount(),
       m_fpsFrameCount(),
       m_fpsStartTick(),
+      m_isFoggy(),
+      m_fogChanged(),
+      m_isVertexFog(),
+      m_oldTexture(),
+      m_oldLmapTexture(),
+      m_guardBandLeft(),
+      m_guardBandRight(),
+      m_guardBandTop(),
+      m_guardBandBottom(),
+      m_isShowInfo(),
+      m_eyeVector(),
+      m_nClearColor(),
+      m_dwScreenWidth(),
+      m_dwScreenHeight(),
+      m_pf(),
+      m_lpSurfacePtr(),
+      m_lPitch(),
+      m_surfaces_list(),
       m_render_blocks_pool(),
       m_world_render_list() {
   m_render_blocks_cursor = std::begin(m_render_blocks_pool);
@@ -146,16 +179,18 @@ void CRenderer::SetSize(int cx, int cy) {
   m_halfWidth = cx / 2;
   m_halfHeight = cy / 2;
   m_aspectRatio = cy / static_cast<float>(cx);
-  m_hpc = static_cast<float>(cx / 2) / glm::tan(3.141592 * 15.0 * 0.0027777778);
-  m_vpc = static_cast<float>(cy / 2) / glm::tan(3.141592 * 15.0 * 0.0027777778);
-  m_hratio = glm::tan((90.0 - 15.0 * 0.5) * 3.141592 * 0.0055555557);
-  m_xoffset = cx / 2;
-  m_yoffset = cy / 2;
-  m_vratio = glm::tan((90.0 - 15.0 * 0.5) * 3.141592 * 0.0055555557);
+  m_hpc = (static_cast<float>(cx) / 2.f) /
+          glm::tan(3.141592f * 15.f * 0.0027777778f);
+  m_vpc = (static_cast<float>(cy) / 2.f) /
+          glm::tan(3.141592f * 15.f * 0.0027777778f);
+  m_hratio = glm::tan((90.f - 15.f * 0.5) * 3.141592f * 0.0055555557f);
+  m_xoffset = cx / 2.f;
+  m_yoffset = cy / 2.f;
+  m_vratio = glm::tan((90.f - 15.f * 0.5f) * 3.141592f * 0.0055555557f);
   m_hpc = m_aspectRatio * m_hpc;
   m_hratio = m_aspectRatio * m_hratio;
-  m_screenXFactor = cx * 0.0015625;
-  m_screenYFactor = cy * 0.0020833334;
+  m_screenXFactor = cx * 0.0015625f;
+  m_screenYFactor = cy * 0.0020833334f;
   // g_avgPixelRatio = cy * 0.0017447917;
   // g_slope = g_gradient / m_screenYFactor;
   // g_shadowSlope = g_gradient / m_screenYFactor;
@@ -163,7 +198,8 @@ void CRenderer::SetSize(int cx, int cy) {
   m_projection_matrix = glm::perspective(
       70.f, m_width / static_cast<float>(m_height), 1.f, 2000.f);
   m_2d_projection_matrix =
-      glm::ortho<float>(0.f, m_width, m_height, 0.f, -1.f, 1.f);
+      glm::ortho(0.f, static_cast<float>(m_width), static_cast<float>(m_height),
+                 0.f, -1.f, 1.f);
 }
 
 int CRenderer::GetWidth() const { return m_width; }
@@ -214,16 +250,16 @@ void CRenderer::Flip() {
 }
 
 void CRenderer::FlushRenderList() {
-  // TODO: Separate render of opaque and transparent faces to fix blending /
-  // depth issue
+  // TODO(LinkZ): Separate render of opaque and transparent faces to fix
+  // blending / depth issue
   FlushWorldRenderList();
 
   // Render 2D surfaces
   FlushSurfacesList();
 }
 
-void CRenderer::AddSurface(CSurface* surface, const RECT& position) {
-  m_surfaces_list.push_back(std::make_pair(surface, position));
+void CRenderer::AddSurface(const RenderBlock2d& render_block) {
+  m_surfaces_list.push_back(render_block);
 }
 
 void CRenderer::AddWorldRenderBlock(RenderBlock3d* render_block) {
@@ -232,14 +268,14 @@ void CRenderer::AddWorldRenderBlock(RenderBlock3d* render_block) {
 
 void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
                               unsigned int color) {
-  if (!(color & 0xFF000000)) {
+  if ((color & 0xFF000000) == 0u) {
     return;
   }
 
-  // TODO: Render unicolor surface
+  // TODO(LinkZ): Render unicolor surface
 }
 
-// CTexture* CRenderer::AddSpriteIndex(SPR_IMG* img, uint32_t* pal,
+// CTexture* CRenderer::AddSpriteIndex(SprImg* img, uint32_t* pal,
 //                                    CACHE_INFO* info) {
 //  int id1, id2;
 //
@@ -310,7 +346,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //  surface_list.push_back(new_surface);
 //}
 
-// CTexture* CRenderer::GetSpriteIndex(SPR_IMG* img, uint32_t* pal_id,
+// CTexture* CRenderer::GetSpriteIndex(SprImg* img, uint32_t* pal_id,
 //                                    CACHE_INFO* info) {
 //  std::list<SurfaceCache>* surface_list = NULL;
 //  std::vector<CACHE_INFO>* info_list = NULL;
@@ -365,7 +401,7 @@ void CRenderer::DrawBoxScreen(int x, int y, int cx, int cy,
 //  return cache_surface->tex;
 //}
 
-CSurface* CRenderer::AddSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
+CSurface* CRenderer::AddSpriteIndex(const SprImg* img, const uint32_t* pal) {
   uint32_t cur_time = GetTick();
   int id1, id2;
 
@@ -418,7 +454,7 @@ CSurface* CRenderer::AddSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
   return new_surface.tex;
 }
 
-CSurface* CRenderer::GetSpriteIndex(const SPR_IMG* img, const uint32_t* pal) {
+CSurface* CRenderer::GetSpriteIndex(const SprImg* img, const uint32_t* pal) {
   int id1, id2;
 
   if (img->width > 128) {
@@ -466,7 +502,7 @@ void CRenderer::SetViewMatrix(const glm::mat4& matrix) {
 RenderBlock3d* CRenderer::BorrowRenderBlock() {
   if (m_render_blocks_cursor != std::cend(m_render_blocks_pool)) {
     auto result = m_render_blocks_cursor->get();
-    m_render_blocks_cursor++;
+    m_render_blocks_cursor = std::next(m_render_blocks_cursor);
 
     return result;
   }
@@ -539,7 +575,8 @@ void CRenderer::FlushWorldRenderList() {
 
     glUniformMatrix4fv(nodeview_id, 1, GL_FALSE, render_block->nodeview_matrix);
 
-    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4, 0);
+    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4,
+                          nullptr);
     glVertexAttribPointer(tex_coords_attrib, 2, GL_FLOAT, GL_FALSE, 8 * 4,
                           reinterpret_cast<void*>(3 * 4));
     glVertexAttribPointer(normal_attrib, 3, GL_FLOAT, GL_FALSE, 8 * 4,
@@ -569,7 +606,7 @@ void CRenderer::FlushSurfacesList() {
   glEnableVertexAttribArray(position_attrib);
   glEnableVertexAttribArray(tex_coord_attrib);
 
-  glVertexAttribPointer(position_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4, 0);
+  glVertexAttribPointer(position_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4, nullptr);
   glVertexAttribPointer(tex_coord_attrib, 2, GL_FLOAT, GL_FALSE, 4 * 4,
                         reinterpret_cast<void*>(2 * 4));
 
@@ -582,24 +619,21 @@ void CRenderer::FlushSurfacesList() {
 
   glActiveTexture(GL_TEXTURE0);
 
-  for (const auto& pair : m_surfaces_list) {
-    const auto surface = pair.first;
-    const auto position = pair.second;
-
+  for (const auto& render_block : m_surfaces_list) {
+    const float x = render_block.position.x;
+    const float y = render_block.position.y;
     const VertexP2T2 vertices[6] = {
-        {position.left + position.right, position.top + position.bottom, 1.f,
-         1.f},
-        {position.left + position.right, position.top, 1.f, 0.f},
-        {position.left, position.top, 0.f, 0.f},
-        {position.left, position.top, 0.f, 0.f},
-        {position.left, position.top + position.bottom, 0.f, 1.f},
-        {position.left + position.right, position.top + position.bottom, 1.f,
-         1.f}};
+        {x + render_block.width, y + render_block.height, 1.f, 1.f},
+        {x + render_block.width, y, 1.f, 0.f},
+        {x, y, 0.f, 0.f},
+        {x, y, 0.f, 0.f},
+        {x, y + render_block.height, 0.f, 1.f},
+        {x + render_block.width, y + render_block.height, 1.f, 1.f}};
 
     m_surface_vbo.SetData(vertices, 6);
     m_surface_vbo.Bind();
 
-    surface->Bind(GL_TEXTURE_2D);
+    render_block.surface->Bind(GL_TEXTURE_2D);
 
     glDrawArrays(GL_TRIANGLES, 0, m_surface_vbo.size());
   }

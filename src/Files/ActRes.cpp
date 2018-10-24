@@ -38,7 +38,7 @@ bool CActRes::Load(const std::string& filename) {
   ActHeader header;
   CFile fp;
 
-  if (!fp.Open(filename, false)) {
+  if (!fp.Open(filename, 0)) {
     LOG(error, "Failed to find file: {}", filename);
     return false;
   }
@@ -59,32 +59,33 @@ bool CActRes::Load(const std::string& filename) {
   m_actions.resize(header.action_count);
 
   for (int i = 0; i < header.action_count; i++) {
-    CAction* cur_action = &m_actions[i];
+    CAction& cur_action = m_actions[i];
     uint32_t motion_count;
 
     fp.Read(&motion_count, sizeof(motion_count));
-    cur_action->Create(motion_count);
+    cur_action.Create(motion_count);
 
     for (uint32_t j = 0; j < motion_count; j++) {
-      CMotion* cur_motion = cur_action->GetMotion(j);
+      CMotion cur_motion;
       uint32_t sprite_count;
 
-      fp.Read(&cur_motion->range1, sizeof(cur_motion->range1));
-      fp.Read(&cur_motion->range2, sizeof(cur_motion->range2));
+      fp.Read(&cur_motion.range1, sizeof(cur_motion.range1));
+      fp.Read(&cur_motion.range2, sizeof(cur_motion.range2));
       fp.Read(&sprite_count, sizeof(sprite_count));
 
-      if (sprite_count > m_numMaxClipPerMotion)
+      if (sprite_count > m_numMaxClipPerMotion) {
         m_numMaxClipPerMotion = sprite_count;
+      }
 
-      cur_motion->spr_clips.resize(sprite_count);
+      cur_motion.spr_clips.resize(sprite_count);
 
       for (uint32_t k = 0; k < sprite_count; k++) {
-        SPR_CLIP* cur_clip = &cur_motion->spr_clips[k];
+        SprClip* cur_clip = &cur_motion.spr_clips[k];
 
-        fp.Read(&cur_clip->x, 4);
-        fp.Read(&cur_clip->y, 4);
-        fp.Read(&cur_clip->spr_index, 4);
-        fp.Read(&cur_clip->flags, 4);
+        fp.Read(&cur_clip->x, sizeof(cur_clip->x));
+        fp.Read(&cur_clip->y, sizeof(cur_clip->y));
+        fp.Read(&cur_clip->spr_index, sizeof(cur_clip->spr_index));
+        fp.Read(&cur_clip->is_mirror, sizeof(cur_clip->is_mirror));
 
         if (header.version >= 0x200) {
           fp.Read(&cur_clip->r, 1);
@@ -121,22 +122,24 @@ bool CActRes::Load(const std::string& filename) {
       }
 
       if (header.version >= 0x200) {
-        fp.Read(&cur_motion->event_id, 4);
+        fp.Read(&cur_motion.event_id, sizeof(cur_motion.event_id));
       } else {
-        cur_motion->event_id = -1;
+        cur_motion.event_id = -1;
       }
 
       if (header.version >= 0x203) {
-        fp.Read(&cur_motion->attach_count, 4);
-        cur_motion->attach_info.resize(cur_motion->attach_count);
+        fp.Read(&cur_motion.attach_count, sizeof(cur_motion.attach_count));
+        cur_motion.attach_info.resize(cur_motion.attach_count);
 
-        for (int k = 0; k < cur_motion->attach_count; k++) {
-          ATTACH_POINT_INFO* cur_attach = &cur_motion->attach_info[k];
+        for (int k = 0; k < cur_motion.attach_count; k++) {
+          ATTACH_POINT_INFO* cur_attach = &cur_motion.attach_info[k];
 
           fp.Seek(4, SEEK_CUR);  // ?
           fp.Read(cur_attach, sizeof(*cur_attach));
         }
       }
+
+      cur_action.SetMotion(j, std::move(cur_motion));
     }
   }
 
@@ -147,7 +150,8 @@ bool CActRes::Load(const std::string& filename) {
     fp.Read(&event_count, 4);
     m_events.resize(event_count);
     for (int i = 0; i < event_count; i++) {
-      fp.Read(buffer, 40);
+      fp.Read(buffer, sizeof(buffer));
+      buffer[sizeof(buffer) - 1] = '\0';
       m_events[i] = buffer;
     }
 
@@ -162,21 +166,21 @@ bool CActRes::Load(const std::string& filename) {
   return true;
 }
 
-CMotion* CActRes::GetMotion(unsigned int act_index, unsigned int mot_index) {
-  if (act_index < m_actions.size()) {
-    return m_actions[act_index].GetMotion(mot_index);
+const CMotion* CActRes::GetMotion(size_t action_id, size_t motion_id) const {
+  if (action_id < m_actions.size()) {
+    return m_actions[action_id].GetMotion(motion_id);
   }
 
   return nullptr;
 }
 
-double CActRes::GetDelay(unsigned int act_index) const {
-  double result;
+float CActRes::GetDelay(size_t action_id) const {
+  float result;
 
-  if (m_delay.size() && act_index < m_delay.size()) {
-    result = m_delay[act_index];
+  if (!m_delay.empty() && action_id < m_delay.size()) {
+    result = m_delay[action_id];
   } else {
-    result = 4.0;
+    result = 4.f;
   }
 
   return result;

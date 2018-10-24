@@ -18,6 +18,19 @@ find_package(OpenGL REQUIRED)
 find_package(DevIL REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
+# Setup clang-tidy if available
+find_program(
+  CLANG_TIDY_EXE
+  NAMES "clang-tidy"
+  DOC "Path to clang-tidy executable"
+)
+if(NOT CLANG_TIDY_EXE)
+  message(STATUS "clang-tidy not found.")
+else()
+  message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+  set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=*,-clang-analyzer-alpha.*")
+endif()
+
 add_compile_options("$<$<CONFIG:DEBUG>:-DDOLORI_DEBUG>")
 
 add_subdirectory(3rdparty)

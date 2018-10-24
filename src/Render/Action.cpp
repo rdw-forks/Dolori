@@ -2,15 +2,18 @@
 
 CAction::CAction() : m_motions() {}
 
-CAction::~CAction() {}
-
 void CAction::Create(unsigned int motion_count) {
   m_motions.resize(motion_count);
 }
 
-CMotion* CAction::GetMotion(unsigned int motion_number) {
-  if (motion_number < m_motions.size()) {
-    return &m_motions[motion_number];
+void CAction::SetMotion(size_t motion_id, CMotion motion) {
+  m_motions[motion_id] = std::move(motion);
+}
+
+const CMotion* CAction::GetMotion(size_t motion_id) const {
+  if (motion_id < m_motions.size()) {
+    return &m_motions[motion_id];
   }
+
   return nullptr;
 }

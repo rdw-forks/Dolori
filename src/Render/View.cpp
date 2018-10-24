@@ -15,15 +15,13 @@ CView::CView()
       m_inv_view_matrix(),
       m_skybox() {}
 
-CView::~CView() {}
+void CView::AddLongitude(float delta) { m_cur.longitude += delta; }
 
-void CView::AddLongitude(double delta) { m_cur.longitude += delta; }
+void CView::AddLatitude(float delta) { m_cur.latitude += delta; }
 
-void CView::AddLatitude(double delta) { m_cur.latitude += delta; }
+void CView::AddDistance(float delta) { m_cur.distance += delta; }
 
-void CView::AddDistance(double delta) { m_cur.distance += delta; }
-
-const glm::mat4& CView::GetViewMatrix() { return m_view_matrix; }
+const glm::mat4& CView::GetViewMatrix() const { return m_view_matrix; }
 
 void CView::OnEnterFrame() {
   m_cur.distance = 300.0;

@@ -17,7 +17,7 @@ typedef struct _GndHeader {
 #pragma pack(pop)
 
 CGndRes::CGndRes()
-    : m_width(), m_height(), m_lightmaps(), m_surfaces(), m_cells() {}
+    : m_width(), m_height(), m_zoom(), m_lightmaps(), m_surfaces(), m_cells() {}
 
 CGndRes::~CGndRes() {}
 
@@ -97,7 +97,7 @@ int32_t CGndRes::GetWidth() const { return m_width; }
 
 int32_t CGndRes::GetHeight() const { return m_height; }
 
-uint32_t CGndRes::GetSurfaceCount() const { return m_surfaces.size(); }
+size_t CGndRes::GetSurfaceCount() const { return m_surfaces.size(); }
 
 const std::vector<LightmapInfo>& CGndRes::GetLightmaps() const {
   return m_lightmaps;
@@ -108,7 +108,8 @@ const GndSurfaceFmt& CGndRes::GetSurface(size_t index) {
     return m_surfaces[index];
   }
 
-  return {};
+  static const GndSurfaceFmt empty_surface = {};
+  return empty_surface;
 }
 
 const GndCellFmt& CGndRes::GetCell(unsigned int x, unsigned int y) {
@@ -117,7 +118,8 @@ const GndCellFmt& CGndRes::GetCell(unsigned int x, unsigned int y) {
     return m_cells[index];
   }
 
-  return {};
+  static const GndCellFmt empty_cell = {};
+  return empty_cell;
 }
 
 const std::string& CGndRes::GetTextureName(size_t texture_id) {
@@ -125,7 +127,8 @@ const std::string& CGndRes::GetTextureName(size_t texture_id) {
     return m_tex_name_table[texture_id];
   }
 
-  return {};
+  static const std::string empty_texture_name = {};
+  return empty_texture_name;
 }
 
 const std::vector<std::string>& CGndRes::GetTextureNameTable() const {

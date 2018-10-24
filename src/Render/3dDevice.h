@@ -15,6 +15,7 @@ typedef enum _DEVICE_FLAG {
 class C3dDevice {
  public:
   C3dDevice();
+
   long Init(uint32_t width, uint32_t height, uint32_t msaa_samples,
             uint32_t flags);
   long DestroyObjects();
@@ -23,11 +24,13 @@ class C3dDevice {
   long Clear(unsigned long);
   long ClearZBuffer();
   long ShowFrame();
-  int GetWidth();
-  int GetHeight();
+  int GetWidth() const;
+  int GetHeight() const;
   std::shared_ptr<CSurface> CreateWallPaper(unsigned int, unsigned int);
-  void ConvertPalette(uint32_t* dest, PALETTE_ENTRY* srcPal, int palCnt);
   void EnableVsync(bool enable);
+
+  static void ConvertPalette(uint32_t* dest, PALETTE_ENTRY* palette,
+                             size_t pal_count);
 
  private:
   SDL_Window* m_sdlWnd;

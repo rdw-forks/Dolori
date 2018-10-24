@@ -8,7 +8,7 @@
 class CRes {
  public:
   CRes();
-  virtual ~CRes();
+  virtual ~CRes() = default;
 
   virtual bool Load(const std::string&) = 0;
   virtual CRes* Clone() = 0;

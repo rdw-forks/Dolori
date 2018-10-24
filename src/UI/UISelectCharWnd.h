@@ -13,26 +13,26 @@
 class CUISelectCharWnd : public CUIFrameWnd {
  public:
   CUISelectCharWnd();
-  ~CUISelectCharWnd();
 
-  void OnCreate(int cx, int cy);
-  void OnLBtnDown(int x, int y);
-  void OnDraw();
-  void InitTextControls();
+  void OnCreate(int cx, int cy) override;
+  void OnLBtnDown(int x, int y) override;
+  void OnDraw() override;
   void* SendMsg(CUIWindow* sender, int message, void* val1 = nullptr,
                 void* val2 = nullptr, void* val3 = nullptr,
-                void* val4 = nullptr);
+                void* val4 = nullptr) override;
+
   void MakeButton(int id);
+  void InitTextControls();
 
  private:
-  struct VIEW_SPRITE m_viewChar[NB_OF_SLOTS];
+  VIEW_SPRITE m_viewChar[NB_OF_SLOTS];
   bool m_isEmpty[NB_OF_SLOTS];
   bool m_isAvailable[NB_OF_SLOTS];
   short m_accessory_top[NB_OF_SLOTS];
   unsigned long m_stateStartTick;
   bool m_dontmove;
-  int m_cur_page;
-  int m_cur_slot;
+  size_t m_cur_page;
+  size_t m_cur_slot;
   int m_pageCount;
   CUIBitmapButton* m_ok_button;
   CUIBitmapButton* m_make_button;

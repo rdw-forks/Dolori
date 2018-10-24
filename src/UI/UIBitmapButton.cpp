@@ -5,8 +5,6 @@
 
 CUIBitmapButton::CUIBitmapButton() : m_bitmapWidth(), m_bitmapHeight() {}
 
-CUIBitmapButton::~CUIBitmapButton() {}
-
 void CUIBitmapButton::SetBitmapName(const std::string& bitmapName,
                                     int buttonState) {
   const char* resource_name;
@@ -44,17 +42,22 @@ int CUIBitmapButton::GetBitmapWidth() const { return m_bitmapWidth; }
 int CUIBitmapButton::GetBitmapHeight() const { return m_bitmapHeight; }
 
 void CUIBitmapButton::OnDraw() {
-  const char* bitmap_name;
-
-  if (m_state == 0) {
-    bitmap_name = UIBmp(m_normalBitmapName);
-  } else if (m_state == 1) {
-    bitmap_name = UIBmp(m_mouseonBitmapName);
-  } else if (m_state == 2) {
-    bitmap_name = UIBmp(m_pressedBitmapName);
-  }
+  const auto bitmap_name = [&]() -> std::string {
+    switch (m_state) {
+      case 0:
+        return UIBmp(m_normalBitmapName);
+      case 1:
+        return UIBmp(m_mouseonBitmapName);
+      case 2:
+        return UIBmp(m_pressedBitmapName);
+      default:
+        return {};
+    }
+  }();
 
   const auto bitmap =
       static_cast<CBitmapRes*>(g_ResMgr->Get(bitmap_name, false));
-  DrawBitmap(0, 0, bitmap, 0);
+  if (bitmap != nullptr) {
+    DrawBitmap(0, 0, bitmap, 0);
+  }
 }

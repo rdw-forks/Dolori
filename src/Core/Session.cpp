@@ -1,13 +1,14 @@
 #include "Core/Session.h"
 
+#include <sstream>
+
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
+#include "Common/const_strings.h"
 #include "Common/debug.h"
 #include "Common/service_type.h"
 
-CSession::CSession() : m_char_name() {}
-
-CSession::~CSession() {}
+CSession::CSession() : m_char_name(), m_haircolor() {}
 
 void CSession::Init() {}
 
@@ -107,8 +108,8 @@ void CSession::InvalidateBasicWnd() {
 
 void CSession::InitPcNameTable() {
   // Jobs
-  m_newPcJobNameTable[0] = "초보자";     // Novice
-  m_newPcJobNameTable[1] = "검사";       // Swordman
+  m_newPcJobNameTable[0] = "초보자";  // Novice
+  m_newPcJobNameTable[1] = "검사";    // Swordman
   // m_newPcJobNameTable[2] = "";           // Mage
   m_newPcJobNameTable[3] = "마법사";     // Magician
   m_newPcJobNameTable[4] = "궁수";       // Archer
@@ -119,17 +120,18 @@ void CSession::InitPcNameTable() {
 
   m_newPcJobNameTable[268] = "프로페서";  // Doram place-holder
 
+  // Imf
+  m_newPcJobImfNameTable[0] = "초보자";
+  m_newPcJobImfNameTable[1] = "검사";
+  m_newPcJobImfNameTable[2] = "마법사";
+  m_newPcJobImfNameTable[3] = "궁수";
+  m_newPcJobImfNameTable[4] = "성직자";
+
   // Sex
   m_newPcSexNameTable[0] = "여";
   m_newPcSexNameTable[1] = "남";
   m_pcSexNameTable[0] = "_여";
   m_pcSexNameTable[1] = "_남";
-
-  // Heads
-  m_newPcHeadNameTable_M[0] = "2";
-  m_newPcHeadNameTable_M[1] = "2";
-  m_newPcHeadNameTable_F[0] = "2";
-  m_newPcHeadNameTable_F[1] = "2";
 }
 
 void CSession::InitJobNameTable() {
@@ -181,115 +183,164 @@ void CSession::InitJobNameTable() {
   m_jobNameTable[4020] = "Clown";
   m_jobNameTable[4021] = "Gypsy";
   m_jobNameTable[4022] = "Paladin";
-  // TODO: Babies
+  // TODO(LinkZ): Babies
   m_jobNameTable[4218] = "Summoner";
 }
 
-const char *CSession::GetJobName(int job) { return m_jobNameTable[job]; }
+const char *CSession::GetCharName() const { return m_char_name.c_str(); }
 
-char *CSession::GetJobActName(int job, int sex, char *buf) {
+const char *CSession::GetJobName(unsigned int job) const {
+  const auto elem = m_jobNameTable.find(job);
+  if (elem == std::cend(m_jobNameTable)) {
+    return nullptr;
+  }
+
+  return elem->second;
+}
+
+std::string CSession::GetJobActName(int job, int sex) const {
   const char *job_name = nullptr;
+  std::ostringstream tmp_buffer;
 
   const auto job_elem = m_newPcJobNameTable.find(job);
   if (job_elem == std::cend(m_newPcJobNameTable)) {
     LOG(error, "Cannot find .act name for job #{}", job);
-    return nullptr;
+    return {};
   }
 
   if (job <= 3950) {
-    job_name = m_newPcJobNameTable[job];
+    job_name = job_elem->second;
   } else {
-    job_name = m_newPcJobNameTable[job - 3950];
+    job_name = std::next(job_elem, -3950)->second;
   }
 
-  sprintf(buf, "인간족/몸통/%s/%s%s.act", m_newPcSexNameTable[sex], job_name,
-          m_pcSexNameTable[sex]);
+  const auto new_sex_elem = m_newPcSexNameTable.find(sex);
+  if (new_sex_elem == std::cend(m_newPcSexNameTable)) {
+    return {};
+  }
 
-  return buf;
+  const auto sex_elem = m_pcSexNameTable.find(sex);
+  if (sex_elem == std::cend(m_pcSexNameTable)) {
+    return {};
+  }
+
+  // "인간족/몸통/%s/%s%s.act"
+  tmp_buffer << const_strings::kCharactersFolderName
+             << const_strings::kBodyFolderName << new_sex_elem->second << '/'
+             << job_name << sex_elem->second << ".act";
+
+  return tmp_buffer.str();
 }
 
-char *CSession::GetJobSprName(int job, int sex, char *buf) {
-  const char *job_name = nullptr;
+// TODO(LinkZ): Reduce code duplication
+std::string CSession::GetJobSprName(int job, int sex) {
+  std::ostringstream tmp_buffer;
+  std::string job_name;
 
   const auto job_elem = m_newPcJobNameTable.find(job);
   if (job_elem == std::cend(m_newPcJobNameTable)) {
     LOG(error, "Cannot find .spr name for job #{}", job);
-    return nullptr;
+    return {};
   }
 
   if (job <= 3950) {
-    job_name = m_newPcJobNameTable[job];
+    job_name = job_elem->second;
   } else {
-    job_name = m_newPcJobNameTable[job - 3950];
+    job_name = std::next(job_elem, -3950)->second;
   }
 
-  sprintf(buf, "인간족/몸통/%s/%s%s.spr", m_newPcSexNameTable[sex], job_name,
-          m_pcSexNameTable[sex]);
+  const auto new_sex_elem = m_newPcSexNameTable.find(sex);
+  if (new_sex_elem == std::cend(m_newPcSexNameTable)) {
+    return {};
+  }
 
-  return buf;
+  const auto sex_elem = m_pcSexNameTable.find(sex);
+  if (sex_elem == std::cend(m_pcSexNameTable)) {
+    return {};
+  }
+
+  // "인간족/몸통/%s/%s%s.spr"
+  tmp_buffer << const_strings::kCharactersFolderName
+             << const_strings::kBodyFolderName << new_sex_elem->second << '/'
+             << job_name << sex_elem->second << ".spr";
+
+  return tmp_buffer.str();
 }
 
-char *CSession::GetHeadActName(int job, unsigned short head, int sex,
-                               char *buf) {
+std::string CSession::GetHeadActName(uint16_t head, int sex) {
+  std::ostringstream tmp_buffer;
   const char *sex_folder_name;
-  const char *head_name;
   const char *sex_suffix;
 
-  if (head < 0 || head > 25) {
+  if (head > 25) {
     head = 13;
   }
 
-  if (sex) {
+  const auto head_name = std::to_string(head);
+  if (sex != 0) {
     sex_suffix = m_pcSexNameTable[1];
-    head_name = m_newPcHeadNameTable_M[head];
     sex_folder_name = m_newPcSexNameTable[1];
   } else {
     sex_suffix = m_pcSexNameTable[0];
-    head_name = m_newPcHeadNameTable_F[head];
     sex_folder_name = m_newPcSexNameTable[0];
   }
 
-  sprintf(buf, "인간족/머리통/%s/%s%s.act", sex_folder_name, head_name,
-          sex_suffix);
+  //"인간족/머리통/%s/%s%s.act"
+  tmp_buffer << const_strings::kCharactersFolderName
+             << const_strings::kHeadFolderName << sex_folder_name << '/'
+             << head_name << sex_suffix << ".act";
 
-  return buf;
+  return tmp_buffer.str();
 }
 
-char *CSession::GetHeadSprName(int job, unsigned short head, int sex,
-                               char *buf) {
+std::string CSession::GetHeadSprName(uint16_t head, int sex) {
+  std::ostringstream tmp_buffer;
   const char *sex_folder_name;
-  const char *head_name;
   const char *sex_suffix;
 
-  if (head < 0 || head > 25) {
+  if (head > 25) {
     head = 13;
   }
 
-  if (sex) {
+  const auto head_name = std::to_string(head);
+  if (sex != 0) {
     sex_suffix = m_pcSexNameTable[1];
-    head_name = m_newPcHeadNameTable_M[head];
     sex_folder_name = m_newPcSexNameTable[1];
   } else {
     sex_suffix = m_pcSexNameTable[0];
-    head_name = m_newPcHeadNameTable_F[head];
     sex_folder_name = m_newPcSexNameTable[0];
   }
-  sprintf(buf, "인간족/머리통/%s/%s%s.spr", sex_folder_name, head_name,
-          sex_suffix);
 
-  return buf;
+  //"인간족/머리통/%s/%s%s.spr"
+  tmp_buffer << const_strings::kCharactersFolderName
+             << const_strings::kHeadFolderName << sex_folder_name << '/'
+             << head_name << sex_suffix << ".spr";
+
+  return tmp_buffer.str();
 }
 
-char *CSession::GetImfName(int job, int head, int sex, char *buf) {
+std::string CSession::GetImfName(int job, int sex) {
+  std::ostringstream tmp_buffer;
   const char *imf_name;
 
-  if (job <= 3950) {
-    imf_name = m_newPcJobImfNameTable[job];
-  } else {
-    imf_name = m_newPcJobImfNameTable[job - 3950];
+  const auto job_elem = m_newPcJobImfNameTable.find(job);
+  if (job_elem == std::cend(m_newPcJobImfNameTable)) {
+    LOG(error, "Cannot find .imf name for job #{}", job);
+    return {};
   }
 
-  sprintf(buf, "%s%s.imf", imf_name, m_pcSexNameTable[sex]);
+  if (job <= 3950) {
+    imf_name = job_elem->second;
+  } else {
+    imf_name = std::next(job_elem, -3950)->second;
+  }
 
-  return buf;
+  const auto sex_elem = m_pcSexNameTable.find(sex);
+  if (sex_elem == std::cend(m_pcSexNameTable)) {
+    return {};
+  }
+
+  tmp_buffer << imf_name << sex_elem->second << ".imf";
+
+  return tmp_buffer.str();
 }

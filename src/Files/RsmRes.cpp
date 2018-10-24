@@ -22,12 +22,10 @@ CRes* CRsmRes::Clone() { return new CRsmRes(); }
 void CRsmRes::Reset() { m_textures.clear(); }
 
 bool CRsmRes::Load(const std::string& file_name) {
-  uint32_t name_length;
   RsmHeader header;
-  char* buffer;
   CFile fp;
 
-  if (!fp.Open(file_name, false)) {
+  if (!fp.Open(file_name, 0)) {
     LOG(error, "Failed to find file: {}", file_name);
     return false;
   }

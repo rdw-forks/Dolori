@@ -1,19 +1,19 @@
 #include "Render/Motion.h"
 
-CMotion::CMotion() {}
+CMotion::CMotion()
+    : range1(),
+      range2(),
+      spr_clips(),
+      attach_info(),
+      attach_count(),
+      event_id() {}
 
-CMotion::~CMotion() {}
+size_t CMotion::NumberOfClips() const { return spr_clips.size(); }
 
-int CMotion::NumberOfClips() { return num_clips; }
-
-SPR_CLIP *CMotion::GetClip(unsigned int clip_number) {
-  SPR_CLIP *result;
-
-  if (spr_clips.size() && clip_number < spr_clips.size()) {
-    result = &spr_clips[clip_number];
-  } else {
-    result = nullptr;
+const SprClip *CMotion::GetClip(size_t clip_number) const {
+  if (!spr_clips.empty() && clip_number < spr_clips.size()) {
+    return &spr_clips[clip_number];
   }
 
-  return result;
+  return nullptr;
 }

@@ -27,16 +27,17 @@ class CUIWindow {
   int GetWidth() const;
   virtual void Move(int, int);
   virtual void Resize(int, int);
+  virtual void OnProcess() {}
   virtual void DoDraw(bool);
-  virtual void OnDraw();
-  virtual void OnCreate(int, int);
+  virtual void OnDraw() {}
+  virtual void OnCreate(int, int) {}
   virtual bool IsUpdateNeeded() const;
   virtual void OnBeginEdit();
   virtual void OnFinishEdit();
   virtual void *SendMsg(CUIWindow *, int, void *val1 = nullptr,
                         void *val2 = nullptr, void *val3 = nullptr,
                         void *val4 = nullptr);
-  void OnSize(int, int);
+  void OnSize(int, int) {}
   bool IsShow() const;
   void SetShow(bool);
   void AddChild(CUIWindow *);
@@ -63,17 +64,17 @@ class CUIWindow {
   CUIWindow *GetParent() const;
   CUIWindow *HitTest(int, int);
   void GetGlobalCoor(int *, int *);
-  virtual void OnLBtnDown(int, int);
-  virtual void OnLBtnDblClk(int, int);
-  virtual void OnRBtnDown(int, int);
-  virtual void OnRBtnDblClk(int, int);
-  virtual void OnWBtnDown(int, int);
-  virtual void OnLBtnUp(int, int);
-  virtual void OnRBtnUp(int, int);
-  virtual void OnWBtnUp(int, int);
+  virtual void OnLBtnDown(int, int) {}
+  virtual void OnLBtnDblClk(int, int) {}
+  virtual void OnRBtnDown(int, int) {}
+  virtual void OnRBtnDblClk(int, int) {}
+  virtual void OnWBtnDown(int, int) {}
+  virtual void OnLBtnUp(int, int) {}
+  virtual void OnRBtnUp(int, int) {}
+  virtual void OnWBtnUp(int, int) {}
   virtual void OnMouseShape(int, int);
-  virtual void OnMouseHover(int, int);
-  virtual void OnMouseMove(int, int);
+  virtual void OnMouseHover(int, int) {}
+  virtual void OnMouseMove(int, int) {}
 
  protected:
   virtual bool ShouldDoHitTest();

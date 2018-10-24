@@ -11,8 +11,7 @@
 
 typedef struct _SprHeader {
   uint16_t magic;
-  uint8_t version_major;
-  uint8_t version_minor;
+  uint16_t version;
   uint16_t pal_img_count;
 } SprHeader;
 
@@ -25,21 +24,20 @@ CSprRes::~CSprRes() { Reset(); }
 CRes* CSprRes::Clone() { return new CSprRes(); }
 
 void CSprRes::Reset() {
-  for (size_t i = 0; i < SPR_TYPE_COUNT; i++) {
-    for (auto img : m_sprites[i]) {
-      if (img->image_8bit != nullptr) {
-        delete[] img->image_8bit;
-      }
-      delete img;
+  for (auto& sprite : m_sprites) {
+    for (auto& img : sprite) {
+      img->image_8bit.clear();
     }
 
-    m_sprites[i].clear();
+    sprite.clear();
   }
 
   m_count = 0;
 }
 
-const uint32_t* CSprRes::GetPalette() { return m_palette; }
+const uint32_t* CSprRes::GetPalette() const {
+  return static_cast<const uint32_t*>(m_palette);
+}
 
 bool CSprRes::Load(const std::string& filename) {
   uint8_t palette[0x400];
@@ -47,7 +45,7 @@ bool CSprRes::Load(const std::string& filename) {
   SprHeader header;
   CFile fp;
 
-  if (!fp.Open(filename, false)) {
+  if (!fp.Open(filename, 0)) {
     LOG(error, "Failed to find file: {}", filename);
     return false;
   }
@@ -58,7 +56,7 @@ bool CSprRes::Load(const std::string& filename) {
     return false;
   }
 
-  const uint16_t version = (header.version_major << 8) | (header.version_minor);
+  const uint16_t version = header.version;
   LOG(debug, "SPR file version: {:x}", version);
 
   if (version > 0x201) {
@@ -72,41 +70,38 @@ bool CSprRes::Load(const std::string& filename) {
   }
 
   for (uint16_t i = 0; i < m_count; i++) {
-    SPR_IMG* img = new SPR_IMG();
+    auto img = std::make_unique<SprImg>();
 
     fp.Read(&img->width, sizeof(img->width));
     fp.Read(&img->height, sizeof(img->height));
     img->isHalfH = 0;
     img->isHalfW = 0;
-    img->image_8bit = nullptr;
-    if (version >= 0x200) {
+    if (version < 0x201) {
       // Read pal images
       size_t size = img->width * img->height;
-      img->image_8bit = new uint8_t[size];
-      fp.Read(img->image_8bit, size);
+      img->image_8bit.resize(size);
+      fp.Read(img->image_8bit.data(), img->image_8bit.size());
     } else {
       // Read encoded pal images
       uint16_t compressed_size;
-      uint8_t* compressed_data;
+      std::vector<uint8_t> compressed_data;
 
       fp.Read(&compressed_size, sizeof(compressed_size));
-      compressed_data = new uint8_t[compressed_size];
-      fp.Read(compressed_data, compressed_size);
-      img->image_8bit =
-          DecodeRLE(compressed_data, img->width, img->height, &compressed_size);
-      delete compressed_data;
+      compressed_data.resize(compressed_size);
+      fp.Read(compressed_data.data(), compressed_data.size());
+      DecodeRLE(compressed_data, img->width, img->height, img->image_8bit);
     }
 
-    m_sprites[SPR_TYPE_PAL].push_back(img);
+    m_sprites[SPR_TYPE_PAL].push_back(std::move(img));
   }
 
-  if (version >= 0x200 && rgba_count) {
-    // TODO: Read RGBA images
+  if (version >= 0x200 && rgba_count != 0) {
+    // TODO(LinkZ): Read RGBA images
   }
 
   // Palettes
   if (version > 0x100) {
-    if (fp.Seek(-sizeof(palette), SEEK_END)) {
+    if (fp.Seek(0 - sizeof(palette), SEEK_END)) {
       fp.Read(palette, sizeof(palette));
       g_3dDevice->ConvertPalette(m_palette,
                                  reinterpret_cast<PALETTE_ENTRY*>(palette),
@@ -119,7 +114,7 @@ bool CSprRes::Load(const std::string& filename) {
   return true;
 }
 
-SPR_IMG* CSprRes::GetSprImg(SPR_TYPE clip_type, unsigned long spr_index) {
+SprImg* CSprRes::GetSprImg(SPR_TYPE clip_type, size_t spr_index) const {
   if (clip_type > SPR_TYPE_COUNT) {
     return nullptr;
   }
@@ -128,27 +123,24 @@ SPR_IMG* CSprRes::GetSprImg(SPR_TYPE clip_type, unsigned long spr_index) {
     return nullptr;
   }
 
-  return m_sprites[clip_type][spr_index];
+  // Return a non-owning pointer to the sprite img
+  return m_sprites[clip_type][spr_index].get();
 }
 
-uint8_t* CSprRes::DecodeRLE(uint8_t* image, int w, int h,
-                            unsigned short* size) {
-  if (*size < 1) {
-    return image;
-  }
-
-  uint8_t* output = new uint8_t[w * h];
+void CSprRes::DecodeRLE(const std::vector<uint8_t>& image, int w, int h,
+                        std::vector<uint8_t>& output) {
   size_t output_index = 0;
   size_t input_index = 0;
   uint8_t count;
 
-  while (input_index < *size) {
-    uint8_t c = image[input_index++];
+  output.resize(w * h);
+  while (input_index < image.size()) {
+    const uint8_t c = image[input_index++];
     output[output_index++] = c;
 
-    if (!c) {
+    if (c == 0) {
       count = image[input_index++];
-      if (!count) {
+      if (count == 0) {
         output[output_index++] = count;
       } else {
         for (int i = 1; i < count; i++) {
@@ -157,8 +149,4 @@ uint8_t* CSprRes::DecodeRLE(uint8_t* image, int w, int h,
       }
     }
   }
-
-  *size = output_index - 1;
-
-  return output;
 }

@@ -5,9 +5,7 @@
 
 class CAccountInfo {
  public:
-  // accountInfo(const struct accountInfo &);
   CAccountInfo();
-  ~CAccountInfo();
 
  private:
   void CopyContents(const CAccountInfo &);

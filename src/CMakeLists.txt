@@ -1,5 +1,3 @@
-set(CMAKE_CXX_STANDARD 14)
-
 file(
 	GLOB_RECURSE
 	DOLORI_FILES
@@ -12,6 +10,21 @@ add_executable(
 	${PROJECT_NAME}
 	${DOLORI_FILES}
 )
+
+set_target_properties(
+	${PROJECT_NAME} PROPERTIES
+	CXX_STANDARD 14
+	CXX_STANDARD_REQUIRED ON
+	COMPILE_FLAGS "${WARNING_FLAGS}"
+)
+
+# Add clang-tidy
+if(DOLORI_USE_CLANG_TIDY AND CLANG_TIDY_EXE)
+	set_target_properties(
+		${PROJECT_NAME} PROPERTIES
+		CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
+	)
+endif()
 
 foreach(source IN LISTS DOLORI_FILES)
 	get_filename_component(source_path "${source}" PATH)

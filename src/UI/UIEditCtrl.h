@@ -10,21 +10,24 @@ class CUIEditCtrl : public CUIWindow {
   CUIEditCtrl();
   ~CUIEditCtrl();
 
+  void OnLBtnDown(int x, int y) override;
+  void OnDraw() override;
+  void OnBeginEdit() override;
+  void OnFinishEdit() override;
+
   void HideChars(bool);
   void SetFrameColor(int r, int g, int b);
-  void OnLBtnDown(int x, int y);
-  void OnDraw();
   void DrawEditText();
-  void OnBeginEdit();
-  void OnFinishEdit();
   void RefreshText();
-  const char* GetText();
+  const std::string& GetText();
+  size_t GetTextSize() const;
+  void SetTextLimit(size_t max);
 
- private:
+ protected:
   size_t m_selectionOrigin;
   size_t m_selectionCursor;
   bool m_maskchar;
-  int m_maxchar;
+  size_t m_maxchar;
   int m_isSingColorFrame;
   int m_r;
   int m_g;

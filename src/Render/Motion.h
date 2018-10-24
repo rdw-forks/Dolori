@@ -10,38 +10,36 @@
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct SPR_CLIP {
-  int x;
-  int y;
-  int spr_index;
-  int flags;
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-  unsigned char a;
+typedef struct _SprClip {
+  int32_t x;
+  int32_t y;
+  int32_t spr_index;
+  int32_t is_mirror;
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  uint8_t a;
   float zoomx;
   float zoomy;
-  int angle;
+  int32_t angle;
   SPR_TYPE clip_type;
-  int w;
-  int h;
-} SPR_CLIP;
+  int32_t w;
+  int32_t h;
+} SprClip;
 
 #pragma pack(pop)
 
 class CMotion {
  public:
   CMotion();
-  ~CMotion();
 
-  int NumberOfClips();
-  SPR_CLIP* GetClip(unsigned int clip_number);
+  size_t NumberOfClips() const;
+  const SprClip* GetClip(size_t clip_number) const;
 
  public:
   RECT range1;
   RECT range2;
-  std::vector<SPR_CLIP> spr_clips;
-  int num_clips;
+  std::vector<SprClip> spr_clips;
   std::vector<ATTACH_POINT_INFO> attach_info;
   int attach_count;
   int event_id;

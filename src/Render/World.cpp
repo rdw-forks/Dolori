@@ -8,15 +8,18 @@
 #include "Files/RswRes.h"
 
 CWorld::CWorld()
-    : m_calculated(),
+    : m_cur_mode(),
+      m_calculated(),
       m_bgObjThread(),
       m_ground(),
       m_player(),
       m_attr(),
+      m_bgObjCount(),
       m_isPKZone(false),
       m_isSiegeMode(false),
       m_isBattleFieldMode(false),
-      m_isEventPVPMode(false) {}
+      m_isEventPVPMode(false),
+      m_light_opacity() {}
 
 CWorld::~CWorld() {}
 

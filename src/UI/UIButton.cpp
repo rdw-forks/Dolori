@@ -22,11 +22,13 @@ void CUIButton::OnLBtnUp(int x, int y) {
       m_state = 1;
 
       if (m_parent) {
-        m_parent->SendMsg(this, 6, reinterpret_cast<void*>(m_id));
+        m_parent->SendMsg(this, WM_BUTTON_PRESSED,
+                          reinterpret_cast<void*>(m_id));
       } else {
         g_ModeMgr->GetCurMode()->SendMsg(0, reinterpret_cast<void*>(m_id));
       }
     }
+
     Invalidate();
     g_WindowMgr->ReleaseCapture();
   }

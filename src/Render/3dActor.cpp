@@ -6,7 +6,17 @@
 #include "Common/debug.h"
 
 C3dActor::C3dActor()
-    : m_pos(), m_matrix_needs_update(true), m_realbbmin(), m_realbbrange() {}
+    : m_pos(),
+      m_matrix_needs_update(true),
+      m_shading_type(),
+      m_textures(),
+      m_name(),
+      m_cur_motion(),
+      m_anim_type(),
+      m_anim_speed(),
+      m_anim_len(),
+      m_realbbmin(),
+      m_realbbrange() {}
 
 void C3dActor::AssignModel(CRsmRes *p_rsm_res) {
   m_shading_type = p_rsm_res->GetShadingType();
