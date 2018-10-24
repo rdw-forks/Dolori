@@ -27,6 +27,7 @@ class CUIMakeCharWnd : public CUIFrameWnd {
   VIEW_SPRITE m_viewChar;
   VIEW_SPRITE m_viewChar2;
   CUIStaticText *m_text[0x6];
+  int m_sex;
 };
 
 // class UIMakeCharWnd {

@@ -45,6 +45,7 @@ class CSurface : public CGlTexture {
   unsigned long m_w;
   unsigned long m_h;
   SDL_Surface* m_sdl_surface;
+  bool m_update_xflipped_needed;
   SDL_Surface* m_sdl_surface_xflipped;
 };
 

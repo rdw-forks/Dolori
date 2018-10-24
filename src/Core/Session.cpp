@@ -132,12 +132,6 @@ void CSession::InitPcNameTable() {
   m_newPcSexNameTable[1] = "³²";
   m_pcSexNameTable[0] = "_¿©";
   m_pcSexNameTable[1] = "_³²";
-
-  // Heads
-  m_newPcHeadNameTable_M[0] = "2";
-  m_newPcHeadNameTable_M[1] = "2";
-  m_newPcHeadNameTable_F[0] = "2";
-  m_newPcHeadNameTable_F[1] = "2";
 }
 
 void CSession::InitJobNameTable() {
@@ -276,20 +270,18 @@ std::string CSession::GetJobSprName(int job, int sex) {
 std::string CSession::GetHeadActName(uint16_t head, int sex) {
   std::ostringstream tmp_buffer;
   const char *sex_folder_name;
-  const char *head_name;
   const char *sex_suffix;
 
-  if (head < 0 || head > 25) {
+  if (head > 25) {
     head = 13;
   }
 
+  const auto head_name = std::to_string(head);
   if (sex != 0) {
     sex_suffix = m_pcSexNameTable[1];
-    head_name = m_newPcHeadNameTable_M[head];
     sex_folder_name = m_newPcSexNameTable[1];
   } else {
     sex_suffix = m_pcSexNameTable[0];
-    head_name = m_newPcHeadNameTable_F[head];
     sex_folder_name = m_newPcSexNameTable[0];
   }
 
@@ -304,20 +296,18 @@ std::string CSession::GetHeadActName(uint16_t head, int sex) {
 std::string CSession::GetHeadSprName(uint16_t head, int sex) {
   std::ostringstream tmp_buffer;
   const char *sex_folder_name;
-  const char *head_name;
   const char *sex_suffix;
 
-  if (head < 0 || head > 25) {
+  if (head > 25) {
     head = 13;
   }
 
+  const auto head_name = std::to_string(head);
   if (sex != 0) {
     sex_suffix = m_pcSexNameTable[1];
-    head_name = m_newPcHeadNameTable_M[head];
     sex_folder_name = m_newPcSexNameTable[1];
   } else {
     sex_suffix = m_pcSexNameTable[0];
-    head_name = m_newPcHeadNameTable_F[head];
     sex_folder_name = m_newPcSexNameTable[0];
   }
 

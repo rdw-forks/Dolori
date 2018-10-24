@@ -97,8 +97,6 @@ class CSession {
   std::list<std::string> m_exNameList;
   std::map<unsigned int, char const *> m_newPcJobNameTable;
   std::map<unsigned int, char const *> m_newPcSexNameTable;
-  std::map<unsigned int, char const *> m_newPcHeadNameTable_M;
-  std::map<unsigned int, char const *> m_newPcHeadNameTable_F;
   std::map<unsigned int, char const *> m_newPcJobImfNameTable;
   std::map<unsigned int, char const *> m_newAccessoryNameTable;
   std::map<unsigned int, char const *> m_pcWeaponNameTable;

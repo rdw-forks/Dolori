@@ -6,7 +6,11 @@
 #include "Common/debug.h"
 
 CSurface::CSurface()
-    : m_w(), m_h(), m_sdl_surface(nullptr), m_sdl_surface_xflipped(nullptr) {}
+    : m_w(),
+      m_h(),
+      m_sdl_surface(nullptr),
+      m_update_xflipped_needed(false),
+      m_sdl_surface_xflipped(nullptr) {}
 
 CSurface::CSurface(unsigned long w, unsigned long h) : CSurface() {
   Create(w, h);
@@ -38,29 +42,31 @@ unsigned long CSurface::GetHeight() const { return m_h; }
 SDL_Surface *CSurface::GetSDLSurface() const { return m_sdl_surface; }
 
 SDL_Surface *CSurface::GetSDLSurfaceXFlipped() {
+  if (m_sdl_surface_xflipped != nullptr && !m_update_xflipped_needed) {
+    return m_sdl_surface_xflipped;
+  }
+
   if (m_sdl_surface == nullptr) {
     return nullptr;
   }
 
+  m_sdl_surface_xflipped = SDL_CreateRGBSurface(
+      SDL_SWSURFACE, m_w, m_h, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
   if (m_sdl_surface_xflipped == nullptr) {
-    m_sdl_surface_xflipped = SDL_CreateRGBSurface(
-        SDL_SWSURFACE, m_w, m_h, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-    if (m_sdl_surface_xflipped == nullptr) {
-      return nullptr;
-    }
+    return nullptr;
+  }
 
-    const int pitch = m_sdl_surface->pitch;
-    const int line_length = m_sdl_surface->w;
-    auto pixels = static_cast<uint8_t *>(m_sdl_surface->pixels);
-    auto rpixels = static_cast<uint8_t *>(m_sdl_surface_xflipped->pixels);
+  const int pitch = m_sdl_surface->pitch;
+  const int line_length = m_sdl_surface->w;
+  auto pixels = static_cast<uint8_t *>(m_sdl_surface->pixels);
+  auto rpixels = static_cast<uint8_t *>(m_sdl_surface_xflipped->pixels);
 
-    for (auto line = 0; line < m_sdl_surface->h; ++line) {
-      std::reverse_copy(reinterpret_cast<uint32_t *>(pixels),
-                        reinterpret_cast<uint32_t *>(pixels) + line_length,
-                        reinterpret_cast<uint32_t *>(rpixels));
-      pixels += pitch;
-      rpixels += pitch;
-    }
+  for (auto line = 0; line < m_sdl_surface->h; ++line) {
+    std::reverse_copy(reinterpret_cast<uint32_t *>(pixels),
+                      reinterpret_cast<uint32_t *>(pixels) + line_length,
+                      reinterpret_cast<uint32_t *>(rpixels));
+    pixels += pitch;
+    rpixels += pitch;
   }
 
   return m_sdl_surface_xflipped;
@@ -263,4 +269,5 @@ void CSurface::UpdateGlTexture() {
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                   GL_LINEAR_MIPMAP_LINEAR);
+  m_update_xflipped_needed = true;
 }

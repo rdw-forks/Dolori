@@ -31,17 +31,16 @@ CUIMakeCharWnd::CUIMakeCharWnd()
   m_viewChar.base_action = 0;
   m_viewChar.cur_action = 0;
   m_viewChar.cur_motion = 0;
-  const auto sex = g_Session->GetSex();
+  m_sex = g_Session->GetSex();
   m_viewChar.act_name[0] =
-      std::move(g_Session->GetJobActName(m_charInfo.job, sex));
+      std::move(g_Session->GetJobActName(m_charInfo.job, m_sex));
   m_viewChar.spr_name[0] =
-      std::move(g_Session->GetJobSprName(m_charInfo.job, sex));
+      std::move(g_Session->GetJobSprName(m_charInfo.job, m_sex));
   m_viewChar.act_name[1] =
-      std::move(g_Session->GetHeadActName(m_charInfo.head_style, sex));
+      std::move(g_Session->GetHeadActName(m_charInfo.head_style, m_sex));
   m_viewChar.spr_name[1] =
-      std::move(g_Session->GetHeadSprName(m_charInfo.head_style, sex));
-  m_viewChar.imf_name =
-      std::move(g_Session->GetImfName(m_charInfo.job, m_charInfo.head_style));
+      std::move(g_Session->GetHeadSprName(m_charInfo.head_style, m_sex));
+  m_viewChar.imf_name = std::move(g_Session->GetImfName(m_charInfo.job, m_sex));
 }
 
 void CUIMakeCharWnd::OnCreate(int x, int y) {
@@ -85,7 +84,8 @@ void CUIMakeCharWnd::OnDraw() {
     return;
   }
 
-  for (size_t layer = 0; layer < VIEW_SPRITE_LAYERS_COUNT; layer++) {
+  // Only the first two layers need to be rendered here (no accesories)
+  for (size_t layer = 0; layer < 2; layer++) {
     int off_x = 0;
     int off_y = 0;
 
@@ -164,35 +164,40 @@ void CUIMakeCharWnd::InitTextControls() {
 }
 
 void CUIMakeCharWnd::MakeButton() {
-  const std::string button_name[8][3] = {
-      {"btn_ok", "btn_ok_a", "btn_ok_b"},
-      {"btn_cancel", "btn_cancel_b", "btn_cancel_b"},
-      {"login_interface/arw-str0", "login_interface/arw-str1",
-       "login_interface/arw-str0"},
-      {"login_interface/arw-agi0", "login_interface/arw-agi1",
-       "login_interface/arw-agi0"},
-      {"login_interface/arw-vit0", "login_interface/arw-vit1",
-       "login_interface/arw-vit0"},
-      {"login_interface/arw-int0", "login_interface/arw-int1",
-       "login_interface/arw-int0"},
-      {"login_interface/arw-dex0", "login_interface/arw-dex1",
-       "login_interface/arw-dex0"},
-      {"login_interface/arw-luk0", "login_interface/arw-luk1",
-       "login_interface/arw-luk0"}};
-  const size_t ids[8] = {118, 119, 139, 140, 141, 142, 143, 144};
-  const int pos[8][2] = {{0x1e3, 0x13e}, {0x212, 0x13e}, {0x10e, 0x32},
-                         {0xbe, 0x68},   {0x15d, 0x68},  {0x10e, 0xf4},
-                         {0xbe, 0xbe},   {0x15d, 0xbe}};
+  constexpr size_t kButtonsCount = 11;
+  const std::string button_name[kButtonsCount][3] = {
+      {"btn_ok.bmp", "btn_ok_a.bmp", "btn_ok_b.bmp"},
+      {"btn_cancel.bmp", "btn_cancel_b.bmp", "btn_cancel_b.bmp"},
+      {"login_interface/arw-str0.bmp", "login_interface/arw-str1.bmp",
+       "login_interface/arw-str0.bmp"},
+      {"login_interface/arw-agi0.bmp", "login_interface/arw-agi1.bmp",
+       "login_interface/arw-agi0.bmp"},
+      {"login_interface/arw-vit0.bmp", "login_interface/arw-vit1.bmp",
+       "login_interface/arw-vit0.bmp"},
+      {"login_interface/arw-int0.bmp", "login_interface/arw-int1.bmp",
+       "login_interface/arw-int0.bmp"},
+      {"login_interface/arw-dex0.bmp", "login_interface/arw-dex1.bmp",
+       "login_interface/arw-dex0.bmp"},
+      {"login_interface/arw-luk0.bmp", "login_interface/arw-luk1.bmp",
+       "login_interface/arw-luk0.bmp"},
+      {"scroll1left.bmp", "scroll1left.bmp", "scroll1left.bmp"},
+      {"scroll0up.bmp", "scroll0up.bmp", "scroll0up.bmp"},
+      {"scroll1right.bmp", "scroll1right.bmp", "scroll1right.bmp"}};
+  const size_t ids[kButtonsCount] = {118, 119, 139, 140, 141, 142,
+                                     143, 144, 154, 155, 156};
+  const int pos[kButtonsCount][2] = {
+      {483, 318}, {530, 318}, {270, 50}, {190, 104}, {349, 104}, {270, 244},
+      {190, 190}, {349, 190}, {47, 135}, {87, 105},  {127, 135}};
 
-  for (size_t i = 0; i < 8; i++) {
+  for (size_t i = 0; i < kButtonsCount; i++) {
     auto bitmap_btn = new CUIBitmapButton();
 
-    bitmap_btn->SetBitmapName(
-        const_strings::kResourceSubfolder + button_name[i][0] + ".bmp", 0);
-    bitmap_btn->SetBitmapName(
-        const_strings::kResourceSubfolder + button_name[i][1] + ".bmp", 1);
-    bitmap_btn->SetBitmapName(
-        const_strings::kResourceSubfolder + button_name[i][2] + ".bmp", 2);
+    constexpr size_t kStatesCount =
+        sizeof(button_name[i]) / sizeof(button_name[i][0]);
+    for (size_t state = 0; state < kStatesCount; state++) {
+      bitmap_btn->SetBitmapName(
+          const_strings::kResourceSubfolder + button_name[i][state], state);
+    }
 
     bitmap_btn->Create(bitmap_btn->GetBitmapWidth(),
                        bitmap_btn->GetBitmapHeight());
@@ -319,6 +324,38 @@ void *CUIMakeCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
             m_charInfo.luk = 5;
           }
           InitTextControls();
+          break;
+        case 154:  // scroll1left
+          m_charInfo.head_style--;
+          if (m_charInfo.head_style < 1) {
+            m_charInfo.head_style = 26;
+          } else if (m_charInfo.head_style > 26) {
+            m_charInfo.head_style = 1;
+          }
+
+          m_viewChar.act_name[1] = std::move(
+              g_Session->GetHeadActName(m_charInfo.head_style, m_sex));
+          m_viewChar.spr_name[1] = std::move(
+              g_Session->GetHeadSprName(m_charInfo.head_style, m_sex));
+          Invalidate();
+          break;
+        case 155:  // scroll0up
+          m_charInfo.head_color = (m_charInfo.head_color + 1) % 10;
+          Invalidate();
+          break;
+        case 156:  // scroll1right
+          m_charInfo.head_style++;
+          if (m_charInfo.head_style < 1) {
+            m_charInfo.head_style = 26;
+          } else if (m_charInfo.head_style > 26) {
+            m_charInfo.head_style = 1;
+          }
+
+          m_viewChar.act_name[1] = std::move(
+              g_Session->GetHeadActName(m_charInfo.head_style, m_sex));
+          m_viewChar.spr_name[1] = std::move(
+              g_Session->GetHeadSprName(m_charInfo.head_style, m_sex));
+          Invalidate();
           break;
       }
     } break;
