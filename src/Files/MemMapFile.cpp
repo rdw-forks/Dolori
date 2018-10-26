@@ -84,7 +84,6 @@ size_t CMemMapFile::GetSize() { return m_dwFileSize; }
 
 const unsigned char *CMemMapFile::Read(off_t offset, size_t size) {
   size_t bufferSize;
-  DWORD dwRead;
 
   if (m_dwFileMappingSize) {
     if (offset >= m_dwOpenOffset &&
@@ -171,12 +170,16 @@ const unsigned char *CMemMapFile::Read(off_t offset, size_t size) {
     }
     m_pFile = m_pFileBuf.data();
   }
+
 #ifdef WIN32
+  DWORD bytes_read;
   SetFilePointer(m_hFile, offset, 0, 0);
-  ReadFile(m_hFile, m_pFileBuf.data(), size, &dwRead, nullptr);
+  ReadFile(m_hFile, m_pFileBuf.data(), static_cast<DWORD>(size), &bytes_read,
+           nullptr);
 #else
+  ssize_t bytes_read;
   lseek(m_fd, offset, SEEK_SET);
-  dwRead = read(m_fd, m_pFileBuf.data(), size);
+  bytes_read = read(m_fd, m_pFileBuf.data(), size);
 #endif
 
   return m_pFile;
@@ -184,9 +187,9 @@ const unsigned char *CMemMapFile::Read(off_t offset, size_t size) {
 
 void CMemMapFile::Init() {
 #ifdef WIN32
-  _SYSTEM_INFO systemInfo;
+  SYSTEM_INFO systemInfo;
   GetSystemInfo(&systemInfo);
-  m_dwAllocationGranuarity = -systemInfo.dwAllocationGranularity;
+  m_dwAllocationGranuarity = 0 - systemInfo.dwAllocationGranularity;
   m_hFile = nullptr;
   m_hFileMap = nullptr;
 #else
