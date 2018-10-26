@@ -55,9 +55,9 @@ typedef enum _LOGINMODE_MSG {
 
 class CLoginMode : public CMode {
  public:
-  CLoginMode(CRagConnection *rag_connection);
+  CLoginMode(CRagConnection *rag_connection, CUIWindowMgr *p_window_mgr);
 
-  void OnInit(const char *) override;
+  void OnInit(const std::string &) override;
   int OnRun() override;
   void OnExit() override;
   void *SendMsg(size_t, const void *val1 = nullptr, const void *val2 = nullptr,

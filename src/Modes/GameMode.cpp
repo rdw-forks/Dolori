@@ -17,8 +17,9 @@
 #include "Render/View.h"
 #include "Render/World.h"
 
-CGameMode::CGameMode(CRagConnection *p_rag_connection)
-    : CMode(p_rag_connection), m_world(), m_view() {}
+CGameMode::CGameMode(CRagConnection *p_rag_connection,
+                     CUIWindowMgr *p_window_mgr)
+    : CMode(p_rag_connection, p_window_mgr), m_world(), m_view() {}
 
 void CGameMode::Intialize() {
   m_noMove = 0;
@@ -62,16 +63,16 @@ void CGameMode::Intialize() {
   m_numNotifyTime = 0;
 }
 
-void CGameMode::OnInit(const char *mode_name) {
+void CGameMode::OnInit(const const std::string &mode_name) {
   m_posOfBossMon.x = -1;
   m_posOfBossMon.y = -1;
   m_isBossAlarm = 0;
   m_onCopyName = 0;
-  strncpy(m_rsw_name, mode_name, sizeof(m_rsw_name));
+  m_rsw_name = mode_name;
 
   g_Renderer->Clear(true);
-  g_WindowMgr->SetWallpaper(nullptr);
-  g_WindowMgr->RenderWallPaper();
+  p_window_mgr_->SetWallpaper(nullptr);
+  p_window_mgr_->RenderWallPaper();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
   }
@@ -145,13 +146,10 @@ void CGameMode::ProcessTalkType(int talktype, const std::string &string) {
 
 void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
                          const void *val3) {
-  switch (msg) {
-    case MM_QUERYRSWNAME:
-      return m_rsw_name;
-      break;
-    default:
-      return nullptr;
-  };
+  // switch (msg) {
+  //  default:
+  //    return nullptr;
+  //};
 
   return nullptr;
 }
@@ -159,8 +157,8 @@ void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
 void CGameMode::ProcessInput() {
   ProcessSDLEvents();
   g_Mouse->ReadState();
-  int process_type = g_WindowMgr->ProcessInput();
-  g_WindowMgr->OnProcess();
+  int process_type = p_window_mgr_->ProcessInput();
+  p_window_mgr_->OnProcess();
   // ProcessNameBalloon(v1);
   // ProcessHelpBalloon();
   ProcessRightButton();
@@ -250,3 +248,5 @@ void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
 
   LOG(info, "Moved to map {}", packet->map_name);
 }
+
+const std::string &CGameMode::rsw_name() const { return m_rsw_name; }

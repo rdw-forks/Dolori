@@ -73,9 +73,8 @@ bool GameClient::Initialize() {
   }
 
   g_Mouse->Init();
-  g_WindowMgr->SetSize(g_Renderer->GetWidth(), g_Renderer->GetHeight());
+  g_ModeMgr->Init();
   g_Session->SetCharName("noname");
-  g_WindowMgr->InvalidateUpdateNeededUI();
   g_Session->InvalidateBasicWnd();
 
   return true;

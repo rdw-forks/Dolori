@@ -6,8 +6,9 @@
 #include "Files/File.h"
 #include "UI/UIBmp.h"
 
-CUILoginWnd::CUILoginWnd()
-    : m_login(),
+CUILoginWnd::CUILoginWnd(CUIWindowMgr *p_window_mgr)
+    : CUIFrameWnd(p_window_mgr),
+      m_login(),
       m_password(),
       m_cancel_button(),
       m_isCheckOn(),
@@ -17,8 +18,6 @@ CUILoginWnd::CUILoginWnd()
   m_defPushId = 117;
   m_defCancelPushId = 117;
 }
-
-CUILoginWnd::~CUILoginWnd() {}
 
 void CUILoginWnd::OnCreate(int cx, int cy) {
   const std::string path_name = const_strings::kResourceSubfolder;
@@ -73,7 +72,7 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
       break;
     }
 
-    CUIBitmapButton *button = new CUIBitmapButton();
+    CUIBitmapButton *button = new CUIBitmapButton(p_window_mgr_);
 
     button->SetBitmapName((path_name + button_name[i][0] + ".bmp").c_str(), 0);
     button->SetBitmapName((path_name + button_name[i][1] + ".bmp").c_str(), 1);
@@ -89,14 +88,14 @@ void CUILoginWnd::OnCreate(int cx, int cy) {
     }
   }
 
-  CUIEditCtrl *login = new CUIEditCtrl();
+  CUIEditCtrl *login = new CUIEditCtrl(p_window_mgr_);
   m_login = login;
   login->Create(125, 16);
   login->Move(92, 30);
   login->SetFrameColor(242, 242, 242);
   AddChild(login);
 
-  CUIEditCtrl *password = new CUIEditCtrl();
+  CUIEditCtrl *password = new CUIEditCtrl(p_window_mgr_);
   m_password = password;
   password->Create(125, 16);
   password->Move(92, 62);
@@ -137,7 +136,7 @@ void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
           g_ModeMgr->Quit();
         } else {
           const auto error_msg = g_MsgStrMgr->GetMsgStr(MSI_3DAY_FREE);
-          if (g_WindowMgr->ErrorMsg(error_msg, 2, 1, 0, 0) != 121) {
+          if (p_window_mgr_->ErrorMsg(error_msg, 2, 1, 0, 0) != 121) {
             return nullptr;
           }
           g_ModeMgr->Quit();
@@ -146,12 +145,12 @@ void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         // UILoginWnd::WriteToReg(this);
         const auto error_msg =
             g_MsgStrMgr->GetMsgStr(MSI_DO_YOU_REALLY_WANT_TO_QUIT);
-        if (g_WindowMgr->ErrorMsg(error_msg, 2, 1, 0, 0) != 121) {
+        if (p_window_mgr_->ErrorMsg(error_msg, 2, 1, 0, 0) != 121) {
           return nullptr;
         }
 
         g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT);
-        g_WindowMgr->PostQuit(this);
+        p_window_mgr_->PostQuit(this);
       } else if (btn_id == 120) {
         // PlayWave(waveFileName, 0.0, 0.0, 0.0, 250, 40, 1.0);
         g_ModeMgr->GetCurMode()->SendMsg(
@@ -160,7 +159,7 @@ void *CUILoginWnd::SendMsg(CUIWindow *sender, int message, void *val1,
         g_ModeMgr->GetCurMode()->SendMsg(
             LMM_ID, static_cast<const void *>(m_login->GetText().c_str()));
         g_ModeMgr->GetCurMode()->SendMsg(LMM_CONNECT_TO_ACSVR);
-        g_WindowMgr->PostQuit(this);
+        p_window_mgr_->PostQuit(this);
       }
     } break;
   };

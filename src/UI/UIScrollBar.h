@@ -7,8 +7,7 @@
 
 class CUIScrollBar : public CUIWindow {
  public:
-  CUIScrollBar();
-  ~CUIScrollBar();
+  CUIScrollBar(CUIWindowMgr* p_window_mgr);
 
   void SetPos(int);
   int GetPos();

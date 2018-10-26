@@ -3,7 +3,8 @@
 #include "Common/Globals.h"
 #include "UI/UIBmp.h"
 
-CUIStaticBitmap::CUIStaticBitmap() {}
+CUIStaticBitmap::CUIStaticBitmap(CUIWindowMgr* p_window_mgr)
+    : CUIWindow(p_window_mgr) {}
 
 CUIStaticBitmap::~CUIStaticBitmap() { m_bitmap_name.clear(); }
 

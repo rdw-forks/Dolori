@@ -4,9 +4,8 @@
 #include "UIBmp.h"
 #include "UIServerListBox.h"
 
-CUISelectServerWnd::CUISelectServerWnd() {}
-
-CUISelectServerWnd::~CUISelectServerWnd() {}
+CUISelectServerWnd::CUISelectServerWnd(CUIWindowMgr *p_window_mgr)
+    : CUIFrameWnd(p_window_mgr) {}
 
 void CUISelectServerWnd::OnCreate(int cx, int cy) {
   const std::string path_name = const_strings::kResourceSubfolder;
@@ -14,7 +13,7 @@ void CUISelectServerWnd::OnCreate(int cx, int cy) {
   int pos[3][2];
   int ids[3];
 
-  CUIServerListBox *server_list = new CUIServerListBox();
+  CUIServerListBox *server_list = new CUIServerListBox(p_window_mgr_);
   m_serverList = server_list;
   m_serverList->Create2(12, 22, cx - 24, cy - 55, false);
   m_serverList->SetColor(240, 240, 240);
@@ -41,7 +40,7 @@ void CUISelectServerWnd::OnCreate(int cx, int cy) {
   pos[2][1] = cy - 24;
 
   for (int i = 0; i < 3; i++) {
-    CUIBitmapButton *btn = new CUIBitmapButton();
+    CUIBitmapButton *btn = new CUIBitmapButton(p_window_mgr_);
     btn->SetBitmapName((path_name + button_name[i][0] + ".bmp").c_str(), 0);
     btn->SetBitmapName((path_name + button_name[i][1] + ".bmp").c_str(), 1);
     btn->SetBitmapName((path_name + button_name[i][2] + ".bmp").c_str(), 2);
@@ -101,11 +100,11 @@ void *CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
 
       if (btn_id == 118) {
         if (m_serverList->GetSelected() == -1) break;
-        g_WindowMgr->PostQuit(this);
+        p_window_mgr_->PostQuit(this);
         g_ModeMgr->GetCurMode()->SendMsg(
             m_target, (void *)m_serverList->GetSelected(), 0, 0);
       } else if (btn_id == 119) {
-        g_WindowMgr->PostQuit(this);
+        p_window_mgr_->PostQuit(this);
         g_ModeMgr->GetCurMode()->SendMsg(LMM_CANCEL, 0, 0, 0);
       }
       // else

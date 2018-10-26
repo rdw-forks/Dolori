@@ -7,7 +7,7 @@
 
 class CUIBitmapEditCtrl : public CUIEditCtrl {
  public:
-  CUIBitmapEditCtrl();
+  CUIBitmapEditCtrl(CUIWindowMgr* p_window_mgr);
 
   void OnDraw() override;
 

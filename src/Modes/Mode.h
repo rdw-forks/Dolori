@@ -2,9 +2,11 @@
 #define DOLORI_MODES_MODE_H_
 
 #include <stdlib.h>
+#include <string>
 
 #include <glm/vec2.hpp>
 
+#include "Core/UIWindowMgr.h"
 #include "Network/RagConnection.h"
 
 enum class ModeType { kLogin = 0, kGame = 1 };
@@ -287,10 +289,10 @@ typedef enum _MODE_MSG {
 
 class CMode {
  public:
-  CMode(CRagConnection *p_rag_connection);
+  CMode(CRagConnection *p_rag_connection, CUIWindowMgr *p_window_mgr);
   virtual ~CMode() = default;
 
-  virtual void OnInit(const char *) = 0;
+  virtual void OnInit(const std::string &) = 0;
   virtual int OnRun() = 0;
   virtual void OnExit() = 0;
   virtual void *SendMsg(size_t, const void *val1 = nullptr,
@@ -315,6 +317,7 @@ class CMode {
   int m_cursorActNum;
   int m_cursorMotNum;
   CRagConnection *p_rag_connection_;
+  CUIWindowMgr *p_window_mgr_;
 };
 
 // class CMode {

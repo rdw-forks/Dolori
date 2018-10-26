@@ -3,7 +3,8 @@
 #include "Common/Globals.h"
 #include "UI/UIBmp.h"
 
-CUIBitmapEditCtrl::CUIBitmapEditCtrl() : m_bitmapName() {}
+CUIBitmapEditCtrl::CUIBitmapEditCtrl(CUIWindowMgr* p_window_mgr)
+    : CUIEditCtrl(p_window_mgr), m_bitmapName() {}
 
 void CUIBitmapEditCtrl::SetBitmap(const std::string& bitmap_name) {
   m_bitmapName = bitmap_name;

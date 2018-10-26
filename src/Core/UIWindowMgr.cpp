@@ -73,35 +73,35 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
 
   switch (windowId) {
     case WID_NOTICECONFIRMWND: {
-      auto wnd = new CUINoticeConfirmWnd();
+      auto wnd = new CUINoticeConfirmWnd(this);
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300));
       AddWindow(wnd);
       result = wnd;
     } break;
     case WID_LOGINWND:
-      m_loginWnd = new CUILoginWnd();
+      m_loginWnd = new CUILoginWnd(this);
       m_loginWnd->Create(280, 120);
       m_loginWnd->Move(UIX(185), UICY(300));
       AddWindow(m_loginWnd);
       result = m_loginWnd;
       break;
     case WID_SELECTSERVERWND: {
-      auto wnd = new CUISelectServerWnd();
+      auto wnd = new CUISelectServerWnd(this);
       wnd->Create(280, 120);
       wnd->Move(UIX(185), UICY(300) - 80);
       AddWindow(wnd);
       result = wnd;
     } break;
     case WID_SELECTCHARWND: {
-      m_selectCharWnd = new CUISelectCharWnd();
+      m_selectCharWnd = new CUISelectCharWnd(this);
       m_selectCharWnd->Create(576, 342);
       m_selectCharWnd->Move(UIX(33), UICY(1) + 65);
       AddWindow(m_selectCharWnd);
       result = m_selectCharWnd;
     } break;
     case WID_MAKECHARWND: {
-      auto makeCharWnd = new CUIMakeCharWnd();
+      auto makeCharWnd = new CUIMakeCharWnd(this);
       makeCharWnd->Create(576, 342);
       makeCharWnd->Move(UIX(33), UICY(1) + 65);
       AddWindow(makeCharWnd);

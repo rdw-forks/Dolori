@@ -1,10 +1,9 @@
 #include "UI/UITextViewer.h"
 
-CUITextViewer::CUITextViewer() : m_bgR(), m_bgB(), m_bgG() {
+CUITextViewer::CUITextViewer(CUIWindowMgr* p_window_mgr)
+    : CUIListBox(p_window_mgr), m_bgR(), m_bgB(), m_bgG() {
   m_itemSpacing = 18;
 }
-
-CUITextViewer::~CUITextViewer() {}
 
 void CUITextViewer::OnCreate(int cx, int cy) { CUIListBox::OnCreate(cx, cy); }
 

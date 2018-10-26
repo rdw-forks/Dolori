@@ -5,8 +5,7 @@
 
 class CUITextViewer : public CUIListBox {
  public:
-  CUITextViewer();
-  ~CUITextViewer();
+  CUITextViewer(CUIWindowMgr* p_window_mgr);
 
   void OnCreate(int cx, int cy) override;
   void Create2(int x, int y, int cx, int cy, bool trans);

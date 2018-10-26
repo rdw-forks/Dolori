@@ -7,8 +7,7 @@
 
 class CUIEditCtrl : public CUIWindow {
  public:
-  CUIEditCtrl();
-  ~CUIEditCtrl();
+  CUIEditCtrl(CUIWindowMgr* p_window_mgr);
 
   void OnLBtnDown(int x, int y) override;
   void OnDraw() override;

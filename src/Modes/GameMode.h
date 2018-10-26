@@ -12,9 +12,9 @@
 
 class CGameMode : public CMode {
  public:
-  CGameMode(CRagConnection *p_rag_connection);
+  CGameMode(CRagConnection *p_rag_connection, CUIWindowMgr *p_window_mgr);
 
-  void OnInit(const char *) override;
+  void OnInit(const std::string &) override;
   int OnRun() override;
   void OnExit() override;
   void *SendMsg(size_t msg, const void *val1 = nullptr,
@@ -32,12 +32,14 @@ class CGameMode : public CMode {
   void Zc_Notify_Playerchat(const char *buffer);
   void Zc_Npcack_Mapmove(const char *buffer);
 
+  const std::string &rsw_name() const;
+
  private:
   int m_areaLeft;
   int m_areaRight;
   int m_areaTop;
   int m_areaBottom;
-  char m_rsw_name[0x28];
+  std::string m_rsw_name;
   char m_minimapBmpName[0x3c];
   CWorld m_world;
   CView m_view;

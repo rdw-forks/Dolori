@@ -8,7 +8,8 @@
 #include "UI/UIBitmapButton.h"
 #include "UI/UIBmp.h"
 
-CUINoticeConfirmWnd::CUINoticeConfirmWnd() : m_textViewer(), m_target(30) {}
+CUINoticeConfirmWnd::CUINoticeConfirmWnd(CUIWindowMgr *p_window_mgr)
+    : CUIFrameWnd(p_window_mgr), m_textViewer(), m_target(30) {}
 
 void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   const std::string resource_path = const_strings::kResourceSubfolder;
@@ -30,7 +31,7 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
   pos[1][1] = 0x60;
 
   for (int i = 0; i < 2; i++) {
-    CUIBitmapButton *btn = new CUIBitmapButton();
+    CUIBitmapButton *btn = new CUIBitmapButton(p_window_mgr_);
     btn->SetBitmapName(resource_path + button_name[i][0], 0);
     btn->SetBitmapName(resource_path + button_name[i][1], 1);
     btn->SetBitmapName(resource_path + button_name[i][2], 2);
@@ -41,7 +42,7 @@ void CUINoticeConfirmWnd::OnCreate(int cx, int cy) {
     AddChild(btn);
   }
 
-  CUITextViewer *text_viewer = new CUITextViewer();
+  CUITextViewer *text_viewer = new CUITextViewer(p_window_mgr_);
   text_viewer->Create2(10, 22, cx - 20, cy - 55, false);
   AddChild(text_viewer);
   // TODO: replace with the correct SendMsg call

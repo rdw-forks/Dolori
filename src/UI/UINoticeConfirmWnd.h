@@ -6,7 +6,7 @@
 
 class CUINoticeConfirmWnd : public CUIFrameWnd {
  public:
-  CUINoticeConfirmWnd();
+  CUINoticeConfirmWnd(CUIWindowMgr *p_window_mgr);
 
   void OnCreate(int cx, int cy) override;
   void OnDraw() override;

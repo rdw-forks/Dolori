@@ -1,7 +1,8 @@
 #include "UI/UIStaticText.h"
 
-CUIStaticText::CUIStaticText()
-    : m_drawBackGround(),
+CUIStaticText::CUIStaticText(CUIWindowMgr* p_window_mgr)
+    : CUIWindow(p_window_mgr),
+      m_drawBackGround(),
       m_backR(255),
       m_backG(255),
       m_backB(255),

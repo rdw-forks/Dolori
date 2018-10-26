@@ -7,8 +7,7 @@
 
 class CUIButton : public CUIWindow {
  public:
-  CUIButton();
-  ~CUIButton();
+  CUIButton(CUIWindowMgr* p_window_mgr);
 
   void OnLBtnDown(int, int);
   void OnLBtnUp(int, int);

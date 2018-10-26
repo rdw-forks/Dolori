@@ -5,7 +5,7 @@
 
 class CUIFrameWnd : public CUIWindow {
  public:
-  CUIFrameWnd();
+  CUIFrameWnd(CUIWindowMgr *p_window_mgr);
 
   void OnLBtnDown(int, int);
   void OnLBtnUp(int x, int y);

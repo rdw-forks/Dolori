@@ -3,7 +3,8 @@
 #include "Common/Globals.h"
 #include "UI/UIBmp.h"
 
-CUIBitmapButton::CUIBitmapButton() : m_bitmapWidth(), m_bitmapHeight() {}
+CUIBitmapButton::CUIBitmapButton(CUIWindowMgr* p_window_mgr)
+    : CUIButton(p_window_mgr), m_bitmapWidth(), m_bitmapHeight() {}
 
 void CUIBitmapButton::SetBitmapName(const std::string& bitmapName,
                                     int buttonState) {

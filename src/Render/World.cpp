@@ -32,8 +32,13 @@ void CWorld::OnEnterFrame() {
   }
 
   // Load RSW file
-  const auto rsw_filename = static_cast<const char*>(
-      g_ModeMgr->GetCurMode()->SendMsg(MM_QUERYRSWNAME));
+  CGameMode* game_mode = g_ModeMgr->GetGameMode();
+  if (game_mode == nullptr) {
+    LOG(error, "Failed to get game mode");
+    return;
+  }
+
+  const auto rsw_filename = game_mode->rsw_name();
   auto rsw_res = static_cast<CRswRes*>(g_ResMgr->Get(rsw_filename, false));
   if (rsw_res == nullptr) {
     LOG(error, "Cannot get resource: {}", rsw_filename);

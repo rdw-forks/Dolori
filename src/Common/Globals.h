@@ -11,7 +11,6 @@
 #include "Core/ModeMgr.h"
 #include "Core/ResMgr.h"
 #include "Core/Session.h"
-#include "Core/UIWindowMgr.h"
 #include "Input/Language.h"
 #include "Input/Mouse.h"
 #include "Render/3dDevice.h"
@@ -25,7 +24,6 @@ extern C3dDevice* g_3dDevice;
 extern CRenderer* g_Renderer;
 extern CFileMgr* g_FileMgr;
 extern CTexMgr* g_TexMgr;
-extern CUIWindowMgr* g_WindowMgr;
 extern CResMgr* g_ResMgr;
 extern CFontMgr* g_FontMgr;
 extern CMouse* g_Mouse;

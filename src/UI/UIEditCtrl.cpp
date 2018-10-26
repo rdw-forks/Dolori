@@ -4,8 +4,9 @@
 #include "Common/const_strings.h"
 #include "UI/UIBmp.h"
 
-CUIEditCtrl::CUIEditCtrl()
-    : m_maxchar(255),
+CUIEditCtrl::CUIEditCtrl(CUIWindowMgr* p_window_mgr)
+    : CUIWindow(p_window_mgr),
+      m_maxchar(255),
       m_selectionCursor(0),
       m_selectionOrigin(0),
       m_isSingColorFrame(1),
@@ -18,8 +19,6 @@ CUIEditCtrl::CUIEditCtrl()
       m_type(0),
       m_maskchar(false) {}
 
-CUIEditCtrl::~CUIEditCtrl() {}
-
 void CUIEditCtrl::HideChars(bool hide_chars) { m_maskchar = hide_chars; }
 
 void CUIEditCtrl::SetFrameColor(int r, int g, int b) {
@@ -29,7 +28,9 @@ void CUIEditCtrl::SetFrameColor(int r, int g, int b) {
   Invalidate();
 }
 
-void CUIEditCtrl::OnLBtnDown(int x, int y) { g_WindowMgr->SetFocusEdit(this); }
+void CUIEditCtrl::OnLBtnDown(int x, int y) {
+  p_window_mgr_->SetFocusEdit(this);
+}
 
 void CUIEditCtrl::OnDraw() {
   if (m_isSingColorFrame) {
@@ -70,7 +71,7 @@ void CUIEditCtrl::OnDraw() {
 }
 
 void CUIEditCtrl::DrawEditText() {
-  if (g_WindowMgr->GetFocusEdit() == this) {
+  if (p_window_mgr_->GetFocusEdit() == this) {
     RefreshText();
   }
 
@@ -81,7 +82,7 @@ void CUIEditCtrl::OnBeginEdit() {
   g_Language->ResetInput();
   g_Language->AddInput(m_text);
   g_Language->HideText(m_maskchar);
-  if (g_WindowMgr->GetFocusEdit() == this) {
+  if (p_window_mgr_->GetFocusEdit() == this) {
     g_Language->SetSelection(0, g_Language->GetInputSize());
   } else {
     m_selectionOrigin = 0;
@@ -100,7 +101,7 @@ void CUIEditCtrl::OnFinishEdit() {
 void CUIEditCtrl::RefreshText() { m_text = g_Language->GetLanguageText(); }
 
 const std::string& CUIEditCtrl::GetText() {
-  if (g_WindowMgr->GetFocusEdit() == this) {
+  if (p_window_mgr_->GetFocusEdit() == this) {
     RefreshText();
   }
 

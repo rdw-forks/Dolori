@@ -6,7 +6,7 @@
 #include "Common/Globals.h"
 #include "Common/debug.h"
 
-CUIWindow::CUIWindow()
+CUIWindow::CUIWindow(CUIWindowMgr* p_window_mgr)
     : m_parent(),
       m_x(),
       m_y(),
@@ -20,7 +20,8 @@ CUIWindow::CUIWindow()
       m_show(true),
       m_trans(255),
       m_transTarget(255),
-      m_transTime(GetTick()) {}
+      m_transTime(GetTick()),
+      p_window_mgr_(p_window_mgr) {}
 
 CUIWindow::~CUIWindow() {
   for (auto child : m_children) {

@@ -1,6 +1,7 @@
 #include "UI/UISlotBitmap.h"
 
-CUISlotBitmap::CUISlotBitmap(size_t slot_id) : m_slot_id(slot_id) {}
+CUISlotBitmap::CUISlotBitmap(CUIWindowMgr* p_window_mgr, size_t slot_id)
+    : CUIStaticBitmap(p_window_mgr), m_slot_id(slot_id) {}
 
 void CUISlotBitmap::OnLBtnDown(int x, int y) {
   if (m_parent) {

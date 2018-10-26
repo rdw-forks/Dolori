@@ -11,8 +11,7 @@
 
 class CUILoginWnd : public CUIFrameWnd {
  public:
-  CUILoginWnd();
-  ~CUILoginWnd();
+  CUILoginWnd(CUIWindowMgr* p_window_mgr);
 
   void OnCreate(int x, int y);
   void OnDraw();

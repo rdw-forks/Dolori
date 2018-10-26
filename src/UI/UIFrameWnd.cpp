@@ -3,12 +3,13 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 
-CUIFrameWnd::CUIFrameWnd() : m_startGlobalX(), m_startGlobalY() {}
+CUIFrameWnd::CUIFrameWnd(CUIWindowMgr* p_window_mgr)
+    : CUIWindow(p_window_mgr), m_startGlobalX(), m_startGlobalY() {}
 
 void CUIFrameWnd::OnLBtnDown(int x, int y) {
   int gx, gy;
 
-  g_WindowMgr->SetCapture(this);
+  p_window_mgr_->SetCapture(this);
   GetGlobalCoor(&gx, &gy);
   gx += x;
   gy += y;
@@ -22,10 +23,10 @@ void CUIFrameWnd::OnLBtnDown(int x, int y) {
 }
 
 void CUIFrameWnd::OnLBtnUp(int x, int y) {
-  if (g_WindowMgr->GetCapture() == this) {
+  if (p_window_mgr_->GetCapture() == this) {
     m_transTarget = 255;
     m_transTime = GetTick();
-    g_WindowMgr->ReleaseCapture();
+    p_window_mgr_->ReleaseCapture();
     // CSnapMgr::EndMove(&g_snapMgr, (UIWindow *)&v3->vfptr);
   }
 }

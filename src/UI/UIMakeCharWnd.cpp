@@ -9,8 +9,13 @@
 #include "Files/SprRes.h"
 #include "UI/UIBmp.h"
 
-CUIMakeCharWnd::CUIMakeCharWnd()
-    : m_charInfo(), m_charInfo2(), m_viewChar(), m_viewChar2(), m_text() {
+CUIMakeCharWnd::CUIMakeCharWnd(CUIWindowMgr *p_window_mgr)
+    : CUIFrameWnd(p_window_mgr),
+      m_charInfo(),
+      m_charInfo2(),
+      m_viewChar(),
+      m_viewChar2(),
+      m_text() {
   m_charInfo.head_style = 1;
   m_charInfo.job = 0;
   m_charInfo.base_level = 1;
@@ -50,14 +55,14 @@ void CUIMakeCharWnd::OnCreate(int x, int y) {
       const_strings::kResourceSubfolder + "login_interface/name-edit.bmp";
 
   for (int i = 0; i < 6; i++) {
-    m_text[i] = new CUIStaticText();
+    m_text[i] = new CUIStaticText(p_window_mgr_);
     m_text[i]->Create(90, 15);
     m_text[i]->Move(144 * (i / 6) + 490, 16 * (i % 6) + 40);
     AddChild(m_text[i]);
   }
   InitTextControls();
 
-  m_nameEditCtrl = new CUIBitmapEditCtrl();
+  m_nameEditCtrl = new CUIBitmapEditCtrl(p_window_mgr_);
   m_nameEditCtrl->SetBitmap(bitmap_name);
   m_nameEditCtrl->Create(m_nameEditCtrl->GetWidth(),
                          m_nameEditCtrl->GetHeight());
@@ -66,7 +71,7 @@ void CUIMakeCharWnd::OnCreate(int x, int y) {
   m_nameEditCtrl->SetId(118);
   AddChild(m_nameEditCtrl);
   MakeButton();
-  g_WindowMgr->SetFocusEdit(m_nameEditCtrl);
+  p_window_mgr_->SetFocusEdit(m_nameEditCtrl);
   m_defPushId = 118;
 }
 
@@ -190,7 +195,7 @@ void CUIMakeCharWnd::MakeButton() {
       {190, 190}, {349, 190}, {47, 135}, {87, 105},  {127, 135}};
 
   for (size_t i = 0; i < kButtonsCount; i++) {
-    auto bitmap_btn = new CUIBitmapButton();
+    auto bitmap_btn = new CUIBitmapButton(p_window_mgr_);
 
     constexpr size_t kStatesCount =
         sizeof(button_name[i]) / sizeof(button_name[i][0]);
@@ -228,18 +233,18 @@ void *CUIMakeCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
           if (m_nameEditCtrl->GetTextSize() < 4) {
             const auto error_msg =
                 g_MsgStrMgr->GetMsgStr(MSI_ENTER_NAME_MORE_THAN_4_CHAR);
-            g_WindowMgr->ErrorMsg(error_msg, 0, 1, 0, 0);
+            p_window_mgr_->ErrorMsg(error_msg, 0, 1, 0, 0);
             return nullptr;
           }
 
           g_Session->SetCharName(m_nameEditCtrl->GetText());
           g_ModeMgr->GetCurMode()->SendMsg(LMM_SENDCHARINFO, &m_charInfo);
-          g_WindowMgr->PostQuit(this);
-          g_WindowMgr->SetCurScreen(1);
+          p_window_mgr_->PostQuit(this);
+          p_window_mgr_->SetCurScreen(1);
           break;
         case 119:  // cancel_btn
-          g_WindowMgr->PostQuit(this);
-          g_WindowMgr->SetCurScreen(110);
+          p_window_mgr_->PostQuit(this);
+          p_window_mgr_->SetCurScreen(110);
           break;
         case 139:  // str_arw
           if (m_charInfo.int_ < 2) {

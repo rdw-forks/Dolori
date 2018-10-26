@@ -1,6 +1,5 @@
 #include "Common/Globals.h"
 
-CUIWindowMgr* g_WindowMgr = new CUIWindowMgr();
 C3dDevice* g_3dDevice = new C3dDevice();
 CModeMgr* g_ModeMgr = new CModeMgr();
 CSession* g_Session = new CSession();

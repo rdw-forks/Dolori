@@ -7,7 +7,7 @@
 
 class CUIStaticText : public CUIWindow {
  public:
-  CUIStaticText();
+  CUIStaticText(CUIWindowMgr* p_window_mgr);
 
   void OnDraw() override;
 

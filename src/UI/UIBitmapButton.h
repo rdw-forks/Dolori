@@ -7,7 +7,7 @@
 
 class CUIBitmapButton : public CUIButton {
  public:
-  CUIBitmapButton();
+  CUIBitmapButton(CUIWindowMgr* p_window_mgr);
 
   void SetBitmapName(const std::string& bitmapName, int buttonState);
   int GetBitmapWidth() const;

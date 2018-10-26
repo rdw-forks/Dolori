@@ -19,10 +19,11 @@
 #include "UI/UINoticeConfirmWnd.h"
 #include "UI/UISelectServerWnd.h"
 
-CLoginMode::CLoginMode(CRagConnection *p_rag_connection)
-    : CMode(p_rag_connection) {}
+CLoginMode::CLoginMode(CRagConnection *p_rag_connection,
+                       CUIWindowMgr *p_window_mgr)
+    : CMode(p_rag_connection, p_window_mgr) {}
 
-void CLoginMode::OnInit(const char *mode_name) {
+void CLoginMode::OnInit(const std::string &mode_name) {
   memset(m_charParam, 5, 6);
   m_charParam[6] = 0;
   m_charParam[7] = 1;
@@ -185,19 +186,19 @@ void CLoginMode::OnUpdate() {
 
   ProcessSDLEvents();
   g_Mouse->ReadState();
-  g_WindowMgr->ProcessInput();
+  p_window_mgr_->ProcessInput();
 
   g_Renderer->Clear(true);
-  g_WindowMgr->OnProcess();
-  g_WindowMgr->RenderWallPaper();
-  g_WindowMgr->Render(this);
+  p_window_mgr_->OnProcess();
+  p_window_mgr_->RenderWallPaper();
+  p_window_mgr_->Render(this);
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
   }
 }
 
 void CLoginMode::OnChangeState(int state) {
-  g_WindowMgr->RemoveAllWindows();
+  p_window_mgr_->RemoveAllWindows();
   m_subModeStartTime = GetTick();
   m_isConnected = 1;
 
@@ -212,9 +213,9 @@ void CLoginMode::OnChangeState(int state) {
       m_wallPaperBmpName = UIBmp(wallpaper_name);
       bitmap =
           static_cast<CBitmapRes *>(g_ResMgr->Get(m_wallPaperBmpName, false));
-      g_WindowMgr->SetWallpaper(bitmap);
+      p_window_mgr_->SetWallpaper(bitmap);
       wnd = static_cast<CUINoticeConfirmWnd *>(
-          g_WindowMgr->MakeWindow(WID_NOTICECONFIRMWND));
+          p_window_mgr_->MakeWindow(WID_NOTICECONFIRMWND));
       if (wnd) {
         wnd->SendMsg(nullptr, WM_SET_ACTION_BUTTON_OK,
                      (void *)LMM_GOTOSELECTACCOUNT);
@@ -241,7 +242,7 @@ void CLoginMode::OnChangeState(int state) {
       char buffer[256];
 
       wnd = static_cast<CUISelectServerWnd *>(
-          g_WindowMgr->MakeWindow(WID_SELECTSERVERWND));
+          p_window_mgr_->MakeWindow(WID_SELECTSERVERWND));
       if (wnd == nullptr) {
         LOG(error, "Cannot create server selection window");
         return;
@@ -265,11 +266,11 @@ void CLoginMode::OnChangeState(int state) {
     } break;
     case 7:
       // Select char
-      g_WindowMgr->MakeWindow(WID_SELECTCHARWND);
+      p_window_mgr_->MakeWindow(WID_SELECTCHARWND);
       break;
     case 8:
       // Create char
-      g_WindowMgr->MakeWindow(WID_MAKECHARWND);
+      p_window_mgr_->MakeWindow(WID_MAKECHARWND);
       break;
     case 9: {
       PACKET_CH_SELECT_CHAR packet = {};
@@ -322,8 +323,8 @@ void CLoginMode::MakeLoginWindow() {
   m_wallPaperBmpName = UIBmp(wallpaper_name);
   auto res =
       static_cast<CBitmapRes *>(g_ResMgr->Get(m_wallPaperBmpName, false));
-  g_WindowMgr->SetWallpaper(res);
-  login_wnd = g_WindowMgr->MakeWindow(WID_LOGINWND);
+  p_window_mgr_->SetWallpaper(res);
+  login_wnd = p_window_mgr_->MakeWindow(WID_LOGINWND);
   if (!g_hideAccountList && login_wnd) {
     login_wnd->SendMsg(nullptr, 88, 0, 0, 0, 0);
   }
@@ -613,7 +614,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
 }
 
 void CLoginMode::CheckExeHashFromAccServer() {}
@@ -644,7 +645,7 @@ void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
     change_msg = 0;
     msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   }
-  g_WindowMgr->ErrorMsg(msg, 0, 1, change_msg, 0);
+  p_window_mgr_->ErrorMsg(msg, 0, 1, change_msg, 0);
 }
 
 void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
@@ -679,7 +680,7 @@ void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
     default:
       msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
   };
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
@@ -725,7 +726,7 @@ void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
     msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
   }
 
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
@@ -778,7 +779,7 @@ void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
       msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
   };
 
-  g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
+  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
   p_rag_connection_->Disconnect();
   m_next_sub_mode = 3;
 }

@@ -2,20 +2,19 @@
 
 #include "Common/Globals.h"
 
-CUIButton::CUIButton() : m_isDisabled() {}
-
-CUIButton::~CUIButton() {}
+CUIButton::CUIButton(CUIWindowMgr* p_window_mgr)
+    : CUIWindow(p_window_mgr), m_isDisabled() {}
 
 void CUIButton::OnLBtnDown(int x, int y) {
   if (!m_isDisabled) {
-    g_WindowMgr->SetCapture(this);
+    p_window_mgr_->SetCapture(this);
     m_state = 2;
     Invalidate();
   }
 }
 
 void CUIButton::OnLBtnUp(int x, int y) {
-  if (!m_isDisabled && g_WindowMgr->GetCapture() == this) {
+  if (!m_isDisabled && p_window_mgr_->GetCapture() == this) {
     if (x < 0 || x >= m_w || y < 0 || y >= m_h) {
       m_state = 0;
     } else {
@@ -31,7 +30,7 @@ void CUIButton::OnLBtnUp(int x, int y) {
     }
 
     Invalidate();
-    g_WindowMgr->ReleaseCapture();
+    p_window_mgr_->ReleaseCapture();
   }
 }
 
@@ -39,7 +38,7 @@ void CUIButton::OnMouseMove(int x, int y) {
   int state;
 
   if (!m_isDisabled) {
-    if (g_WindowMgr->GetCapture() == this) {
+    if (p_window_mgr_->GetCapture() == this) {
       if (x >= 0 && x < m_w && y >= 0 && y < m_h) {
         state = 2;
         if (m_state != state) {

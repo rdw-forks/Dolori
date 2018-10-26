@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "Core/UIWindowMgr.h"
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 #include "Modes/Mode.h"
@@ -12,6 +13,7 @@ class CModeMgr {
  public:
   CModeMgr();
 
+  void Init();
   void Run(ModeType mode_type, const std::string& map_name);
   void Switch(ModeType mode_type, const std::string& map_name);
   void Quit();
@@ -27,6 +29,7 @@ class CModeMgr {
   ModeType m_cur_mode_type;
   ModeType m_next_mode_type;
   CRagConnection rag_connection_;
+  CUIWindowMgr window_mgr_;
 };
 
 #endif  // DOLORI_CORE_MODEMGR_H_

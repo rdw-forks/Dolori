@@ -8,8 +8,7 @@
 
 class CUIServerListBox : public CUIListBox {
  public:
-  CUIServerListBox();
-  ~CUIServerListBox();
+  CUIServerListBox(CUIWindowMgr* p_window_mgr);
 
  private:
   std::vector<std::string> m_strings;

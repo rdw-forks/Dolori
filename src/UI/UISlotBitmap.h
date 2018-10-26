@@ -5,7 +5,7 @@
 
 class CUISlotBitmap : public CUIStaticBitmap {
  public:
-  explicit CUISlotBitmap(size_t slot_id);
+  CUISlotBitmap(CUIWindowMgr* p_window_mgr, size_t slot_id);
 
   void OnLBtnDown(int x, int y);
   void* SendMsg(CUIWindow* sender, int message, void* val1 = nullptr,

@@ -1,7 +1,8 @@
 #include "UI/UIListBox.h"
 
-CUIListBox::CUIListBox()
-    : m_bR(255),
+CUIListBox::CUIListBox(CUIWindowMgr *p_window_mgr)
+    : CUIWindow(p_window_mgr),
+      m_bR(255),
       m_bG(255),
       m_bB(255),
       m_curItem(),
@@ -17,8 +18,6 @@ CUIListBox::CUIListBox()
       m_noColor() {
   SetColor(255, 255, 255);
 }
-
-CUIListBox::~CUIListBox() {}
 
 void CUIListBox::Create2(int x, int y, int cx, int cy, bool trans) {
   m_isTransParent = trans;
@@ -68,7 +67,7 @@ size_t CUIListBox::GetSelected() { return m_curItem; }
 void CUIListBox::OnCreate(int cx, int cy) {
   int fixed_length;
 
-  m_vertScrollBar = new CUIScrollBar();
+  m_vertScrollBar = new CUIScrollBar(p_window_mgr_);
   m_vertScrollBar->SetVert(true);
   fixed_length = m_vertScrollBar->GetFixedLength();
   m_vertScrollBar->Resize(fixed_length, cy);
@@ -77,7 +76,7 @@ void CUIListBox::OnCreate(int cx, int cy) {
   m_vertScrollBar->OnSize(fixed_length, cy);
   AddChild(m_vertScrollBar);
 
-  m_horzScrollBar = new CUIScrollBar();
+  m_horzScrollBar = new CUIScrollBar(p_window_mgr_);
   m_horzScrollBar->SetVert(false);
   fixed_length = m_horzScrollBar->GetFixedLength();
   m_horzScrollBar->Resize(cx - 13, fixed_length);

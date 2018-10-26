@@ -9,6 +9,9 @@
 #include "Files/BitmapRes.h"
 #include "Render/Surface.h"
 
+// Forward declaration
+class CUIWindowMgr;
+
 typedef enum _WINDOW_MESSAGE {
   WM_BUTTON_PRESSED = 6,
   WM_SET_ACTION_BUTTON_OK = 80
@@ -16,7 +19,7 @@ typedef enum _WINDOW_MESSAGE {
 
 class CUIWindow {
  public:
-  CUIWindow();
+  CUIWindow(CUIWindowMgr *p_window_mgr);
   virtual ~CUIWindow();
 
   void Create(int, int);
@@ -80,6 +83,7 @@ class CUIWindow {
   virtual bool ShouldDoHitTest();
 
  protected:
+  CUIWindowMgr *p_window_mgr_;
   CUIWindow *m_parent;
   std::list<CUIWindow *> m_children;
   int m_x;

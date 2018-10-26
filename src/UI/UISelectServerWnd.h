@@ -9,8 +9,7 @@
 
 class CUISelectServerWnd : public CUIFrameWnd {
  public:
-  CUISelectServerWnd();
-  ~CUISelectServerWnd();
+  CUISelectServerWnd(CUIWindowMgr* p_window_mgr);
 
   void OnCreate(int cx, int cy);
   void OnDraw();

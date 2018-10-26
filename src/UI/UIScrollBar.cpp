@@ -4,8 +4,9 @@
 #include "Common/const_strings.h"
 #include "UI/UIBmp.h"
 
-CUIScrollBar::CUIScrollBar()
-    : m_drawMode(),
+CUIScrollBar::CUIScrollBar(CUIWindowMgr *p_window_mgr)
+    : CUIWindow(p_window_mgr),
+      m_drawMode(),
       m_maxPos(),
       m_curPos(),
       m_isVert(true),
@@ -17,8 +18,6 @@ CUIScrollBar::CUIScrollBar()
       m_scrollBtnSize(13),
       m_fixedLength(13),
       m_type(1) {}
-
-CUIScrollBar::~CUIScrollBar() {}
 
 void CUIScrollBar::SetPos(int pos) { m_curPos = pos; }
 
@@ -129,7 +128,7 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
           m_parent->SendMsg(this, 9, 0, 0, 0, 0);
           break;
         case 2:
-          g_WindowMgr->SetCapture(this);
+          p_window_mgr_->SetCapture(this);
           break;
         case 3:
           m_parent->SendMsg(this, 10, 0, 0, 0, 0);
@@ -143,7 +142,7 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
     } else {
       switch (hit) {
         case 2:
-          g_WindowMgr->SetCapture(this);
+          p_window_mgr_->SetCapture(this);
           break;
         case 0:
           m_parent->SendMsg(this, 8, (void *)-1, 0, 0, 0);
@@ -166,8 +165,8 @@ void CUIScrollBar::OnLBtnDown(int x, int y) {
 
 void CUIScrollBar::OnLBtnUp(int x, int y) {
   if (m_maxPos != 0) {
-    if (g_WindowMgr->GetCapture() == this) {
-      g_WindowMgr->ReleaseCapture();
+    if (p_window_mgr_->GetCapture() == this) {
+      p_window_mgr_->ReleaseCapture();
     }
   } else {
     m_parent->OnLBtnUp(x + m_x, y + m_y);
@@ -218,7 +217,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
     Invalidate();
   }
 
-  if (g_WindowMgr->GetCapture() == this && m_parent != nullptr) {
+  if (p_window_mgr_->GetCapture() == this && m_parent != nullptr) {
     if (!m_isVert) {
       pos_scroll_end = m_w - 3 * m_scrollBtnSize;
       if ((m_maxPos + 1) * (x - m_startDragX) / pos_scroll_end == m_deltaDrag) {

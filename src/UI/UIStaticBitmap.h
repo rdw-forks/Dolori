@@ -7,10 +7,10 @@
 
 class CUIStaticBitmap : public CUIWindow {
  public:
-  CUIStaticBitmap();
+  CUIStaticBitmap(CUIWindowMgr* p_window_mgr);
   ~CUIStaticBitmap();
 
-  void SetBitmap(const char *filename);
+  void SetBitmap(const char* filename);
   void OnDraw();
 
  private:

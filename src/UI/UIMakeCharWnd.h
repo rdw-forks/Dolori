@@ -9,16 +9,16 @@
 
 class CUIMakeCharWnd : public CUIFrameWnd {
  public:
-  CUIMakeCharWnd();
+  CUIMakeCharWnd(CUIWindowMgr *p_window_mgr);
 
   void OnCreate(int x, int y) override;
   void OnDraw() override;
   void OnProcess() override;
+  void *SendMsg(CUIWindow *, int, void *val1 = nullptr, void *val2 = nullptr,
+                void *val3 = nullptr, void *val4 = nullptr) override;
 
   void InitTextControls();
   void MakeButton();
-  void *SendMsg(CUIWindow *, int, void *val1 = nullptr, void *val2 = nullptr,
-                void *val3 = nullptr, void *val4 = nullptr) override;
 
  private:
   CUIBitmapEditCtrl *m_nameEditCtrl;

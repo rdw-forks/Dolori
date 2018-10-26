@@ -9,8 +9,7 @@
 
 class CUIListBox : public CUIWindow {
  public:
-  CUIListBox();
-  ~CUIListBox();
+  CUIListBox(CUIWindowMgr* p_window_mgr);
 
   void Create2(int x, int y, int cx, int cy, bool trans);
   void SetColor(int r, int g, int b);
