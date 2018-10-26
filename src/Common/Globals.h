@@ -14,7 +14,6 @@
 #include "Core/UIWindowMgr.h"
 #include "Input/Language.h"
 #include "Input/Mouse.h"
-#include "Network/RagConnection.h"
 #include "Render/3dDevice.h"
 #include "Render/FontMgr.h"
 #include "Render/Renderer.h"
@@ -22,7 +21,6 @@
 
 extern CModeMgr* g_ModeMgr;
 extern CSession* g_Session;
-extern CRagConnection* g_RagConnection;
 extern C3dDevice* g_3dDevice;
 extern CRenderer* g_Renderer;
 extern CFileMgr* g_FileMgr;

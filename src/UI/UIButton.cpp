@@ -25,7 +25,8 @@ void CUIButton::OnLBtnUp(int x, int y) {
         m_parent->SendMsg(this, WM_BUTTON_PRESSED,
                           reinterpret_cast<void*>(m_id));
       } else {
-        g_ModeMgr->GetCurMode()->SendMsg(0, reinterpret_cast<void*>(m_id));
+        g_ModeMgr->GetCurMode()->SendMsg(MM_COMMAND,
+                                         reinterpret_cast<void*>(m_id));
       }
     }
 

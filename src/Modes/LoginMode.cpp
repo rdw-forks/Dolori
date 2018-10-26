@@ -19,7 +19,8 @@
 #include "UI/UINoticeConfirmWnd.h"
 #include "UI/UISelectServerWnd.h"
 
-CLoginMode::CLoginMode() : CMode() {}
+CLoginMode::CLoginMode(CRagConnection *p_rag_connection)
+    : CMode(p_rag_connection) {}
 
 void CLoginMode::OnInit(const char *mode_name) {
   memset(m_charParam, 5, 6);
@@ -90,7 +91,7 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
             break;
           }
           // g_WindowMgr->RemoveAllWindows();
-          g_RagConnection->Disconnect();
+          p_rag_connection_->Disconnect();
           m_next_sub_mode = 6;
           break;
       };
@@ -127,7 +128,7 @@ void *CLoginMode::SendMsg(size_t messageId, const void *val1, const void *val2,
     case LMM_GOTOSELECTACCOUNT: {
       const size_t val = reinterpret_cast<size_t>(val2);
       if (val == 135) {
-        g_ModeMgr->GetCurMode()->SendMsg(MM_QUIT);
+        SendMsg(MM_QUIT);
       } else {
         m_next_sub_mode = 2;
       }
@@ -178,8 +179,8 @@ void CLoginMode::OnUpdate() {
 
     m_syncRequestTime = GetTick() + 12000;
     packet.header = HEADER_PING;
-    packet_size = g_RagConnection->GetPacketSize(HEADER_PING);
-    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    packet_size = p_rag_connection_->GetPacketSize(HEADER_PING);
+    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
   }
 
   ProcessSDLEvents();
@@ -276,9 +277,9 @@ void CLoginMode::OnChangeState(int state) {
       packet.header = HEADER_CH_SELECT_CHAR;
       packet.char_num = static_cast<uint8_t>(m_selected_char);
       const int packet_size =
-          g_RagConnection->GetPacketSize(HEADER_CH_SELECT_CHAR);
-      g_RagConnection->SendPacket(packet_size,
-                                  reinterpret_cast<char *>(&packet));
+          p_rag_connection_->GetPacketSize(HEADER_CH_SELECT_CHAR);
+      p_rag_connection_->SendPacket(packet_size,
+                                    reinterpret_cast<char *>(&packet));
       // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
       // v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
       // UIWaitWnd::SetMsg(v127, v128, 16, 1);
@@ -301,9 +302,9 @@ void CLoginMode::OnChangeState(int state) {
       packet.luk = m_new_char_info.luk;
 
       const int packet_size =
-          g_RagConnection->GetPacketSize(HEADER_CH_MAKE_CHAR);
-      g_RagConnection->SendPacket(packet_size,
-                                  reinterpret_cast<char *>(&packet));
+          p_rag_connection_->GetPacketSize(HEADER_CH_MAKE_CHAR);
+      p_rag_connection_->SendPacket(packet_size,
+                                    reinterpret_cast<char *>(&packet));
     } break;
     case 12:
       return ConnectToZoneServer();
@@ -335,10 +336,10 @@ void CLoginMode::ConnectToAccountServer() {
   server_addr.port = atoi(g_accountPort);
   LOG(info, "Connecting to the account server ({}:{}) ...", server_addr.ip,
       server_addr.port);
-  m_isConnected = g_RagConnection->Connect(&server_addr);
+  m_isConnected = p_rag_connection_->Connect(&server_addr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the account server");
-    g_RagConnection->Disconnect();
+    p_rag_connection_->Disconnect();
     return;
   }
 
@@ -349,8 +350,8 @@ void CLoginMode::ConnectToAccountServer() {
     packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
     memcpy(packet.ID, m_userId, sizeof(packet.ID));
     packet_size =
-        g_RagConnection->GetPacketSize(HEADER_CA_CONNECT_INFO_CHANGED);
-    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+        p_rag_connection_->GetPacketSize(HEADER_CA_CONNECT_INFO_CHANGED);
+    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
   }
 
   CheckExeHashFromAccServer();
@@ -359,8 +360,8 @@ void CLoginMode::ConnectToAccountServer() {
     int packet_size;
 
     packet.header = HEADER_CA_REQ_HASH;
-    packet_size = g_RagConnection->GetPacketSize(HEADER_CA_REQ_HASH);
-    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    packet_size = p_rag_connection_->GetPacketSize(HEADER_CA_REQ_HASH);
+    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
     // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
     // 16, 1);
     return;
@@ -375,8 +376,8 @@ void CLoginMode::ConnectToAccountServer() {
     strncpy(packet.username, m_userId, sizeof(packet.username));
     strncpy(packet.password, m_userPassword, sizeof(packet.password));
     packet.client_type = g_clientType;  // GetAccountType();
-    packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN);
-    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    packet_size = p_rag_connection_->GetPacketSize(HEADER_CA_LOGIN);
+    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
   } else {
     struct PACKET_CA_LOGIN_CHANNEL packet;
     int packet_size;
@@ -389,8 +390,8 @@ void CLoginMode::ConnectToAccountServer() {
     memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
     packet.clienttype = g_clientType;
     packet.channeling_corp = g_isGravityID;
-    packet_size = g_RagConnection->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
-    g_RagConnection->SendPacket(packet_size, (char *)&packet);
+    packet_size = p_rag_connection_->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
+    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
   }
 
   // CUIWaitWnd *waitwnd =
@@ -404,15 +405,15 @@ void CLoginMode::ConnectToCharServer() {
   struct PACKET_CH_ENTER packet;
   int packet_size;
 
-  g_RagConnection->Disconnect();
+  p_rag_connection_->Disconnect();
 
   LOG(info, "Connecting to the char server ({}:{}) ...", g_charServerAddr.ip,
       g_charServerAddr.port);
-  m_isConnected = g_RagConnection->Connect(&g_charServerAddr);
+  m_isConnected = p_rag_connection_->Connect(&g_charServerAddr);
   // WinMainNpKeyStopEncryption();
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the char server");
-    g_RagConnection->Disconnect();
+    p_rag_connection_->Disconnect();
     /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
     if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
     {
@@ -429,18 +430,18 @@ void CLoginMode::ConnectToCharServer() {
   packet.user_level = m_userLevel;
   packet.Sex = g_Session->GetSex();
   g_mustPumpOutReceiveQueue = true;
-  packet_size = g_RagConnection->GetPacketSize(HEADER_CH_ENTER);
-  g_RagConnection->SendPacket(packet_size, (char *)&packet);
+  packet_size = p_rag_connection_->GetPacketSize(HEADER_CH_ENTER);
+  p_rag_connection_->SendPacket(packet_size, (char *)&packet);
 }
 
 void CLoginMode::ConnectToZoneServer() {
   // Connection to zone server
   LOG(info, "Connecting to the zone server ({}:{}) ...", g_zoneServerAddr.ip,
       g_zoneServerAddr.port);
-  m_isConnected = g_RagConnection->Connect(&g_zoneServerAddr);
+  m_isConnected = p_rag_connection_->Connect(&g_zoneServerAddr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the zone server");
-    g_RagConnection->Disconnect();
+    p_rag_connection_->Disconnect();
     /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
     if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
     {
@@ -461,9 +462,9 @@ void CLoginMode::ConnectToZoneServer() {
   packet.GID = m_char_id;
   packet.AID = m_account_id;
   packet.Sex = g_Session->GetSex();
-  int packet_size = g_RagConnection->GetPacketSize(HEADER_CZ_ENTER);
-  g_RagConnection->SendPacket(packet_size, (char *)&packet);
-  g_RagConnection->SetBlock(true);
+  int packet_size = p_rag_connection_->GetPacketSize(HEADER_CZ_ENTER);
+  p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+  p_rag_connection_->SetBlock(true);
   // wnd = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr,
   // WID_WAITWND);  str = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
   // wnd->SetMsg(str, 16, 1);
@@ -472,21 +473,21 @@ void CLoginMode::ConnectToZoneServer() {
 void CLoginMode::PollNetworkStatus() {
   char buffer[2048];
 
-  if (!g_RagConnection->Poll()) {
-    g_ModeMgr->GetCurMode()->SendMsg(1, 0, 0, 0);
+  if (!p_rag_connection_->Poll()) {
+    SendMsg(1, 0, 0, 0);
   }
 
   if (g_mustPumpOutReceiveQueue) {
     unsigned int aid;
-    if (g_RagConnection->Recv((char *)&aid, 4, 1)) {
+    if (p_rag_connection_->Recv((char *)&aid, 4, 1)) {
       g_mustPumpOutReceiveQueue = false;
     }
     return;
   }
 
   int size_of_buffer;
-  while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
-    const int16_t packet_type = g_RagConnection->GetPacketType(buffer);
+  while (p_rag_connection_->RecvPacket(buffer, &size_of_buffer)) {
+    const int16_t packet_type = p_rag_connection_->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_AC_ACCEPT_LOGIN:
         Ac_Accept_Login(buffer);
@@ -582,7 +583,7 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
                 sizeof(CHAR_SERVER_INFO);
   memcpy(m_serverInfo, &(packet->server_info),
          m_numServer * sizeof(CHAR_SERVER_INFO));
-  g_RagConnection->Disconnect();
+  p_rag_connection_->Disconnect();
   g_passwordWrong = false;
   m_next_sub_mode = 6;
 }
@@ -592,7 +593,7 @@ void CLoginMode::Ac_Refuse_Login(const char *buffer) {
   std::string msg;
 
   if (packet->error_code != 18) {
-    g_RagConnection->Disconnect();
+    p_rag_connection_->Disconnect();
   }
 
   switch (packet->error_code) {
@@ -635,7 +636,7 @@ void CLoginMode::Hc_Refuse_Enter(const char *buffer) {
   std::string msg;
   int change_msg;
 
-  g_RagConnection->Disconnect();
+  p_rag_connection_->Disconnect();
   if (packet->error_code == 1) {
     change_msg = 1;
     msg = g_MsgStrMgr->GetMsgStr(MSI_ID_MISMATCH);
@@ -738,7 +739,7 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
 
   LOG(info, "Entering zone server. The current map is {}", m_current_map);
   g_ModeMgr->Switch(ModeType::kGame, m_current_map);
-  g_RagConnection->SetBlock(false);
+  p_rag_connection_->SetBlock(false);
   // wnd = (UIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
   // str = MsgStr(MSI_PLEASE_BE_PATIENT);
   // wnd->SetMsg(str, 17, 1);
@@ -758,7 +759,7 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
   ip.s_addr = packet->addr.ip;
   inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
-  g_RagConnection->Disconnect();
+  p_rag_connection_->Disconnect();
   m_next_sub_mode = 12;
 }
 
@@ -778,6 +779,6 @@ void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
   };
 
   g_WindowMgr->ErrorMsg(msg, 0, 1, 0, 0);
-  g_RagConnection->Disconnect();
+  p_rag_connection_->Disconnect();
   m_next_sub_mode = 3;
 }

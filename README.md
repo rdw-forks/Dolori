@@ -10,7 +10,7 @@ External dependencies
 Build
 -----
 ```shell
-$ git clone https://gitlab.com/Linkz/Dolori
+$ git clone https://gitlab.com/Linkz/Dolori --recurse-submodules
 $ cd Dolori
 $ mkdir build && cd build
 $ cmake ..

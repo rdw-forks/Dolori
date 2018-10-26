@@ -4,22 +4,22 @@
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 
-CModeMgr::CModeMgr() : m_cur_mode(), m_loop_cond(true) {}
+CModeMgr::CModeMgr() : m_cur_mode(), m_loop_cond(true), rag_connection_() {}
 
-void CModeMgr::Run(ModeType mode_type, const char* world_name) {
+void CModeMgr::Run(ModeType mode_type, const std::string& map_name) {
   m_cur_mode_type = mode_type;
   m_next_mode_type = mode_type;
-  m_cur_mode_name = world_name;
-  m_next_mode_name = world_name;
+  m_cur_mode_name = map_name;
+  m_next_mode_name = map_name;
 
   while (m_loop_cond && !g_sys_quit) {
     m_cur_mode_type = m_next_mode_type;
     m_cur_mode_name = m_next_mode_name;
 
     if (m_cur_mode_type == ModeType::kLogin) {
-      m_cur_mode = new CLoginMode();
+      m_cur_mode = new CLoginMode(&rag_connection_);
     } else if (m_cur_mode_type == ModeType::kGame) {
-      m_cur_mode = new CGameMode();
+      m_cur_mode = new CGameMode(&rag_connection_);
     }
 
     m_cur_mode->OnInit(m_cur_mode_name.c_str());
@@ -33,9 +33,9 @@ void CModeMgr::Run(ModeType mode_type, const char* world_name) {
   }
 }
 
-void CModeMgr::Switch(ModeType mode_type, const std::string& mode_name) {
+void CModeMgr::Switch(ModeType mode_type, const std::string& map_name) {
   m_cur_mode->SetLoopCond(false);
-  m_next_mode_name = mode_name;
+  m_next_mode_name = map_name;
   m_next_mode_type = mode_type;
 }
 

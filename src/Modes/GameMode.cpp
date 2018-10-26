@@ -17,7 +17,8 @@
 #include "Render/View.h"
 #include "Render/World.h"
 
-CGameMode::CGameMode() : CMode(), m_world(), m_view() {}
+CGameMode::CGameMode(CRagConnection *p_rag_connection)
+    : CMode(p_rag_connection), m_world(), m_view() {}
 
 void CGameMode::Intialize() {
   m_noMove = 0;
@@ -192,14 +193,14 @@ void CGameMode::ProcessMouseWheel(int process_type) {
 void CGameMode::PollNetworkStatus() {
   char buffer[2048];
 
-  if (!g_RagConnection->Poll()) {
-    g_ModeMgr->GetCurMode()->SendMsg(1);
+  if (!p_rag_connection_->Poll()) {
+    SendMsg(1);
   }
 
   if (g_mustPumpOutReceiveQueue) {
     uint32_t aid;
-    if (g_RagConnection->Recv(reinterpret_cast<char *>(&aid), sizeof(aid), 1) >
-        0) {
+    if (p_rag_connection_->Recv(reinterpret_cast<char *>(&aid), sizeof(aid),
+                                1) > 0) {
       g_mustPumpOutReceiveQueue = false;
     }
 
@@ -207,8 +208,8 @@ void CGameMode::PollNetworkStatus() {
   }
 
   int size_of_buffer;
-  while (g_RagConnection->RecvPacket(buffer, &size_of_buffer)) {
-    int16_t packet_type = g_RagConnection->GetPacketType(buffer);
+  while (p_rag_connection_->RecvPacket(buffer, &size_of_buffer)) {
+    int16_t packet_type = p_rag_connection_->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_ZC_NOTIFY_PLAYERCHAT:
         Zc_Notify_Playerchat(buffer);

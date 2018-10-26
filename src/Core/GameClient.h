@@ -1,7 +1,7 @@
 #ifndef DOLORI_CORE_GAMECLIENT_H_
 #define DOLORI_CORE_GAMECLIENT_H_
 
-#include "Session.h"
+#include "Core/Session.h"
 
 class GameClient {
  public:

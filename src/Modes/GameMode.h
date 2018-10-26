@@ -6,12 +6,13 @@
 #include <glm/vec2.hpp>
 
 #include "Modes/Mode.h"
+#include "Network/RagConnection.h"
 #include "Render/View.h"
 #include "Render/World.h"
 
 class CGameMode : public CMode {
  public:
-  CGameMode();
+  CGameMode(CRagConnection *p_rag_connection);
 
   void OnInit(const char *) override;
   int OnRun() override;

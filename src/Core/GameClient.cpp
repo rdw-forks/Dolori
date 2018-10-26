@@ -22,7 +22,6 @@ GameClient::GameClient()
       font_folder_() {}
 
 GameClient::~GameClient() {
-  g_RagConnection->Disconnect();
   CConnection::Cleanup();
   g_ResMgr->Reset();
   g_3dDevice->DestroyRenderer(g_Renderer);

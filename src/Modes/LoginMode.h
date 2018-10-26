@@ -7,6 +7,7 @@
 #include "Common/AccountInfo.h"
 #include "Common/character_info.h"
 #include "Modes/Mode.h"
+#include "Network/RagConnection.h"
 
 typedef struct _ServerAddr {
   unsigned int ip;
@@ -54,7 +55,7 @@ typedef enum _LOGINMODE_MSG {
 
 class CLoginMode : public CMode {
  public:
-  CLoginMode();
+  CLoginMode(CRagConnection *rag_connection);
 
   void OnInit(const char *) override;
   int OnRun() override;

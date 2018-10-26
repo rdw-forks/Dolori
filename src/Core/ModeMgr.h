@@ -1,19 +1,19 @@
 #ifndef DOLORI_CORE_MODEMGR_H_
 #define DOLORI_CORE_MODEMGR_H_
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <string>
 
 #include "Modes/GameMode.h"
 #include "Modes/LoginMode.h"
 #include "Modes/Mode.h"
+#include "Network/RagConnection.h"
 
 class CModeMgr {
  public:
   CModeMgr();
 
-  void Run(ModeType, const char*);
-  void Switch(ModeType mode_type, const std::string& mode_name);
+  void Run(ModeType mode_type, const std::string& map_name);
+  void Switch(ModeType mode_type, const std::string& map_name);
   void Quit();
   CMode* GetCurMode() const;
   CGameMode* GetGameMode() const;
@@ -26,6 +26,7 @@ class CModeMgr {
   std::string m_next_mode_name;
   ModeType m_cur_mode_type;
   ModeType m_next_mode_type;
+  CRagConnection rag_connection_;
 };
 
 #endif  // DOLORI_CORE_MODEMGR_H_

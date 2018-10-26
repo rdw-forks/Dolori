@@ -5,6 +5,8 @@
 
 #include <glm/vec2.hpp>
 
+#include "Network/RagConnection.h"
+
 enum class ModeType { kLogin = 0, kGame = 1 };
 
 typedef enum _MODE_MSG {
@@ -285,7 +287,7 @@ typedef enum _MODE_MSG {
 
 class CMode {
  public:
-  CMode();
+  CMode(CRagConnection *p_rag_connection);
   virtual ~CMode() = default;
 
   virtual void OnInit(const char *) = 0;
@@ -312,6 +314,7 @@ class CMode {
   glm::vec2 m_mouseSnapDiff;
   int m_cursorActNum;
   int m_cursorMotNum;
+  CRagConnection *p_rag_connection_;
 };
 
 // class CMode {

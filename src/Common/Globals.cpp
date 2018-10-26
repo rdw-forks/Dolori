@@ -1,6 +1,5 @@
 #include "Common/Globals.h"
 
-CRagConnection* g_RagConnection = new CRagConnection();
 CUIWindowMgr* g_WindowMgr = new CUIWindowMgr();
 C3dDevice* g_3dDevice = new C3dDevice();
 CModeMgr* g_ModeMgr = new CModeMgr();
