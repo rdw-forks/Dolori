@@ -105,6 +105,7 @@ void CRagConnection::InitPacketMap() {
   m_packetLenMap[HEADER_HC_NOTIFY_ZONESVR] = sizeof(PACKET_HC_NOTIFY_ZONESVR);
   m_packetLenMap[HEADER_ZC_AID] = sizeof(PACKET_ZC_AID);
   m_packetLenMap[HEADER_CZ_ENTER] = sizeof(PACKET_CZ_ENTER);
+  m_packetLenMap[HEADER_CZ_ENTER2] = sizeof(PACKET_CZ_ENTER2);
   m_packetLenMap[HEADER_ZC_ACCEPT_ENTER] = sizeof(PACKET_ZC_ACCEPT_ENTER);
   m_packetLenMap[HEADER_ZC_ACCEPT_ENTER2] = sizeof(PACKET_ZC_ACCEPT_ENTER2);
   m_packetLenMap[HEADER_ZC_REFUSE_ENTER] = sizeof(PACKET_ZC_REFUSE_ENTER);

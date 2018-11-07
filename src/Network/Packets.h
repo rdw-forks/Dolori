@@ -2111,6 +2111,15 @@ struct PACKET_CZ_ENTER {
   char Sex;
 };
 
+struct PACKET_CZ_ENTER2 {
+  short header;
+  unsigned long aid;
+  unsigned long gid;
+  int auth_code;
+  unsigned long client_time;
+  unsigned char sex;
+};
+
 struct PACKET_ZC_NPCACK_MAPMOVE {
   short packet_type;
   char map_name[16];

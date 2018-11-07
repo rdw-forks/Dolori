@@ -115,7 +115,7 @@ int CGameMode::OnRun() {
 void CGameMode::OnExit() {}
 
 void CGameMode::OnUpdate() {
-  // PollNetworkStatus();
+  PollNetworkStatus();
 
   // m_scheduler->OnRun()
   // ProcessDamageSituation()

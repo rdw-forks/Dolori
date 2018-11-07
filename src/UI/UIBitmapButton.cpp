@@ -7,7 +7,7 @@ CUIBitmapButton::CUIBitmapButton(CUIWindowMgr* p_window_mgr)
     : CUIButton(p_window_mgr), m_bitmapWidth(), m_bitmapHeight() {}
 
 void CUIBitmapButton::SetBitmapName(const std::string& bitmapName,
-                                    int buttonState) {
+                                    size_t buttonState) {
   const char* resource_name;
 
   resource_name = UIBmp(bitmapName);

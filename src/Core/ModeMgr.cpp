@@ -32,7 +32,7 @@ void CModeMgr::Run(ModeType mode_type, const std::string& map_name) {
       m_cur_mode = new CGameMode(&rag_connection_, &window_mgr_);
     }
 
-    m_cur_mode->OnInit(m_cur_mode_name.c_str());
+    m_cur_mode->OnInit(m_cur_mode_name);
     m_cur_mode->OnRun();
     m_cur_mode->OnExit();
 

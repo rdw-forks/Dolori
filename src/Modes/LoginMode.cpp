@@ -180,7 +180,7 @@ void CLoginMode::OnUpdate() {
 
     m_syncRequestTime = GetTick() + 12000;
     packet.header = HEADER_PING;
-    packet_size = p_rag_connection_->GetPacketSize(HEADER_PING);
+    packet_size = p_rag_connection_->GetPacketSize(packet.header);
     p_rag_connection_->SendPacket(packet_size, (char *)&packet);
   }
 
@@ -277,8 +277,7 @@ void CLoginMode::OnChangeState(int state) {
 
       packet.header = HEADER_CH_SELECT_CHAR;
       packet.char_num = static_cast<uint8_t>(m_selected_char);
-      const int packet_size =
-          p_rag_connection_->GetPacketSize(HEADER_CH_SELECT_CHAR);
+      const int packet_size = p_rag_connection_->GetPacketSize(packet.header);
       p_rag_connection_->SendPacket(packet_size,
                                     reinterpret_cast<char *>(&packet));
       // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
@@ -302,8 +301,7 @@ void CLoginMode::OnChangeState(int state) {
       packet.dex = m_new_char_info.dex;
       packet.luk = m_new_char_info.luk;
 
-      const int packet_size =
-          p_rag_connection_->GetPacketSize(HEADER_CH_MAKE_CHAR);
+      const int packet_size = p_rag_connection_->GetPacketSize(packet.header);
       p_rag_connection_->SendPacket(packet_size,
                                     reinterpret_cast<char *>(&packet));
     } break;
@@ -346,42 +344,34 @@ void CLoginMode::ConnectToAccountServer() {
 
   if (g_bUseCommand) {
     struct PACKET_CA_CONNECT_INFO_CHANGE packet;
-    int packet_size;
 
     packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
     memcpy(packet.ID, m_userId, sizeof(packet.ID));
-    packet_size =
-        p_rag_connection_->GetPacketSize(HEADER_CA_CONNECT_INFO_CHANGED);
-    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
   }
 
   CheckExeHashFromAccServer();
   if (g_passwordEncrypt) {
-    struct PACKET_CA_REQ_HASH packet;
-    int packet_size;
+    PACKET_CA_REQ_HASH packet;
 
     packet.header = HEADER_CA_REQ_HASH;
-    packet_size = p_rag_connection_->GetPacketSize(HEADER_CA_REQ_HASH);
-    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
     // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
     // 16, 1);
     return;
   }
 
   if (g_serviceType != ServiceType::kKorea) {
-    struct PACKET_CA_LOGIN packet;
-    int packet_size;
+    PACKET_CA_LOGIN packet;
 
     packet.header = HEADER_CA_LOGIN;
     packet.version = g_version;
     strncpy(packet.username, m_userId, sizeof(packet.username));
     strncpy(packet.password, m_userPassword, sizeof(packet.password));
     packet.client_type = g_clientType;  // GetAccountType();
-    packet_size = p_rag_connection_->GetPacketSize(HEADER_CA_LOGIN);
-    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
   } else {
-    struct PACKET_CA_LOGIN_CHANNEL packet;
-    int packet_size;
+    PACKET_CA_LOGIN_CHANNEL packet;
 
     packet.header = HEADER_CA_LOGIN_CHANNEL;
     packet.version = g_version;
@@ -391,8 +381,7 @@ void CLoginMode::ConnectToAccountServer() {
     memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
     packet.clienttype = g_clientType;
     packet.channeling_corp = g_isGravityID;
-    packet_size = p_rag_connection_->GetPacketSize(HEADER_CA_LOGIN_CHANNEL);
-    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
   }
 
   // CUIWaitWnd *waitwnd =
@@ -402,8 +391,7 @@ void CLoginMode::ConnectToAccountServer() {
 }
 
 void CLoginMode::ConnectToCharServer() {
-  // Connection to char server
-  struct PACKET_CH_ENTER packet;
+  PACKET_CH_ENTER packet;
   int packet_size;
 
   p_rag_connection_->Disconnect();
@@ -415,11 +403,11 @@ void CLoginMode::ConnectToCharServer() {
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the char server");
     p_rag_connection_->Disconnect();
-    /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
-    if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
-    {
-    g_mustPumpOutReceiveQueue = 0;
-    }*/
+    const auto error_msg = g_MsgStrMgr->GetMsgStr(MSI_SERVER_CONNECTION_FAILED);
+    if (p_window_mgr_->ErrorMsg(error_msg, 1, 1, 1, 0) != 203) {
+      g_mustPumpOutReceiveQueue = 0;
+    }
+
     m_next_sub_mode = 3;
     return;
   }
@@ -431,40 +419,36 @@ void CLoginMode::ConnectToCharServer() {
   packet.user_level = m_userLevel;
   packet.Sex = g_Session->GetSex();
   g_mustPumpOutReceiveQueue = true;
-  packet_size = p_rag_connection_->GetPacketSize(HEADER_CH_ENTER);
-  p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+  p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
 }
 
 void CLoginMode::ConnectToZoneServer() {
-  // Connection to zone server
   LOG(info, "Connecting to the zone server ({}:{}) ...", g_zoneServerAddr.ip,
       g_zoneServerAddr.port);
   m_isConnected = p_rag_connection_->Connect(&g_zoneServerAddr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the zone server");
     p_rag_connection_->Disconnect();
-    /*str = MsgStr(MSI_SERVER_CONNECTION_FAILED);
-    if (UIWindowMgr::ErrorMsg(&g_windowMgr, str, 1, 1, 1, 0) != 203)
-    {
-    g_mustPumpOutReceiveQueue = 0;
-    }*/
+    const auto error_msg = g_MsgStrMgr->GetMsgStr(MSI_SERVER_CONNECTION_FAILED);
+    if (p_window_mgr_->ErrorMsg(error_msg, 1, 1, 1, 0) != 203) {
+      g_mustPumpOutReceiveQueue = 0;
+    }
+
     m_next_sub_mode = 3;
     return;
   }
 
-  struct PACKET_CZ_ENTER packet;
+  PACKET_CZ_ENTER2 packet;
 
-  packet.PacketType = HEADER_CZ_ENTER;
-  // CLoginMode::SetPaddingValue(v2, &pad, 2);
-  // CLoginMode::SetPaddingValue(v2, (char *)&packet.AID + 2, 1);
-  // CLoginMode::SetPaddingValue(v2, (char *)&packet.AuthCode + 3, 4);
-  packet.clientTime = GetTick();
-  packet.AuthCode = m_authCode;
-  packet.GID = m_char_id;
-  packet.AID = m_account_id;
-  packet.Sex = g_Session->GetSex();
-  int packet_size = p_rag_connection_->GetPacketSize(HEADER_CZ_ENTER);
-  p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+  packet.header = HEADER_CZ_ENTER2;
+  packet.client_time = GetTick();
+  packet.auth_code = m_authCode;
+  packet.gid = m_char_id;
+  packet.aid = m_account_id;
+  packet.sex = g_Session->GetSex();
+
+  p_rag_connection_->SendPacket(sizeof(packet),
+                                reinterpret_cast<char *>(&packet));
   p_rag_connection_->SetBlock(true);
   // wnd = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr,
   // WID_WAITWND);  str = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
@@ -479,8 +463,9 @@ void CLoginMode::PollNetworkStatus() {
   }
 
   if (g_mustPumpOutReceiveQueue) {
-    unsigned int aid;
-    if (p_rag_connection_->Recv((char *)&aid, 4, 1)) {
+    uint32_t aid;
+    if (p_rag_connection_->Recv(reinterpret_cast<char *>(&aid), sizeof(aid),
+                                1)) {
       g_mustPumpOutReceiveQueue = false;
     }
     return;
@@ -557,7 +542,7 @@ void CLoginMode::PollNetworkStatus() {
       case HEADER_ZC_AID:
         break;
       default:
-        LOG(error, "Received unknown packet {}", packet_type);
+        LOG(error, "Received unknown packet {:x}", packet_type);
         return;
     };
   }
@@ -572,7 +557,7 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
   m_account_id = packet->account_id;
   m_userLevel = packet->user_level;
 
-  if (packet->sex < 0xA) {
+  if (packet->sex < 10) {
     sex = packet->sex;
   } else {
     sex = packet->sex - 10;
@@ -659,28 +644,24 @@ void CLoginMode::Hc_Accept_Makechar(const char *buffer) {
 
 void CLoginMode::Hc_Refuse_Makechar(const char *buffer) {
   auto packet = reinterpret_cast<const PACKET_HC_REFUSE_MAKECHAR *>(buffer);
-  std::string msg;
+  const std::string error_msg = [error = packet->error_code]() {
+    switch (error) {
+      case 0:
+        return g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_NAME_ALREADY_EXISTS);
+      case 1:
+        return g_MsgStrMgr->GetMsgStr(MSI_LIMIT_AGE);
+      case 2:
+        return g_MsgStrMgr->GetMsgStr(MSI_LIMIT_CHAR_DELETE);
+      case 3:
+        return g_MsgStrMgr->GetMsgStr(MSI_FR_ERR_MKCHAR_INVALID_SLOT);
+      case 11:
+        return g_MsgStrMgr->GetMsgStr(MSI_NEED_PREMIUM_SERVICE);
+      default:
+        return g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
+    };
+  }();
 
-  switch (packet->error_code) {
-    case 0x0:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_NAME_ALREADY_EXISTS);
-      break;
-    case 0x1:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_LIMIT_AGE);
-      break;
-    case 0x2:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_LIMIT_CHAR_DELETE);
-      break;
-    case 0x3:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_FR_ERR_MKCHAR_INVALID_SLOT);
-      break;
-    case 0xB:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_NEED_PREMIUM_SERVICE);
-      break;
-    default:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_CHARACTER_CREATION_DENIED);
-  };
-  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
+  p_window_mgr_->ErrorMsg(error_msg, 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
@@ -712,21 +693,23 @@ void CLoginMode::Hc_Accept_Deletechar(const char * /*buffer*/) {
 
 void CLoginMode::Hc_Refuse_Deletechar(const char *buffer) {
   auto packet = reinterpret_cast<const PACKET_HC_REFUSE_DELETECHAR *>(buffer);
-  std::string msg;
-
-  if (packet->error_code) {
-    if (packet->error_code == 1) {
-      msg = g_MsgStrMgr->GetMsgStr(MSI_FR_ERR_DELCHAR_INVALID_SLOT);
-    } else {
-      msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER);
+  const std::string error_msg = [error = packet->error_code]() {
+    if (error != 0) {
+      if (error == 1) {
+        return g_MsgStrMgr->GetMsgStr(MSI_FR_ERR_DELCHAR_INVALID_SLOT);
+      }
+      return g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER);
     }
-  } else if (g_serviceType != ServiceType::kKorea) {
-    msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER_EMAIL);
-  } else {
-    msg = g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
-  }
 
-  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
+    if (g_serviceType != ServiceType::kKorea) {
+      return g_MsgStrMgr->GetMsgStr(MSI_CANNOT_DELETE_CHARACTER_EMAIL);
+    }
+
+    return g_MsgStrMgr->GetMsgStr(
+        MSI_CANNOT_DELETE_CHARACTER_PEOPLE_REG_NUMBER);
+  }();
+
+  p_window_mgr_->ErrorMsg(error_msg, 0, 1, 0, 0);
   m_next_sub_mode = 7;
 }
 
@@ -747,16 +730,17 @@ void CLoginMode::Zc_Accept_Enter(const char *buffer) {
 }
 
 void CLoginMode::Zc_Accept_Enter2(const char *buffer) {
-  // auto packet = reinterpret_cast<const PACKET_ZC_ACCEPT_ENTER2 *>(buffer);
   Zc_Accept_Enter(buffer);
 }
 
 void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
   auto packet = reinterpret_cast<const PACKET_HC_NOTIFY_ZONESVR *>(buffer);
-  struct in_addr ip;
+  in_addr ip;
 
   m_char_id = packet->char_id;
-  m_current_map = reinterpret_cast<const char *>(packet->map_name);
+  const std::string gat_name = reinterpret_cast<const char *>(packet->map_name);
+  m_current_map = gat_name.substr(0, gat_name.length() - 4) + ".rsw";
+
   ip.s_addr = packet->addr.ip;
   inet_ntop(AF_INET, &ip, g_zoneServerAddr.ip, sizeof(g_zoneServerAddr.ip));
   g_zoneServerAddr.port = packet->addr.port;
@@ -766,20 +750,18 @@ void CLoginMode::Hc_Notify_Zonesvr(const char *buffer) {
 
 void CLoginMode::Zc_Refuse_Enter(const char *buffer) {
   auto packet = reinterpret_cast<const PACKET_ZC_REFUSE_ENTER *>(buffer);
-  std::string msg;
+  const std::string error_msg = [error = packet->error]() {
+    switch (error) {
+      case 0:
+        return g_MsgStrMgr->GetMsgStr(MSI_CLIENTTYPEMISMATCH);
+      case 1:
+        return g_MsgStrMgr->GetMsgStr(MSI_ID_MISMATCH);
+      default:
+        return g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
+    };
+  }();
 
-  switch (packet->error) {
-    case 0:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_CLIENTTYPEMISMATCH);
-      break;
-    case 1:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_ID_MISMATCH);
-      break;
-    default:
-      msg = g_MsgStrMgr->GetMsgStr(MSI_ACCESS_DENIED);
-  };
-
-  p_window_mgr_->ErrorMsg(msg, 0, 1, 0, 0);
+  p_window_mgr_->ErrorMsg(error_msg, 0, 1, 0, 0);
   p_rag_connection_->Disconnect();
   m_next_sub_mode = 3;
 }

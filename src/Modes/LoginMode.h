@@ -90,8 +90,8 @@ class CLoginMode : public CMode {
 
  private:
   int m_authCode;
-  unsigned int m_account_id;
-  unsigned int m_userLevel;
+  uint32_t m_account_id;
+  uint32_t m_userLevel;
   int m_charParam[0x8];
   char m_makingCharName[0x40];
   char m_emailAddress[0x80];
