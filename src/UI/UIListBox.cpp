@@ -33,20 +33,22 @@ void CUIListBox::SetColor(int r, int g, int b) {
 
 void CUIListBox::Resize(int cx, int cy) {
   CUIWindow::Resize(cx, cy);
-  if (m_vertScrollBar) {
+  if (m_vertScrollBar != nullptr) {
     m_vertScrollBar->Resize(12, cy);
     m_vertScrollBar->Move(cx - 13, 0);
   }
-  if (m_horzScrollBar) {
+
+  if (m_horzScrollBar != nullptr) {
     m_horzScrollBar->Resize(cx - 13, 12);
     m_horzScrollBar->Move(0, cy - 13);
   }
+
   RecalcScrbarPos();
 }
 
 void CUIListBox::RecalcScrbarPos() {
-  size_t nb_of_items_shown = m_h / m_itemSpacing;
-  size_t nb_of_items = m_items.size();
+  const size_t nb_of_items_shown = m_h / m_itemSpacing;
+  const size_t nb_of_items = m_items.size();
 
   if (nb_of_items <= nb_of_items_shown) {
     m_vertScrEnabled = 0;
@@ -54,7 +56,7 @@ void CUIListBox::RecalcScrbarPos() {
     m_vertScrEnabled = 1;
   }
 
-  if (m_vertScrEnabled) {
+  if (m_vertScrEnabled != 0) {
     m_vertScrollBar->SetRange(
         m_horzScrEnabled + nb_of_items - nb_of_items_shown, nb_of_items_shown,
         nb_of_items);
@@ -190,7 +192,7 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
   return 0;
 }
 
-int CUIListBox::HitTest(int x, int y) {
+int CUIListBox::InnerHitTest(int x, int y) {
   int target_id = m_vertViewOffset + y / m_itemSpacing;
   int result;
 

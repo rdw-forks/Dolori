@@ -24,7 +24,7 @@ class CUIListBox : public CUIWindow {
               int val4);
 
  protected:
-  int HitTest(int x, int y);
+  int InnerHitTest(int x, int y);
 
  protected:
   int m_bR;

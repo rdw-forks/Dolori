@@ -3,7 +3,7 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 
-CMouse::CMouse() m_oldBtnState(), m_btnState() {}
+CMouse::CMouse() : m_oldBtnState(), m_btnState() {}
 
 void CMouse::Init() {
   m_xPos = 320;

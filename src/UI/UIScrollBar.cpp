@@ -114,7 +114,7 @@ void CUIScrollBar::OnDraw() {
 
 void CUIScrollBar::OnLBtnDown(int x, int y) {
   if (m_maxPos) {
-    int hit = HitTest(x, y);
+    const int hit = InnerHitTest(x, y);
     m_startDragX = x;
     m_startDragY = y;
     m_deltaDrag = 0;
@@ -194,7 +194,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
   }
 
   previous_draw_mode = m_drawMode;
-  switch (HitTest(x, y) + 1) {
+  switch (InnerHitTest(x, y) + 1) {
     case 0:
     case 2:
     case 4:
@@ -243,7 +243,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
   }
 }
 
-int CUIScrollBar::HitTest(int x, int y) {
+int CUIScrollBar::InnerHitTest(int x, int y) {
   if (m_maxPos == 0) return -1;
   if (x < 0) return -1;
   if (x >= m_w) return -1;

@@ -23,7 +23,7 @@ class CUIScrollBar : public CUIWindow {
   void OnMouseMove(int x, int y);
 
  protected:
-  int HitTest(int x, int y);
+  int InnerHitTest(int x, int y);
 
  private:
   int m_drawMode;

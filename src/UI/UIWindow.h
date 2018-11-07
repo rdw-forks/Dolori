@@ -62,6 +62,7 @@ class CUIWindow {
                              int fontHeight);
   static const char *InterpretColor(const char *color_text,
                                     unsigned int *colorRef);
+  CUIWindow *HitTest(int x, int y);
   void SetId(size_t);
   size_t GetId() const;
   CUIWindow *GetParent() const;
@@ -79,7 +80,6 @@ class CUIWindow {
   virtual void OnMouseMove(int, int) {}
 
  protected:
-  CUIWindow *HitTest(int, int);
   virtual bool ShouldDoHitTest();
 
  protected:
