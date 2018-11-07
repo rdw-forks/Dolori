@@ -4,9 +4,9 @@
 
 #include "Common/debug.h"
 
-CGlShader::CGlShader() {}
+CGlShader::CGlShader() : shader_id_() {}
 
-CGlShader::~CGlShader() {}
+CGlShader::~CGlShader() { glDeleteShader(shader_id_); }
 
 bool CGlShader::Init(const std::string& shader_code, GLenum shader_type) {
   // create the shader object

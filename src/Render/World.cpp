@@ -19,7 +19,8 @@ CWorld::CWorld()
       m_isSiegeMode(false),
       m_isBattleFieldMode(false),
       m_isEventPVPMode(false),
-      m_light_opacity() {}
+      m_light_opacity(),
+      m_light_dir() {}
 
 CWorld::~CWorld() {}
 

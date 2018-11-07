@@ -2,9 +2,9 @@
 
 #include <glad/glad.h>
 
-CGlProgram::CGlProgram() {}
+CGlProgram::CGlProgram() : program_id_() {}
 
-CGlProgram::~CGlProgram() {}
+CGlProgram::~CGlProgram() { glDeleteProgram(program_id_); }
 
 bool CGlProgram::Init(const std::vector<CGlShader>& shaders) {
   program_id_ = glCreateProgram();

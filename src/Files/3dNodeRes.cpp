@@ -11,7 +11,7 @@
 #include "Common/debug.h"
 #include "Render/Renderer.h"
 
-C3dNodeRes::C3dNodeRes() : info(), vbo(nullptr) {}
+C3dNodeRes::C3dNodeRes() : info(), offset_matrix(), vbo(nullptr) {}
 
 void C3dNodeRes::Load(uint16_t version, CFile& file) {
   char buffer[0x28];

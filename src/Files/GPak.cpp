@@ -27,7 +27,7 @@ typedef struct _GrfHeader {
 
 #pragma pack(pop)
 
-CGPak::CGPak() : m_PakInfoOffset(), m_memFile() { Init(); }
+CGPak::CGPak() : m_FileVer(), m_PakInfoOffset(), m_memFile() { Init(); }
 
 bool CGPak::Open(std::shared_ptr<CMemFile> memFile) {
   bool result = false;

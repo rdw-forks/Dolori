@@ -5,7 +5,11 @@
 #include "Modes/LoginMode.h"
 
 CModeMgr::CModeMgr()
-    : m_cur_mode(), m_loop_cond(true), rag_connection_(), window_mgr_() {}
+    : m_cur_mode(),
+      m_loop_cond(true),
+      m_cur_mode_type(),
+      rag_connection_(),
+      window_mgr_() {}
 
 void CModeMgr::Init() {
   window_mgr_.SetSize(g_Renderer->GetWidth(), g_Renderer->GetHeight());

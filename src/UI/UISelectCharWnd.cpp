@@ -9,6 +9,7 @@
 CUISelectCharWnd::CUISelectCharWnd(CUIWindowMgr *p_window_mgr)
     : CUIFrameWnd(p_window_mgr),
       m_viewChar(),
+      m_viewChar(),
       m_stateStartTick(GetTick()),
       m_dontmove(false),
       m_cur_page(),

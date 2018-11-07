@@ -11,6 +11,7 @@
 
 CUIMakeCharWnd::CUIMakeCharWnd(CUIWindowMgr *p_window_mgr)
     : CUIFrameWnd(p_window_mgr),
+      m_nameEditCtrl(),
       m_charInfo(),
       m_charInfo2(),
       m_viewChar(),

@@ -5,6 +5,7 @@ CMemMapFile::CMemMapFile()
       m_dwOpenOffset(),
       m_dwOpenSize(),
       m_dwFileMappingSize(),
+      m_dwAllocationGranuarity(),
       m_pFile() {
 #ifdef WIN32
   m_hFile = nullptr;

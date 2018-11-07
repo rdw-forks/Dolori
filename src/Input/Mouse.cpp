@@ -3,7 +3,7 @@
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 
-CMouse::CMouse() {}
+CMouse::CMouse() m_oldBtnState(), m_btnState() {}
 
 void CMouse::Init() {
   m_xPos = 320;
@@ -83,7 +83,7 @@ CMouse::ButtonState CMouse::GetWBtn() const {
 }
 
 void CMouse::SetButtonPressed(Button id) {
-  if (id > Button::kButtonsCount) {
+  if (id >= Button::kButtonsCount) {
     return;
   }
 

@@ -15,7 +15,7 @@ typedef struct _RsmHeader {
 
 #pragma pack(pop)
 
-CRsmRes::CRsmRes() : m_version() { Reset(); }
+CRsmRes::CRsmRes() : m_version(), m_shading_type(), m_textures() {}
 
 CRes* CRsmRes::Clone() { return new CRsmRes(); }
 
@@ -54,21 +54,24 @@ bool CRsmRes::Load(const std::string& file_name) {
   fp.Seek(16, SEEK_CUR);
 
   // Textures
-  char texture_name[0x28];
+  char texture_name[40];
   int32_t textures_count;
 
   fp.Read(&textures_count, sizeof(textures_count));
   m_textures.resize(textures_count);
   for (int32_t i = 0; i < textures_count; i++) {
     fp.Read(&texture_name, sizeof(texture_name));
+    texture_name[sizeof(texture_name) - 1] = '\0';
     m_textures[i] = texture_name;
   }
 
   // Nodes
-  char main_node_name[0x28];
+  char main_node_name[40];
   int32_t nodes_count;
 
   fp.Read(&main_node_name, sizeof(main_node_name));
+  main_node_name[sizeof(main_node_name) - 1] = '\0';
+
   fp.Read(&nodes_count, sizeof(nodes_count));
   for (int32_t i = 0; i < nodes_count; i++) {
     auto node = std::make_shared<C3dNodeRes>();

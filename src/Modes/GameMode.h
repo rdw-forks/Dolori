@@ -14,7 +14,7 @@ class CGameMode : public CMode {
  public:
   CGameMode(CRagConnection *p_rag_connection, CUIWindowMgr *p_window_mgr);
 
-  void OnInit(const std::string &) override;
+  void OnInit(const std::string &mode_name) override;
   int OnRun() override;
   void OnExit() override;
   void *SendMsg(size_t msg, const void *val1 = nullptr,

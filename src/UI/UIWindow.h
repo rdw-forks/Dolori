@@ -65,7 +65,6 @@ class CUIWindow {
   void SetId(size_t);
   size_t GetId() const;
   CUIWindow *GetParent() const;
-  CUIWindow *HitTest(int, int);
   void GetGlobalCoor(int *, int *);
   virtual void OnLBtnDown(int, int) {}
   virtual void OnLBtnDblClk(int, int) {}
@@ -80,6 +79,7 @@ class CUIWindow {
   virtual void OnMouseMove(int, int) {}
 
  protected:
+  CUIWindow *HitTest(int, int);
   virtual bool ShouldDoHitTest();
 
  protected:

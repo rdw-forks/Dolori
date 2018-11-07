@@ -92,7 +92,8 @@ const std::string kWorldFragmentShader =
     })";
 
 CRenderer::CRenderer()
-    : m_view_matrix(),
+    : m_projection_matrix(),
+      m_view_matrix(),
       m_surface_program(),
       m_surface_vbo(),
       m_world_light_info(),

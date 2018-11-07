@@ -7,6 +7,7 @@
 
 C3dActor::C3dActor()
     : m_pos(),
+      m_rot(),
       m_matrix_needs_update(true),
       m_shading_type(),
       m_textures(),

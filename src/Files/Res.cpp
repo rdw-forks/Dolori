@@ -5,7 +5,7 @@
 #include "Common/GetTick.h"
 #include "Common/debug.h"
 
-CRes::CRes() : m_timeStamp(), m_ext_index() {}
+CRes::CRes() : m_lockCnt(0), m_timeStamp(), m_ext_index() {}
 
 size_t CRes::ext_index() const { return m_ext_index; }
 

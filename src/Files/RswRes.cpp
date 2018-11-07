@@ -23,7 +23,8 @@ typedef enum _WORLD_OBJECT_TYPE {
   WORLD_OBJECT_TYPE_EFFECT
 } WORLD_OBJECT_TYPE;
 
-CRswRes::CRswRes() : m_calculated_node(), m_light_opacity(0.5f) {}
+CRswRes::CRswRes()
+    : m_calculated_node(), m_water_level(), m_light_opacity(0.5f) {}
 
 CRswRes::~CRswRes() {}
 
@@ -51,13 +52,20 @@ bool CRswRes::Load(const std::string& filename) {
   LOG(debug, "RSW file version: {:x}", version);
 
   fp.Read(buffer, sizeof(buffer));
+  buffer[sizeof(buffer) - 1] = '\0';
   m_ini_file = buffer;
+
   fp.Read(buffer, sizeof(buffer));
+  buffer[sizeof(buffer) - 1] = '\0';
   m_gnd_file = buffer;
+
   fp.Read(buffer, sizeof(buffer));
+  buffer[sizeof(buffer) - 1] = '\0';
   m_attr_file = buffer;
+
   if (version >= 0x104) {
     fp.Read(buffer, sizeof(buffer));
+    buffer[sizeof(buffer) - 1] = '\0';
     m_src_file = buffer;
   }
 

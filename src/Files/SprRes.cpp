@@ -17,7 +17,7 @@ typedef struct _SprHeader {
 
 #pragma pack(pop)
 
-CSprRes::CSprRes() : m_sprites(), m_count() {}
+CSprRes::CSprRes() : m_palette(), m_sprites(), m_count() {}
 
 CSprRes::~CSprRes() { Reset(); }
 
@@ -78,7 +78,8 @@ bool CSprRes::Load(const std::string& filename) {
     img->isHalfW = 0;
     if (version < 0x201) {
       // Read pal images
-      size_t size = img->width * img->height;
+      const size_t size =
+          static_cast<size_t>(img->width) * static_cast<size_t>(img->height);
       img->image_8bit.resize(size);
       fp.Read(img->image_8bit.data(), img->image_8bit.size());
     } else {
@@ -115,7 +116,7 @@ bool CSprRes::Load(const std::string& filename) {
 }
 
 SprImg* CSprRes::GetSprImg(SPR_TYPE clip_type, size_t spr_index) const {
-  if (clip_type > SPR_TYPE_COUNT) {
+  if (clip_type >= SPR_TYPE_COUNT) {
     return nullptr;
   }
 
@@ -133,7 +134,7 @@ void CSprRes::DecodeRLE(const std::vector<uint8_t>& image, int w, int h,
   size_t input_index = 0;
   uint8_t count;
 
-  output.resize(w * h);
+  output.resize(static_cast<size_t>(w) * static_cast<size_t>(h));
   while (input_index < image.size()) {
     const uint8_t c = image[input_index++];
     output[output_index++] = c;

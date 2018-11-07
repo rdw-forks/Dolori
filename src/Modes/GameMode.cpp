@@ -63,7 +63,7 @@ void CGameMode::Intialize() {
   m_numNotifyTime = 0;
 }
 
-void CGameMode::OnInit(const const std::string &mode_name) {
+void CGameMode::OnInit(const std::string &mode_name) {
   m_posOfBossMon.x = -1;
   m_posOfBossMon.y = -1;
   m_isBossAlarm = 0;
