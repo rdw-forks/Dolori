@@ -1,6 +1,6 @@
 #include "UI/UIListBox.h"
 
-CUIListBox::CUIListBox(CUIWindowMgr *p_window_mgr)
+CUIListBox::CUIListBox(CUIWindowMgr* p_window_mgr)
     : CUIWindow(p_window_mgr),
       m_bR(255),
       m_bG(255),
@@ -70,25 +70,29 @@ void CUIListBox::OnCreate(int cx, int cy) {
   int fixed_length;
 
   m_vertScrollBar = new CUIScrollBar(p_window_mgr_);
-  m_vertScrollBar->SetVert(true);
-  fixed_length = m_vertScrollBar->GetFixedLength();
-  m_vertScrollBar->Resize(fixed_length, cy);
-  m_vertScrollBar->Move(cx - 13, 0);
-  m_vertScrollBar->OnCreate(fixed_length, cy);
-  m_vertScrollBar->OnSize(fixed_length, cy);
-  AddChild(m_vertScrollBar);
+  if (m_vertScrollBar != nullptr) {
+    m_vertScrollBar->SetVert(true);
+    fixed_length = m_vertScrollBar->GetFixedLength();
+    m_vertScrollBar->Resize(fixed_length, cy);
+    m_vertScrollBar->Move(cx - 13, 0);
+    m_vertScrollBar->OnCreate(fixed_length, cy);
+    m_vertScrollBar->OnSize(fixed_length, cy);
+    AddChild(m_vertScrollBar);
+  }
 
   m_horzScrollBar = new CUIScrollBar(p_window_mgr_);
-  m_horzScrollBar->SetVert(false);
-  fixed_length = m_horzScrollBar->GetFixedLength();
-  m_horzScrollBar->Resize(cx - 13, fixed_length);
-  m_horzScrollBar->Move(0, cy - 13);
-  m_horzScrollBar->OnCreate(cx - 13, fixed_length);
-  m_horzScrollBar->OnSize(cx - 13, fixed_length);
-  AddChild(m_horzScrollBar);
+  if (m_horzScrollBar != nullptr) {
+    m_horzScrollBar->SetVert(false);
+    fixed_length = m_horzScrollBar->GetFixedLength();
+    m_horzScrollBar->Resize(cx - 13, fixed_length);
+    m_horzScrollBar->Move(0, cy - 13);
+    m_horzScrollBar->OnCreate(cx - 13, fixed_length);
+    m_horzScrollBar->OnSize(cx - 13, fixed_length);
+    AddChild(m_horzScrollBar);
+  }
 }
 
-void CUIListBox::AddItem(const std::string &text) {
+void CUIListBox::AddItem(const std::string& text) {
   m_items.push_back(text);
   RecalcScrbarPos();
 }
@@ -119,7 +123,7 @@ void CUIListBox::OnDraw() {
     nb_of_items_shown = m_vertViewOffset + m_h / div;
   }
 
-  const char *str;
+  const char* str;
   size_t str_length;
   for (int i = 0; i < nb_of_items_shown; i++) {
     if (m_vertViewOffset + i >= nb_of_items) {
@@ -150,8 +154,9 @@ void CUIListBox::OnLBtnDown(int x, int y) {
   Invalidate();
 }
 
-int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
-                        int val3, int val4) {
+void* CUIListBox::SendMsg(CUIWindow* sender, int message, const void* val1,
+                          const void* val2, const void* val3,
+                          const void* val4) {
   int prev_view_offset;
   size_t nb_of_items;
 
@@ -165,7 +170,7 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
       } else if (message == 10) {
         m_vertViewOffset += m_h / m_itemSpacing - 1;
       } else {
-        m_vertViewOffset += val1;
+        m_vertViewOffset += reinterpret_cast<int>(val1);
       }
 
       if (m_vertViewOffset < 0) {
@@ -186,10 +191,10 @@ int CUIListBox::SendMsg(CUIWindow *sender, int message, int val1, int val2,
         m_parent->Invalidate();
       }
 
-      return m_vertViewOffset - prev_view_offset;
+      return reinterpret_cast<void*>(m_vertViewOffset - prev_view_offset);
   };
 
-  return 0;
+  return nullptr;
 }
 
 int CUIListBox::InnerHitTest(int x, int y) {

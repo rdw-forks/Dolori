@@ -7,7 +7,8 @@
 #include "Common/debug.h"
 
 CUIWindow::CUIWindow(CUIWindowMgr* p_window_mgr)
-    : m_parent(),
+    : p_window_mgr_(p_window_mgr),
+      m_parent(),
       m_x(),
       m_y(),
       m_w(),
@@ -20,8 +21,7 @@ CUIWindow::CUIWindow(CUIWindowMgr* p_window_mgr)
       m_show(true),
       m_trans(255),
       m_transTarget(255),
-      m_transTime(GetTick()),
-      p_window_mgr_(p_window_mgr) {}
+      m_transTime(GetTick()) {}
 
 CUIWindow::~CUIWindow() {
   for (auto child : m_children) {
@@ -32,8 +32,8 @@ CUIWindow::~CUIWindow() {
 }
 
 void CUIWindow::Create(int cx, int cy) {
-  OnCreate(cx, cy);
   Resize(cx, cy);
+  OnCreate(cx, cy);
   OnSize(cx, cy);
 }
 
@@ -340,8 +340,9 @@ void CUIWindow::OnBeginEdit() {}
 
 void CUIWindow::OnFinishEdit() {}
 
-void* CUIWindow::SendMsg(CUIWindow* /*sender*/, int message, void* /*val1*/,
-                         void* /*val2*/, void* /*val3*/, void* /*val4*/) {
+void* CUIWindow::SendMsg(CUIWindow* /*sender*/, int message,
+                         const void* /*val1*/, const void* /*val2*/,
+                         const void* /*val3*/, const void* /*val4*/) {
   switch (message) {
     case 0:
     case 1:

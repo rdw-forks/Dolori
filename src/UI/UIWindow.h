@@ -37,9 +37,9 @@ class CUIWindow {
   virtual bool IsUpdateNeeded() const;
   virtual void OnBeginEdit();
   virtual void OnFinishEdit();
-  virtual void *SendMsg(CUIWindow *, int, void *val1 = nullptr,
-                        void *val2 = nullptr, void *val3 = nullptr,
-                        void *val4 = nullptr);
+  virtual void *SendMsg(CUIWindow *, int message, const void *val1 = nullptr,
+                        const void *val2 = nullptr, const void *val3 = nullptr,
+                        const void *val4 = nullptr);
   void OnSize(int, int) {}
   bool IsShow() const;
   void SetShow(bool);

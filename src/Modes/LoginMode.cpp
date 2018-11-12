@@ -175,7 +175,7 @@ void CLoginMode::OnUpdate() {
   if ((m_sub_mode == 7 || m_sub_mode == 8 || m_sub_mode == 11 ||
        m_sub_mode == 19) &&
       GetTick() > m_syncRequestTime) {
-    struct PACKET_PING packet;
+    PACKET_PING packet;
     int packet_size;
 
     m_syncRequestTime = GetTick() + 12000;

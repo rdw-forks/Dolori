@@ -6,9 +6,10 @@
 
 CUIEditCtrl::CUIEditCtrl(CUIWindowMgr* p_window_mgr)
     : CUIWindow(p_window_mgr),
-      m_maxchar(255),
-      m_selectionCursor(0),
       m_selectionOrigin(0),
+      m_selectionCursor(0),
+      m_maskchar(false),
+      m_maxchar(255),
       m_isSingColorFrame(1),
       m_r(255),
       m_g(255),
@@ -16,8 +17,7 @@ CUIEditCtrl::CUIEditCtrl(CUIWindowMgr* p_window_mgr)
       m_text_color(0),
       m_xOffset(0),
       m_yOffset(0),
-      m_type(0),
-      m_maskchar(false) {}
+      m_type(0) {}
 
 void CUIEditCtrl::HideChars(bool hide_chars) { m_maskchar = hide_chars; }
 

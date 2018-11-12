@@ -67,6 +67,8 @@ bool CSprRes::Load(const std::string& filename) {
   m_count = header.pal_img_count;
   if (version >= 0x101) {
     fp.Read(&rgba_count, sizeof(rgba_count));
+  } else {
+    rgba_count = 0;
   }
 
   for (uint16_t i = 0; i < m_count; i++) {

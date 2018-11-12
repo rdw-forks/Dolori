@@ -19,48 +19,55 @@
 
 CGameMode::CGameMode(CRagConnection *p_rag_connection,
                      CUIWindowMgr *p_window_mgr)
-    : CMode(p_rag_connection, p_window_mgr), m_world(), m_view() {}
+    : CMode(p_rag_connection, p_window_mgr),
+      m_world(),
+      m_view(),
+      m_noMove(0),
+      m_isOnQuest(0),
+      m_isPlayerDead(0),
+      // m_nameBalloon(nullptr),
+      // m_targetNameBalloon(nullptr),
+      // m_broadcastBalloon(nullptr),
+      // m_skillNameBalloon(nullptr),
+      // m_skillMsgBalloon(nullptr),
+      // m_skillUsedMsgBalloon(nullptr),
+      // m_playerGage(nullptr),
+      m_nameActorAid(0),
+      m_nameBalloonWidth(0),
+      m_nameBalloonHeight(0),
+      m_nameDisplayed(1),
+      m_nameDisplayed2(1),
+      m_waitingUseItemAck(0),
+      m_waitingItemThrowAck(0),
+      m_waitingReqStatusAck(0),
+      // m_dragInfo.m_dragType(0),
+      // m_dragInfo.m_dragItemIndex(0),
+      // m_dragInfo.m_numDragItem(0),
+      // m_dragInfo.m_slotNum(-1),
+      // m_dragInfo.m_isIdentified(0),
+      m_lastNaid(0),
+      m_menuTargetAID(0),
+      m_lastPcGid(0),
+      m_lastMonGid(0),
+      m_lastLockOnMonGid(0),
+      m_isAutoMoveClickOn(1),
+      m_isWaitingWhisperSetting(0),
+      m_isWaitingEnterRoom(0),
+      m_isWaitingAddExchangeItem(0),
+      m_waitingWearEquipAck(GetTick() - 2000),
+      m_isWaitingCancelExchangeItem(0),
+      m_waitingTakeoffEquipAck(GetTick() - 2000),
+      m_isReqUpgradeSkillLevel(0),
+      m_exchangeItemCnt(0),
+      m_sameChatRepeatCnt(0),
+      m_numNotifyTime(0) {}
 
 void CGameMode::Intialize() {
-  m_noMove = 0;
-  m_isOnQuest = 0;
-  m_isPlayerDead = 0;
-  m_nameBalloon = nullptr;
-  m_targetNameBalloon = nullptr;
-  m_broadcastBalloon = nullptr;
-  m_skillNameBalloon = nullptr;
-  m_skillMsgBalloon = nullptr;
-  m_skillUsedMsgBalloon = nullptr;
-  m_playerGage = nullptr;
-  m_nameActorAid = 0;
-  m_nameBalloonWidth = 0;
-  m_nameBalloonHeight = 0;
-  m_nameDisplayed = 1;
-  m_nameDisplayed2 = 1;
-  m_waitingUseItemAck = 0;
-  m_waitingItemThrowAck = 0;
-  m_waitingReqStatusAck = 0;
-  // m_dragInfo.m_dragType = 0;
-  // m_dragInfo.m_dragItemIndex = 0;
-  // m_dragInfo.m_numDragItem = 0;
-  // m_dragInfo.m_slotNum = -1;
-  // m_dragInfo.m_isIdentified = 0;
-  m_lastNaid = 0;
-  m_menuTargetAID = 0;
-  m_lastPcGid = 0;
-  m_lastMonGid = 0;
-  m_lastLockOnMonGid = 0;
-  m_isAutoMoveClickOn = 1;
-  m_isWaitingWhisperSetting = 0;
-  m_isWaitingEnterRoom = 0;
-  m_isWaitingAddExchangeItem = 0;
-  m_waitingWearEquipAck = GetTick() - 2000;
-  m_isWaitingCancelExchangeItem = 0;
-  m_waitingTakeoffEquipAck = GetTick() - 2000;
-  m_isReqUpgradeSkillLevel = 0;
-  m_exchangeItemCnt = 0;
-  m_sameChatRepeatCnt = 0;
-  m_numNotifyTime = 0;
+  // g_SnapMgr->RemoveAll();
+  // p_window_mgr_->RemoveAllWindowsExceptChatWnd();
+  p_window_mgr_->SetWallpaper(nullptr);
+  p_window_mgr_->MakeWindow(WID_BASICINFOWND);
+  p_window_mgr_->MakeWindow(WID_CHATWND);
 }
 
 void CGameMode::OnInit(const std::string &mode_name) {
@@ -72,6 +79,9 @@ void CGameMode::OnInit(const std::string &mode_name) {
 
   g_Renderer->Clear(true);
   p_window_mgr_->SetWallpaper(nullptr);
+  // p_window_mgr_->RemoveAllWindowsExceptChatWnd();
+  // p_window_mgr_->HideChatWnd();
+  // p_window_mgr_->MakeWindow(WID_LOADINGWND);
   p_window_mgr_->RenderWallPaper();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
@@ -130,6 +140,10 @@ void CGameMode::OnUpdate() {
 
   m_view.OnRender();
   m_world.Render();
+  // p_window_mgr_->RenderMenu();
+  p_window_mgr_->Render(this);
+  // DrawDragImage();
+  // DrawMouseCursor();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
   }
@@ -230,15 +244,16 @@ void CGameMode::PollNetworkStatus() {
 
 void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
   auto packet = reinterpret_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
-  // CGameMode *v2;      // ebx@1
 
   LOG(debug, "{}", packet->msg);
   // if (dword_768868) {
-  //  g_WindowMgr->SendMsg(5, (int)chat_msg, 30720, 0, 0);
+  // p_window_mgr_->SendMsg(5, reinterpret_cast<const void *>(packet->msg),
+  //                       reinterpret_cast<const void *>(30720));
   //} else {
-  // g_WindowMgr->SendMsg(1, (int)chat_msg, 65280, 1, 0);
-  //  m_world->m_player->SendMsg(
-  //      0, 7, chat_msg, 0, 0);
+  p_window_mgr_->SendMsg(1, reinterpret_cast<const void *>(packet->msg),
+                         reinterpret_cast<const void *>(0x00ff00),
+                         reinterpret_cast<const void *>(1));
+  // m_world.GetPlayer().SendMsg(0, 7, chat_msg, 0, 0);
   //}
   // if (dword_7B4480) WriteChat(chat_msg);
 }

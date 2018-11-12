@@ -213,8 +213,9 @@ void CUIMakeCharWnd::MakeButton() {
   }
 }
 
-void *CUIMakeCharWnd::SendMsg(CUIWindow *sender, int message, void *val1,
-                              void *val2, void *val3, void *val4) {
+void *CUIMakeCharWnd::SendMsg(CUIWindow *sender, int message, const void *val1,
+                              const void *val2, const void *val3,
+                              const void *val4) {
   switch (message) {
     case 0: {
       const auto &name = m_nameEditCtrl->GetText();

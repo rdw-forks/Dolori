@@ -13,10 +13,11 @@ class CUILoginWnd : public CUIFrameWnd {
  public:
   CUILoginWnd(CUIWindowMgr* p_window_mgr);
 
-  void OnCreate(int x, int y);
-  void OnDraw();
-  void* SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-                void* val3, void* val4);
+  void OnCreate(int x, int y) override;
+  void OnDraw() override;
+  void* SendMsg(CUIWindow* sender, int message, const void* val1 = nullptr,
+                const void* val2 = nullptr, const void* val3 = nullptr,
+                const void* val4 = nullptr) override;
 
  private:
   CUIEditCtrl* m_login;

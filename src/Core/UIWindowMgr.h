@@ -8,6 +8,7 @@
 #include "Render/Surface.h"
 #include "UI/UIFrameWnd.h"
 #include "UI/UILoginWnd.h"
+#include "UI/UINewChatWnd.h"
 #include "UI/UISelectCharWnd.h"
 #include "UI/UIWindow.h"
 
@@ -193,6 +194,9 @@ class CUIWindowMgr {
   int ErrorMsg(const std::string &msg, int type, int isDefYes, int changeMsg,
                unsigned int autoReturnTime);
   void SetCurScreen(int cur_screen);
+  void *SendMsg(int message, const void *val1 = nullptr,
+                const void *val2 = nullptr, const void *val3 = nullptr,
+                const void *val4 = nullptr);
 
  private:
   int m_chatWndX;
@@ -219,7 +223,7 @@ class CUIWindowMgr {
   class UILoadingWnd *m_loadingWnd;
   class UIMinimapZoomWnd *m_minimapZoomWnd;
   class UIStatusWnd *m_statusWnd;
-  class UINewChatWnd *m_chatWnd;
+  CUINewChatWnd *m_chatWnd;
   CUILoginWnd *m_loginWnd;
   class UIItemWnd *m_itemWnd;
   class UIQuestWnd *m_questWnd;

@@ -14,8 +14,9 @@ class CUIMakeCharWnd : public CUIFrameWnd {
   void OnCreate(int x, int y) override;
   void OnDraw() override;
   void OnProcess() override;
-  void *SendMsg(CUIWindow *, int, void *val1 = nullptr, void *val2 = nullptr,
-                void *val3 = nullptr, void *val4 = nullptr) override;
+  void *SendMsg(CUIWindow *, int, const void *val1 = nullptr,
+                const void *val2 = nullptr, const void *val3 = nullptr,
+                const void *val4 = nullptr) override;
 
   void InitTextControls();
   void MakeButton();

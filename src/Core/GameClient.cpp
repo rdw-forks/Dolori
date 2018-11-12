@@ -110,7 +110,7 @@ bool GameClient::LoadConfiguration(const std::string& file_name) {
 
     // Fonts settings
     const auto settings_config = json_config.at("fonts");
-    font_folder_ = settings_config.at("font_folder");
+    font_folder_ = settings_config.value("font_folder", "");
   } catch (const std::exception& ex) {
     LOG(error, "Failed to parse {} ({})", file_name, ex.what());
     return false;

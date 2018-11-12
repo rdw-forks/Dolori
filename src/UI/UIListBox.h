@@ -11,17 +11,19 @@ class CUIListBox : public CUIWindow {
  public:
   CUIListBox(CUIWindowMgr* p_window_mgr);
 
+  void OnLBtnDown(int x, int y) override;
+  void* SendMsg(CUIWindow* sender, int message, const void* val1 = nullptr,
+                const void* val2 = nullptr, const void* val3 = nullptr,
+                const void* val4 = nullptr) override;
+  void Resize(int cx, int cy) override;
+  void OnCreate(int, int) override;
+  void OnDraw() override;
+
   void Create2(int x, int y, int cx, int cy, bool trans);
   void SetColor(int r, int g, int b);
-  void Resize(int cx, int cy);
   void RecalcScrbarPos();
   size_t GetSelected();
-  void OnCreate(int, int);
   void AddItem(const std::string& text);
-  void OnDraw();
-  void OnLBtnDown(int x, int y);
-  int SendMsg(CUIWindow* sender, int message, int val1, int val2, int val3,
-              int val4);
 
  protected:
   int InnerHitTest(int x, int y);

@@ -11,11 +11,13 @@ class CUISelectServerWnd : public CUIFrameWnd {
  public:
   CUISelectServerWnd(CUIWindowMgr* p_window_mgr);
 
-  void OnCreate(int cx, int cy);
-  void OnDraw();
+  void OnCreate(int cx, int cy) override;
+  void OnDraw() override;
+  void* SendMsg(CUIWindow* sender, int message, const void* val1 = nullptr,
+                const void* val2 = nullptr, const void* val3 = nullptr,
+                const void* val4 = nullptr) override;
+
   void AddServer(const char* server);
-  void* SendMsg(CUIWindow* sender, int message, void* val1, void* val2,
-                void* val3, void* val4);
 
  private:
   CUIServerListBox* m_serverList;
