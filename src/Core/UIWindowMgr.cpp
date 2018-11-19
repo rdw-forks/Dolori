@@ -85,6 +85,10 @@ CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
     case WID_CHATWND:
       if (m_chatWnd == nullptr) {
         m_chatWnd = new CUINewChatWnd(this);
+        if (m_chatWnd == nullptr) {
+          break;
+        }
+
         m_chatWnd->Create(600, m_chatWndHeight);
         AddWindow(m_chatWnd);
       }

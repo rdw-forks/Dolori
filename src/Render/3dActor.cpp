@@ -40,14 +40,14 @@ void C3dActor::AssignModel(CRsmRes *p_rsm_res) {
 
   m_realbbmax = glm::vec3(INT_MIN, INT_MIN, INT_MIN);
   m_realbbmin = glm::vec3(INT_MAX, INT_MAX, INT_MAX);
-  const auto mat = glm::scale(glm::mat4(), glm::vec3(1, -1, 1));
+  const auto mat = glm::scale(glm::mat4(1.0f), glm::vec3(1, -1, 1));
   m_root_node->ComputeRealBoundingBox(mat, m_realbbmin, m_realbbmax);
   m_realbbrange = (m_realbbmax + m_realbbmin) / 2.0f;
 }
 
 void C3dActor::Render() {
   if (m_matrix_needs_update) {
-    m_modelview_matrix = glm::mat4();
+    m_modelview_matrix = glm::mat4(1.0f);
     m_modelview_matrix = glm::translate(m_modelview_matrix, m_pos);
     m_modelview_matrix = glm::rotate(m_modelview_matrix, glm::radians(m_rot.z),
                                      glm::vec3(0, 0, 1));
@@ -62,7 +62,7 @@ void C3dActor::Render() {
     m_matrix_needs_update = false;
   }
 
-  m_root_node->Render(this, glm::mat4());
+  m_root_node->Render(this, glm::mat4(1.0f));
 }
 
 void C3dActor::SetPos(const glm::vec3 &position) { m_pos = position; }

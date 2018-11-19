@@ -590,6 +590,10 @@ void CRenderer::FlushWorldRenderList() {
                  render_block->vbo_item_count);
   }
 
+  glDisableVertexAttribArray(position_attrib);
+  glDisableVertexAttribArray(tex_coords_attrib);
+  glDisableVertexAttribArray(normal_attrib);
+
   m_world_program.Unbind();
 }
 
@@ -601,6 +605,7 @@ void CRenderer::FlushSurfacesList() {
   glDisable(GL_DEPTH_TEST);
 
   m_surface_program.Bind();
+  m_surface_vbo.Bind();
 
   const GLuint position_attrib =
       m_surface_program.GetAttributeLocation("aPosition");
@@ -634,12 +639,13 @@ void CRenderer::FlushSurfacesList() {
         {x + render_block.width, y + render_block.height, 1.f, 1.f}};
 
     m_surface_vbo.SetData(vertices, 6);
-    m_surface_vbo.Bind();
-
     render_block.surface->Bind(GL_TEXTURE_2D);
 
     glDrawArrays(GL_TRIANGLES, 0, m_surface_vbo.size());
   }
+
+  glDisableVertexAttribArray(position_attrib);
+  glDisableVertexAttribArray(tex_coord_attrib);
 
   m_surface_program.Unbind();
 

@@ -170,7 +170,7 @@ void* CUIListBox::SendMsg(CUIWindow* sender, int message, const void* val1,
       } else if (message == 10) {
         m_vertViewOffset += m_h / m_itemSpacing - 1;
       } else {
-        m_vertViewOffset += reinterpret_cast<int>(val1);
+        m_vertViewOffset += reinterpret_cast<size_t>(val1);
       }
 
       if (m_vertViewOffset < 0) {
