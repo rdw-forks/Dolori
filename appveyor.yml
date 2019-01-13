@@ -11,7 +11,10 @@ install:
 build_script:
 - cmd: >-
     mkdir build
+
     cd build
+
     cmake .. -G %GENERATOR% -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
+
     cmake --build . --config %BUILD_TYPE%
 test: off

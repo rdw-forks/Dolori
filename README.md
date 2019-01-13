@@ -1,8 +1,10 @@
 Dolori
 =======
 
+[![Build status](https://ci.appveyor.com/api/projects/status/ye0d4xcsm6kbx2h7?svg=true)](https://ci.appveyor.com/project/L1nkZ/dolori) [![pipeline status](https://gitlab.com/Dolori/Dolori/badges/master/pipeline.svg)](https://gitlab.com/Dolori/Dolori/commits/master)
+
 External dependencies
----------
+---------------------
 * OpenGL
 * DevIL
 * SDL2_ttf
