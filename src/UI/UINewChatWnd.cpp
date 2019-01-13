@@ -13,32 +13,43 @@ CUINewChatWnd::CUINewChatWnd(CUIWindowMgr *p_window_mgr)
       chat_edit_height_(24) {}
 
 void CUINewChatWnd::OnCreate(int x, int y) {
+  if (y > chat_edit_height_) {
+    m_state = (y - (title_height_ + m_state + 74)) / 42 + 1;
+    if (m_state > 4) {
+      m_state = 4;
+    }
+  } else {
+    m_state = 0;
+  }
+
   list_box_ = new CUIChatHisBox(p_window_mgr_);
   if (list_box_ == nullptr) {
     return;
   }
 
-  list_box_->Create2(0, 0, m_w - 8, 70, false);
-  if (y - 70 < chat_edit_height_ + title_height_) {
-    list_box_->Move(5, -70);
-  } else {
-    list_box_->Move(5, title_height_ + 2);
-  }
+  list_box_->Create2(0, 0, m_w - 8, 60, true);
+  // if (y - 70 < chat_edit_height_ + title_height_) {
+  //  list_box_->Move(5, -70);
+  //} else {
+  list_box_->Move(5, title_height_);
+  //}
 
   list_box_->SetId(118);
   AddChild(list_box_);
 }
 
 void CUINewChatWnd::OnDraw() {
+  ClearDC(0);
+
   if (m_h > title_height_ + chat_edit_height_) {
     DrawBox(3, title_height_, 1, m_h - title_height_ - chat_edit_height_,
-            0xFFFFFF);
+            0xFFFFFFFF);
     DrawBox(2 * title_width_ + 3, title_height_, m_w - (2 * title_width_ + 10),
-            1, 0xFFFFFFu);
-    DrawBox(m_w - 6, title_height_, 1, 1, 0x8E8E8E);
-    DrawBox(m_w - 5, title_height_ + 1, 1, 1, 0x8E8E8E);
+            1, 0xFFFFFFFF);
+    DrawBox(m_w - 6, title_height_, 1, 1, 0xFF8E8E8E);
+    DrawBox(m_w - 5, title_height_ + 1, 1, 1, 0xFF8E8E8E);
     DrawBox(m_w - 4, title_height_ + 2, 1,
-            m_h - chat_edit_height_ - title_height_ - 2, 0x8E8E8E);
+            m_h - chat_edit_height_ - title_height_ - 2, 0xFF8E8E8E);
   }
 
   const std::string scroll_mid =

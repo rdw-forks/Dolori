@@ -1,6 +1,6 @@
 #include "Common/GetTick.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>  // GetTickCount()
 #else
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 // platform-abstracted tick retrieval
 // Taken from the rathena project
 uint32_t GetTick(void) {
-#if defined(WIN32)
+#if defined(_WIN32)
   return GetTickCount();
 #elif defined(ENABLE_RDTSC)
   return (uint32_t)((_rdtsc() - RDTSC_BEGINTICK) / RDTSC_CLOCK);

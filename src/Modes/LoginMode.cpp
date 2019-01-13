@@ -1,6 +1,6 @@
 #include "Modes/LoginMode.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Ws2tcpip.h>
 #define inet_ntop InetNtop
 #else
@@ -329,13 +329,13 @@ void CLoginMode::MakeLoginWindow() {
 }
 
 void CLoginMode::ConnectToAccountServer() {
-  SERVER_ADDRESS server_addr;
+  ServerAddress server_addr;
 
   strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
   server_addr.port = atoi(g_accountPort);
   LOG(info, "Connecting to the account server ({}:{}) ...", server_addr.ip,
       server_addr.port);
-  m_isConnected = p_rag_connection_->Connect(&server_addr);
+  m_isConnected = p_rag_connection_->Connect(server_addr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the account server");
     p_rag_connection_->Disconnect();
@@ -343,7 +343,7 @@ void CLoginMode::ConnectToAccountServer() {
   }
 
   if (g_bUseCommand) {
-    struct PACKET_CA_CONNECT_INFO_CHANGE packet;
+    PACKET_CA_CONNECT_INFO_CHANGE packet;
 
     packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
     memcpy(packet.ID, m_userId, sizeof(packet.ID));
@@ -398,7 +398,7 @@ void CLoginMode::ConnectToCharServer() {
 
   LOG(info, "Connecting to the char server ({}:{}) ...", g_charServerAddr.ip,
       g_charServerAddr.port);
-  m_isConnected = p_rag_connection_->Connect(&g_charServerAddr);
+  m_isConnected = p_rag_connection_->Connect(g_charServerAddr);
   // WinMainNpKeyStopEncryption();
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the char server");
@@ -425,7 +425,7 @@ void CLoginMode::ConnectToCharServer() {
 void CLoginMode::ConnectToZoneServer() {
   LOG(info, "Connecting to the zone server ({}:{}) ...", g_zoneServerAddr.ip,
       g_zoneServerAddr.port);
-  m_isConnected = p_rag_connection_->Connect(&g_zoneServerAddr);
+  m_isConnected = p_rag_connection_->Connect(g_zoneServerAddr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the zone server");
     p_rag_connection_->Disconnect();

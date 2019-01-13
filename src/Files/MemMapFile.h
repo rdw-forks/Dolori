@@ -1,7 +1,7 @@
 #ifndef DOLORI_FILES_MEMMAPFILE_H_
 #define DOLORI_FILES_MEMMAPFILE_H_
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <fcntl.h>
@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <cstdint>
 #endif
-
 #include <vector>
 
 #include "Files/MemFile.h"
@@ -28,7 +27,7 @@ class CMemMapFile : public CMemFile {
   void Init();
 
  private:
-#ifdef WIN32
+#ifdef _WIN32
   HANDLE m_hFile;
   HANDLE m_hFileMap;
 #else

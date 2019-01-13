@@ -257,12 +257,14 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
   SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
-  if (sdl_surface != nullptr) {
-    if (m_surface != nullptr) {
-      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
-    } else {
-      m_surface = std::make_unique<CSurface>(sdl_surface);
-    }
+  if (sdl_surface == nullptr) {
+    return;
+  }
+
+  if (m_surface != nullptr) {
+    m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+  } else {
+    m_surface = std::make_unique<CSurface>(sdl_surface);
   }
 }
 

@@ -1,6 +1,6 @@
 #include "Network/Connection.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <WinSock2.h>
 #else
 #include <arpa/inet.h>  // For inet_addr
@@ -29,7 +29,7 @@ CConnection::~CConnection() {}
 
 bool CConnection::Startup() {
   bool result;
-#ifdef WIN32
+#ifdef _WIN32
   WSADATA data;
 
   if (WSAStartup(0x101u, &data)) {
@@ -46,7 +46,7 @@ bool CConnection::Startup() {
 }
 
 void CConnection::Cleanup() {
-#ifdef WIN32
+#ifdef _WIN32
   WSACleanup();
 #endif
 }
@@ -63,7 +63,7 @@ bool CConnection::Poll() {
   return result;
 }
 
-bool CConnection::Connect(const SERVER_ADDRESS *sa) {
+bool CConnection::Connect(const ServerAddress &sa) {
   bool result;
 
   m_recvQueue.Init(40960);
@@ -81,7 +81,7 @@ bool CConnection::Connect(const SERVER_ADDRESS *sa) {
                  sizeof(argp)) == SOCKET_ERROR) {
     return false;
   }
-#ifdef WIN32
+#ifdef _WIN32
   argp = 1;
   if (ioctlsocket(m_socket, FIONBIO, &argp) == SOCKET_ERROR) {
     ErrorMsg("Failed to setup select mode");
@@ -91,13 +91,13 @@ bool CConnection::Connect(const SERVER_ADDRESS *sa) {
 
   memset(&m_addr, 0, sizeof(m_addr));
 
-  m_addr.sin_addr.s_addr = inet_addr(sa->ip);
+  m_addr.sin_addr.s_addr = inet_addr(sa.ip);
   m_addr.sin_family = AF_INET;
-  m_addr.sin_port = htons(sa->port);
+  m_addr.sin_port = htons(sa.port);
 
   if (connect(m_socket, reinterpret_cast<sockaddr *>(&m_addr),
               sizeof(m_addr)) != SOCKET_ERROR ||
-#ifdef WIN32
+#ifdef _WIN32
       WSAGetLastError() == WSAEWOULDBLOCK) {
 #else
       errno == EWOULDBLOCK) {
@@ -133,7 +133,7 @@ bool CConnection::OnSend() {
   while (m_sendQueue.GetSize()) {
     timeout.tv_sec = 0;
     timeout.tv_usec = 0;
-#ifdef WIN32
+#ifdef _WIN32
     writefds.fd_array[0] = m_socket;
     writefds.fd_count = 1;
 #else
@@ -148,7 +148,7 @@ bool CConnection::OnSend() {
     sent_bytes =
         send(m_socket, m_sendQueue.GetDataPtr(), m_sendQueue.GetSize(), 0);
     if (sent_bytes == -1) {
-#ifdef WIN32
+#ifdef _WIN32
       int err = WSAGetLastError();
       if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
 #else
@@ -183,7 +183,7 @@ bool CConnection::OnRecv() {
 
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
-#ifdef WIN32
+#ifdef _WIN32
   readfds.fd_array[0] = m_socket;
   readfds.fd_count = 1;
 #else
@@ -208,7 +208,7 @@ bool CConnection::OnRecv() {
     m_blockQueue.Init(40960);
   }
 
-#ifdef WIN32
+#ifdef _WIN32
   int err = WSAGetLastError();
   if (err != WSAEWOULDBLOCK && err != WSAENOTCONN) {
     return true;

@@ -15,9 +15,7 @@ CUIListBox::CUIListBox(CUIWindowMgr* p_window_mgr)
       m_horzScrollBar(),
       m_isTransParent(false),
       m_itemSpacing(16),
-      m_noColor() {
-  SetColor(255, 255, 255);
-}
+      m_noColor() {}
 
 void CUIListBox::Create2(int x, int y, int cx, int cy, bool trans) {
   m_isTransParent = trans;
@@ -64,7 +62,7 @@ void CUIListBox::RecalcScrbarPos() {
   }
 }
 
-size_t CUIListBox::GetSelected() { return m_curItem; }
+size_t CUIListBox::GetSelected() const { return m_curItem; }
 
 void CUIListBox::OnCreate(int cx, int cy) {
   int fixed_length;
@@ -106,7 +104,7 @@ void CUIListBox::OnDraw() {
 
   if (m_isTransParent) {
     ClearDC(0);
-    if (m_parent) {
+    if (m_parent != nullptr) {
       m_parent->Invalidate();
     }
   } else {
@@ -164,6 +162,7 @@ void* CUIListBox::SendMsg(CUIWindow* sender, int message, const void* val1,
     case 7:
     case 9:
     case 10:
+      // Vertical scrolling
       prev_view_offset = m_vertViewOffset;
       if (message == 9) {
         m_vertViewOffset -= m_h / m_itemSpacing - 1;
@@ -187,12 +186,12 @@ void* CUIListBox::SendMsg(CUIWindow* sender, int message, const void* val1,
       m_vertScrollBar->SetPos(m_vertViewOffset);
       m_vertScrollBar->Invalidate();
       Invalidate();
-      if (m_isTransParent && m_parent) {
+      if (m_isTransParent && m_parent != nullptr) {
         m_parent->Invalidate();
       }
 
       return reinterpret_cast<void*>(m_vertViewOffset - prev_view_offset);
-  };
+  }
 
   return nullptr;
 }

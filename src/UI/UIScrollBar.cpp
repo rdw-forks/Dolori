@@ -33,7 +33,9 @@ void CUIScrollBar::SetRange(int range, size_t parentnumCanDisplayItem,
   m_parentnumCanDisplayItem = parentnumCanDisplayItem;
   m_parentNumItem = parentNumItem;
   Invalidate();
-  if (m_curPos > m_maxPos) m_curPos = m_maxPos;
+  if (m_curPos > m_maxPos) {
+    m_curPos = m_maxPos;
+  }
 }
 
 int CUIScrollBar::GetFixedLength() { return m_fixedLength; }
@@ -113,52 +115,54 @@ void CUIScrollBar::OnDraw() {
 }
 
 void CUIScrollBar::OnLBtnDown(int x, int y) {
-  if (m_maxPos) {
-    const int hit = InnerHitTest(x, y);
-    m_startDragX = x;
-    m_startDragY = y;
-    m_deltaDrag = 0;
+  if (m_maxPos == 0) {
+    return;
+  }
 
-    if (m_isVert) {
-      switch (hit) {
-        case 0:
-          m_parent->SendMsg(this, 7, (void *)-1, 0, 0, 0);
-          break;
-        case 1:
-          m_parent->SendMsg(this, 9, 0, 0, 0, 0);
-          break;
-        case 2:
-          p_window_mgr_->SetCapture(this);
-          break;
-        case 3:
-          m_parent->SendMsg(this, 10, 0, 0, 0, 0);
-          break;
-        case 4:
-          m_parent->SendMsg(this, 7, (void *)1, 0, 0, 0);
-          break;
-        default:
-          return;
-      };
-    } else {
-      switch (hit) {
-        case 2:
-          p_window_mgr_->SetCapture(this);
-          break;
-        case 0:
-          m_parent->SendMsg(this, 8, (void *)-1, 0, 0, 0);
-          break;
-        case 1:
-          m_parent->SendMsg(this, 11, 0, 0, 0, 0);
-          break;
-        case 3:
-          m_parent->SendMsg(this, 12, 0, 0, 0, 0);
-          break;
-        case 4:
-          m_parent->SendMsg(this, 8, (void *)1, 0, 0, 0);
-          break;
-        default:
-          return;
-      };
+  const int hit = InnerHitTest(x, y);
+  m_startDragX = x;
+  m_startDragY = y;
+  m_deltaDrag = 0;
+
+  if (m_isVert) {
+    switch (hit) {
+      case 0:
+        m_parent->SendMsg(this, 7, (void *)-1, 0, 0, 0);
+        break;
+      case 1:
+        m_parent->SendMsg(this, 9, 0, 0, 0, 0);
+        break;
+      case 2:
+        p_window_mgr_->SetCapture(this);
+        break;
+      case 3:
+        m_parent->SendMsg(this, 10, 0, 0, 0, 0);
+        break;
+      case 4:
+        m_parent->SendMsg(this, 7, (void *)1, 0, 0, 0);
+        break;
+      default:
+        return;
+    }
+  } else {
+    switch (hit) {
+      case 0:
+        m_parent->SendMsg(this, 8, (void *)-1, 0, 0, 0);
+        break;
+      case 1:
+        m_parent->SendMsg(this, 11, 0, 0, 0, 0);
+        break;
+      case 2:
+        p_window_mgr_->SetCapture(this);
+        break;
+      case 3:
+        m_parent->SendMsg(this, 12, 0, 0, 0, 0);
+        break;
+      case 4:
+        m_parent->SendMsg(this, 8, (void *)1, 0, 0, 0);
+        break;
+      default:
+        return;
     }
   }
 }
@@ -174,7 +178,6 @@ void CUIScrollBar::OnLBtnUp(int x, int y) {
 }
 
 void CUIScrollBar::OnMouseMove(int x, int y) {
-  int previous_draw_mode;
   int pos_scroll_end;
   int scrollbar_length;
   size_t button_drag;
@@ -193,7 +196,7 @@ void CUIScrollBar::OnMouseMove(int x, int y) {
     return;
   }
 
-  previous_draw_mode = m_drawMode;
+  const int previous_draw_mode = m_drawMode;
   switch (InnerHitTest(x, y) + 1) {
     case 0:
     case 2:

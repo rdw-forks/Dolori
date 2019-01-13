@@ -22,7 +22,7 @@ class CUIListBox : public CUIWindow {
   void Create2(int x, int y, int cx, int cy, bool trans);
   void SetColor(int r, int g, int b);
   void RecalcScrbarPos();
-  size_t GetSelected();
+  size_t GetSelected() const;
   void AddItem(const std::string& text);
 
  protected:
