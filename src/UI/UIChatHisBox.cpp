@@ -19,10 +19,17 @@ void CUIChatHisBox::OnDraw() {
   }
 
   int y = m_vertViewOffset;
+  size_t color_index = 0;
   for (const auto& item : m_items) {
-    TextOutUTF8(3, y * m_itemSpacing + 4, item.c_str(), 0, 0, 12, 0);
-    // TODO(LinkZ): Use the actual color
-    TextOutUTF8(2, y * m_itemSpacing + 3, item.c_str(), 0, 0, 12, 0xFFFFFFFF);
+    TextOutUTF8(3, y * m_itemSpacing + 4, item, 0, 0, 12, 0);
+    TextOutUTF8(2, y * m_itemSpacing + 3, item, 0, 0, 12,
+                item_colors_[color_index]);
     y++;
+    color_index++;
   }
+}
+
+void CUIChatHisBox::AddItem(const std::string& message, uint32_t color) {
+  CUIListBox::AddItem(message);
+  item_colors_.push_back(color);
 }

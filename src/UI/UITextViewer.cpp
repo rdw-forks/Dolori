@@ -57,7 +57,7 @@ void CUITextViewer::OnDraw() {
         break;
       }
 
-      const char* str = m_items[m_vertViewOffset + i].c_str();
+      const std::string& str = m_items[m_vertViewOffset + i];
       size_t str_length = m_items[m_vertViewOffset + i].length();
 
       TextOutWithOutline(3, 4 + m_itemSpacing * (i - m_vertViewOffset), str,
@@ -69,7 +69,7 @@ void CUITextViewer::OnDraw() {
         break;
       }
 
-      const char* str = m_items[m_vertViewOffset + i].c_str();
+      const std::string& str = m_items[m_vertViewOffset + i];
       size_t str_length = m_items[m_vertViewOffset + i].length();
 
       TextOutWithDecoration(3, 4 + m_itemSpacing * (i - m_vertViewOffset), str,

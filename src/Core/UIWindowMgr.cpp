@@ -16,6 +16,7 @@ CUIWindowMgr::CUIWindowMgr()
       m_chatWndHeight(98),
       m_chatWndShow(1),
       m_chatWndStatus(7),
+      m_battle_mode(true),
       m_conversionMode(),
       m_captureWindow(),
       m_editWindow(),
@@ -76,7 +77,7 @@ void CUIWindowMgr::OnProcess() {
                 [](CUIWindow *window) { window->OnProcess(); });
 }
 
-CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
+CUIFrameWnd *CUIWindowMgr::MakeWindow(WindowId windowId) {
   CUIFrameWnd *result = nullptr;
 
   switch (windowId) {
@@ -360,6 +361,54 @@ void CUIWindowMgr::SetCurScreen(int cur_screen) {
   }
 }
 
+bool CUIWindowMgr::ProcessPushButton(SDL_Keycode key_code, int new_key_down,
+                                     SDL_Scancode scan_code) {
+  switch (key_code) {
+    case SDLK_BACKSPACE:
+      if (GetFocusEdit() != nullptr) {
+        g_Language->OnChar('\b', 0);
+      }
+      break;
+    case SDLK_RETURN:
+      if (IsFocusChatWnd()) {
+        // Toogle battle mode
+        m_battle_mode = m_battle_mode ? false : true;
+      }
+
+      DefPushButton();
+      return false;
+      break;
+    default:
+      break;
+  }
+
+  return true;
+}
+
+bool CUIWindowMgr::IsFocusChatWnd() const {
+  if (m_editWindow == nullptr || m_chatWnd == nullptr) {
+    return false;
+  }
+
+  if (m_editWindow == m_chatWnd->common_chat() ||
+      m_editWindow == m_chatWnd->whisper_chat()) {
+    return true;
+  }
+
+  return false;
+}
+
+bool CUIWindowMgr::ExecuteMsgInBattleMode(SDL_Keycode virtual_key,
+                                          int new_key_down) {
+  return false;
+}
+
+void CUIWindowMgr::DefPushButton() const {
+  for (auto &child : m_children) {
+    child->SendMsg(nullptr, 0);
+  }
+}
+
 void *CUIWindowMgr::SendMsg(int message, const void *val1, const void *val2,
                             const void *val3, const void *val4) {
   switch (message) {
@@ -384,4 +433,10 @@ void *CUIWindowMgr::SendMsg(int message, const void *val1, const void *val2,
   }
 
   return nullptr;
+}
+
+bool CUIWindowMgr::battle_mode() const { return m_battle_mode; }
+
+void CUIWindowMgr::set_battle_mode(bool battle_mode) {
+  m_battle_mode = battle_mode;
 }

@@ -307,7 +307,7 @@ class CMode {
   int m_next_sub_mode;
   int m_fadeInCount;
   bool m_loop_cond;
-  int m_isConnected;
+  bool m_isConnected;
   class UITransBalloonText *m_helpBalloon;
   unsigned long m_helpBalloonTick;
   unsigned long m_mouseAnimStartTick;

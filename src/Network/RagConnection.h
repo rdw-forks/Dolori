@@ -12,15 +12,15 @@ class CRagConnection : public CConnection {
 
   bool SendPacket(int, char *);
   bool RecvPacket(char *, int *);
-  int GetPacketSize(int);
-  short GetPacketType(const char *);
+  int32_t GetPacketSize(uint16_t packet_type) const;
+  short GetPacketType(const void *buffer) const;
 
  protected:
   void InitPacketMap();
 
  private:
   bool m_bDrop;
-  std::map<int, int> m_packetLenMap;
+  std::map<uint16_t, int32_t> m_packetLenMap;
 };
 
 // class CRagConnection {

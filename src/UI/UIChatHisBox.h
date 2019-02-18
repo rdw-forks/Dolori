@@ -10,6 +10,8 @@ class CUIChatHisBox : public CUIListBox {
   void OnCreate(int x, int y) override;
   void OnDraw() override;
 
+  void AddItem(const std::string &message, uint32_t color);
+
  private:
   std::vector<std::string> talker_names_;
   std::vector<uint32_t> item_colors_;

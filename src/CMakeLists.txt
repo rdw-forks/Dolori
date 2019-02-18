@@ -46,7 +46,7 @@ target_link_libraries(${PROJECT_NAME} zlibstatic)
 target_link_libraries(${PROJECT_NAME} nlohmann_json)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_TTF_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${SDL2_TTF_LIBRARIES})

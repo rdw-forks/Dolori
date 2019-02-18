@@ -75,7 +75,7 @@ void CUIEditCtrl::DrawEditText() {
     RefreshText();
   }
 
-  TextOutUTF8(m_xOffset, m_yOffset, m_text.c_str(), 0, 0, 12, m_text_color);
+  TextOutUTF8(m_xOffset, m_yOffset, m_text, 0, 0, 12, m_text_color);
 }
 
 void CUIEditCtrl::OnBeginEdit() {

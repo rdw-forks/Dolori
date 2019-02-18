@@ -5,8 +5,8 @@
 
 #ifdef DOLORI_DEBUG
 #define DOLORI_LOGGER_NAME "Dolori"
-#define LOG(CHANNEL, FMT, ...) \
-  spdlog::get(DOLORI_LOGGER_NAME)->CHANNEL(FMT, ##__VA_ARGS__)
+#define LOG(LEVEL, FMT, ...) \
+  spdlog::get(DOLORI_LOGGER_NAME)->LEVEL(FMT, ##__VA_ARGS__)
 #else
 #define LOG(CHANNEL, FMT, ...)
 #endif  // DOLORI_DEBUG

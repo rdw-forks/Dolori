@@ -1,12 +1,5 @@
 #include "Modes/GameMode.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/debug.h"
@@ -68,6 +61,17 @@ void CGameMode::Intialize() {
   p_window_mgr_->SetWallpaper(nullptr);
   p_window_mgr_->MakeWindow(WID_BASICINFOWND);
   p_window_mgr_->MakeWindow(WID_CHATWND);
+
+  PACKET_CZ_NOTIFY_ACTORINIT actor_init;
+  actor_init.header = HEADER_CZ_NOTIFY_ACTORINIT;
+  p_rag_connection_->SendPacket(sizeof(actor_init),
+                                reinterpret_cast<char *>(&actor_init));
+
+  PACKET_CZ_REQUEST_TIME req_time;
+  req_time.header = HEADER_CZ_REQUEST_TIME;
+  req_time.client_time = GetTick();
+  p_rag_connection_->SendPacket(sizeof(req_time),
+                                reinterpret_cast<char *>(&req_time));
 }
 
 void CGameMode::OnInit(const std::string &mode_name) {
@@ -155,21 +159,51 @@ void CGameMode::ProcessTalkType(int talktype, const std::string &string) {
   switch (talktype) {
     case TT_REQ_WHISPER_PC_EX:
       break;
-  };
+  }
 }
 
 void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
                          const void *val3) {
-  // switch (msg) {
-  //  default:
-  //    return nullptr;
-  //};
+  switch (msg) {
+    case MM_CHATMSG: {
+      // TODO(LinkZ): Add the following optional checks
+      // g_Session->IsEFST_Berserk()
+      // InsultFilter::IsBadSentence()
+      // IsSameSentence(repeat_count)
+      const auto chat_buffer = reinterpret_cast<const char *>(val1);
+      std::string message = g_Session->GetCharName();
+      message += " : ";
+      // g_Language->GetLanguageCharset(false)
+      message += chat_buffer;
+
+      const uint16_t packet_size =
+          sizeof(PACKET_CZ_REQUEST_CHAT) + message.length() + 1;
+      auto p_packet =
+          reinterpret_cast<PACKET_CZ_REQUEST_CHAT *>(new uint8_t[packet_size]);
+      p_packet->header = HEADER_CZ_REQUEST_CHAT;
+      p_packet->packet_length = packet_size;
+      ::strncpy(p_packet->msg, message.c_str(), message.length() + 1);
+      p_rag_connection_->SendPacket(p_packet->packet_length,
+                                    reinterpret_cast<char *>(p_packet));
+      delete[] p_packet;
+    } break;
+    case MM_WHISPERMSG:
+      break;
+    case MM_PROCESS_TALK_TYPE: {
+      const auto talk_type = reinterpret_cast<size_t>(val1);
+      const auto chat_buffer = reinterpret_cast<const char *>(val2);
+      ProcessTalkType(talk_type, chat_buffer);
+    } break;
+    default:
+      LOG(error, "Unknown message id for GameMode: {}", msg);
+      break;
+  }
 
   return nullptr;
 }
 
 void CGameMode::ProcessInput() {
-  ProcessSDLEvents();
+  ProcessSDLEvents(p_window_mgr_);
   g_Mouse->ReadState();
   int process_type = p_window_mgr_->ProcessInput();
   p_window_mgr_->OnProcess();
@@ -221,7 +255,7 @@ void CGameMode::PollNetworkStatus() {
 
   int size_of_buffer;
   while (p_rag_connection_->RecvPacket(buffer, &size_of_buffer)) {
-    int16_t packet_type = p_rag_connection_->GetPacketType(buffer);
+    const int16_t packet_type = p_rag_connection_->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_ZC_NOTIFY_PLAYERCHAT:
         Zc_Notify_Playerchat(buffer);
@@ -229,11 +263,53 @@ void CGameMode::PollNetworkStatus() {
       case HEADER_ZC_NPCACK_MAPMOVE:
         Zc_Npcack_Mapmove(buffer);
         break;
+      case HEADER_ZC_CLOSE_DIALOG:
+        LOG(debug, "ZC_CLOSE_DIALOG");
+        break;
       case HEADER_ZC_COUPLESTATUS:
+        LOG(debug, "ZC_COUPLESTATUS");
         break;
       case HEADER_ZC_PAR_CHANGE:
+        LOG(debug, "ZC_PAR_CHANGE");
         break;
       case HEADER_ZC_ATTACK_RANGE:
+        LOG(debug, "ZC_PAR_CHANGE");
+        break;
+      case HEADER_ZC_SPRITE_CHANGE2:
+        LOG(debug, "ZC_SPRITE_CHANGE2");
+        break;
+      case HEADER_ZC_EQUIPMENT_ITEMLIST3:
+        LOG(debug, "ZC_EQUIPMENT_ITEMLIST3");
+        break;
+      case HEADER_ZC_NOTIFY_MAPPROPERTY:
+        LOG(debug, "ZC_NOTIFY_MAPPROPERTY");
+        break;
+      case HEADER_ZC_NOTIFY_STANDENTRY:
+        LOG(debug, "ZC_NOTIFY_STANDENTRY");
+        break;
+      case HEADER_ZC_SKILLINFO_LIST:
+        LOG(debug, "ZC_SKILLINFO_LIST");
+        break;
+      case HEADER_ZC_SHORTCUT_KEY_LIST:
+        LOG(debug, "ZC_SHORTCUT_KEY_LIST");
+        break;
+      case HEADER_ZC_LONGPAR_CHANGE:
+        LOG(debug, "ZC_LONGPAR_CHANGE");
+        break;
+      case HEADER_ZC_STATUS:
+        LOG(debug, "ZC_STATUS");
+        break;
+      case HEADER_ZC_PARTY_CONFIG:
+        LOG(debug, "ZC_PARTY_CONFIG");
+        break;
+      case HEADER_ZC_CONFIG_NOTIFY:
+        LOG(debug, "ZC_CONFIG_NOTIFY");
+        break;
+      case HEADER_ZC_BROADCAST2:
+        LOG(debug, "ZC_BROADCAST2");
+        break;
+      case HEADER_ZC_EMOTION:
+        LOG(debug, "ZC_EMOTION");
         break;
       default:
         LOG(error, "Unknown packet: {:x}", packet_type);
@@ -242,8 +318,8 @@ void CGameMode::PollNetworkStatus() {
   }
 }
 
-void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
-  auto packet = reinterpret_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
+void CGameMode::Zc_Notify_Playerchat(const void *buffer) {
+  const auto packet = static_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
 
   LOG(debug, "{}", packet->msg);
   // if (dword_768868) {
@@ -258,8 +334,8 @@ void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
   // if (dword_7B4480) WriteChat(chat_msg);
 }
 
-void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
-  auto packet = reinterpret_cast<const PACKET_ZC_NPCACK_MAPMOVE *>(buffer);
+void CGameMode::Zc_Npcack_Mapmove(const void *buffer) {
+  const auto packet = static_cast<const PACKET_ZC_NPCACK_MAPMOVE *>(buffer);
 
   LOG(info, "Moved to map {}", packet->map_name);
 }

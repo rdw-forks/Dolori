@@ -52,14 +52,15 @@ class CUIWindow {
   void DrawSurface();
   void InvalidateChildren();
   void Invalidate();
-  void TextOutA(int, int, const char *, size_t, int, int, unsigned int);
-  void TextOutUTF8(int x, int y, const char *text, size_t textLen, int fontType,
-                   int fontHeight, unsigned int colorText);
-  void TextOutWithOutline(int, int, const char *, size_t, uint32_t, uint32_t,
-                          int, int, bool);
-  void TextOutWithDecoration(int x, int y, const char *text, size_t textLen,
-                             unsigned int *colorRef, int fontType,
-                             int fontHeight);
+  void TextOutA(int x, int y, const std::string &text, size_t, int, int,
+                unsigned int);
+  void TextOutUTF8(int x, int y, const std::string &text, size_t textLen,
+                   int fontType, int fontHeight, unsigned int colorText);
+  void TextOutWithOutline(int x, int y, const std::string &text, size_t,
+                          uint32_t, uint32_t, int, int, bool);
+  void TextOutWithDecoration(int x, int y, const std::string &text,
+                             size_t textLen, unsigned int *colorRef,
+                             int fontType, int fontHeight);
   static const char *InterpretColor(const char *color_text,
                                     unsigned int *colorRef);
   CUIWindow *HitTest(int x, int y);

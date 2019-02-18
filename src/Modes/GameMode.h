@@ -4,7 +4,6 @@
 #include <string>
 
 #include <glm/vec2.hpp>
-
 #include "Modes/Mode.h"
 #include "Network/RagConnection.h"
 #include "Render/View.h"
@@ -29,8 +28,8 @@ class CGameMode : public CMode {
   void ProcessRightButton();
   void ProcessMouseWheel(int process_type);
   void PollNetworkStatus();
-  void Zc_Notify_Playerchat(const char *buffer);
-  void Zc_Npcack_Mapmove(const char *buffer);
+  void Zc_Notify_Playerchat(const void *buffer);
+  void Zc_Npcack_Mapmove(const void *buffer);
 
   const std::string &rsw_name() const;
 

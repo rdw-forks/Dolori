@@ -15,7 +15,7 @@
 // Forward declaration
 class CMode;
 
-typedef enum WINDOWID {
+enum WindowId {
   WID_BASICINFOWND = 0x0,
   WID_CHATWND = 0x1,
   WID_SELECTSERVERWND = 0x2,
@@ -168,7 +168,7 @@ typedef enum WINDOWID {
   WID_ADMINTOOL_MINIWND = 0x95,
   WID_NOTIFYQUESTWND = 0x96,
   WID_LAST = 0x97,
-} WINDOWID;
+};
 
 class CUIWindowMgr {
  public:
@@ -179,7 +179,7 @@ class CUIWindowMgr {
   void RenderWallPaper();
   void Render(CMode *);
   void OnProcess();
-  CUIFrameWnd *MakeWindow(WINDOWID windowId);
+  CUIFrameWnd *MakeWindow(WindowId windowId);
   void PostQuit(CUIWindow *wnd);
   void AddWindow(CUIWindow *);
   void RemoveWindow(CUIWindow *);
@@ -194,9 +194,17 @@ class CUIWindowMgr {
   int ErrorMsg(const std::string &msg, int type, int isDefYes, int changeMsg,
                unsigned int autoReturnTime);
   void SetCurScreen(int cur_screen);
+  bool ProcessPushButton(SDL_Keycode key_code, int new_key_down,
+                         SDL_Scancode scan_code);
+  bool IsFocusChatWnd() const;
+  bool ExecuteMsgInBattleMode(SDL_Keycode virtual_key, int new_key_down);
+  void DefPushButton() const;
   void *SendMsg(int message, const void *val1 = nullptr,
                 const void *val2 = nullptr, const void *val3 = nullptr,
                 const void *val4 = nullptr);
+
+  bool battle_mode() const;
+  void set_battle_mode(bool battle_mode);
 
  private:
   int m_chatWndX;
@@ -206,6 +214,7 @@ class CUIWindowMgr {
   int m_gronMsnWndShow;
   int m_gronMsgWndShow;
   int m_chatWndStatus;
+  bool m_battle_mode;
   float m_miniMapZoomFactor;
   unsigned long m_miniMapArgb;
   int m_isDrawCompass;

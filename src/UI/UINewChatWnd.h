@@ -1,12 +1,17 @@
 #ifndef DOLORI_UI_UINEWCHATWND_H_
 #define DOLORI_UI_UINEWCHATWND_H_
 
+#include "UI/UIChatEditCtrl.h"
 #include "UI/UIChatHisBox.h"
 #include "UI/UIFrameWnd.h"
+#include "UI/UIWhisperEditCtrl.h"
 
 class CUINewChatWnd : public CUIFrameWnd {
  public:
   CUINewChatWnd(CUIWindowMgr *p_window_mgr);
+
+  CUIChatEditCtrl *const common_chat() const;
+  CUIWhisperEditCtrl *const whisper_chat() const;
 
   void OnCreate(int x, int y) override;
   void OnDraw() override;
@@ -15,6 +20,8 @@ class CUINewChatWnd : public CUIFrameWnd {
                 const void *val4 = nullptr) override;
 
  private:
+  CUIChatEditCtrl *common_chat_;
+  CUIWhisperEditCtrl *whisper_chat_;
   CUIChatHisBox *list_box_;
   CUIChatHisBox *cmd_list_box_;
   size_t title_height_;

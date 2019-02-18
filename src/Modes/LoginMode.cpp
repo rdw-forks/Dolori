@@ -176,15 +176,13 @@ void CLoginMode::OnUpdate() {
        m_sub_mode == 19) &&
       GetTick() > m_syncRequestTime) {
     PACKET_PING packet;
-    int packet_size;
 
     m_syncRequestTime = GetTick() + 12000;
     packet.header = HEADER_PING;
-    packet_size = p_rag_connection_->GetPacketSize(packet.header);
-    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
   }
 
-  ProcessSDLEvents();
+  ProcessSDLEvents(p_window_mgr_);
   g_Mouse->ReadState();
   p_window_mgr_->ProcessInput();
 
@@ -274,11 +272,9 @@ void CLoginMode::OnChangeState(int state) {
       break;
     case 9: {
       PACKET_CH_SELECT_CHAR packet = {};
-
       packet.header = HEADER_CH_SELECT_CHAR;
       packet.char_num = static_cast<uint8_t>(m_selected_char);
-      const int packet_size = p_rag_connection_->GetPacketSize(packet.header);
-      p_rag_connection_->SendPacket(packet_size,
+      p_rag_connection_->SendPacket(sizeof(packet),
                                     reinterpret_cast<char *>(&packet));
       // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
       // v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
@@ -301,8 +297,7 @@ void CLoginMode::OnChangeState(int state) {
       packet.dex = m_new_char_info.dex;
       packet.luk = m_new_char_info.luk;
 
-      const int packet_size = p_rag_connection_->GetPacketSize(packet.header);
-      p_rag_connection_->SendPacket(packet_size,
+      p_rag_connection_->SendPacket(sizeof(packet),
                                     reinterpret_cast<char *>(&packet));
     } break;
     case 12:
@@ -323,7 +318,7 @@ void CLoginMode::MakeLoginWindow() {
       static_cast<CBitmapRes *>(g_ResMgr->Get(m_wallPaperBmpName, false));
   p_window_mgr_->SetWallpaper(res);
   login_wnd = p_window_mgr_->MakeWindow(WID_LOGINWND);
-  if (!g_hideAccountList && login_wnd) {
+  if (!g_hideAccountList && login_wnd != nullptr) {
     login_wnd->SendMsg(nullptr, 88, 0, 0, 0, 0);
   }
 }
@@ -344,18 +339,18 @@ void CLoginMode::ConnectToAccountServer() {
 
   if (g_bUseCommand) {
     PACKET_CA_CONNECT_INFO_CHANGE packet;
-
-    packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
+    packet.header = HEADER_CA_CONNECT_INFO_CHANGED;
     memcpy(packet.ID, m_userId, sizeof(packet.ID));
-    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet),
+                                  reinterpret_cast<char *>(&packet));
   }
 
   CheckExeHashFromAccServer();
   if (g_passwordEncrypt) {
     PACKET_CA_REQ_HASH packet;
-
     packet.header = HEADER_CA_REQ_HASH;
-    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet),
+                                  reinterpret_cast<char *>(&packet));
     // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
     // 16, 1);
     return;
@@ -363,7 +358,6 @@ void CLoginMode::ConnectToAccountServer() {
 
   if (g_serviceType != ServiceType::kKorea) {
     PACKET_CA_LOGIN packet;
-
     packet.header = HEADER_CA_LOGIN;
     packet.version = g_version;
     strncpy(packet.username, m_userId, sizeof(packet.username));
@@ -372,7 +366,6 @@ void CLoginMode::ConnectToAccountServer() {
     p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
   } else {
     PACKET_CA_LOGIN_CHANNEL packet;
-
     packet.header = HEADER_CA_LOGIN_CHANNEL;
     packet.version = g_version;
     strncpy(packet.username, m_userId, sizeof(packet.username));
@@ -391,9 +384,6 @@ void CLoginMode::ConnectToAccountServer() {
 }
 
 void CLoginMode::ConnectToCharServer() {
-  PACKET_CH_ENTER packet;
-  int packet_size;
-
   p_rag_connection_->Disconnect();
 
   LOG(info, "Connecting to the char server ({}:{}) ...", g_charServerAddr.ip,
@@ -412,6 +402,7 @@ void CLoginMode::ConnectToCharServer() {
     return;
   }
 
+  PACKET_CH_ENTER packet;
   packet.header = HEADER_CH_ENTER;
   packet.client_type = g_clientType;
   packet.auth_code = m_authCode;
@@ -439,7 +430,6 @@ void CLoginMode::ConnectToZoneServer() {
   }
 
   PACKET_CZ_ENTER2 packet;
-
   packet.header = HEADER_CZ_ENTER2;
   packet.client_time = GetTick();
   packet.auth_code = m_authCode;

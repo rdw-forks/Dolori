@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "Common/talktype.h"
+
 class CSession {
  public:
   CSession();
@@ -33,6 +35,8 @@ class CSession {
   std::string GetHeadSprName(uint16_t head, int sex);
   std::string GetImfName(int job, int sex);
   bool IsMasterAid(uint32_t);
+  int GetTalkType(const std::string &chat_buffer, TALKTYPE *talk_type,
+                  std::string *param);
 
  private:
   int m_diffTime;
