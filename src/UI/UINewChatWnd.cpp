@@ -112,7 +112,7 @@ void *CUINewChatWnd::SendMsg(CUIWindow *sender, int message, const void *val1,
       }
       break;
     case 6: {
-      const auto child_id = reinterpret_cast<int>(val1);
+      const auto child_id = reinterpret_cast<size_t>(val1);
       switch (child_id) {
         case 118: {
           // Send chat message

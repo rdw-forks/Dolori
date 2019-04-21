@@ -112,6 +112,8 @@ void CRagConnection::InitPacketMap() {
   m_packetLenMap[HEADER_ZC_COUPLESTATUS] = sizeof(PACKET_ZC_COUPLESTATUS);
   m_packetLenMap[HEADER_ZC_PAR_CHANGE] = sizeof(PACKET_ZC_PAR_CHANGE);
   m_packetLenMap[HEADER_ZC_ATTACK_RANGE] = sizeof(PACKET_ZC_ATTACK_RANGE);
+  m_packetLenMap[HEADER_ZC_SAY_DIALOG] = sizeof(PACKET_ZC_SAY_DIALOG);
+  m_packetLenMap[HEADER_ZC_WAIT_DIALOG] = sizeof(PACKET_ZC_WAIT_DIALOG);
   m_packetLenMap[HEADER_ZC_CLOSE_DIALOG] = sizeof(PACKET_ZC_CLOSE_DIALOG);
   m_packetLenMap[HEADER_ZC_SPRITE_CHANGE2] = sizeof(PACKET_ZC_SPRITE_CHANGE2);
   m_packetLenMap[HEADER_ZC_EQUIPMENT_ITEMLIST3] = -1;

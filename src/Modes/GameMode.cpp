@@ -263,7 +263,16 @@ void CGameMode::PollNetworkStatus() {
       case HEADER_ZC_NPCACK_MAPMOVE:
         Zc_Npcack_Mapmove(buffer);
         break;
+      case HEADER_ZC_SAY_DIALOG:
+        // Displays an NPC dialog message
+        LOG(debug, "ZC_SAY_DIALOG");
+        break;
+      case HEADER_ZC_WAIT_DIALOG:
+        // Adds a 'next' button to an NPC dialog
+        LOG(debug, "ZC_WAIT_DIALOG");
+        break;
       case HEADER_ZC_CLOSE_DIALOG:
+        // Adds a 'close' button to an NPC dialog
         LOG(debug, "ZC_CLOSE_DIALOG");
         break;
       case HEADER_ZC_COUPLESTATUS:

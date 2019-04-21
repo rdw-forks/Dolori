@@ -2175,6 +2175,18 @@ struct PACKET_HC_BLOCK_CHARACTER {
   } charList[];
 };
 
+struct PACKET_ZC_SAY_DIALOG {
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t naid;
+  char msg[];
+};
+
+struct PACKET_ZC_WAIT_DIALOG {
+  uint16_t header;
+  uint32_t naid;
+};
+
 struct PACKET_ZC_CLOSE_DIALOG {
   uint16_t header;
   uint32_t naid;
