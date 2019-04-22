@@ -1,5 +1,7 @@
 #include "UI/UIListBox.h"
 
+#include "Common/debug.h"
+
 CUIListBox::CUIListBox(CUIWindowMgr* p_window_mgr)
     : CUIWindow(p_window_mgr),
       m_bR(255),
@@ -93,11 +95,12 @@ void CUIListBox::OnCreate(int cx, int cy) {
 void CUIListBox::AddItem(const std::string& text) {
   m_items.push_back(text);
   RecalcScrbarPos();
+  Invalidate();
 }
 
 void CUIListBox::OnDraw() {
-  int spacing = m_itemSpacing - m_horzScrEnabled;
-  size_t nb_of_items = m_items.size();
+  const int spacing = m_itemSpacing - m_horzScrEnabled;
+  const size_t nb_of_items = m_items.size();
   size_t nb_of_items_shown;
   uint32_t color = 0;
   int div = 1;
@@ -111,7 +114,7 @@ void CUIListBox::OnDraw() {
     ClearDC((m_bR << 16) | (m_bG << 8) | m_bB);
   }
 
-  if (spacing) {
+  if (spacing != 0) {
     div = spacing;
   }
 
@@ -121,21 +124,22 @@ void CUIListBox::OnDraw() {
     nb_of_items_shown = m_vertViewOffset + m_h / div;
   }
 
-  const char* str;
-  size_t str_length;
   for (int i = 0; i < nb_of_items_shown; i++) {
     if (m_vertViewOffset + i >= nb_of_items) {
       break;
+    }
+
+    if (m_vertViewOffset + i < 0) {
+      continue;
     }
 
     if (m_vertViewOffset + i == m_curItem) {
       DrawBox(0, m_itemSpacing * i, m_w, m_itemSpacing - 1, 0xFFFBDFCA);
     }
 
-    str = m_items[m_vertViewOffset + i].c_str();
-    str_length = m_items[m_vertViewOffset + i].length();
-    TextOutWithDecoration(3 - m_horzViewOffset, m_itemSpacing * i, str,
-                          str_length, &color, 0, 12);
+    const auto& item = m_items[m_vertViewOffset + i];
+    TextOutWithDecoration(3 - m_horzViewOffset, m_itemSpacing * i, item.c_str(),
+                          item.length(), &color, 0, 12);
   }
 }
 
@@ -155,7 +159,7 @@ void CUIListBox::OnLBtnDown(int x, int y) {
 void* CUIListBox::SendMsg(CUIWindow* sender, int message, const void* val1,
                           const void* val2, const void* val3,
                           const void* val4) {
-  int prev_view_offset;
+  const int prev_view_offset = m_vertViewOffset;
   size_t nb_of_items;
 
   switch (message) {
@@ -163,7 +167,6 @@ void* CUIListBox::SendMsg(CUIWindow* sender, int message, const void* val1,
     case 9:
     case 10:
       // Vertical scrolling
-      prev_view_offset = m_vertViewOffset;
       if (message == 9) {
         m_vertViewOffset -= m_h / m_itemSpacing - 1;
       } else if (message == 10) {

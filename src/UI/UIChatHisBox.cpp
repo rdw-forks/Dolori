@@ -12,20 +12,40 @@ CUIChatHisBox::CUIChatHisBox(CUIWindowMgr* p_window_mgr)
 void CUIChatHisBox::OnCreate(int x, int y) { CUIListBox::OnCreate(x, y); }
 
 void CUIChatHisBox::OnDraw() {
+  const size_t nb_of_items = m_items.size();
+  size_t nb_of_items_shown;
+  uint32_t color = 0;
+  int div = 1;
+
   ClearDC(0x50FFFFFF);
 
   if (m_parent != nullptr && m_x >= 0 && m_y >= 0) {
     m_parent->OnDraw();
   }
 
-  int y = m_vertViewOffset;
-  size_t color_index = 0;
-  for (const auto& item : m_items) {
-    TextOutUTF8(3, y * m_itemSpacing + 4, item, 0, 0, 12, 0);
-    TextOutUTF8(2, y * m_itemSpacing + 3, item, 0, 0, 12,
-                item_colors_[color_index]);
-    y++;
-    color_index++;
+  if (m_itemSpacing != 0) {
+    div = m_itemSpacing;
+  }
+
+  if (m_vertViewOffset + m_h / div >= nb_of_items) {
+    nb_of_items_shown = nb_of_items;
+  } else {
+    nb_of_items_shown = m_vertViewOffset + m_h / div;
+  }
+
+  for (int i = 0; i < nb_of_items_shown; i++) {
+    if (m_vertViewOffset + i >= nb_of_items) {
+      break;
+    }
+
+    if (m_vertViewOffset + i < 0) {
+      continue;
+    }
+
+    const auto& item = m_items[m_vertViewOffset + i];
+    TextOutUTF8(3, i * m_itemSpacing + 4, item, 0, 0, 12, 0);
+    TextOutUTF8(2, i * m_itemSpacing + 3, item, 0, 0, 12,
+                item_colors_[m_vertViewOffset + i]);
   }
 }
 

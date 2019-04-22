@@ -68,7 +68,7 @@ void CGameMode::Intialize() {
                                 reinterpret_cast<char *>(&actor_init));
 
   PACKET_CZ_REQUEST_TIME req_time;
-  req_time.header = HEADER_CZ_REQUEST_TIME;
+  req_time.header = HEADER_CZ_REQUEST_TIME2;
   req_time.client_time = GetTick();
   p_rag_connection_->SendPacket(sizeof(req_time),
                                 reinterpret_cast<char *>(&req_time));
@@ -290,17 +290,29 @@ void CGameMode::PollNetworkStatus() {
       case HEADER_ZC_EQUIPMENT_ITEMLIST3:
         LOG(debug, "ZC_EQUIPMENT_ITEMLIST3");
         break;
+      case HEADER_ZC_INVENTORY_ITEMLIST_EQUIP_V5:
+        LOG(debug, "ZC_INVENTORY_ITEMLIST_EQUIP_V5");
+        break;
       case HEADER_ZC_NOTIFY_MAPPROPERTY:
         LOG(debug, "ZC_NOTIFY_MAPPROPERTY");
         break;
+      case HEADER_ZC_MAPPROPERTY_R2:
+        LOG(debug, "ZC_MAPPROPERTY_R2");
+        break;
       case HEADER_ZC_NOTIFY_STANDENTRY:
         LOG(debug, "ZC_NOTIFY_STANDENTRY");
+        break;
+      case HEADER_ZC_NOTIFY_STANDENTRY8:
+        LOG(debug, "ZC_NOTIFY_STANDENTRY8");
         break;
       case HEADER_ZC_SKILLINFO_LIST:
         LOG(debug, "ZC_SKILLINFO_LIST");
         break;
       case HEADER_ZC_SHORTCUT_KEY_LIST:
         LOG(debug, "ZC_SHORTCUT_KEY_LIST");
+        break;
+      case HEADER_ZC_SHORTCUT_KEY_LIST_V2:
+        LOG(debug, "ZC_SHORTCUT_KEY_LIST_V2");
         break;
       case HEADER_ZC_LONGPAR_CHANGE:
         LOG(debug, "ZC_LONGPAR_CHANGE");
@@ -315,10 +327,20 @@ void CGameMode::PollNetworkStatus() {
         LOG(debug, "ZC_CONFIG_NOTIFY");
         break;
       case HEADER_ZC_BROADCAST2:
+        Zc_Broadcast2(buffer);
         LOG(debug, "ZC_BROADCAST2");
         break;
       case HEADER_ZC_EMOTION:
         LOG(debug, "ZC_EMOTION");
+        break;
+      case HEADER_ZC_NAVIGATION_ACTIVE:
+        LOG(debug, "ZC_NAVIGATION_ACTIVE");
+        break;
+      case HEADER_ZC_QUEST_NOTIFY_EFFECT:
+        LOG(debug, "ZC_QUEST_NOTIFY_EFFECT");
+        break;
+      case HEADER_ZC_NOTIFY_TIME:
+        LOG(debug, "ZC_NOTIFY_TIME");
         break;
       default:
         LOG(error, "Unknown packet: {:x}", packet_type);
@@ -326,6 +348,8 @@ void CGameMode::PollNetworkStatus() {
     };
   }
 }
+
+const std::string &CGameMode::rsw_name() const { return m_rsw_name; }
 
 void CGameMode::Zc_Notify_Playerchat(const void *buffer) {
   const auto packet = static_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
@@ -349,4 +373,10 @@ void CGameMode::Zc_Npcack_Mapmove(const void *buffer) {
   LOG(info, "Moved to map {}", packet->map_name);
 }
 
-const std::string &CGameMode::rsw_name() const { return m_rsw_name; }
+void CGameMode::Zc_Broadcast2(const void *buffer) {
+  const auto packet = static_cast<const PACKET_ZC_BROADCAST2 *>(buffer);
+
+  p_window_mgr_->SendMsg(1, reinterpret_cast<const void *>(packet->msg),
+                         reinterpret_cast<const void *>(packet->font_color),
+                         reinterpret_cast<const void *>(1));
+}

@@ -19,49 +19,13 @@
 #include "Network/RagConnection.h"
 
 CConnection::CConnection()
-    : m_socket(SOCKET_ERROR), m_bBlock(false), m_dwTime() {
+    : m_socket(SOCKET_ERROR), m_addr(), m_bBlock(false), m_dwTime() {
   m_recvQueue.Init(40960);
   m_sendQueue.Init(40960);
   m_blockQueue.Init(40960);
 }
 
 CConnection::~CConnection() {}
-
-bool CConnection::Startup() {
-  bool result;
-#ifdef _WIN32
-  WSADATA data;
-
-  if (WSAStartup(0x101u, &data)) {
-    ErrorMsg("Failed to initialize Winsock");
-    WSACleanup();
-    result = false;
-  } else {
-    result = true;
-  }
-#else
-  result = true;
-#endif
-  return result;
-}
-
-void CConnection::Cleanup() {
-#ifdef _WIN32
-  WSACleanup();
-#endif
-}
-
-bool CConnection::Poll() {
-  bool result;
-
-  if (m_socket == INVALID_SOCKET) {
-    result = true;
-  } else {
-    result = OnRecv() && OnSend();
-  }
-
-  return result;
-}
 
 bool CConnection::Connect(const ServerAddress &sa) {
   bool result;
@@ -118,6 +82,36 @@ void CConnection::Disconnect() {
     m_sendQueue.Init(40960);
     m_blockQueue.Init(40960);
   }
+}
+
+bool CConnection::Startup() {
+#ifndef _WIN32
+  return true;
+#endif
+
+  WSADATA data;
+
+  if (WSAStartup(0x101u, &data)) {
+    ErrorMsg("Failed to initialize Winsock");
+    WSACleanup();
+    return false;
+  }
+
+  return true;
+}
+
+void CConnection::Cleanup() {
+#ifdef _WIN32
+  WSACleanup();
+#endif
+}
+
+bool CConnection::Poll() {
+  if (m_socket == INVALID_SOCKET) {
+    return true;
+  }
+
+  return OnRecv() && OnSend();
 }
 
 bool CConnection::OnSend() {

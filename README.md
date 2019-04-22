@@ -21,9 +21,9 @@ $ cmake --build . --config MinSizeRel
 
 Current supported settings
 --------------------------
-* Packet version: 20080910
+* Packet version: 20130807
 * Packet obfuscation: Disabled
-* Client version: 23
+* Client version: 45
 
 Configuration file
 ------------------

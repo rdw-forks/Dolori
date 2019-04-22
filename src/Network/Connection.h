@@ -37,7 +37,7 @@ class CConnection {
 #else
   int m_socket;
 #endif
-  struct sockaddr_in m_addr;
+  sockaddr_in m_addr;
   bool m_bBlock;
   unsigned long m_dwTime;
   CPacketQueue m_sendQueue;

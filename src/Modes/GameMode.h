@@ -28,10 +28,13 @@ class CGameMode : public CMode {
   void ProcessRightButton();
   void ProcessMouseWheel(int process_type);
   void PollNetworkStatus();
-  void Zc_Notify_Playerchat(const void *buffer);
-  void Zc_Npcack_Mapmove(const void *buffer);
 
   const std::string &rsw_name() const;
+
+ private:
+  void Zc_Notify_Playerchat(const void *buffer);
+  void Zc_Npcack_Mapmove(const void *buffer);
+  void Zc_Broadcast2(const void *buffer);
 
  private:
   int m_areaLeft;

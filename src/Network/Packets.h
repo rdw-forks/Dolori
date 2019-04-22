@@ -3,15 +3,22 @@
 
 #include "Common/character_info.h"
 
-#define PACKETVER 20080910
-#define MAP_NAME_LENGTH (11 + 1)
-#define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
+// For character names, title names, guilds, maps, etc.
+// Includes null-terminator as it is the length of the array.
+#define NAME_LENGTH (23 + 1)
 
 enum {
   HEADER_CA_LOGIN = 0x64,
   HEADER_CH_ENTER = 0x65,
   HEADER_CH_SELECT_CHAR = 0x66,
+#if PACKETVER >= 20120307
+  // S 0970 <name>.24B <slot>.B <hair color>.W <hair style>.W
+  HEADER_CH_MAKE_CHAR = 0x970,
+#else
+  // S 0067 <name>.24B <str>.B <agi>.B <vit>.B <int>.B <dex>.B <luk>.B <slot>.B
+  // <hair color>.W <hair style>.W
   HEADER_CH_MAKE_CHAR = 0x67,
+#endif
   HEADER_CH_DELETE_CHAR = 0x68,
   HEADER_AC_ACCEPT_LOGIN = 0x69,
   HEADER_AC_REFUSE_LOGIN = 0x6a,
@@ -687,7 +694,11 @@ enum {
   HEADER_ZC_SIMPLE_CASHSHOP_POINT_ITEMLIST = 0x35d,
   HEADER_CZ_CLOSE_WINDOW = 0x35e,
   HEADER_CZ_REQUEST_MOVE2 = 0x35f,
+#if PACKETVER >= 20130515
+  HEADER_CZ_REQUEST_TIME2 = 0x35f,
+#else
   HEADER_CZ_REQUEST_TIME2 = 0x360,
+#endif
   HEADER_CZ_CHANGE_DIRECTION2 = 0x361,
   HEADER_CZ_ITEM_PICKUP2 = 0x362,
   HEADER_CZ_ITEM_THROW2 = 0x363,
@@ -702,7 +713,11 @@ enum {
   HEADER_ZC_WAITINGROOM_PARTYPLAY_JOIN = 0x3df,
   HEADER_CZ_WAITINGROOM_PARTYPLAY_JOIN_RESULT = 0x3e0,
   HEADER_ZC_WAITINGROOM_SUBSCRIPTION_RESULT = 0x3e1,
+#if PACKETVER >= 20130807
+  HEADER_CZ_ENTER2 = 0x022D,
+#else
   HEADER_CZ_ENTER2 = 0x436,
+#endif
   HEADER_CZ_REQUEST_ACT2 = 0x437,
   HEADER_CZ_USE_SKILL2 = 0x438,
   HEADER_CZ_USE_ITEM2 = 0x439,
@@ -1183,8 +1198,6 @@ enum {
   HEADER_ZC_SKILL_ENTRY4 = 0x99f,
   HEADER_HC_CHARLIST_NOTIFY = 0x9a0,
   HEADER_CH_CHARLIST_REQ = 0x9a1,
-  // HEADER_LAST =  0x9a2,
-  // for release_2014 this is so but..
   HEADER_AC_REQ_MOBILE_OTP = 0x9a2,
   HEADER_CA_ACK_MOBILE_OTP = 0x9a3,
   HEADER_ZC_DISPATCH_TIMING_INFO_CHN = 0x9a4,
@@ -1335,27 +1348,21 @@ enum {
   HEADER_CZ_REQ_ONECLICK_ITEMIDENTIFY = 0xa35,
   HEADER_ZC_HP_INFO_TINY = 0xa36,
   HEADER_ZC_ITEM_PICKUP_ACK_V7 = 0xa37,
-  HEADER_LAST = 0xa38,
 
-  HEADER_CUSTOM_START = 0xD00,
-  HEADER_CUSTOM_CZ_NOTIFY_CLIENTMODIFICATION = 0xd00,
-  HEADER_CUSTOM_CA_MACCHECK = 0xd01,
-  HEADER_CUSTOM_CA_DOMDLL_HASHCHECK = 0xd02
-
+  HEADER_LAST
 };
 
 // Packet Structures
 #pragma pack(push)
 #pragma pack(1)
-#pragma warning(disable : 4200)
 
-struct CHAR_SERVER_INFO {
+struct CharServerInfo {
   uint32_t ip_address;
   uint16_t port;
   char name[20];
   uint16_t user_count;
   uint16_t state;
-  uint16_t property_;
+  uint16_t property;
 };
 
 struct PACKET_CA_LOGIN {
@@ -1409,7 +1416,7 @@ struct PACKET_AC_ACCEPT_LOGIN {
   uint32_t lastlogin_ip;
   char lastlogin_time[26];
   uint8_t sex;
-  CHAR_SERVER_INFO server_info[0];
+  CharServerInfo server_info[0];
 };
 
 struct PACKET_AC_REFUSE_LOGIN {
@@ -1428,6 +1435,17 @@ struct PACKET_HC_ACCEPT_ENTER {
 #endif
   uint8_t unknown[20];
   CharacterInfo charinfo[];
+};
+
+struct HEADER_HC_ACCEPT_ENTER2 {
+  uint16_t header;
+  uint16_t packet_len;
+#if PACKETVER >= 20100413
+  uint8_t total_slots;
+  uint8_t premium_slots_start;
+  uint8_t premium_slots_end;
+#endif
+  uint8_t unknown[20];
 };
 
 struct PACKET_HC_REFUSE_ENTER {
@@ -1757,6 +1775,43 @@ struct PACKET_ZC_NOTIFY_STANDENTRY5 {
   uint8_t state;
   int16_t clevel;
   int16_t font;
+};
+
+struct PACKET_ZC_NOTIFY_STANDENTRY8 {
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t objecttype;
+  uint32_t GID;
+  int16_t speed;
+  int16_t bodyState;
+  int16_t healthState;
+  int32_t effectState;
+  int16_t job;
+  int16_t head;
+  int32_t weapon;
+  int16_t accessory;
+  int16_t accessory2;
+  int16_t accessory3;
+  int16_t headpalette;
+  int16_t bodypalette;
+  int16_t headDir;
+  int16_t robe;
+  uint32_t GUID;
+  int16_t GEmblemVer;
+  int16_t honor;
+  int32_t virtue;
+  bool isPKModeON;
+  uint8_t sex;
+  uint8_t PosDir[3];
+  uint8_t xSize;
+  uint8_t ySize;
+  uint8_t state;
+  int16_t clevel;
+  int16_t font;
+  uint32_t max_hp;
+  uint32_t cur_hp;
+  bool hide_hp;
+  char name[];
 };
 
 struct PACKET_ZC_DELETE_ITEM_FROM_BODY {
@@ -2291,6 +2346,15 @@ struct PACKET_ZC_SHORTCUT_KEY_LIST {
   } shortcut_keys[27];
 };
 
+struct PACKET_ZC_SHORTCUT_KEY_LIST_V2 {
+  uint16_t header;
+  struct ShortCutKey {
+    int8_t is_skill;
+    uint32_t id;
+    int16_t count;
+  } shortcut_keys[38];
+};
+
 struct PACKET_ZC_LONGPAR_CHANGE {
   uint16_t header;
   uint16_t var_id;
@@ -2355,7 +2419,52 @@ struct PACKET_ZC_EMOTION {
   uint8_t type;
 };
 
+struct PACKET_AC_REFUSE_LOGIN_R2 {
+  uint16_t header;
+  uint32_t error_code;
+  char block_date[20];
+};
+
+struct PACKET_HC_CHARLIST_NOTIFY {
+  uint16_t header;
+  uint32_t page_count;
+};
+
+struct PACKET_HC_SECOND_PASSWD_LOGIN {
+  uint16_t header;
+  uint32_t pincode_seed;
+  uint32_t account_id;
+  uint16_t state;
+};
+
+struct PACKET_ZC_MAPPROPERTY_R2 {
+  uint16_t header;
+  uint16_t type;
+  uint8_t properties1;
+  uint8_t properties2;
+  uint16_t spare_bits;
+};
+
+struct PACKET_ZC_NAVIGATION_ACTIVE {
+  uint16_t header;
+  uint8_t detail_level;
+  uint8_t flags;
+  uint8_t hide_window;
+  char target_map_name[MAP_NAME_LENGTH_EXT];
+  uint16_t target_x;
+  uint16_t target_y;
+  uint16_t target_mob_id;
+};
+
+struct PACKET_ZC_QUEST_NOTIFY_EFFECT {
+  uint16_t header;
+  uint32_t npc_id;
+  uint16_t pos_x;
+  uint16_t pos_y;
+  uint16_t effect;
+  uint16_t type;
+};
+
 #pragma pack(pop)
-#pragma warning(default : 4200)
 
 #endif  // DOLORI_NETWORK_PACKETS_H_

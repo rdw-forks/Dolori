@@ -19,7 +19,10 @@ CUIEditCtrl::CUIEditCtrl(CUIWindowMgr* p_window_mgr)
       m_yOffset(0),
       m_type(0) {}
 
-void CUIEditCtrl::HideChars(bool hide_chars) { m_maskchar = hide_chars; }
+void CUIEditCtrl::HideChars(bool hide_chars) {
+  m_maskchar = hide_chars;
+  g_Language->HideText(m_maskchar);
+}
 
 void CUIEditCtrl::SetFrameColor(int r, int g, int b) {
   m_r = r;
@@ -80,8 +83,8 @@ void CUIEditCtrl::DrawEditText() {
 
 void CUIEditCtrl::OnBeginEdit() {
   g_Language->ResetInput();
-  g_Language->AddInput(m_text);
   g_Language->HideText(m_maskchar);
+  g_Language->AddInput(m_text);
   if (p_window_mgr_->GetFocusEdit() == this) {
     g_Language->SetSelection(0, g_Language->GetInputSize());
   } else {
