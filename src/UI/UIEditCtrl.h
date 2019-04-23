@@ -18,6 +18,7 @@ class CUIEditCtrl : public CUIWindow {
   void SetFrameColor(int r, int g, int b);
   void DrawEditText();
   void RefreshText();
+  void SetText(std::string text);
   const std::string& GetText();
   size_t GetTextSize() const;
   void SetTextLimit(size_t max);

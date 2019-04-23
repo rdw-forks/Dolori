@@ -1,7 +1,5 @@
 #include "UI/UIListBox.h"
 
-#include "Common/debug.h"
-
 CUIListBox::CUIListBox(CUIWindowMgr* p_window_mgr)
     : CUIWindow(p_window_mgr),
       m_bR(255),

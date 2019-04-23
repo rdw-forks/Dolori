@@ -179,19 +179,22 @@ void CUIWindowMgr::SetCapture(CUIWindow *window) { m_captureWindow = window; }
 void CUIWindowMgr::ReleaseCapture() { m_captureWindow = nullptr; }
 
 void CUIWindowMgr::SetFocusEdit(CUIWindow *window) {
+  if (m_editWindow == window) {
+    // Nothing to do
+    return;
+  }
+
   if (m_editWindow != nullptr) {
     m_editWindow->OnFinishEdit();
   }
 
-  if (true /*window != m_chatWnd->m_commonChat*/) {
-    m_editWindow = window;
-    if (m_editWindow != nullptr) {
-      m_editWindow->OnBeginEdit();
-    }
+  m_editWindow = window;
+  if (m_editWindow != nullptr) {
+    m_editWindow->OnBeginEdit();
   }
 }
 
-CUIWindow *CUIWindowMgr::GetFocusEdit() { return m_editWindow; }
+CUIWindow *CUIWindowMgr::GetFocusEdit() const { return m_editWindow; }
 
 int CUIWindowMgr::ProcessInput() {
   const int x = g_Mouse->GetXPos();
@@ -370,11 +373,6 @@ bool CUIWindowMgr::ProcessPushButton(SDL_Keycode key_code, int new_key_down,
       }
       break;
     case SDLK_RETURN:
-      if (IsFocusChatWnd()) {
-        // Toogle battle mode
-        m_battle_mode = m_battle_mode ? false : true;
-      }
-
       DefPushButton();
       return false;
       break;
@@ -386,10 +384,6 @@ bool CUIWindowMgr::ProcessPushButton(SDL_Keycode key_code, int new_key_down,
 }
 
 bool CUIWindowMgr::IsFocusChatWnd() const {
-  if (m_editWindow == nullptr || m_chatWnd == nullptr) {
-    return false;
-  }
-
   if (m_editWindow == m_chatWnd->common_chat() ||
       m_editWindow == m_chatWnd->whisper_chat()) {
     return true;

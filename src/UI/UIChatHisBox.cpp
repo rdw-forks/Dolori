@@ -1,4 +1,3 @@
-#include "UIChatHisBox.h"
 #include "UI/UIChatHisBox.h"
 
 CUIChatHisBox::CUIChatHisBox(CUIWindowMgr* p_window_mgr)
@@ -50,6 +49,23 @@ void CUIChatHisBox::OnDraw() {
 }
 
 void CUIChatHisBox::AddItem(const std::string& message, uint32_t color) {
+  const size_t nb_of_visible_lines = m_h / m_itemSpacing;
+  bool is_bottom_line = false;
+
+  if (!m_vertScrEnabled ||
+      m_vertViewOffset + nb_of_visible_lines == m_items.size()) {
+    is_bottom_line = true;
+  }
+
   CUIListBox::AddItem(message);
   item_colors_.push_back(color);
+
+  // Automatically scroll down if we're already at the bottom of the list
+  if (m_vertScrEnabled && !m_horzScrEnabled && is_bottom_line) {
+    m_vertViewOffset = m_items.size() - nb_of_visible_lines;
+    m_vertScrollBar->SetPos(m_vertViewOffset);
+    m_vertScrollBar->Invalidate();
+  }
+
+  Invalidate();
 }

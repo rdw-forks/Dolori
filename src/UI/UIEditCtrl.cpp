@@ -37,39 +37,37 @@ void CUIEditCtrl::OnLBtnDown(int x, int y) {
 
 void CUIEditCtrl::OnDraw() {
   if (m_isSingColorFrame) {
-    ClearDC((0xFF << 24) | (0xFF << 16) | (m_g << 8) | m_b);
+    ClearDC((0xFF << 24) | (m_b << 16) | (m_g << 8) | m_r);
     m_yOffset = 2;
-  } else {
-    const std::string dialog_l_name =
-        const_strings::kResourceSubfolder + "type_dialog_l.bmp";
-    const std::string dialog_m_name =
-        const_strings::kResourceSubfolder + "type_dialog_m.bmp";
-    const std::string dialog_r_name =
-        const_strings::kResourceSubfolder + "type_dialog_r.bmp";
-    CBitmapRes* bitmap;
-
-    bitmap =
-        static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_l_name), false));
-    DrawBitmap(0, 0, bitmap, 0);
-
-    const int nb_of_elements = (m_w - 20) / 24;
-    int pos_x = 10;
-    if (nb_of_elements > 0) {
-      bitmap =
-          static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_m_name), false));
-      for (int i = 0; i < nb_of_elements; i++) {
-        DrawBitmap(pos_x, 0, bitmap, 0);
-        pos_x += 24;
-      }
-    }
-
-    bitmap =
-        static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_r_name), false));
-    DrawBitmap(24 * pos_x + 10, 0, bitmap, 0);
-
-    m_yOffset = 5;
+    DrawEditText();
+    return;
   }
 
+  const std::string dialog_l_name =
+      const_strings::kResourceSubfolder + "type_dialog_l.bmp";
+  const std::string dialog_m_name =
+      const_strings::kResourceSubfolder + "type_dialog_m.bmp";
+  const std::string dialog_r_name =
+      const_strings::kResourceSubfolder + "type_dialog_r.bmp";
+  CBitmapRes* bitmap;
+
+  bitmap = static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_l_name), false));
+  DrawBitmap(0, 0, bitmap, 0);
+
+  const int nb_of_elements = (m_w - 20) / 24;
+  int pos_x = 10;
+  if (nb_of_elements > 0) {
+    bitmap =
+        static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_m_name), false));
+    for (int i = 0; i < nb_of_elements; i++) {
+      DrawBitmap(pos_x, 0, bitmap, 0);
+      pos_x += 24;
+    }
+  }
+
+  bitmap = static_cast<CBitmapRes*>(g_ResMgr->Get(UIBmp(dialog_r_name), false));
+  DrawBitmap(24 * pos_x + 10, 0, bitmap, 0);
+  m_yOffset = 5;
   DrawEditText();
 }
 
@@ -102,6 +100,18 @@ void CUIEditCtrl::OnFinishEdit() {
 }
 
 void CUIEditCtrl::RefreshText() { m_text = g_Language->GetLanguageText(); }
+
+void CUIEditCtrl::SetText(std::string text) {
+  m_text = std::move(text);
+
+  if (p_window_mgr_->GetFocusEdit() == this) {
+    g_Language->ResetInput();
+    g_Language->AddInput(m_text);
+    g_Language->SetSelection(0, g_Language->GetInputSize());
+  }
+
+  Invalidate();
+}
 
 const std::string& CUIEditCtrl::GetText() {
   if (p_window_mgr_->GetFocusEdit() == this) {

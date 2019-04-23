@@ -8,7 +8,12 @@
 
 class CUIChatEditCtrl : public CUIEditCtrl {
  public:
-  CUIChatEditCtrl(CUIWindowMgr* p_window_mgr);
+  CUIChatEditCtrl(CUIWindowMgr *p_window_mgr);
+
+  void OnLBtnDown(int x, int y) override;
+  void *SendMsg(CUIWindow *sender, int message, const void *val1 = nullptr,
+                const void *val2 = nullptr, const void *val3 = nullptr,
+                const void *val4 = nullptr) override;
 
  private:
   /*std::vector<std::string> chat_history_;

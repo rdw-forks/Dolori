@@ -147,7 +147,9 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
   }
 
   for (auto child : m_children) {
-    child->DoDraw(blit_to_parent);
+    if (child->IsShow()) {
+      child->DoDraw(blit_to_parent);
+    }
   }
 
   if (blit_to_parent && m_parent != nullptr) {

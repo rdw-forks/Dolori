@@ -1,5 +1,6 @@
 #include "Modes/GameMode.h"
 
+#include <spdlog/fmt/fmt.h>
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/debug.h"
@@ -171,21 +172,20 @@ void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
       // InsultFilter::IsBadSentence()
       // IsSameSentence(repeat_count)
       const auto chat_buffer = reinterpret_cast<const char *>(val1);
-      std::string message = g_Session->GetCharName();
-      message += " : ";
+      const std::string message =
+          fmt::format("{} : {}", g_Session->GetCharName(), chat_buffer);
       // g_Language->GetLanguageCharset(false)
-      message += chat_buffer;
 
       const uint16_t packet_size =
           sizeof(PACKET_CZ_REQUEST_CHAT) + message.length() + 1;
+      std::vector<uint8_t> packet_buffer(packet_size);
       auto p_packet =
-          reinterpret_cast<PACKET_CZ_REQUEST_CHAT *>(new uint8_t[packet_size]);
+          reinterpret_cast<PACKET_CZ_REQUEST_CHAT *>(packet_buffer.data());
       p_packet->header = HEADER_CZ_REQUEST_CHAT;
       p_packet->packet_length = packet_size;
       ::strncpy(p_packet->msg, message.c_str(), message.length() + 1);
       p_rag_connection_->SendPacket(p_packet->packet_length,
                                     reinterpret_cast<char *>(p_packet));
-      delete[] p_packet;
     } break;
     case MM_WHISPERMSG:
       break;

@@ -105,6 +105,7 @@ void *CUINewChatWnd::SendMsg(CUIWindow *sender, int message, const void *val1,
       Move(m_x, m_y);
       break;
     case 37:
+      // Add a message to the history
       if (list_box_ != nullptr) {
         const auto chat_msg = static_cast<const char *>(val1);
         const auto color = reinterpret_cast<size_t>(val2);
@@ -115,16 +116,25 @@ void *CUINewChatWnd::SendMsg(CUIWindow *sender, int message, const void *val1,
       const auto child_id = reinterpret_cast<size_t>(val1);
       switch (child_id) {
         case 118: {
-          // Send chat message
+          // Process chat message
+          Invalidate();
           const std::string text_msg = common_chat_->GetText();
           if (text_msg.empty()) {
-            p_window_mgr_->set_battle_mode(true);
-            Invalidate();
-            return nullptr;
+            if (!p_window_mgr_->battle_mode()) {
+              p_window_mgr_->set_battle_mode(true);
+              p_window_mgr_->SetFocusEdit(nullptr);
+              common_chat_->SetShow(false);
+            } else {
+              p_window_mgr_->set_battle_mode(false);
+              p_window_mgr_->SetFocusEdit(common_chat_);
+              common_chat_->SetShow(true);
+            }
+
+            break;
           }
 
           // common_chat_->StoreInHistory()
-          // p_window_mgr_->SetFocusEdit(common_chat_)
+          common_chat_->SetText("");
           if (text_msg.length() > 1 && text_msg[0] == '/') {
             TALKTYPE talk_type = {};
             const int result =
@@ -132,7 +142,7 @@ void *CUINewChatWnd::SendMsg(CUIWindow *sender, int message, const void *val1,
             if (result == -1) {
               g_ModeMgr->GetCurMode()->SendMsg(
                   MM_PROCESS_TALK_TYPE, reinterpret_cast<void *>(talk_type));
-              return nullptr;
+              break;
             }
           }
 

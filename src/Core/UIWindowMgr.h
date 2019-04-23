@@ -189,7 +189,7 @@ class CUIWindowMgr {
   void SetCapture(CUIWindow *);
   void ReleaseCapture();
   void SetFocusEdit(CUIWindow *window);
-  CUIWindow *GetFocusEdit();
+  CUIWindow *GetFocusEdit() const;
   int ProcessInput();
   int ErrorMsg(const std::string &msg, int type, int isDefYes, int changeMsg,
                unsigned int autoReturnTime);

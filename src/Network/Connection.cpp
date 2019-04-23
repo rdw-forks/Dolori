@@ -87,8 +87,7 @@ void CConnection::Disconnect() {
 bool CConnection::Startup() {
 #ifndef _WIN32
   return true;
-#endif
-
+#else
   WSADATA data;
 
   if (WSAStartup(0x101u, &data)) {
@@ -98,6 +97,7 @@ bool CConnection::Startup() {
   }
 
   return true;
+#endif
 }
 
 void CConnection::Cleanup() {
