@@ -1390,12 +1390,14 @@ struct PACKET_CH_SELECT_CHAR {
 struct PACKET_CH_MAKE_CHAR {
   uint16_t header;
   char name[24];
+#if PACKETVER < 20120307
   uint8_t str;
   uint8_t agi;
   uint8_t vit;
   uint8_t int_;
   uint8_t dex;
   uint8_t luk;
+#endif
   uint8_t char_slot;
   uint16_t head_color;
   uint16_t head_style;

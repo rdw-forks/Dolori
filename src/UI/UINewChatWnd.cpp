@@ -141,7 +141,8 @@ void *CUINewChatWnd::SendMsg(CUIWindow *sender, int message, const void *val1,
                 g_Session->GetTalkType(text_msg, &talk_type, nullptr);
             if (result == -1) {
               g_ModeMgr->GetCurMode()->SendMsg(
-                  MM_PROCESS_TALK_TYPE, reinterpret_cast<void *>(talk_type));
+                  MM_PROCESS_TALK_TYPE, reinterpret_cast<void *>(talk_type),
+                  text_msg.c_str());
               break;
             }
           }

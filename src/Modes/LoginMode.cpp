@@ -287,15 +287,8 @@ void CLoginMode::OnChangeState(int state) {
       packet.header = HEADER_CH_MAKE_CHAR;
       packet.char_slot = static_cast<uint8_t>(m_selected_char);
       strncpy(packet.name, g_Session->GetCharName(), sizeof(packet.name));
-      // TODO: replace with actual values
       packet.head_color = m_new_char_info.head_color;
       packet.head_style = m_new_char_info.head_style;
-      packet.str = m_new_char_info.str;
-      packet.agi = m_new_char_info.agi;
-      packet.vit = m_new_char_info.vit;
-      packet.int_ = m_new_char_info.int_;
-      packet.dex = m_new_char_info.dex;
-      packet.luk = m_new_char_info.luk;
 
       p_rag_connection_->SendPacket(sizeof(packet),
                                     reinterpret_cast<char *>(&packet));

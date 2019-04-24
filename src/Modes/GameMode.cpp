@@ -158,7 +158,8 @@ void CGameMode::OnChangeState(int state) {}
 
 void CGameMode::ProcessTalkType(int talktype, const std::string &string) {
   switch (talktype) {
-    case TT_REQ_WHISPER_PC_EX:
+    default:
+      LOG(debug, "Unknown talk type: {}", talktype);
       break;
   }
 }
