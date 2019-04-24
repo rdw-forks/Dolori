@@ -37,9 +37,9 @@ class CUIWindow {
   virtual bool IsUpdateNeeded() const;
   virtual void OnBeginEdit();
   virtual void OnFinishEdit();
-  virtual void *SendMsg(CUIWindow *, int, void *val1 = nullptr,
-                        void *val2 = nullptr, void *val3 = nullptr,
-                        void *val4 = nullptr);
+  virtual void *SendMsg(CUIWindow *, int message, const void *val1 = nullptr,
+                        const void *val2 = nullptr, const void *val3 = nullptr,
+                        const void *val4 = nullptr);
   void OnSize(int, int) {}
   bool IsShow() const;
   void SetShow(bool);
@@ -52,14 +52,15 @@ class CUIWindow {
   void DrawSurface();
   void InvalidateChildren();
   void Invalidate();
-  void TextOutA(int, int, const char *, size_t, int, int, unsigned int);
-  void TextOutUTF8(int x, int y, const char *text, size_t textLen, int fontType,
-                   int fontHeight, unsigned int colorText);
-  void TextOutWithOutline(int, int, const char *, size_t, uint32_t, uint32_t,
-                          int, int, bool);
-  void TextOutWithDecoration(int x, int y, const char *text, size_t textLen,
-                             unsigned int *colorRef, int fontType,
-                             int fontHeight);
+  void TextOutA(int x, int y, const std::string &text, size_t, int, int,
+                unsigned int);
+  void TextOutUTF8(int x, int y, const std::string &text, size_t textLen,
+                   int fontType, int fontHeight, unsigned int colorText);
+  void TextOutWithOutline(int x, int y, const std::string &text, size_t,
+                          uint32_t, uint32_t, int, int, bool);
+  void TextOutWithDecoration(int x, int y, const std::string &text,
+                             size_t textLen, unsigned int *colorRef,
+                             int fontType, int fontHeight);
   static const char *InterpretColor(const char *color_text,
                                     unsigned int *colorRef);
   CUIWindow *HitTest(int x, int y);

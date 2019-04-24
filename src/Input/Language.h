@@ -15,6 +15,7 @@ class CLanguage {
   std::string GetLanguageText() const;
   void HideText(bool);
   void OnKeyDown(unsigned int, long);
+  void OnChar(uint32_t wparam, int32_t lparam);
 
  private:
   std::string m_input;

@@ -1,15 +1,15 @@
 #ifndef DOLORI_COMMON_CHARACTER_INFO_H_
 #define DOLORI_COMMON_CHARACTER_INFO_H_
 
-#ifndef PACKETVER
-#define PACKETVER 20080910
-#endif
+#include "Common/client_version.h"
+
+#define MAP_NAME_LENGTH (11 + 1)
+#define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
 
 #pragma pack(push)
 #pragma pack(1)
-#pragma warning(disable : 4200)
 
-typedef struct _CharacterInfo {
+struct CharacterInfo {
   unsigned int char_id;
   unsigned int base_exp;
   int zeny;
@@ -60,13 +60,17 @@ typedef struct _CharacterInfo {
   // shorts.
   unsigned int robe;
 #endif
+#if PACKETVER != 20111116
 #if PACKETVER >= 20110928
   // Non-standard (and probably wrong), since can_rename is a 2-byte boolean.
   unsigned int can_changeslot;
 #endif
-} CharacterInfo;
+#if PACKETVER >= 20111025
+  unsigned int addons_enabled;
+#endif
+#endif
+};
 
 #pragma pack(pop)
-#pragma warning(default : 4200)
 
 #endif  // DOLORI_COMMON_CHARACTER_INFO_H_

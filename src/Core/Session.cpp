@@ -344,3 +344,8 @@ std::string CSession::GetImfName(int job, int sex) {
 
   return tmp_buffer.str();
 }
+
+int CSession::GetTalkType(const std::string &chat_buffer, TALKTYPE *talk_type,
+                          std::string *param) {
+  return -1;
+}

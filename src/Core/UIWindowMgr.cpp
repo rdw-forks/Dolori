@@ -11,11 +11,20 @@ int UIX(int x) { return x + (g_Renderer->GetWidth() - 640) / 2; }
 int UICY(int y) { return y * g_Renderer->GetHeight() / 480; }
 
 CUIWindowMgr::CUIWindowMgr()
-    : m_conversionMode(),
+    : m_chatWndX(0),
+      m_chatWndY(0),
+      m_chatWndHeight(98),
+      m_chatWndShow(1),
+      m_chatWndStatus(7),
+      m_battle_mode(true),
+      m_conversionMode(),
       m_captureWindow(),
       m_editWindow(),
       m_modalWindow(),
       m_last_hit_window(),
+      m_chatWnd(),
+      m_loginWnd(),
+      m_selectCharWnd(),
       m_wallpaperSurface() {
   m_children.clear();
 }
@@ -68,10 +77,25 @@ void CUIWindowMgr::OnProcess() {
                 [](CUIWindow *window) { window->OnProcess(); });
 }
 
-CUIFrameWnd *CUIWindowMgr::MakeWindow(WINDOWID windowId) {
-  CUIFrameWnd *result;
+CUIFrameWnd *CUIWindowMgr::MakeWindow(WindowId windowId) {
+  CUIFrameWnd *result = nullptr;
 
   switch (windowId) {
+    case WID_BASICINFOWND:
+      break;
+    case WID_CHATWND:
+      if (m_chatWnd == nullptr) {
+        m_chatWnd = new CUINewChatWnd(this);
+        if (m_chatWnd == nullptr) {
+          break;
+        }
+
+        m_chatWnd->Create(600, m_chatWndHeight);
+        AddWindow(m_chatWnd);
+      }
+
+      m_chatWnd->SendMsg(nullptr, 34);
+      break;
     case WID_NOTICECONFIRMWND: {
       auto wnd = new CUINoticeConfirmWnd(this);
       wnd->Create(280, 120);
@@ -155,19 +179,22 @@ void CUIWindowMgr::SetCapture(CUIWindow *window) { m_captureWindow = window; }
 void CUIWindowMgr::ReleaseCapture() { m_captureWindow = nullptr; }
 
 void CUIWindowMgr::SetFocusEdit(CUIWindow *window) {
+  if (m_editWindow == window) {
+    // Nothing to do
+    return;
+  }
+
   if (m_editWindow != nullptr) {
     m_editWindow->OnFinishEdit();
   }
 
-  if (true /*window != m_chatWnd->m_commonChat*/) {
-    m_editWindow = window;
-    if (m_editWindow != nullptr) {
-      m_editWindow->OnBeginEdit();
-    }
+  m_editWindow = window;
+  if (m_editWindow != nullptr) {
+    m_editWindow->OnBeginEdit();
   }
 }
 
-CUIWindow *CUIWindowMgr::GetFocusEdit() { return m_editWindow; }
+CUIWindow *CUIWindowMgr::GetFocusEdit() const { return m_editWindow; }
 
 int CUIWindowMgr::ProcessInput() {
   const int x = g_Mouse->GetXPos();
@@ -335,4 +362,75 @@ void CUIWindowMgr::SetCurScreen(int cur_screen) {
       // MakeSaveFileName(1);
       break;
   }
+}
+
+bool CUIWindowMgr::ProcessPushButton(SDL_Keycode key_code, int new_key_down,
+                                     SDL_Scancode scan_code) {
+  switch (key_code) {
+    case SDLK_BACKSPACE:
+      if (GetFocusEdit() != nullptr) {
+        g_Language->OnChar('\b', 0);
+      }
+      break;
+    case SDLK_RETURN:
+      DefPushButton();
+      return false;
+      break;
+    default:
+      break;
+  }
+
+  return true;
+}
+
+bool CUIWindowMgr::IsFocusChatWnd() const {
+  if (m_editWindow == m_chatWnd->common_chat() ||
+      m_editWindow == m_chatWnd->whisper_chat()) {
+    return true;
+  }
+
+  return false;
+}
+
+bool CUIWindowMgr::ExecuteMsgInBattleMode(SDL_Keycode virtual_key,
+                                          int new_key_down) {
+  return false;
+}
+
+void CUIWindowMgr::DefPushButton() const {
+  for (auto &child : m_children) {
+    child->SendMsg(nullptr, 0);
+  }
+}
+
+void *CUIWindowMgr::SendMsg(int message, const void *val1, const void *val2,
+                            const void *val3, const void *val4) {
+  switch (message) {
+    case 1: {
+      if (m_chatWnd == nullptr) {
+        return nullptr;
+      }
+
+      size_t color = reinterpret_cast<const size_t>(val2);
+      if (color == 0) {
+        color = 0xFFFFFF;
+      }
+
+      // if (strcmp((const char *)val1, aNoMsg_1) &&
+      //    strcmp((const char *)val1, aNoMsg)) {
+      m_chatWnd->SendMsg(nullptr, 37, val1,
+                         reinterpret_cast<const void *>(color), val3, val4);
+      //}
+    } break;
+    case 5:
+      break;
+  }
+
+  return nullptr;
+}
+
+bool CUIWindowMgr::battle_mode() const { return m_battle_mode; }
+
+void CUIWindowMgr::set_battle_mode(bool battle_mode) {
+  m_battle_mode = battle_mode;
 }

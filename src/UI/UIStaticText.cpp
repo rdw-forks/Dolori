@@ -30,7 +30,7 @@ void CUIStaticText::OnDraw() {
   if (m_drawBold) {
   }
 
-  TextOutA(0, 0, m_text.c_str(), 0, m_fontType, m_fontHeight, color);
+  TextOutA(0, 0, m_text, 0, m_fontType, m_fontHeight, color);
 }
 
 void CUIStaticText::SetText(const std::string& text, bool drawBold) {

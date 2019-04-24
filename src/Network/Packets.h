@@ -3,15 +3,22 @@
 
 #include "Common/character_info.h"
 
-#define PACKETVER 20080910
-#define MAP_NAME_LENGTH (11 + 1)
-#define MAP_NAME_LENGTH_EXT (MAP_NAME_LENGTH + 4)
+// For character names, title names, guilds, maps, etc.
+// Includes null-terminator as it is the length of the array.
+#define NAME_LENGTH (23 + 1)
 
 enum {
   HEADER_CA_LOGIN = 0x64,
   HEADER_CH_ENTER = 0x65,
   HEADER_CH_SELECT_CHAR = 0x66,
+#if PACKETVER >= 20120307
+  // S 0970 <name>.24B <slot>.B <hair color>.W <hair style>.W
+  HEADER_CH_MAKE_CHAR = 0x970,
+#else
+  // S 0067 <name>.24B <str>.B <agi>.B <vit>.B <int>.B <dex>.B <luk>.B <slot>.B
+  // <hair color>.W <hair style>.W
   HEADER_CH_MAKE_CHAR = 0x67,
+#endif
   HEADER_CH_DELETE_CHAR = 0x68,
   HEADER_AC_ACCEPT_LOGIN = 0x69,
   HEADER_AC_REFUSE_LOGIN = 0x6a,
@@ -48,7 +55,17 @@ enum {
   HEADER_CZ_REQUEST_ACT = 0x89,
   HEADER_ZC_NOTIFY_ACT = 0x8a,
   HEADER_ZC_NOTIFY_ACT_POSITION = 0x8b,
+#if PACKETVER >= 20050110
+  HEADER_CZ_REQUEST_CHAT = 0xf3,
+#elif PACKETVER >= 20041129
+  HEADER_CZ_REQUEST_CHAT = 0x85,
+#elif PACKETVER >= 20040906
+  HEADER_CZ_REQUEST_CHAT = 0x9f,
+#elif PACKETVER >= 20040726
+  HEADER_CZ_REQUEST_CHAT = 0xf3,
+#else
   HEADER_CZ_REQUEST_CHAT = 0x8c,
+#endif
   HEADER_ZC_NOTIFY_CHAT = 0x8d,
   HEADER_ZC_NOTIFY_PLAYERCHAT = 0x8e,
   HEADER_SERVER_ENTRY_ACK = 0x8f,
@@ -677,7 +694,11 @@ enum {
   HEADER_ZC_SIMPLE_CASHSHOP_POINT_ITEMLIST = 0x35d,
   HEADER_CZ_CLOSE_WINDOW = 0x35e,
   HEADER_CZ_REQUEST_MOVE2 = 0x35f,
+#if PACKETVER >= 20130515
+  HEADER_CZ_REQUEST_TIME2 = 0x35f,
+#else
   HEADER_CZ_REQUEST_TIME2 = 0x360,
+#endif
   HEADER_CZ_CHANGE_DIRECTION2 = 0x361,
   HEADER_CZ_ITEM_PICKUP2 = 0x362,
   HEADER_CZ_ITEM_THROW2 = 0x363,
@@ -692,7 +713,11 @@ enum {
   HEADER_ZC_WAITINGROOM_PARTYPLAY_JOIN = 0x3df,
   HEADER_CZ_WAITINGROOM_PARTYPLAY_JOIN_RESULT = 0x3e0,
   HEADER_ZC_WAITINGROOM_SUBSCRIPTION_RESULT = 0x3e1,
+#if PACKETVER >= 20130807
+  HEADER_CZ_ENTER2 = 0x022D,
+#else
   HEADER_CZ_ENTER2 = 0x436,
+#endif
   HEADER_CZ_REQUEST_ACT2 = 0x437,
   HEADER_CZ_USE_SKILL2 = 0x438,
   HEADER_CZ_USE_ITEM2 = 0x439,
@@ -1173,8 +1198,6 @@ enum {
   HEADER_ZC_SKILL_ENTRY4 = 0x99f,
   HEADER_HC_CHARLIST_NOTIFY = 0x9a0,
   HEADER_CH_CHARLIST_REQ = 0x9a1,
-  // HEADER_LAST =  0x9a2,
-  // for release_2014 this is so but..
   HEADER_AC_REQ_MOBILE_OTP = 0x9a2,
   HEADER_CA_ACK_MOBILE_OTP = 0x9a3,
   HEADER_ZC_DISPATCH_TIMING_INFO_CHN = 0x9a4,
@@ -1325,212 +1348,219 @@ enum {
   HEADER_CZ_REQ_ONECLICK_ITEMIDENTIFY = 0xa35,
   HEADER_ZC_HP_INFO_TINY = 0xa36,
   HEADER_ZC_ITEM_PICKUP_ACK_V7 = 0xa37,
-  HEADER_LAST = 0xa38,
 
-  HEADER_CUSTOM_START = 0xD00,
-  HEADER_CUSTOM_CZ_NOTIFY_CLIENTMODIFICATION = 0xd00,
-  HEADER_CUSTOM_CA_MACCHECK = 0xd01,
-  HEADER_CUSTOM_CA_DOMDLL_HASHCHECK = 0xd02
-
+  HEADER_LAST
 };
 
 // Packet Structures
 #pragma pack(push)
 #pragma pack(1)
-#pragma warning(disable : 4200)
+
+struct CharServerInfo {
+  uint32_t ip_address;
+  uint16_t port;
+  char name[20];
+  uint16_t user_count;
+  uint16_t state;
+  uint16_t property;
+};
 
 struct PACKET_CA_LOGIN {
-  unsigned short header;
-  unsigned int version;
+  uint16_t header;
+  uint32_t version;
   char username[24];
   char password[24];
-  unsigned char client_type;
+  uint8_t client_type;
 };
 
 struct PACKET_CH_ENTER {
-  unsigned short header;
-  unsigned int account_id;
-  int auth_code;
-  unsigned int user_level;
-  unsigned short client_type;
-  unsigned char Sex;
+  uint16_t header;
+  uint32_t account_id;
+  int32_t auth_code;
+  uint32_t user_level;
+  uint16_t client_type;
+  uint8_t Sex;
 };
 
 struct PACKET_CH_SELECT_CHAR {
-  short header;
-  unsigned char char_num;
+  uint16_t header;
+  uint8_t char_num;
 };
 
 struct PACKET_CH_MAKE_CHAR {
-  unsigned short header;
+  uint16_t header;
   char name[24];
-  unsigned char str;
-  unsigned char agi;
-  unsigned char vit;
-  unsigned char int_;
-  unsigned char dex;
-  unsigned char luk;
-  unsigned char char_slot;
-  unsigned short head_color;
-  unsigned short head_style;
+#if PACKETVER < 20120307
+  uint8_t str;
+  uint8_t agi;
+  uint8_t vit;
+  uint8_t int_;
+  uint8_t dex;
+  uint8_t luk;
+#endif
+  uint8_t char_slot;
+  uint16_t head_color;
+  uint16_t head_style;
 };
 
 struct PACKET_CH_DELETE_CHAR {
-  unsigned short header;
-  unsigned int char_id;
+  uint16_t header;
+  uint32_t char_id;
   char email[40];
 };
 
-struct CHAR_SERVER_INFO {
-  unsigned int ip_address;
-  unsigned short port;
-  char name[20];
-  unsigned short user_count;
-  unsigned short state;
-  unsigned short property_;
-};
-
 struct PACKET_AC_ACCEPT_LOGIN {
-  unsigned short header;
-  unsigned short packet_len;
-  int auth_code;
-  unsigned int account_id;
-  unsigned int user_level;
-  unsigned int lastlogin_ip;
+  uint16_t header;
+  uint16_t packet_len;
+  int32_t auth_code;
+  uint32_t account_id;
+  uint32_t user_level;
+  uint32_t lastlogin_ip;
   char lastlogin_time[26];
-  unsigned char sex;
-  struct CHAR_SERVER_INFO server_info[0];
+  uint8_t sex;
+  CharServerInfo server_info[0];
 };
 
 struct PACKET_AC_REFUSE_LOGIN {
-  unsigned short header;
-  unsigned char error_code;
+  uint16_t header;
+  uint8_t error_code;
   char block_date[20];
 };
 
 struct PACKET_HC_ACCEPT_ENTER {
-  unsigned short header;
-  unsigned short packet_len;
+  uint16_t header;
+  uint16_t packet_len;
 #if PACKETVER >= 20100413
-  unsigned char total_slots;
-  unsigned char premium_slots_start;
-  unsigned char premium_slots_end;
+  uint8_t total_slots;
+  uint8_t premium_slots_start;
+  uint8_t premium_slots_end;
 #endif
-  unsigned char unknown[20];
+  uint8_t unknown[20];
   CharacterInfo charinfo[];
 };
 
+struct HEADER_HC_ACCEPT_ENTER2 {
+  uint16_t header;
+  uint16_t packet_len;
+#if PACKETVER >= 20100413
+  uint8_t total_slots;
+  uint8_t premium_slots_start;
+  uint8_t premium_slots_end;
+#endif
+  uint8_t unknown[20];
+};
+
 struct PACKET_HC_REFUSE_ENTER {
-  unsigned short header;
-  unsigned char error_code;
+  uint16_t header;
+  uint8_t error_code;
 };
 
 struct PACKET_HC_ACCEPT_MAKECHAR {
-  unsigned short header;
+  uint16_t header;
   CharacterInfo charinfo;
 };
 
 struct PACKET_HC_REFUSE_MAKECHAR {
-  unsigned short header;
-  unsigned char error_code;
+  uint16_t header;
+  uint8_t error_code;
 };
 
 struct PACKET_HC_ACCEPT_DELETECHAR {
-  unsigned short header;
+  uint16_t header;
 };
 
 struct PACKET_HC_REFUSE_DELETECHAR {
-  unsigned short header;
-  unsigned char error_code;
+  uint16_t header;
+  uint8_t error_code;
 };
 
 struct PACKET_SC_NOTIFY_BAN {
-  unsigned short header;
-  unsigned char error_code;
+  uint16_t header;
+  uint8_t error_code;
 };
 
 struct PACKET_CA_REQ_HASH {
-  unsigned short header;
+  uint16_t header;
 };
 
 struct PACKET_AC_ACK_HASH {
-  unsigned short header;
-  unsigned short packet_len;
-  unsigned char salt[];
+  uint16_t header;
+  uint16_t packet_len;
+  uint8_t salt[];
 };
 
 struct PACKET_PING {
-  unsigned short header;
-  unsigned int account_id;
+  uint16_t header;
+  uint32_t account_id;
 };
 
 struct PACKET_CA_LOGIN2 {
-  unsigned short header;
-  unsigned int version;
+  uint16_t header;
+  uint32_t version;
   char username[24];
-  unsigned char password_md5[16];
-  unsigned char client_type;
+  uint8_t password_md5[16];
+  uint8_t client_type;
 };
 
 struct PACKET_CA_LOGIN3 {
-  unsigned short header;
-  unsigned int version;
+  uint16_t header;
+  uint32_t version;
   char username[24];
-  unsigned char password_md5[16];
-  unsigned char client_type;
-  unsigned char client_info;
+  uint8_t password_md5[16];
+  uint8_t client_type;
+  uint8_t client_info;
 };
 
 struct PACKET_CH_DELETE_CHAR2 {
-  unsigned short header;
-  unsigned int char_id;
+  uint16_t header;
+  uint32_t char_id;
   char email[50];
 };
 
 struct PACKET_CA_LOGIN_PCBANG {
-  unsigned short header;
-  unsigned int version;
+  uint16_t header;
+  uint32_t version;
   char username[24];
   char password[24];
-  unsigned char clienttype;
+  uint8_t clienttype;
   char ip_address[16];
   char mac_address[13];
 };
 
 struct PACKET_CA_REQ_GAME_GUARD_CHECK {
-  unsigned short header;
+  uint16_t header;
 };
 
 struct PACKET_AC_ACK_GAME_GUARD {
-  unsigned short header;
-  unsigned char answer;
+  uint16_t header;
+  uint8_t answer;
 };
 
 struct PACKET_CA_LOGIN4 {
-  unsigned short header;
-  unsigned int version;
+  uint16_t header;
+  uint32_t version;
   char username[24];
-  unsigned char password_md5[16];
-  unsigned char clienttype;
+  uint8_t password_md5[16];
+  uint8_t clienttype;
   char mac_address[13];
 };
 
 struct PACKET_CA_LOGIN_CHANNEL {
-  unsigned short header;
-  unsigned int version;
+  uint16_t header;
+  uint32_t version;
   char username[24];
   char password[24];
-  unsigned char clienttype;
+  uint8_t clienttype;
   char ip_address[16];
   char mac_address[13];
-  unsigned char channeling_corp;
+  uint8_t channeling_corp;
 };
 
 struct PACKET_CA_LOGIN_TOKEN {
-  unsigned short header;
-  unsigned short packet_len;
-  unsigned int version;
-  unsigned char client_type;
+  uint16_t header;
+  uint16_t packet_len;
+  uint32_t version;
+  uint8_t client_type;
   char username[24];
   char password[27];
   char mac_address[17];
@@ -1539,627 +1569,904 @@ struct PACKET_CA_LOGIN_TOKEN {
 };
 
 struct PACKET_CH_ENTER_CHECKBOT {
-  unsigned short header;
-  unsigned short packet_len;
-  unsigned int account_id;
+  uint16_t header;
+  uint16_t packet_len;
+  uint32_t account_id;
 };
 
 struct PACKET_CH_CHECKBOT {
-  unsigned short header;
-  unsigned short packet_len;
-  unsigned int account_id;
+  uint16_t header;
+  uint16_t packet_len;
+  uint32_t account_id;
   char szStringInfo[24];
 };
 
 struct PACKET_HC_CHECKBOT {
-  unsigned short header;
-  unsigned short packet_len;
+  uint16_t header;
+  uint16_t packet_len;
 };
 
 struct PACKET_HC_CHECKBOT_RESULT {
-  unsigned short header;
-  unsigned short packet_len;
-  unsigned char result;
+  uint16_t header;
+  uint16_t packet_len;
+  uint8_t result;
 };
 
 struct PACKET_ZC_REFUSE_ENTER {
-  unsigned short header;
-  unsigned char error;
+  uint16_t header;
+  uint8_t error;
 };
 
 struct PACKET_ZC_MSG_SKILL {
-  short header;
-  unsigned short SKID;
-  int MSGID;
+  uint16_t header;
+  uint16_t SKID;
+  int32_t MSGID;
 };
 
 struct PACKET_CZ_BATTLE_FIELD_LIST {
-  unsigned short header;
+  uint16_t header;
 };
 
 struct PACKET_ZC_BATTLE_FIELD_LIST {
-  short header;
-  unsigned short PacketLength;
-  short Count;
+  uint16_t header;
+  uint16_t packet_length;
+  int16_t Count;
 };
 
 struct PACKET_CZ_JOIN_BATTLE_FIELD {
-  short header;
-  unsigned long BFNO;
-  short JoinTeam;
+  uint16_t header;
+  uint32_t BFNO;
+  int16_t JoinTeam;
 };
 
 struct PACKET_ZC_JOIN_BATTLE_FIELD {
-  short header;
-  unsigned long BFNO;
-  short JoinTeam;
-  short Result;
+  uint16_t header;
+  uint32_t BFNO;
+  int16_t JoinTeam;
+  int16_t Result;
 };
 
 struct PACKET_CZ_CANCEL_BATTLE_FIELD {
-  short header;
-  unsigned long BFNO;
+  uint16_t header;
+  uint32_t BFNO;
 };
 
 struct PACKET_ZC_CANCEL_BATTLE_FIELD {
-  short header;
-  unsigned long BFNO;
-  short Result;
+  uint16_t header;
+  uint32_t BFNO;
+  int16_t Result;
 };
 
 struct PACKET_CZ_REQ_BATTLE_STATE_MONITOR {
-  short header;
-  unsigned long BFNO;
+  uint16_t header;
+  uint32_t BFNO;
 };
 
 struct PACKET_ZC_ACK_BATTLE_STATE_MONITOR {
-  short header;
+  uint16_t header;
   char BFNO;
-  short PlayCount;
-  short BattleState;
-  short TeamCount_A;
-  short TeamCount_B;
-  short MyCount;
-  short JoinTeam;
+  int16_t PlayCount;
+  int16_t BattleState;
+  int16_t TeamCount_A;
+  int16_t TeamCount_B;
+  int16_t MyCount;
+  int16_t JoinTeam;
 };
 
 struct PACKET_ZC_BATTLE_NOTI_START_STEP {
-  short header;
-  short BFNO;
-  short Result;
+  uint16_t header;
+  int16_t BFNO;
+  int16_t Result;
 };
 
 struct PACKET_ZC_BATTLE_JOIN_NOTI_DEFER {
-  short header;
-  short BFNO;
+  uint16_t header;
+  int16_t BFNO;
 };
 
 struct PACKET_ZC_BATTLE_JOIN_DISABLE_STATE {
-  short header;
+  uint16_t header;
   bool Enable;
 };
 
 struct PACKET_CZ_GM_FULLSTRIP {
-  short header;
-  unsigned long TargetAID;
+  uint16_t header;
+  uint32_t TargetAID;
 };
 
 struct PACKET_ZC_NOTIFY_EXP {
-  short header;
-  unsigned long AID;
-  int amount;
-  unsigned short varID;
-  short expType;
+  uint16_t header;
+  uint32_t AID;
+  int32_t amount;
+  uint16_t varID;
+  int16_t expType;
 };
 
 struct PACKET_ZC_NOTIFY_MOVEENTRY7 {
-  short header;
-  unsigned short PacketLength;
-  unsigned char objecttype;
-  unsigned long GID;
-  short speed;
-  short bodyState;
-  short healthState;
-  int effectState;
-  short job;
-  short head;
-  int weapon;
-  short accessory;
-  unsigned long moveStartTime;
-  short accessory2;
-  short accessory3;
-  short headpalette;
-  short bodypalette;
-  short headDir;
-  unsigned long GUID;
-  short GEmblemVer;
-  short honor;  // PK Mode?
-  int virtue;
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t objecttype;
+  uint32_t GID;
+  int16_t speed;
+  int16_t bodyState;
+  int16_t healthState;
+  int32_t effectState;
+  int16_t job;
+  int16_t head;
+  int32_t weapon;
+  int16_t accessory;
+  uint32_t moveStartTime;
+  int16_t accessory2;
+  int16_t accessory3;
+  int16_t headpalette;
+  int16_t bodypalette;
+  int16_t headDir;
+  uint32_t GUID;
+  int16_t GEmblemVer;
+  int16_t honor;  // PK Mode?
+  int32_t virtue;
   bool isPKModeON;
-  unsigned char sex;
-  unsigned char MoveData[6];
-  unsigned char xSize;
-  unsigned char ySize;
-  short clevel;
-  short font;
+  uint8_t sex;
+  uint8_t MoveData[6];
+  uint8_t xSize;
+  uint8_t ySize;
+  int16_t clevel;
+  int16_t font;
 };
 
 // Old Packet? Not used btw.
 struct PACKET_ZC_NOTIFY_NEWENTRY5 {
-  short header;
-  unsigned short PacketLength;
-  unsigned char objecttype;
-  unsigned long GID;
-  short speed;
-  short bodyState;
-  short healthState;
-  int effectState;
-  short job;
-  short head;
-  int weapon;
-  short accessory;
-  short accessory2;
-  short accessory3;
-  short headpalette;
-  short bodypalette;
-  short headDir;
-  unsigned long GUID;
-  short GEmblemVer;
-  short honor;
-  int virtue;
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t objecttype;
+  uint32_t GID;
+  int16_t speed;
+  int16_t bodyState;
+  int16_t healthState;
+  int32_t effectState;
+  int16_t job;
+  int16_t head;
+  int32_t weapon;
+  int16_t accessory;
+  int16_t accessory2;
+  int16_t accessory3;
+  int16_t headpalette;
+  int16_t bodypalette;
+  int16_t headDir;
+  uint32_t GUID;
+  int16_t GEmblemVer;
+  int16_t honor;
+  int32_t virtue;
   bool isPKModeON;
-  unsigned char sex;
-  unsigned char PosDir[3];
-  unsigned char xSize;
-  unsigned char ySize;
-  short clevel;
-  short font;
+  uint8_t sex;
+  uint8_t PosDir[3];
+  uint8_t xSize;
+  uint8_t ySize;
+  int16_t clevel;
+  int16_t font;
 };
 
 // Another one? Y U DO THIS?
 struct PACKET_ZC_NOTIFY_STANDENTRY5 {
-  short header;
-  unsigned short PacketLength;
-  unsigned char objecttype;
-  unsigned long GID;
-  short speed;
-  short bodyState;
-  short healthState;
-  int effectState;
-  short job;
-  short head;
-  int weapon;
-  short accessory;
-  short accessory2;
-  short accessory3;
-  short headpalette;
-  short bodypalette;
-  short headDir;
-  unsigned long GUID;
-  short GEmblemVer;
-  short honor;
-  int virtue;
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t objecttype;
+  uint32_t GID;
+  int16_t speed;
+  int16_t bodyState;
+  int16_t healthState;
+  int32_t effectState;
+  int16_t job;
+  int16_t head;
+  int32_t weapon;
+  int16_t accessory;
+  int16_t accessory2;
+  int16_t accessory3;
+  int16_t headpalette;
+  int16_t bodypalette;
+  int16_t headDir;
+  uint32_t GUID;
+  int16_t GEmblemVer;
+  int16_t honor;
+  int32_t virtue;
   bool isPKModeON;
-  unsigned char sex;
-  unsigned char PosDir[3];
-  unsigned char xSize;
-  unsigned char ySize;
-  unsigned char state;
-  short clevel;
-  short font;
+  uint8_t sex;
+  uint8_t PosDir[3];
+  uint8_t xSize;
+  uint8_t ySize;
+  uint8_t state;
+  int16_t clevel;
+  int16_t font;
+};
+
+struct PACKET_ZC_NOTIFY_STANDENTRY8 {
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t objecttype;
+  uint32_t GID;
+  int16_t speed;
+  int16_t bodyState;
+  int16_t healthState;
+  int32_t effectState;
+  int16_t job;
+  int16_t head;
+  int32_t weapon;
+  int16_t accessory;
+  int16_t accessory2;
+  int16_t accessory3;
+  int16_t headpalette;
+  int16_t bodypalette;
+  int16_t headDir;
+  int16_t robe;
+  uint32_t GUID;
+  int16_t GEmblemVer;
+  int16_t honor;
+  int32_t virtue;
+  bool isPKModeON;
+  uint8_t sex;
+  uint8_t PosDir[3];
+  uint8_t xSize;
+  uint8_t ySize;
+  uint8_t state;
+  int16_t clevel;
+  int16_t font;
+  uint32_t max_hp;
+  uint32_t cur_hp;
+  bool hide_hp;
+  char name[];
 };
 
 struct PACKET_ZC_DELETE_ITEM_FROM_BODY {
-  short header;
-  short DeleteType;
-  unsigned short Index;
-  short Count;
+  uint16_t header;
+  int16_t DeleteType;
+  uint16_t Index;
+  int16_t Count;
 };
 
 struct PACKET_ZC_USESKILL_ACK2 {
-  short header;
-  unsigned long AID;
-  unsigned long targetID;
-  short xPos;
-  short yPos;
-  unsigned short SKID;
-  unsigned long property;
-  unsigned long delayTime;
+  uint16_t header;
+  uint32_t AID;
+  uint32_t targetID;
+  int16_t xPos;
+  int16_t yPos;
+  uint16_t SKID;
+  uint32_t property;
+  uint32_t delayTime;
   bool isDisposable;
 };
 
 struct PACKET_ZC_CHANGE_GROUP_MASTER {
-  short header;
-  unsigned long OldMasterAID;
-  unsigned long NewMasterAID;
+  uint16_t header;
+  uint32_t OldMasterAID;
+  uint32_t NewMasterAID;
 };
 
 struct PACKET_ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN {
-  short header;
-  unsigned short PacketLength;
-  unsigned char type;
-  unsigned short ItemID;
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t type;
+  uint16_t ItemID;
 };
 
 struct PACKET_ZC_PLAY_NPC_BGM {
-  short header;
+  uint16_t header;
   char Bgm[24];
 };
 
 /* Useless Packet. SKIP ALLLLL THE USELESS PACKETS
 struct PACKET_ZC_DEFINE_CHECK {
-short header;
-short PacketLength;
+int16_t header;
+int16_t PacketLength;
 };*/
 
 struct PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC2 {
-  short header;
-  unsigned short PacketLength;
-  unsigned long AID;
-  unsigned long UniqueID;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t AID;
+  uint32_t UniqueID;
 };
 
 struct PACKET_CZ_PC_PURCHASE_ITEMLIST_FROMMC2 {
-  short header;
-  short PacketLength;
-  unsigned long AID;
-  unsigned long UniqueID;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t AID;
+  uint32_t UniqueID;
 };
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_REGISTER {
-  short header;
+  uint16_t header;
 
   struct PARTY_BOOKING_DETAIL {
-    short Level;
-    short MapID;
-    short Job[6];
+    int16_t Level;
+    int16_t MapID;
+    int16_t Job[6];
   } RegisterInfo;
 };
 
 struct PACKET_ZC_PARTY_BOOKING_ACK_REGISTER {
-  short header;
-  short Result;
+  uint16_t header;
+  int16_t Result;
 };
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_SEARCH {
-  short header;
-  short Level;
-  short MapID;
-  short Job;
-  unsigned long LastIndex;
-  short ResultCount;
+  uint16_t header;
+  int16_t Level;
+  int16_t MapID;
+  int16_t Job;
+  uint32_t LastIndex;
+  int16_t ResultCount;
 };
 
 struct PACKET_ZC_PARTY_BOOKING_ACK_SEARCH {
-  short header;
-  short PacketLength;
+  uint16_t header;
+  uint16_t packet_length;
   bool IsExistMoreResult;
 };
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_DELETE {
-  short header;
+  uint16_t header;
 };
 
 struct PACKET_ZC_PARTY_BOOKING_ACK_DELETE {
-  short header;
-  short Result;
+  uint16_t header;
+  int16_t Result;
 };
 
 struct PACKET_CZ_PARTY_BOOKING_REQ_UPDATE {
-  short header;
-  short Job[6];
+  uint16_t header;
+  int16_t Job[6];
 };
 
 struct PACKET_ZC_PARTY_BOOKING_NOTIFY_INSERT {
-  short header;
+  uint16_t header;
 
   struct PARTY_BOOKING_AD_INFO {
-    unsigned long Index;
+    uint32_t Index;
     char CharName[24];
-    long ExpireTime;
+    int32_t ExpireTime;
 
     struct PARTY_BOOKING_DETAIL {
-      short Level;
-      short MapID;
-      short Job[6];
+      int16_t Level;
+      int16_t MapID;
+      int16_t Job[6];
     } detail;
   } info;
 };
 
 struct PACKET_ZC_PARTY_BOOKING_NOTIFY_UPDATE {
-  short header;
-  unsigned long Index;
-  short Job[6];
+  uint16_t header;
+  uint32_t Index;
+  int16_t Job[6];
 };
 
 struct PACKET_ZC_PARTY_BOOKING_NOTIFY_DELETE {
-  short header;
-  unsigned long Index;
+  uint16_t header;
+  uint32_t Index;
 };
 
 struct PACKET_CZ_SIMPLE_CASH_BTNSHOW {
-  short header;
+  uint16_t header;
 };
 
 struct PACKET_ZC_SIMPLE_CASH_BTNSHOW {
-  short header;
+  uint16_t header;
   bool show;
 };
 
 struct PACKET_ZC_NOTIFY_HP_TO_GROUPM_R2 {
-  short header;
-  unsigned long AID;
-  int hp;
-  int maxhp;
+  uint16_t header;
+  uint32_t AID;
+  int32_t hp;
+  int32_t maxhp;
 };
 
 struct PACKET_ZC_ADD_EXCHANGE_ITEM2 {
-  short header;
-  unsigned short ITID;
-  unsigned char type;
-  int count;
+  uint16_t header;
+  uint16_t ITID;
+  uint8_t type;
+  int32_t count;
   bool IsIdentified;
   bool IsDamaged;
-  unsigned char refiningLevel;
-
+  uint8_t refiningLevel;
   struct EQUIPSLOTINFO {
-    unsigned short info[4];
+    uint16_t info[4];
   } slot;
 };
 
 struct PACKET_ZC_OPEN_BUYING_STORE {
-  short header;
-  unsigned char count;
+  uint16_t header;
+  uint8_t count;
 };
 
 struct PACKET_CZ_REQ_OPEN_BUYING_STORE {
-  short header;
-  unsigned short PacketLength;
-  unsigned long LimitZeny;
-  unsigned char result;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t LimitZeny;
+  uint8_t result;
   char storeName[80];
 };
 
 struct PACKET_ZC_FAILED_OPEN_BUYING_STORE_TO_BUYER {
-  short header;
-  short Result;
-  int total_weight;
+  uint16_t header;
+  int16_t Result;
+  int32_t total_weight;
 };
 
 struct PACKET_ZC_MYITEMLIST_BUYING_STORE {
-  short header;
-  unsigned short PacketLength;
-  unsigned long AID;
-  int limitZeny;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t AID;
+  int32_t limitZeny;
 };
 
 struct PACKET_ZC_BUYING_STORE_ENTRY {
-  short header;
-  unsigned long makerAID;
+  uint16_t header;
+  uint32_t makerAID;
   char storeName[80];
 };
 
 struct PACKET_CZ_REQ_CLOSE_BUYING_STORE {
-  short header;
+  uint16_t header;
 };
 
 struct PACKET_ZC_DISAPPEAR_BUYING_STORE_ENTRY {
-  short header;
-  unsigned long makerAID;
+  uint16_t header;
+  uint32_t makerAID;
 };
 
 struct PACKET_CZ_REQ_CLICK_TO_BUYING_STORE {
-  short header;
-  unsigned long makerAID;
+  uint16_t header;
+  uint32_t makerAID;
 };
 
 struct PACKET_ZC_ACK_ITEMLIST_BUYING_STORE {
-  short header;
-  unsigned short PacketLength;
-  unsigned long makerAID;
-  unsigned long StoreID;
-  int limitZeny;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t makerAID;
+  uint32_t StoreID;
+  int32_t limitZeny;
 };
 
 struct PACKET_CZ_REQ_TRADE_BUYING_STORE {
-  short header;
-  unsigned short PacketLength;
-  unsigned long makerAID;
-  unsigned long StoreID;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t makerAID;
+  uint32_t StoreID;
 };
 
 struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_BUYER {
-  short header;
-  short Result;
+  uint16_t header;
+  int16_t Result;
 };
 
 struct PACKET_ZC_UPDATE_ITEM_FROM_BUYING_STORE {
-  short header;
-  unsigned short ITID;
-  short count;
-  int limitZeny;
+  uint16_t header;
+  uint16_t ITID;
+  int16_t count;
+  int32_t limitZeny;
 };
 
 struct PACKET_ZC_ITEM_DELETE_BUYING_STORE {
-  short header;
-  short index;
-  short count;
-  int zeny;
+  uint16_t header;
+  int16_t index;
+  int16_t count;
+  int32_t zeny;
 };
 
 struct PACKET_ZC_EL_INIT {
-  short header;
-  int AID;
-  int hp;
-  int maxHP;
-  int sp;
-  int maxSP;
+  uint16_t header;
+  int32_t AID;
+  int32_t hp;
+  int32_t maxHP;
+  int32_t sp;
+  int32_t maxSP;
 };
 
 struct PACKET_ZC_EL_PAR_CHANGE {
-  short header;
-  unsigned short var;
-  int value;
+  uint16_t header;
+  uint16_t var;
+  int32_t value;
 };
 
 struct PACKET_ZC_BROADCAST_IN_ZONE {
-  short header;
-  unsigned short PacketLength;
-  unsigned char Msgtype;
-  unsigned long ColorRGB;
+  uint16_t header;
+  uint16_t packet_length;
+  uint8_t Msgtype;
+  uint32_t ColorRGB;
 };
 
 struct PACKET_ZC_COSTUME_SPRITE_CHANGE {
-  short header;
-  unsigned long GID;
-  unsigned char type;
-  int value;
+  uint16_t header;
+  uint32_t GID;
+  uint8_t type;
+  int32_t value;
 };
 
 struct PACKET_AC_OTP_USER {
-  short header;
+  uint16_t header;
 };
 
 struct PACKET_CA_OTP_AUTH_REQ {
-  short header;
+  uint16_t header;
   char OTPCode[7];
 };
 
 struct PACKET_AC_OTP_AUTH_ACK {
-  short header;
-  unsigned short PacketLength;
-  unsigned short LoginResult;
+  uint16_t header;
+  uint16_t packet_length;
+  uint16_t LoginResult;
 };
 
 struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER {
-  short header;
-  short Result;
-  unsigned short ITID;
+  uint16_t header;
+  int16_t Result;
+  uint16_t ITID;
 };
 
 struct PACKET_HC_NOTIFY_ZONESVR {
-  short header;
-  unsigned long char_id;
-  unsigned char map_name[16];
+  uint16_t header;
+  uint32_t char_id;
+  uint8_t map_name[16];
   struct ZSERVER_ADDR {
-    unsigned long ip;
-    short port;
+    uint32_t ip;
+    int16_t port;
   } addr;
 };
 
+struct PACKET_CZ_REQUEST_CHAT {
+  uint16_t header;
+  uint16_t packet_length;
+  char msg[];
+};
+
 struct PACKET_ZC_NOTIFY_CHAT {
-  short header;
-  unsigned short PacketLength;
-  unsigned long GID;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t GID;
 };
 
 struct PACKET_ZC_NOTIFY_PLAYERCHAT {
-  short header;
-  unsigned short PacketLength;
+  uint16_t header;
+  uint16_t packet_length;
   char msg[];
 };
 
 struct PACKET_ZC_AID {
-  short header;
-  unsigned long AID;
+  uint16_t header;
+  uint32_t AID;
 };
 
 struct PACKET_ZC_NOTIFY_TIME {
-  short header;
-  unsigned long time;
+  uint16_t header;
+  uint32_t time;
 };
 
 struct PACKET_ZC_ACCEPT_ENTER {
-  short header;
-  unsigned long startTime;
-  unsigned char PosDir[3];
-  unsigned char xSize;
-  unsigned char ySize;
+  uint16_t header;
+  uint32_t startTime;
+  uint8_t PosDir[3];
+  uint8_t xSize;
+  uint8_t ySize;
 };
 
 struct PACKET_ZC_ACCEPT_ENTER2 {
-  short header;
-  unsigned long startTime;
-  unsigned char PosDir[3];
-  unsigned char xSize;
-  unsigned char ySize;
-  unsigned short font;
+  uint16_t header;
+  uint32_t startTime;
+  uint8_t PosDir[3];
+  uint8_t xSize;
+  uint8_t ySize;
+  uint16_t font;
 };
 
 struct PACKET_ZC_NPC_CHAT {
-  short PacketType;
-  short PacketLength;
-  unsigned int accountID;
-  unsigned int color;
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t accountID;
+  uint32_t color;
   char msg;
 };
 
 struct PACKET_CA_CONNECT_INFO_CHANGE {
-  short PacketType;
+  uint16_t header;
   char ID[24];
 };
 
 struct PACKET_CZ_ENTER {
-  short PacketType;
+  uint16_t header;
   // char pad[0x2];
-  unsigned long AID;
+  uint32_t AID;
   // char pad2[0x1];
-  unsigned long GID;
+  uint32_t GID;
   // char pad3[0x4];
-  unsigned long AuthCode;
-  unsigned long clientTime;
+  uint32_t AuthCode;
+  uint32_t clientTime;
   char Sex;
 };
 
 struct PACKET_CZ_ENTER2 {
-  short header;
-  unsigned long aid;
-  unsigned long gid;
-  int auth_code;
-  unsigned long client_time;
-  unsigned char sex;
+  uint16_t header;
+  uint32_t aid;
+  uint32_t gid;
+  int32_t auth_code;
+  uint32_t client_time;
+  uint8_t sex;
 };
 
 struct PACKET_ZC_NPCACK_MAPMOVE {
-  short packet_type;
+  uint16_t header;
   char map_name[16];
-  short x_pos;
-  short y_pos;
+  int16_t x_pos;
+  int16_t y_pos;
 };
 
 struct PACKET_ZC_COUPLESTATUS {
-  short packet_type;
-  unsigned long status_type;
-  int default_status;
-  int plus_status;
+  uint16_t header;
+  uint32_t status_type;
+  int32_t default_status;
+  int32_t plus_status;
 };
 
 struct PACKET_ZC_PAR_CHANGE {
-  short Packet_type;
-  unsigned short var_id;
-  int count;
+  uint16_t header;
+  uint16_t var_id;
+  int32_t count;
 };
 
 struct PACKET_CZ_USE_ITEM {
-  short PacketType;
-  unsigned short index;
-  unsigned long AID;
+  uint16_t header;
+  uint16_t index;
+  uint32_t AID;
 };
 
 struct PACKET_ZC_ATTACK_RANGE {
-  short packet_type;
-  short current_att_range;
+  uint16_t header;
+  int16_t current_att_range;
 };
 
 struct PACKET_HC_BLOCK_CHARACTER {
-  short PacketType;
-  short PacketLength;
+  uint16_t header;
+  uint16_t packet_length;
   struct TAG_CHARACTER_BLOCK_INFO {
-    unsigned long GID;
+    uint32_t GID;
     char szExpireDate[20];
   } charList[];
 };
+
+struct PACKET_ZC_SAY_DIALOG {
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t naid;
+  char msg[];
+};
+
+struct PACKET_ZC_WAIT_DIALOG {
+  uint16_t header;
+  uint32_t naid;
+};
+
+struct PACKET_ZC_CLOSE_DIALOG {
+  uint16_t header;
+  uint32_t naid;
+};
+
+struct PACKET_CZ_REQUEST_TIME {
+  uint16_t header;
+  uint32_t client_time;
+};
+
+struct PACKET_CZ_NOTIFY_ACTORINIT {
+  uint16_t header;
+};
+
+struct PACKET_ZC_SPRITE_CHANGE2 {
+  uint16_t header;
+  uint32_t gid;
+  uint8_t type;
+  int32_t value;
+};
+
+struct PACKET_ZC_EQUIPMENT_ITEMLIST3 {
+  uint16_t header;
+  int16_t packet_length;
+  struct EQUIPMENTITEM_EXTRAINFO301 {
+    int16_t index;
+    uint16_t itid;
+    uint8_t type;
+    bool is_identified;
+    uint16_t location;
+    uint8_t wear_state;
+    bool is_damaged;
+    uint8_t refining_level;
+    struct EQUIPSLOTINFO {
+      uint16_t card1;
+      uint16_t card2;
+      uint16_t card3;
+      uint16_t card4;
+    } slot;
+    int32_t hire_expire_date;
+    uint16_t bind_on_equip_type;
+    uint16_t w_item_sprite_number;
+  } ItemInfo[];
+};
+
+struct PACKET_ZC_NOTIFY_MAPPROPERTY {
+  uint16_t header;
+  int16_t type;
+};
+
+struct PACKET_ZC_NOTIFY_STANDENTRY {
+  uint16_t header;
+  uint8_t object_type;
+  uint32_t gid;
+  int16_t speed;
+  int16_t body_state;
+  int16_t health_state;
+  int16_t effect_state;
+  int16_t job;
+  int16_t head;
+  int16_t weapon;
+  int16_t accessory;
+  int16_t shield;
+  int16_t accessory2;
+  int16_t accessory3;
+  int16_t head_palette;
+  int16_t body_palette;
+  int16_t head_dir;
+  uint32_t guid;
+  int16_t g_emblem_ver;
+  int16_t honor;
+  int16_t virtue;
+  bool is_pk_mode_on;
+  uint8_t sex;
+  uint8_t pos_dir[3];
+  uint8_t x_size;
+  uint8_t y_size;
+  uint8_t state;
+  int16_t clevel;
+};
+
+struct PACKET_ZC_SKILLINFO_LIST {
+  uint16_t header;
+  uint16_t packet_length;
+  struct SKILLINFO {
+    int16_t skill_id;
+    int32_t type;
+    int16_t level;
+    int16_t sp_cost;
+    int16_t attack_range;
+    uint8_t skill_name[24];
+    int8_t upgradable;
+  } skillList[];
+};
+
+struct PACKET_ZC_SHORTCUT_KEY_LIST {
+  uint16_t header;
+  struct ShortCutKey {
+    int8_t is_skill;
+    uint32_t id;
+    int16_t count;
+  } shortcut_keys[27];
+};
+
+struct PACKET_ZC_SHORTCUT_KEY_LIST_V2 {
+  uint16_t header;
+  struct ShortCutKey {
+    int8_t is_skill;
+    uint32_t id;
+    int16_t count;
+  } shortcut_keys[38];
+};
+
+struct PACKET_ZC_LONGPAR_CHANGE {
+  uint16_t header;
+  uint16_t var_id;
+  int32_t amount;
+};
+
+struct PACKET_ZC_STATUS {
+  uint16_t header;
+  int16_t point;
+  uint8_t str;
+  uint8_t standard_str;
+  uint8_t agi;
+  uint8_t standard_agi;
+  uint8_t vit;
+  uint8_t standard_vit;
+  uint8_t Int;
+  uint8_t standard_int;
+  uint8_t dex;
+  uint8_t standard_dex;
+  uint8_t luk;
+  uint8_t standard_luk;
+  int16_t att_power;
+  int16_t refining_power;
+  int16_t max_matt_power;
+  int16_t min_matt_power;
+  int16_t itemdef_power;
+  int16_t plusdef_power;
+  int16_t mdef_power;
+  int16_t plusmdef_power;
+  int16_t hit_success_value;
+  int16_t avoid_success_value;
+  int16_t plus_avoid_success_value;
+  int16_t critical_success_value;
+  int16_t aspd;
+  int16_t plus_aspd;
+};
+
+struct PACKET_ZC_PARTY_CONFIG {
+  uint16_t header;
+  bool refuse_join_msg;
+};
+
+struct PACKET_ZC_CONFIG_NOTIFY {
+  uint16_t header;
+  bool open_equipment_win;
+};
+
+struct PACKET_ZC_BROADCAST2 {
+  uint16_t header;
+  uint16_t packet_length;
+  uint32_t font_color;
+  int16_t font_type;
+  int16_t font_size;
+  int16_t font_align;
+  int16_t font_y;
+  char msg[];
+};
+
+struct PACKET_ZC_EMOTION {
+  uint16_t header;
+  uint32_t gid;
+  uint8_t type;
+};
+
+struct PACKET_AC_REFUSE_LOGIN_R2 {
+  uint16_t header;
+  uint32_t error_code;
+  char block_date[20];
+};
+
+struct PACKET_HC_CHARLIST_NOTIFY {
+  uint16_t header;
+  uint32_t page_count;
+};
+
+struct PACKET_HC_SECOND_PASSWD_LOGIN {
+  uint16_t header;
+  uint32_t pincode_seed;
+  uint32_t account_id;
+  uint16_t state;
+};
+
+struct PACKET_ZC_MAPPROPERTY_R2 {
+  uint16_t header;
+  uint16_t type;
+  uint8_t properties1;
+  uint8_t properties2;
+  uint16_t spare_bits;
+};
+
+struct PACKET_ZC_NAVIGATION_ACTIVE {
+  uint16_t header;
+  uint8_t detail_level;
+  uint8_t flags;
+  uint8_t hide_window;
+  char target_map_name[MAP_NAME_LENGTH_EXT];
+  uint16_t target_x;
+  uint16_t target_y;
+  uint16_t target_mob_id;
+};
+
+struct PACKET_ZC_QUEST_NOTIFY_EFFECT {
+  uint16_t header;
+  uint32_t npc_id;
+  uint16_t pos_x;
+  uint16_t pos_y;
+  uint16_t effect;
+  uint16_t type;
+};
+
 #pragma pack(pop)
-#pragma warning(default : 4200)
 
 #endif  // DOLORI_NETWORK_PACKETS_H_

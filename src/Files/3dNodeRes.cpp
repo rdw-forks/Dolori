@@ -35,7 +35,7 @@ void C3dNodeRes::Load(uint16_t version, CFile& file) {
   // Info
   file.Read(&info, sizeof(info));
 
-  offset_matrix = glm::mat4();
+  offset_matrix = glm::mat4(1.0f);
   offset_matrix[0][0] = info.mat3[0];
   offset_matrix[0][1] = info.mat3[1];
   offset_matrix[0][2] = info.mat3[2];
@@ -123,7 +123,7 @@ void C3dNodeRes::FetchChildren(
 }
 
 void C3dNodeRes::ComputeModelViewMatrix(const C3dActor* model) {
-  modelview_matrix = glm::mat4();
+  modelview_matrix = glm::mat4(1.0f);
 
   if (parent == nullptr) {
     if (!children.empty()) {
@@ -159,7 +159,7 @@ void C3dNodeRes::ComputeModelViewMatrix(const C3dActor* model) {
   }
 }
 void C3dNodeRes::ComputeNodeViewMatrix(const C3dActor* model) {
-  nodeview_matrix = glm::mat4();
+  nodeview_matrix = glm::mat4(1.0f);
 
   if (parent == nullptr && children.empty()) {
     nodeview_matrix =

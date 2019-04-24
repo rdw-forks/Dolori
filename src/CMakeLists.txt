@@ -34,31 +34,35 @@ foreach(source IN LISTS DOLORI_FILES)
 endforeach()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC
+	${IL_INCLUDE_DIR}
+	${SDL2_TTF_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIR}
+)
 
 # Link libraries and add include directories for third parties
-target_link_libraries(${PROJECT_NAME} SDL2-static)
-target_link_libraries(${PROJECT_NAME} glm)
-target_link_libraries(${PROJECT_NAME} tinyxml2)
-target_link_libraries(${PROJECT_NAME} grflib)
-target_link_libraries(${PROJECT_NAME} glad)
-target_link_libraries(${PROJECT_NAME} spdlog)
-target_link_libraries(${PROJECT_NAME} zlibstatic)
-target_link_libraries(${PROJECT_NAME} nlohmann_json)
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${IL_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} ${IL_LIBRARIES} ${ILUT_LIBRARIES})
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${SDL2_TTF_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${SDL2_TTF_LIBRARIES})
-
-target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${OPENGL_INCLUDE_DIR})
-
+target_link_libraries(${PROJECT_NAME} 
+	SDL2-static
+	glm
+	tinyxml2
+	grflib
+	glad
+	spdlog
+	zlibstatic
+	nlohmann_json
+	${IL_LIBRARIES}
+	${SDL2_TTF_LIBRARIES}
+	${OPENGL_LIBRARIES}
+)
 if (WIN32)
-	target_link_libraries(${PROJECT_NAME} wsock32 ws2_32)
+	target_link_libraries(${PROJECT_NAME}
+		wsock32
+		ws2_32
+	)
 endif ()
 
 if (MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /MT$<$<CONFIG:Debug>:d>)
 	target_compile_options(${PROJECT_NAME} PRIVATE "/MP")
+	target_compile_options(${PROJECT_NAME} PRIVATE "/we4701")
 endif ()

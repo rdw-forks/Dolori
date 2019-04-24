@@ -10,8 +10,9 @@ class CUINoticeConfirmWnd : public CUIFrameWnd {
 
   void OnCreate(int cx, int cy) override;
   void OnDraw() override;
-  void *SendMsg(CUIWindow *, int, void *val1 = nullptr, void *val2 = nullptr,
-                void *val3 = nullptr, void *val4 = nullptr) override;
+  void *SendMsg(CUIWindow *, int, const void *val1 = nullptr,
+                const void *val2 = nullptr, const void *val3 = nullptr,
+                const void *val4 = nullptr) override;
 
  private:
   CUITextViewer *m_textViewer;

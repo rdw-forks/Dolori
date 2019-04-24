@@ -1,18 +1,18 @@
 #ifndef DOLORI_NETWORK_CONNECTION_H_
 #define DOLORI_NETWORK_CONNECTION_H_
 
-#include "Network/PacketQueue.h"
-
-#ifdef WIN32
+#ifdef _WIN32
 #include <WinSock2.h>
 #else
-#include <netinet/in.h> 
+#include <netinet/in.h>
 #endif
 
-typedef struct SERVER_ADDRESS {
+#include "Network/PacketQueue.h"
+
+struct ServerAddress {
   char ip[0x10];
   int port;
-} SERVER_ADDRESS;
+};
 
 class CConnection {
  public:
@@ -20,7 +20,7 @@ class CConnection {
   virtual ~CConnection();
 
   bool Poll();
-  bool Connect(const SERVER_ADDRESS *sa);
+  bool Connect(const ServerAddress &sa);
   void Disconnect();
   int Recv(char *, int, char);
   void SetBlock(bool bBlock);
@@ -32,12 +32,12 @@ class CConnection {
   bool OnRecv();
 
  protected:
-#ifdef WIN32
+#ifdef _WIN32
   SOCKET m_socket;
 #else
   int m_socket;
 #endif
-  struct sockaddr_in m_addr;
+  sockaddr_in m_addr;
   bool m_bBlock;
   unsigned long m_dwTime;
   CPacketQueue m_sendQueue;

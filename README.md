@@ -1,8 +1,10 @@
 Dolori
 =======
 
+[![Build status](https://ci.appveyor.com/api/projects/status/ye0d4xcsm6kbx2h7?svg=true)](https://ci.appveyor.com/project/L1nkZ/dolori) [![pipeline status](https://gitlab.com/Dolori/Dolori/badges/master/pipeline.svg)](https://gitlab.com/Dolori/Dolori/commits/master)
+
 External dependencies
----------
+---------------------
 * OpenGL
 * DevIL
 * SDL2_ttf
@@ -19,9 +21,9 @@ $ cmake --build . --config MinSizeRel
 
 Current supported settings
 --------------------------
-* Packet version: 20080910
+* Packet version: 20130807
 * Packet obfuscation: Disabled
-* Client version: 23
+* Client version: 45
 
 Configuration file
 ------------------

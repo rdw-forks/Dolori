@@ -4,7 +4,7 @@
 
 #include "Common/Globals.h"
 
-void ProcessSDLEvents() {
+void ProcessSDLEvents(CUIWindowMgr* p_window_mgr) {
   SDL_Event ev;
 
   g_Mouse->SetWheel(0);
@@ -46,6 +46,14 @@ void ProcessSDLEvents() {
         g_Mouse->SetWheel(ev.wheel.y);
         break;
       case SDL_KEYDOWN:
+        if (p_window_mgr->ProcessPushButton(ev.key.keysym.sym, 1,
+                                            ev.key.keysym.scancode)) {
+          return;
+        }
+
+        if (p_window_mgr->IsFocusChatWnd()) {
+          p_window_mgr->ExecuteMsgInBattleMode(ev.key.keysym.sym, 1);
+        }
         break;
       case SDL_TEXTINPUT:
         g_Language->AddInput(ev.text.text);

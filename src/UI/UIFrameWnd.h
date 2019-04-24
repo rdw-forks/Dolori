@@ -7,10 +7,11 @@ class CUIFrameWnd : public CUIWindow {
  public:
   CUIFrameWnd(CUIWindowMgr *p_window_mgr);
 
-  void OnLBtnDown(int, int);
-  void OnLBtnUp(int x, int y);
-  void *SendMsg(CUIWindow *, int, void *val1 = nullptr, void *val2 = nullptr,
-                void *val3 = nullptr, void *val4 = nullptr) override;
+  void OnLBtnDown(int, int) override;
+  void OnLBtnUp(int x, int y) override;
+  void *SendMsg(CUIWindow *, int, const void *val1 = nullptr,
+                const void *val2 = nullptr, const void *val3 = nullptr,
+                const void *val4 = nullptr) override;
 
  protected:
   int m_startGlobalX;

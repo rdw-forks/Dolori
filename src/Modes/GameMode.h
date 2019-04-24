@@ -4,7 +4,6 @@
 #include <string>
 
 #include <glm/vec2.hpp>
-
 #include "Modes/Mode.h"
 #include "Network/RagConnection.h"
 #include "Render/View.h"
@@ -29,10 +28,13 @@ class CGameMode : public CMode {
   void ProcessRightButton();
   void ProcessMouseWheel(int process_type);
   void PollNetworkStatus();
-  void Zc_Notify_Playerchat(const char *buffer);
-  void Zc_Npcack_Mapmove(const char *buffer);
 
   const std::string &rsw_name() const;
+
+ private:
+  void Zc_Notify_Playerchat(const void *buffer);
+  void Zc_Npcack_Mapmove(const void *buffer);
+  void Zc_Broadcast2(const void *buffer);
 
  private:
   int m_areaLeft;
@@ -82,13 +84,13 @@ class CGameMode : public CMode {
   unsigned long m_lastCouplePacketAid;
   unsigned long m_lastCouplePacketGid;
   char m_CoupleName[0x18];
-  class UINameBalloonText *m_nameBalloon;
-  class UINameBalloonText *m_targetNameBalloon;
-  class UITransBalloonText *m_broadcastBalloon;
-  class UIPlayerGage *m_playerGage;
-  class UITransBalloonText *m_skillNameBalloon;
-  class UITransBalloonText *m_skillMsgBalloon;
-  class UITransBalloonText *m_skillUsedMsgBalloon;
+  // class UINameBalloonText *m_nameBalloon;
+  // class UINameBalloonText *m_targetNameBalloon;
+  // class UITransBalloonText *m_broadcastBalloon;
+  // class UIPlayerGage *m_playerGage;
+  // class UITransBalloonText *m_skillNameBalloon;
+  // class UITransBalloonText *m_skillMsgBalloon;
+  // class UITransBalloonText *m_skillUsedMsgBalloon;
   unsigned long m_skillUsedTick;
   unsigned long m_broadCastTick;
   int m_nameDisplayed;

@@ -7,7 +7,8 @@
 #include "Common/debug.h"
 
 CUIWindow::CUIWindow(CUIWindowMgr* p_window_mgr)
-    : m_parent(),
+    : p_window_mgr_(p_window_mgr),
+      m_parent(),
       m_x(),
       m_y(),
       m_w(),
@@ -20,8 +21,7 @@ CUIWindow::CUIWindow(CUIWindowMgr* p_window_mgr)
       m_show(true),
       m_trans(255),
       m_transTarget(255),
-      m_transTime(GetTick()),
-      p_window_mgr_(p_window_mgr) {}
+      m_transTime(GetTick()) {}
 
 CUIWindow::~CUIWindow() {
   for (auto child : m_children) {
@@ -32,8 +32,8 @@ CUIWindow::~CUIWindow() {
 }
 
 void CUIWindow::Create(int cx, int cy) {
-  OnCreate(cx, cy);
   Resize(cx, cy);
+  OnCreate(cx, cy);
   OnSize(cx, cy);
 }
 
@@ -147,7 +147,9 @@ void CUIWindow::DoDraw(bool blit_to_parent) {
   }
 
   for (auto child : m_children) {
-    child->DoDraw(blit_to_parent);
+    if (child->IsShow()) {
+      child->DoDraw(blit_to_parent);
+    }
   }
 
   if (blit_to_parent && m_parent != nullptr) {
@@ -211,12 +213,8 @@ void CUIWindow::InvalidateChildren() {
 
 void CUIWindow::Invalidate() { m_isDirty = true; }
 
-void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
+void CUIWindow::TextOutA(int x, int y, const std::string& text, size_t textLen,
                          int fontType, int fontHeight, unsigned int colorText) {
-  if (text == nullptr) {
-    return;
-  }
-
   const std::string font_name = "arial.ttf";
   TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
   if (font == nullptr) {
@@ -227,7 +225,7 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
   const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
-  SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text, color);
+  SDL_Surface* sdl_surface = TTF_RenderText_Blended(font, text.c_str(), color);
   if (sdl_surface == nullptr) {
     return;
   }
@@ -239,13 +237,9 @@ void CUIWindow::TextOutA(int x, int y, const char* text, size_t textLen,
   }
 }
 
-void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
-                            int fontType, int fontHeight,
+void CUIWindow::TextOutUTF8(int x, int y, const std::string& text,
+                            size_t textLen, int fontType, int fontHeight,
                             unsigned int colorText) {
-  if (text == nullptr) {
-    return;
-  }
-
   const std::string font_name = "arial.ttf";
   TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
   if (font == nullptr) {
@@ -256,24 +250,22 @@ void CUIWindow::TextOutUTF8(int x, int y, const char* text, size_t textLen,
   const SDL_Color color = {static_cast<Uint8>((colorText >> 16) & 0xFF),
                            static_cast<Uint8>((colorText >> 8) & 0xFF),
                            static_cast<Uint8>(colorText & 0xFF)};
-  SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text, color);
-  if (sdl_surface != nullptr) {
-    if (m_surface != nullptr) {
-      m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
-    } else {
-      m_surface = std::make_unique<CSurface>(sdl_surface);
-    }
-  }
-}
-
-void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
-                                   size_t textLen, uint32_t colorText,
-                                   uint32_t colorOutline, int fontType,
-                                   int fontHeight, bool bold) {
-  if (text == nullptr) {
+  SDL_Surface* sdl_surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+  if (sdl_surface == nullptr) {
     return;
   }
 
+  if (m_surface != nullptr) {
+    m_surface->CopyRect(x, y, sdl_surface->w, sdl_surface->h, sdl_surface);
+  } else {
+    m_surface = std::make_unique<CSurface>(sdl_surface);
+  }
+}
+
+void CUIWindow::TextOutWithOutline(int x, int y, const std::string& text,
+                                   size_t textLen, uint32_t colorText,
+                                   uint32_t colorOutline, int fontType,
+                                   int fontHeight, bool bold) {
   const std::string font_name = "arial.ttf";
   TTF_Font* font = g_FontMgr->GetFont(font_name, fontHeight);
   if (font == nullptr) {
@@ -290,9 +282,10 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
       static_cast<Uint8>(colorOutline & 0xFF)};
 
   TTF_SetFontOutline(font, 1);
-  SDL_Surface* bg_surface = TTF_RenderText_Blended(font, text, color_outline);
+  SDL_Surface* bg_surface =
+      TTF_RenderText_Blended(font, text.c_str(), color_outline);
   TTF_SetFontOutline(font, 0);
-  SDL_Surface* fg_surface = TTF_RenderText_Blended(font, text, color);
+  SDL_Surface* fg_surface = TTF_RenderText_Blended(font, text.c_str(), color);
   SDL_Rect rect = {1, 1, fg_surface->w, fg_surface->h};
 
   /* blit text onto its outline */
@@ -307,7 +300,7 @@ void CUIWindow::TextOutWithOutline(int x, int y, const char* text,
   }
 }
 
-void CUIWindow::TextOutWithDecoration(int x, int y, const char* text,
+void CUIWindow::TextOutWithDecoration(int x, int y, const std::string& text,
                                       size_t textLen, unsigned int* colorRef,
                                       int fontType, int fontHeight) {
   TextOutA(x, y, text, textLen, fontType, fontHeight, *colorRef);
@@ -340,8 +333,9 @@ void CUIWindow::OnBeginEdit() {}
 
 void CUIWindow::OnFinishEdit() {}
 
-void* CUIWindow::SendMsg(CUIWindow* /*sender*/, int message, void* /*val1*/,
-                         void* /*val2*/, void* /*val3*/, void* /*val4*/) {
+void* CUIWindow::SendMsg(CUIWindow* /*sender*/, int message,
+                         const void* /*val1*/, const void* /*val2*/,
+                         const void* /*val3*/, const void* /*val4*/) {
   switch (message) {
     case 0:
     case 1:

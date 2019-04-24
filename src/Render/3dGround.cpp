@@ -425,5 +425,7 @@ void C3dGround::Render(glm::mat4 *wtm, RECT *area, bool need_clip) {
 
   glDrawArrays(GL_TRIANGLES, 0, m_vbo.size());
 
+  m_lightmap->Unbind();
+
   m_program.Unbind();
 }

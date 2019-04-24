@@ -4,7 +4,10 @@
 #include "Common/Globals.h"
 
 CUIFrameWnd::CUIFrameWnd(CUIWindowMgr* p_window_mgr)
-    : CUIWindow(p_window_mgr), m_startGlobalX(), m_startGlobalY() {}
+    : CUIWindow(p_window_mgr),
+      m_startGlobalX(),
+      m_startGlobalY(),
+      m_defPushId() {}
 
 void CUIFrameWnd::OnLBtnDown(int x, int y) {
   int gx, gy;
@@ -31,14 +34,20 @@ void CUIFrameWnd::OnLBtnUp(int x, int y) {
   }
 }
 
-void* CUIFrameWnd::SendMsg(CUIWindow* sender, int message, void* val1,
-                           void* val2, void* val3, void* val4) {
-  void* result;
+void* CUIFrameWnd::SendMsg(CUIWindow* sender, int message, const void* val1,
+                           const void* val2, const void* val3,
+                           const void* val4) {
+  void* result = nullptr;
 
   switch (message) {
+    case 0:
+      if (m_defPushId != 0) {
+        SendMsg(this, 6, reinterpret_cast<const void*>(m_defPushId));
+      }
+      break;
     default:
       result = CUIWindow::SendMsg(sender, message, val1, val2, val3, val4);
-  };
+  }
 
   return result;
 }

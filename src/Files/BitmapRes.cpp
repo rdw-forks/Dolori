@@ -32,7 +32,7 @@ uint32_t CBitmapRes::GetColor(uint32_t x, uint32_t y) const {
   if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
     result = 0x00FF0000;
   } else {
-    result = m_data[x + y * m_width];
+    result = m_data[static_cast<size_t>(x) + static_cast<size_t>(y) * m_width];
   }
 
   return result;

@@ -1,6 +1,6 @@
 #include "Modes/LoginMode.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Ws2tcpip.h>
 #define inet_ntop InetNtop
 #else
@@ -175,16 +175,14 @@ void CLoginMode::OnUpdate() {
   if ((m_sub_mode == 7 || m_sub_mode == 8 || m_sub_mode == 11 ||
        m_sub_mode == 19) &&
       GetTick() > m_syncRequestTime) {
-    struct PACKET_PING packet;
-    int packet_size;
+    PACKET_PING packet;
 
     m_syncRequestTime = GetTick() + 12000;
     packet.header = HEADER_PING;
-    packet_size = p_rag_connection_->GetPacketSize(packet.header);
-    p_rag_connection_->SendPacket(packet_size, (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
   }
 
-  ProcessSDLEvents();
+  ProcessSDLEvents(p_window_mgr_);
   g_Mouse->ReadState();
   p_window_mgr_->ProcessInput();
 
@@ -274,11 +272,9 @@ void CLoginMode::OnChangeState(int state) {
       break;
     case 9: {
       PACKET_CH_SELECT_CHAR packet = {};
-
       packet.header = HEADER_CH_SELECT_CHAR;
       packet.char_num = static_cast<uint8_t>(m_selected_char);
-      const int packet_size = p_rag_connection_->GetPacketSize(packet.header);
-      p_rag_connection_->SendPacket(packet_size,
+      p_rag_connection_->SendPacket(sizeof(packet),
                                     reinterpret_cast<char *>(&packet));
       // v127 = (UIWaitWnd *)UIWindowMgr::MakeWindow(&g_windowMgr, WID_WAITWND);
       // v128 = MsgStr(MSI_WAITING_RESPONSE_FROM_SERVER);
@@ -291,18 +287,10 @@ void CLoginMode::OnChangeState(int state) {
       packet.header = HEADER_CH_MAKE_CHAR;
       packet.char_slot = static_cast<uint8_t>(m_selected_char);
       strncpy(packet.name, g_Session->GetCharName(), sizeof(packet.name));
-      // TODO: replace with actual values
       packet.head_color = m_new_char_info.head_color;
       packet.head_style = m_new_char_info.head_style;
-      packet.str = m_new_char_info.str;
-      packet.agi = m_new_char_info.agi;
-      packet.vit = m_new_char_info.vit;
-      packet.int_ = m_new_char_info.int_;
-      packet.dex = m_new_char_info.dex;
-      packet.luk = m_new_char_info.luk;
 
-      const int packet_size = p_rag_connection_->GetPacketSize(packet.header);
-      p_rag_connection_->SendPacket(packet_size,
+      p_rag_connection_->SendPacket(sizeof(packet),
                                     reinterpret_cast<char *>(&packet));
     } break;
     case 12:
@@ -323,19 +311,19 @@ void CLoginMode::MakeLoginWindow() {
       static_cast<CBitmapRes *>(g_ResMgr->Get(m_wallPaperBmpName, false));
   p_window_mgr_->SetWallpaper(res);
   login_wnd = p_window_mgr_->MakeWindow(WID_LOGINWND);
-  if (!g_hideAccountList && login_wnd) {
+  if (!g_hideAccountList && login_wnd != nullptr) {
     login_wnd->SendMsg(nullptr, 88, 0, 0, 0, 0);
   }
 }
 
 void CLoginMode::ConnectToAccountServer() {
-  SERVER_ADDRESS server_addr;
+  ServerAddress server_addr;
 
   strncpy(server_addr.ip, g_accountAddr, sizeof(server_addr.ip));
   server_addr.port = atoi(g_accountPort);
   LOG(info, "Connecting to the account server ({}:{}) ...", server_addr.ip,
       server_addr.port);
-  m_isConnected = p_rag_connection_->Connect(&server_addr);
+  m_isConnected = p_rag_connection_->Connect(server_addr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the account server");
     p_rag_connection_->Disconnect();
@@ -343,46 +331,45 @@ void CLoginMode::ConnectToAccountServer() {
   }
 
   if (g_bUseCommand) {
-    struct PACKET_CA_CONNECT_INFO_CHANGE packet;
-
-    packet.PacketType = HEADER_CA_CONNECT_INFO_CHANGED;
+    PACKET_CA_CONNECT_INFO_CHANGE packet;
+    packet.header = HEADER_CA_CONNECT_INFO_CHANGED;
     memcpy(packet.ID, m_userId, sizeof(packet.ID));
-    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet),
+                                  reinterpret_cast<char *>(&packet));
   }
 
   CheckExeHashFromAccServer();
   if (g_passwordEncrypt) {
     PACKET_CA_REQ_HASH packet;
-
     packet.header = HEADER_CA_REQ_HASH;
-    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+    p_rag_connection_->SendPacket(sizeof(packet),
+                                  reinterpret_cast<char *>(&packet));
     // m_wndWait->SetMsg(g_MsgStrMgr->GetMsgStr(MSI_WAITING_RESPONSE_FROM_SERVER),
     // 16, 1);
     return;
   }
 
-  if (g_serviceType != ServiceType::kKorea) {
-    PACKET_CA_LOGIN packet;
-
-    packet.header = HEADER_CA_LOGIN;
-    packet.version = g_version;
-    strncpy(packet.username, m_userId, sizeof(packet.username));
-    strncpy(packet.password, m_userPassword, sizeof(packet.password));
-    packet.client_type = g_clientType;  // GetAccountType();
-    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
-  } else {
-    PACKET_CA_LOGIN_CHANNEL packet;
-
-    packet.header = HEADER_CA_LOGIN_CHANNEL;
-    packet.version = g_version;
-    strncpy(packet.username, m_userId, sizeof(packet.username));
-    strncpy(packet.password, m_userPassword, sizeof(packet.password));
-    strcpy(packet.ip_address, "111.111.111.111");
-    memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
-    packet.clienttype = g_clientType;
-    packet.channeling_corp = g_isGravityID;
-    p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
-  }
+  // if (g_serviceType != ServiceType::kKorea) {
+  PACKET_CA_LOGIN packet;
+  packet.header = HEADER_CA_LOGIN;
+  packet.version = g_version;
+  strncpy(packet.username, m_userId, sizeof(packet.username));
+  strncpy(packet.password, m_userPassword, sizeof(packet.password));
+  LOG(debug, "login: '{}', pass: '{}'", m_userId, m_userPassword);
+  packet.client_type = g_clientType;  // GetAccountType();
+  p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+  //} else {
+  //  PACKET_CA_LOGIN_CHANNEL packet;
+  //  packet.header = HEADER_CA_LOGIN_CHANNEL;
+  //  packet.version = g_version;
+  //  strncpy(packet.username, m_userId, sizeof(packet.username));
+  //  strncpy(packet.password, m_userPassword, sizeof(packet.password));
+  //  strcpy(packet.ip_address, "111.111.111.111");
+  //  memset(packet.mac_address, 0x11, sizeof(packet.mac_address));
+  //  packet.clienttype = g_clientType;
+  //  packet.channeling_corp = g_isGravityID;
+  //  p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+  //}
 
   // CUIWaitWnd *waitwnd =
   //    (CUIWaitWnd *)g_WindowMgr->MakeWindow(WID_WAITWND);
@@ -391,14 +378,11 @@ void CLoginMode::ConnectToAccountServer() {
 }
 
 void CLoginMode::ConnectToCharServer() {
-  PACKET_CH_ENTER packet;
-  int packet_size;
-
   p_rag_connection_->Disconnect();
 
   LOG(info, "Connecting to the char server ({}:{}) ...", g_charServerAddr.ip,
       g_charServerAddr.port);
-  m_isConnected = p_rag_connection_->Connect(&g_charServerAddr);
+  m_isConnected = p_rag_connection_->Connect(g_charServerAddr);
   // WinMainNpKeyStopEncryption();
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the char server");
@@ -412,6 +396,7 @@ void CLoginMode::ConnectToCharServer() {
     return;
   }
 
+  PACKET_CH_ENTER packet;
   packet.header = HEADER_CH_ENTER;
   packet.client_type = g_clientType;
   packet.auth_code = m_authCode;
@@ -419,13 +404,14 @@ void CLoginMode::ConnectToCharServer() {
   packet.user_level = m_userLevel;
   packet.Sex = g_Session->GetSex();
   g_mustPumpOutReceiveQueue = true;
-  p_rag_connection_->SendPacket(sizeof(packet), (char *)&packet);
+  p_rag_connection_->SendPacket(sizeof(packet),
+                                reinterpret_cast<char *>(&packet));
 }
 
 void CLoginMode::ConnectToZoneServer() {
   LOG(info, "Connecting to the zone server ({}:{}) ...", g_zoneServerAddr.ip,
       g_zoneServerAddr.port);
-  m_isConnected = p_rag_connection_->Connect(&g_zoneServerAddr);
+  m_isConnected = p_rag_connection_->Connect(g_zoneServerAddr);
   if (!m_isConnected) {
     LOG(error, "Failed to connect to the zone server");
     p_rag_connection_->Disconnect();
@@ -439,7 +425,6 @@ void CLoginMode::ConnectToZoneServer() {
   }
 
   PACKET_CZ_ENTER2 packet;
-
   packet.header = HEADER_CZ_ENTER2;
   packet.client_time = GetTick();
   packet.auth_code = m_authCode;
@@ -481,11 +466,23 @@ void CLoginMode::PollNetworkStatus() {
       case HEADER_AC_REFUSE_LOGIN:
         Ac_Refuse_Login(buffer);
         break;
+      case HEADER_AC_REFUSE_LOGIN_R2:
+        LOG(debug, "AC_REFUSE_LOGIN_R2");
+        break;
+      case HEADER_HC_ACCEPT_ENTER2:
+        LOG(debug, "HC_ACCEPT_ENTER2");
+        break;
+      case HEADER_HC_CHARLIST_NOTIFY:
+        LOG(debug, "HC_CHARLIST_NOTIFY");
+        break;
       case HEADER_HC_ACCEPT_ENTER:
         Hc_Accept_Enter(buffer);
         break;
       case HEADER_HC_REFUSE_ENTER:
         Hc_Refuse_Enter(buffer);
+        break;
+      case HEADER_HC_SECOND_PASSWD_LOGIN:
+        LOG(debug, "HC_SECOND_PASSWD_LOGIN");
         break;
       case HEADER_HC_ACCEPT_MAKECHAR:
         Hc_Accept_Makechar(buffer);
@@ -512,37 +509,48 @@ void CLoginMode::PollNetworkStatus() {
         Zc_Refuse_Enter(buffer);
         break;
       case HEADER_SC_NOTIFY_BAN:
+        LOG(debug, "SC_NOTIFY_BAN");
         // Sc_Notify_Ban(buffer);
         return;
       case HEADER_AC_EVENT_RESULT:
+        LOG(debug, "AC_EVENT_RESULT");
         break;
       case HEADER_HC_BLOCK_CHARACTER:
+        LOG(debug, "HC_BLOCK_CHARACTER");
         break;
       case HEADER_SC_BILLING_INFO:
+        LOG(debug, "SC_BILLING_INFO");
         break;
       case HEADER_AC_ASK_PNGAMEROOM:
+        LOG(debug, "AC_ASK_PNGAMEROOM");
         break;
       case HEADER_SC_ACK_ENCRYPTION:
+        LOG(debug, "SC_ACK_ENCRYPTION");
         break;
       case HEADER_AC_ACK_HASH:
+        LOG(debug, "AC_ACK_HASH");
         break;
       case HEADER_AC_NOTIFY_ERROR:
+        LOG(debug, "AC_NOTIFY_ERROR");
         break;
       case HEADER_PING:
+        LOG(debug, "PING");
         // Do nothing
         break;
       case HEADER_HC_CHARNOTBEENSELECTED:
+        LOG(debug, "HC_CHARNOTBEENSELECTED");
         break;
       case HEADER_HC_ACK_IS_VALID_CHARNAME:
+        LOG(debug, "HC_ACK_IS_VALID_CHARNAME");
         break;
       case HEADER_HC_ACK_CHANGE_CHARNAME:
+        LOG(debug, "HC_ACK_CHANGE_CHARNAME");
         break;
       case HEADER_HC_REFUSE_SELECTCHAR:
-        break;
-      case HEADER_ZC_AID:
+        LOG(debug, "HC_REFUSE_SELECTCHAR");
         break;
       default:
-        LOG(error, "Received unknown packet {:x}", packet_type);
+        LOG(error, "Received unknown packet 0x{:x}", packet_type);
         return;
     };
   }
@@ -566,9 +574,9 @@ void CLoginMode::Ac_Accept_Login(const char *buffer) {
   g_Session->SetSex(sex);
   // g_Session->SetTextType(false, false);
   m_numServer = (packet->packet_len - sizeof(PACKET_AC_ACCEPT_LOGIN)) /
-                sizeof(CHAR_SERVER_INFO);
+                sizeof(CharServerInfo);
   memcpy(m_serverInfo, &(packet->server_info),
-         m_numServer * sizeof(CHAR_SERVER_INFO));
+         m_numServer * sizeof(CharServerInfo));
   p_rag_connection_->Disconnect();
   g_passwordWrong = false;
   m_next_sub_mode = 6;
@@ -611,6 +619,7 @@ void CLoginMode::Hc_Accept_Enter(const char *buffer) {
   m_billingInfo.code = ntohl(m_billingInfo.code);
   m_billingInfo.time1 = ntohl(m_billingInfo.time1);
   m_billingInfo.time2 = ntohl(m_billingInfo.time2);*/
+  LOG(debug, "HC_ACCEPT len: {}", packet->packet_len);
   m_num_char = (packet->packet_len - sizeof(PACKET_HC_ACCEPT_ENTER)) /
                sizeof(CharacterInfo);
   memcpy(m_charInfo, packet->charinfo, m_num_char * sizeof(CharacterInfo));

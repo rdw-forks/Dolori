@@ -31,3 +31,18 @@ std::string CLanguage::GetLanguageText() const {
 void CLanguage::HideText(bool hide_text) { m_bHideText = hide_text; }
 
 void CLanguage::OnKeyDown(unsigned int, long) {}
+
+void CLanguage::OnChar(uint32_t wparam, int32_t lparam) {
+  switch (wparam) {
+    case '\b':
+      // Backspace
+      // TODO(LinkZ): Make this UTF-8 compatible (compute prev character size
+      // and then remove)
+      if (!m_input.empty()) {
+        m_input.pop_back();
+      }
+      break;
+    default:
+      break;
+  }
+}

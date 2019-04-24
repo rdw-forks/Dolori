@@ -15,7 +15,7 @@ if (WIN32)
 endif ()
 
 find_package(OpenGL REQUIRED)
-find_package(DevIL REQUIRED)
+find_package(DevIL)
 find_package(SDL2_ttf REQUIRED)
 
 # Setup clang-tidy if available

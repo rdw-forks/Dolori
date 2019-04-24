@@ -1,12 +1,6 @@
 #include "Modes/GameMode.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-
+#include <spdlog/fmt/fmt.h>
 #include "Common/GetTick.h"
 #include "Common/Globals.h"
 #include "Common/debug.h"
@@ -19,48 +13,66 @@
 
 CGameMode::CGameMode(CRagConnection *p_rag_connection,
                      CUIWindowMgr *p_window_mgr)
-    : CMode(p_rag_connection, p_window_mgr), m_world(), m_view() {}
+    : CMode(p_rag_connection, p_window_mgr),
+      m_world(),
+      m_view(),
+      m_noMove(0),
+      m_isOnQuest(0),
+      m_isPlayerDead(0),
+      // m_nameBalloon(nullptr),
+      // m_targetNameBalloon(nullptr),
+      // m_broadcastBalloon(nullptr),
+      // m_skillNameBalloon(nullptr),
+      // m_skillMsgBalloon(nullptr),
+      // m_skillUsedMsgBalloon(nullptr),
+      // m_playerGage(nullptr),
+      m_nameActorAid(0),
+      m_nameBalloonWidth(0),
+      m_nameBalloonHeight(0),
+      m_nameDisplayed(1),
+      m_nameDisplayed2(1),
+      m_waitingUseItemAck(0),
+      m_waitingItemThrowAck(0),
+      m_waitingReqStatusAck(0),
+      // m_dragInfo.m_dragType(0),
+      // m_dragInfo.m_dragItemIndex(0),
+      // m_dragInfo.m_numDragItem(0),
+      // m_dragInfo.m_slotNum(-1),
+      // m_dragInfo.m_isIdentified(0),
+      m_lastNaid(0),
+      m_menuTargetAID(0),
+      m_lastPcGid(0),
+      m_lastMonGid(0),
+      m_lastLockOnMonGid(0),
+      m_isAutoMoveClickOn(1),
+      m_isWaitingWhisperSetting(0),
+      m_isWaitingEnterRoom(0),
+      m_isWaitingAddExchangeItem(0),
+      m_waitingWearEquipAck(GetTick() - 2000),
+      m_isWaitingCancelExchangeItem(0),
+      m_waitingTakeoffEquipAck(GetTick() - 2000),
+      m_isReqUpgradeSkillLevel(0),
+      m_exchangeItemCnt(0),
+      m_sameChatRepeatCnt(0),
+      m_numNotifyTime(0) {}
 
 void CGameMode::Intialize() {
-  m_noMove = 0;
-  m_isOnQuest = 0;
-  m_isPlayerDead = 0;
-  m_nameBalloon = nullptr;
-  m_targetNameBalloon = nullptr;
-  m_broadcastBalloon = nullptr;
-  m_skillNameBalloon = nullptr;
-  m_skillMsgBalloon = nullptr;
-  m_skillUsedMsgBalloon = nullptr;
-  m_playerGage = nullptr;
-  m_nameActorAid = 0;
-  m_nameBalloonWidth = 0;
-  m_nameBalloonHeight = 0;
-  m_nameDisplayed = 1;
-  m_nameDisplayed2 = 1;
-  m_waitingUseItemAck = 0;
-  m_waitingItemThrowAck = 0;
-  m_waitingReqStatusAck = 0;
-  // m_dragInfo.m_dragType = 0;
-  // m_dragInfo.m_dragItemIndex = 0;
-  // m_dragInfo.m_numDragItem = 0;
-  // m_dragInfo.m_slotNum = -1;
-  // m_dragInfo.m_isIdentified = 0;
-  m_lastNaid = 0;
-  m_menuTargetAID = 0;
-  m_lastPcGid = 0;
-  m_lastMonGid = 0;
-  m_lastLockOnMonGid = 0;
-  m_isAutoMoveClickOn = 1;
-  m_isWaitingWhisperSetting = 0;
-  m_isWaitingEnterRoom = 0;
-  m_isWaitingAddExchangeItem = 0;
-  m_waitingWearEquipAck = GetTick() - 2000;
-  m_isWaitingCancelExchangeItem = 0;
-  m_waitingTakeoffEquipAck = GetTick() - 2000;
-  m_isReqUpgradeSkillLevel = 0;
-  m_exchangeItemCnt = 0;
-  m_sameChatRepeatCnt = 0;
-  m_numNotifyTime = 0;
+  // g_SnapMgr->RemoveAll();
+  // p_window_mgr_->RemoveAllWindowsExceptChatWnd();
+  p_window_mgr_->SetWallpaper(nullptr);
+  p_window_mgr_->MakeWindow(WID_BASICINFOWND);
+  p_window_mgr_->MakeWindow(WID_CHATWND);
+
+  PACKET_CZ_NOTIFY_ACTORINIT actor_init;
+  actor_init.header = HEADER_CZ_NOTIFY_ACTORINIT;
+  p_rag_connection_->SendPacket(sizeof(actor_init),
+                                reinterpret_cast<char *>(&actor_init));
+
+  PACKET_CZ_REQUEST_TIME req_time;
+  req_time.header = HEADER_CZ_REQUEST_TIME2;
+  req_time.client_time = GetTick();
+  p_rag_connection_->SendPacket(sizeof(req_time),
+                                reinterpret_cast<char *>(&req_time));
 }
 
 void CGameMode::OnInit(const std::string &mode_name) {
@@ -72,6 +84,9 @@ void CGameMode::OnInit(const std::string &mode_name) {
 
   g_Renderer->Clear(true);
   p_window_mgr_->SetWallpaper(nullptr);
+  // p_window_mgr_->RemoveAllWindowsExceptChatWnd();
+  // p_window_mgr_->HideChatWnd();
+  // p_window_mgr_->MakeWindow(WID_LOADINGWND);
   p_window_mgr_->RenderWallPaper();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
@@ -130,6 +145,10 @@ void CGameMode::OnUpdate() {
 
   m_view.OnRender();
   m_world.Render();
+  // p_window_mgr_->RenderMenu();
+  p_window_mgr_->Render(this);
+  // DrawDragImage();
+  // DrawMouseCursor();
   if (g_Renderer->DrawScene()) {
     g_Renderer->Flip();
   }
@@ -139,23 +158,53 @@ void CGameMode::OnChangeState(int state) {}
 
 void CGameMode::ProcessTalkType(int talktype, const std::string &string) {
   switch (talktype) {
-    case TT_REQ_WHISPER_PC_EX:
+    default:
+      LOG(debug, "Unknown talk type: {}", talktype);
       break;
-  };
+  }
 }
 
 void *CGameMode::SendMsg(size_t msg, const void *val1, const void *val2,
                          const void *val3) {
-  // switch (msg) {
-  //  default:
-  //    return nullptr;
-  //};
+  switch (msg) {
+    case MM_CHATMSG: {
+      // TODO(LinkZ): Add the following optional checks
+      // g_Session->IsEFST_Berserk()
+      // InsultFilter::IsBadSentence()
+      // IsSameSentence(repeat_count)
+      const auto chat_buffer = reinterpret_cast<const char *>(val1);
+      const std::string message =
+          fmt::format("{} : {}", g_Session->GetCharName(), chat_buffer);
+      // g_Language->GetLanguageCharset(false)
+
+      const uint16_t packet_size =
+          sizeof(PACKET_CZ_REQUEST_CHAT) + message.length() + 1;
+      std::vector<uint8_t> packet_buffer(packet_size);
+      auto p_packet =
+          reinterpret_cast<PACKET_CZ_REQUEST_CHAT *>(packet_buffer.data());
+      p_packet->header = HEADER_CZ_REQUEST_CHAT;
+      p_packet->packet_length = packet_size;
+      ::strncpy(p_packet->msg, message.c_str(), message.length() + 1);
+      p_rag_connection_->SendPacket(p_packet->packet_length,
+                                    reinterpret_cast<char *>(p_packet));
+    } break;
+    case MM_WHISPERMSG:
+      break;
+    case MM_PROCESS_TALK_TYPE: {
+      const auto talk_type = reinterpret_cast<size_t>(val1);
+      const auto chat_buffer = reinterpret_cast<const char *>(val2);
+      ProcessTalkType(talk_type, chat_buffer);
+    } break;
+    default:
+      LOG(error, "Unknown message id for GameMode: {}", msg);
+      break;
+  }
 
   return nullptr;
 }
 
 void CGameMode::ProcessInput() {
-  ProcessSDLEvents();
+  ProcessSDLEvents(p_window_mgr_);
   g_Mouse->ReadState();
   int process_type = p_window_mgr_->ProcessInput();
   p_window_mgr_->OnProcess();
@@ -207,7 +256,7 @@ void CGameMode::PollNetworkStatus() {
 
   int size_of_buffer;
   while (p_rag_connection_->RecvPacket(buffer, &size_of_buffer)) {
-    int16_t packet_type = p_rag_connection_->GetPacketType(buffer);
+    const int16_t packet_type = p_rag_connection_->GetPacketType(buffer);
     switch (packet_type) {
       case HEADER_ZC_NOTIFY_PLAYERCHAT:
         Zc_Notify_Playerchat(buffer);
@@ -215,11 +264,84 @@ void CGameMode::PollNetworkStatus() {
       case HEADER_ZC_NPCACK_MAPMOVE:
         Zc_Npcack_Mapmove(buffer);
         break;
+      case HEADER_ZC_SAY_DIALOG:
+        // Displays an NPC dialog message
+        LOG(debug, "ZC_SAY_DIALOG");
+        break;
+      case HEADER_ZC_WAIT_DIALOG:
+        // Adds a 'next' button to an NPC dialog
+        LOG(debug, "ZC_WAIT_DIALOG");
+        break;
+      case HEADER_ZC_CLOSE_DIALOG:
+        // Adds a 'close' button to an NPC dialog
+        LOG(debug, "ZC_CLOSE_DIALOG");
+        break;
       case HEADER_ZC_COUPLESTATUS:
+        LOG(debug, "ZC_COUPLESTATUS");
         break;
       case HEADER_ZC_PAR_CHANGE:
+        LOG(debug, "ZC_PAR_CHANGE");
         break;
       case HEADER_ZC_ATTACK_RANGE:
+        LOG(debug, "ZC_PAR_CHANGE");
+        break;
+      case HEADER_ZC_SPRITE_CHANGE2:
+        LOG(debug, "ZC_SPRITE_CHANGE2");
+        break;
+      case HEADER_ZC_EQUIPMENT_ITEMLIST3:
+        LOG(debug, "ZC_EQUIPMENT_ITEMLIST3");
+        break;
+      case HEADER_ZC_INVENTORY_ITEMLIST_EQUIP_V5:
+        LOG(debug, "ZC_INVENTORY_ITEMLIST_EQUIP_V5");
+        break;
+      case HEADER_ZC_NOTIFY_MAPPROPERTY:
+        LOG(debug, "ZC_NOTIFY_MAPPROPERTY");
+        break;
+      case HEADER_ZC_MAPPROPERTY_R2:
+        LOG(debug, "ZC_MAPPROPERTY_R2");
+        break;
+      case HEADER_ZC_NOTIFY_STANDENTRY:
+        LOG(debug, "ZC_NOTIFY_STANDENTRY");
+        break;
+      case HEADER_ZC_NOTIFY_STANDENTRY8:
+        LOG(debug, "ZC_NOTIFY_STANDENTRY8");
+        break;
+      case HEADER_ZC_SKILLINFO_LIST:
+        LOG(debug, "ZC_SKILLINFO_LIST");
+        break;
+      case HEADER_ZC_SHORTCUT_KEY_LIST:
+        LOG(debug, "ZC_SHORTCUT_KEY_LIST");
+        break;
+      case HEADER_ZC_SHORTCUT_KEY_LIST_V2:
+        LOG(debug, "ZC_SHORTCUT_KEY_LIST_V2");
+        break;
+      case HEADER_ZC_LONGPAR_CHANGE:
+        LOG(debug, "ZC_LONGPAR_CHANGE");
+        break;
+      case HEADER_ZC_STATUS:
+        LOG(debug, "ZC_STATUS");
+        break;
+      case HEADER_ZC_PARTY_CONFIG:
+        LOG(debug, "ZC_PARTY_CONFIG");
+        break;
+      case HEADER_ZC_CONFIG_NOTIFY:
+        LOG(debug, "ZC_CONFIG_NOTIFY");
+        break;
+      case HEADER_ZC_BROADCAST2:
+        Zc_Broadcast2(buffer);
+        LOG(debug, "ZC_BROADCAST2");
+        break;
+      case HEADER_ZC_EMOTION:
+        LOG(debug, "ZC_EMOTION");
+        break;
+      case HEADER_ZC_NAVIGATION_ACTIVE:
+        LOG(debug, "ZC_NAVIGATION_ACTIVE");
+        break;
+      case HEADER_ZC_QUEST_NOTIFY_EFFECT:
+        LOG(debug, "ZC_QUEST_NOTIFY_EFFECT");
+        break;
+      case HEADER_ZC_NOTIFY_TIME:
+        LOG(debug, "ZC_NOTIFY_TIME");
         break;
       default:
         LOG(error, "Unknown packet: {:x}", packet_type);
@@ -228,25 +350,34 @@ void CGameMode::PollNetworkStatus() {
   }
 }
 
-void CGameMode::Zc_Notify_Playerchat(const char *buffer) {
-  auto packet = reinterpret_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
-  // CGameMode *v2;      // ebx@1
+const std::string &CGameMode::rsw_name() const { return m_rsw_name; }
+
+void CGameMode::Zc_Notify_Playerchat(const void *buffer) {
+  const auto packet = static_cast<const PACKET_ZC_NOTIFY_PLAYERCHAT *>(buffer);
 
   LOG(debug, "{}", packet->msg);
   // if (dword_768868) {
-  //  g_WindowMgr->SendMsg(5, (int)chat_msg, 30720, 0, 0);
+  // p_window_mgr_->SendMsg(5, reinterpret_cast<const void *>(packet->msg),
+  //                       reinterpret_cast<const void *>(30720));
   //} else {
-  // g_WindowMgr->SendMsg(1, (int)chat_msg, 65280, 1, 0);
-  //  m_world->m_player->SendMsg(
-  //      0, 7, chat_msg, 0, 0);
+  p_window_mgr_->SendMsg(1, reinterpret_cast<const void *>(packet->msg),
+                         reinterpret_cast<const void *>(0x00ff00),
+                         reinterpret_cast<const void *>(1));
+  // m_world.GetPlayer().SendMsg(0, 7, chat_msg, 0, 0);
   //}
   // if (dword_7B4480) WriteChat(chat_msg);
 }
 
-void CGameMode::Zc_Npcack_Mapmove(const char *buffer) {
-  auto packet = reinterpret_cast<const PACKET_ZC_NPCACK_MAPMOVE *>(buffer);
+void CGameMode::Zc_Npcack_Mapmove(const void *buffer) {
+  const auto packet = static_cast<const PACKET_ZC_NPCACK_MAPMOVE *>(buffer);
 
   LOG(info, "Moved to map {}", packet->map_name);
 }
 
-const std::string &CGameMode::rsw_name() const { return m_rsw_name; }
+void CGameMode::Zc_Broadcast2(const void *buffer) {
+  const auto packet = static_cast<const PACKET_ZC_BROADCAST2 *>(buffer);
+
+  p_window_mgr_->SendMsg(1, reinterpret_cast<const void *>(packet->msg),
+                         reinterpret_cast<const void *>(packet->font_color),
+                         reinterpret_cast<const void *>(1));
+}

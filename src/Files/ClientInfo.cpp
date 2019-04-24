@@ -1,6 +1,6 @@
 #include "Files/ClientInfo.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <strings.h>
 #define _strcmpi strcasecmp
 #endif
@@ -9,7 +9,7 @@
 #include "Common/Globals.h"
 #include "Common/server_type.h"
 #include "Common/service_type.h"
-#include "File.h"
+#include "Files/File.h"
 
 ClientInfo::ClientInfo(std::string file_path)
     : file_path_(std::move(file_path)) {}

@@ -82,12 +82,9 @@ void CUISelectServerWnd::OnDraw() {
   // }
 }
 
-void CUISelectServerWnd::AddServer(const char *server) {
-  m_serverList->AddItem(server);
-}
-
-void *CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
-                                  void *val2, void *val3, void *val4) {
+void *CUISelectServerWnd::SendMsg(CUIWindow *sender, int message,
+                                  const void *val1, const void *val2,
+                                  const void *val3, const void *val4) {
   void *result = NULL;
 
   switch (message) {
@@ -122,4 +119,8 @@ void *CUISelectServerWnd::SendMsg(CUIWindow *sender, int message, void *val1,
   };
 
   return result;
+}
+
+void CUISelectServerWnd::AddServer(const char *server) {
+  m_serverList->AddItem(server);
 }

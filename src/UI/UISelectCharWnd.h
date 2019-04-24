@@ -17,9 +17,9 @@ class CUISelectCharWnd : public CUIFrameWnd {
   void OnCreate(int cx, int cy) override;
   void OnLBtnDown(int x, int y) override;
   void OnDraw() override;
-  void* SendMsg(CUIWindow* sender, int message, void* val1 = nullptr,
-                void* val2 = nullptr, void* val3 = nullptr,
-                void* val4 = nullptr) override;
+  void* SendMsg(CUIWindow* sender, int message, const void* val1 = nullptr,
+                const void* val2 = nullptr, const void* val3 = nullptr,
+                const void* val4 = nullptr) override;
 
   void MakeButton(int id);
   void InitTextControls();

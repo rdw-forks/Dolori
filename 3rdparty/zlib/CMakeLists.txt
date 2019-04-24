@@ -5,6 +5,6 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/zlib ${CMAKE_CURRENT_BINARY_DIR}/zl
 target_include_directories(zlibstatic PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/zlib)
 target_compile_definitions(zlibstatic PUBLIC Z_PREFIX)
 
-if (WIN32)
+if (MSVC)
   target_compile_options(zlibstatic PRIVATE /MT$<$<CONFIG:Debug>:d>)
 endif ()
